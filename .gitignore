@@ -1,0 +1,17 @@
+# Python distribution / packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# my[py]
+.mypy_cache/
+
+# pytype
+.pytype/
+
+# Byte-compiled Python
+*.pyc
+
+# vim
+*.orig

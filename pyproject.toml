@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "tjax"
+version = "0.1"
+description = "Tools for JAX."
+license = "MIT"
+authors = ["Neil Girdhar <mistersheik@gmail.com>"]
+readme = "README.rst"
+repository = "https://github.com/NeilGirdhar/cmm"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "License :: OSI Approved :: MIT License"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+colorful = "^0.5.4"
+cooperative_dataclasses = "^0.1"
+jax = "^0.1.72"
+jaxlib = "^0.1.51"
+networkx = "^2.4"
+numpy = "^1.19"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5"
+
+[tool.isort]
+line_length = 100
+known_first_party = ["tfax"]
+known_third_party = ["jax"]
+multi_line_output = 0
+skip_glob = [".pytype/*.py"]
+skip = []
+
+[tool.pycodestyle]
+max-line-length = 100
+exclude = ["__init__.py", "__pycache__", "README.rst"]
+
+[tool.pytest]
+
+[tool.pytype]
+disable = "ignored-abstractmethod"
+exclude = ["**/*_test.py", "**/test_*.py'"]

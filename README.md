@@ -1,2 +1,0 @@
-# tjax
-Tools for JAX
