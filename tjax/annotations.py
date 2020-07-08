@@ -11,11 +11,15 @@ __all__ = ['Shape',
            'ShapeLike',
            'SliceLike',
            'Tensor',
+           'RealTensor',
+           'ComplexTensor',
            'PyTree']
 
 
 SliceLike = Tuple[Union[int, None, slice], ...]
 Tensor = Union[np.ndarray, jnp.ndarray]
+RealTensor = Tensor
+ComplexTensor = Tensor
 PyTree = Union[Tensor,
                'PyTreeLike',
                Tuple['PyTree', ...],
