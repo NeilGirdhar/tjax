@@ -58,7 +58,7 @@ description = "Cooperative dataclasses."
 name = "cooperative-dataclasses"
 optional = false
 python-versions = ">=3.8,<4.0"
-version = "0.1"
+version = "0.2"
 
 [[package]]
 category = "main"
@@ -238,7 +238,7 @@ python-versions = "*"
 version = "0.2.5"
 
 [metadata]
-content-hash = "b8e09ae2e87b74d769dbf67d01167857df7fab37aa79ba430416c1f43c34db6b"
+content-hash = "c477ffed2f0a7d9ada2b94fd696af65796af576a42d8206a669650669ab10917"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -262,8 +262,8 @@ colorful = [
     {file = "colorful-0.5.4.tar.gz", hash = "sha256:86848ad4e2eda60cd2519d8698945d22f6f6551e23e95f3f14dfbb60997807ea"},
 ]
 cooperative-dataclasses = [
-    {file = "cooperative_dataclasses-0.1-py3-none-any.whl", hash = "sha256:6ae44385641494538ef1d37fb1ad97fbecd28fa42a8eff7a4f62ea17d53522d8"},
-    {file = "cooperative_dataclasses-0.1.tar.gz", hash = "sha256:98a813811154e0ddda6d6a7f88ef07bafa6459b9727c1caa08977a2d7a97abb1"},
+    {file = "cooperative_dataclasses-0.2-py3-none-any.whl", hash = "sha256:76dc8492c7b84eafa27131cfc234f430c3c5b2f0118bcf39d20ec7707736c86c"},
+    {file = "cooperative_dataclasses-0.2.tar.gz", hash = "sha256:99d5fc3677964cfa31ef083629ddb277c4888f994e29251ec43b09e8f8cbfabb"},
 ]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
