@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>tjax API documentation</title>
+<meta name="description" content="This library implements a variety of tools for the differential programming library
+[JAX](https://github.com/google/jax)." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Package <code>tjax</code></h1>
+</header>
+<section id="section-intro">
+<p>This library implements a variety of tools for the differential programming library
+<a href="https://github.com/google/jax">JAX</a>.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+This library implements a variety of tools for the differential programming library
+[JAX](https://github.com/google/jax).
+&#34;&#34;&#34;
+from .color_stub import *
+from .annotations import *
+from .dataclass import *
+from .display import *
+from .dtypes import *
+from .generator import *
+from .graph import *
+from .pytree_like import *
+from .shims import *
+from .testing import *
+from .tools import *
+
+
+__pdoc__ = {}
+__pdoc__[&#39;real_dtype&#39;] = False
+__pdoc__[&#39;complex_dtype&#39;] = False
+__pdoc__[&#39;PyTreeLike&#39;] = False
+from .dataclass import document_dataclass
+document_dataclass(__pdoc__, &#39;Generator&#39;)
+del document_dataclass
+
+
+__all__ = list(locals())</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="tjax.annotations" href="annotations.html">tjax.annotations</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.color_stub" href="color_stub.html">tjax.color_stub</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.display" href="display.html">tjax.display</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.dtypes" href="dtypes.html">tjax.dtypes</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.fix_tree_repr" href="fix_tree_repr.html">tjax.fix_tree_repr</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.generator" href="generator.html">tjax.generator</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.graph" href="graph.html">tjax.graph</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.pytree_like" href="pytree_like.html">tjax.pytree_like</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.shims" href="shims.html">tjax.shims</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.testing" href="testing.html">tjax.testing</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.tools" href="tools.html">tjax.tools</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="tjax.assert_jax_allclose"><code class="name flex">
+<span>def <span class="ident">assert_jax_allclose</span></span>(<span>actual: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], desired: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], original_name: Union[str, NoneType] = None, original_value: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType] = None, *, rtol: Union[float, NoneType] = None, atol: Union[float, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Asserts that every tensor in an actual pytree matches the corresponding tensor in a desired
+pytree.
+If the assertion fails, a passing test string is printed::</p>
+<pre><code class="python">from tjax import assert_jax_allclose, dataclass, Tensor
+
+@dataclass
+class A:
+    x: Tensor
+    y: Tensor
+
+@dataclass
+class B:
+    z: A
+
+original = B(A(1.2, 3.4))
+desired = B(A(1.2, 5.2))
+actual = B(A(3.0, 4.0))
+
+assert_jax_allclose(actual, desired, 'original', original)
+</code></pre>
+<p>This prints::</p>
+<pre><code>JAX trees don't match.  Actual:
+B
+    z=A
+        x=3.0
+        y=4.0
+
+Desired:
+B
+    z=A
+        x=1.2
+        y=5.2
+
+Test string:
+original.replace(z=original.z.replace(x=3.0, y=4.0))
+</code></pre>
+<p>The test string can then be pasted.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>actual</code></strong></dt>
+<dd>The obtain pytree.</dd>
+<dt><strong><code>desired</code></strong></dt>
+<dd>The desired pytree.</dd>
+<dt><strong><code>original_name</code></strong></dt>
+<dd>The variable name that contains the original value.</dd>
+<dt><strong><code>original_value</code></strong></dt>
+<dd>The original value.
+This is usually a pytree like a dataclass that has the
+same type as actual and desired, but contains different values.</dd>
+<dt><strong><code>rtol</code></strong></dt>
+<dd>The relative tolerance of the comparisons in the assertion.</dd>
+<dt><strong><code>atol</code></strong></dt>
+<dd>The absolute tolerance of the comparisons in the assertion.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assert_jax_allclose(actual: PyTree,
+                        desired: PyTree,
+                        original_name: Optional[str] = None,
+                        original_value: Optional[PyTree] = None,
+                        *,
+                        rtol: Optional[float] = None,
+                        atol: Optional[float] = None) -&gt; None:
+    &#34;&#34;&#34;
+    Asserts that every tensor in an actual pytree matches the corresponding tensor in a desired
+    pytree.  If the assertion fails, a passing test string is printed::
+
+    ```python
+    from tjax import assert_jax_allclose, dataclass, Tensor
+
+    @dataclass
+    class A:
+        x: Tensor
+        y: Tensor
+
+    @dataclass
+    class B:
+        z: A
+
+    original = B(A(1.2, 3.4))
+    desired = B(A(1.2, 5.2))
+    actual = B(A(3.0, 4.0))
+
+    assert_jax_allclose(actual, desired, &#39;original&#39;, original)
+    ```
+    This prints::
+    ```
+    JAX trees don&#39;t match.  Actual:
+    B
+        z=A
+            x=3.0
+            y=4.0
+
+    Desired:
+    B
+        z=A
+            x=1.2
+            y=5.2
+
+    Test string:
+    original.replace(z=original.z.replace(x=3.0, y=4.0))
+    ```
+    The test string can then be pasted.
+
+    Args:
+        actual: The obtain pytree.
+        desired: The desired pytree.
+        original_name: The variable name that contains the original value.
+        original_value: The original value.  This is usually a pytree like a dataclass that has the
+            same type as actual and desired, but contains different values.
+        rtol: The relative tolerance of the comparisons in the assertion.
+        atol: The absolute tolerance of the comparisons in the assertion.
+    &#34;&#34;&#34;
+    if rtol is None:
+        rtol = default_rtol
+    if atol is None:
+        atol = default_atol
+
+    try:
+        tree_multimap(partial(np.testing.assert_allclose, rtol=rtol, atol=atol), actual, desired)
+    except:
+        print(&#34;JAX trees don&#39;t match.  Actual:&#34;)
+        print(actual)
+        print(&#34;Desired:&#34;)
+        print(desired)
+        if original_name is not None and original_value is not None:
+            print(&#34;Test string:&#34;)
+            print(get_test_string(original_name, actual, original_value, rtol, atol))
+        raise</code></pre>
+</details>
+</dd>
+<dt id="tjax.dataclass"><code class="name flex">
+<span>def <span class="ident">dataclass</span></span>(<span>clz: Type[~T]) ‑> Type[~T]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the same class as was passed in, with dunder methods added based on the fields defined
+in the class.</p>
+<p>Examines PEP 526 annotations to determine fields.
+Default values for fields are provided using
+assignment.
+To mark fields as JAX static fields rather than JAX pytree fields, use the <code><a title="tjax.field" href="#tjax.field">field()</a></code>
+function.</p>
+<p>For example::</p>
+<pre><code class="python">from __future__ import annotations
+
+from typing import ClassVar
+
+from tjax import dataclass, field, Tensor
+from jax import numpy as jnp
+from jax import grad
+
+@dataclass
+class LearnedParameter:
+    weight: Tensor
+    constrain_positive: bool = field(pytree_like=False)
+    minimum_positive_weight: ClassVar[Tensor] = 1e-6
+
+    def trained(self,
+                self_bar: LearnedParameter,
+                learning_rate: float) -&gt; LearnedParameter:
+        weight_bar = self_bar.weight
+        weight = self.weight - weight_bar * learning_rate
+        if self.constrain_positive:
+            weight = jnp.maximum(weight, self.minimum_positive_weight)
+        return LearnedParameter(weight=weight,
+                                constrain_positive=self.constrain_positive)
+
+def loss(w: LearnedParameter) -&gt; float:
+    return jnp.square(w.weight - 3.3)
+
+w = LearnedParameter(2.0, True)
+w_bar = grad(loss)(w)
+new_w = w.trained(w_bar, 1e-4)
+</code></pre>
+<p><code><a title="tjax.dataclass" href="#tjax.dataclass">dataclass()</a></code> includes a convenient replace method::</p>
+<pre><code>w.replace(weight=3.4)
+</code></pre>
+<p>Since this dataclass is a pytree, all of JAX's functions that accept pytrees work with it,
+including iteration, differentiation, and <code>jax.tree_util</code> functions.</p>
+<p>Another benefit is the display of dataclasses.
+<code>print(new_w)</code> gives::</p>
+<pre><code>LearnedParameter
+    weight=Jax Array ()
+            2.0003
+    constrain_positive=True
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dataclass(clz: Type[T]) -&gt; Type[T]:
+    &#34;&#34;&#34;
+    Returns the same class as was passed in, with dunder methods added based on the fields defined
+    in the class.
+
+    Examines PEP 526 annotations to determine fields.  Default values for fields are provided using
+    assignment.  To mark fields as JAX static fields rather than JAX pytree fields, use the `field`
+    function.
+
+    For example::
+    ```python
+    from __future__ import annotations
+
+    from typing import ClassVar
+
+    from tjax import dataclass, field, Tensor
+    from jax import numpy as jnp
+    from jax import grad
+
+    @dataclass
+    class LearnedParameter:
+        weight: Tensor
+        constrain_positive: bool = field(pytree_like=False)
+        minimum_positive_weight: ClassVar[Tensor] = 1e-6
+
+        def trained(self,
+                    self_bar: LearnedParameter,
+                    learning_rate: float) -&gt; LearnedParameter:
+            weight_bar = self_bar.weight
+            weight = self.weight - weight_bar * learning_rate
+            if self.constrain_positive:
+                weight = jnp.maximum(weight, self.minimum_positive_weight)
+            return LearnedParameter(weight=weight,
+                                    constrain_positive=self.constrain_positive)
+
+    def loss(w: LearnedParameter) -&gt; float:
+        return jnp.square(w.weight - 3.3)
+
+    w = LearnedParameter(2.0, True)
+    w_bar = grad(loss)(w)
+    new_w = w.trained(w_bar, 1e-4)
+    ```
+
+    `dataclass` includes a convenient replace method::
+
+        w.replace(weight=3.4)
+
+    Since this dataclass is a pytree, all of JAX&#39;s functions that accept pytrees work with it,
+    including iteration, differentiation, and `jax.tree_util` functions.
+
+    Another benefit is the display of dataclasses.  `print(new_w)` gives::
+    ```
+    LearnedParameter
+        weight=Jax Array ()
+                2.0003
+        constrain_positive=True
+    ```
+    &#34;&#34;&#34;
+    # pylint: disable=protected-access
+
+    # Apply dataclass function to clz.
+    data_clz: Type[T] = dataclasses.dataclass(frozen=True)(clz)  # type: ignore
+
+    # Partition fields into hashed, tree, and uninitialized.
+    hashed_fields: List[str] = []
+    tree_fields: List[str] = []
+
+    for field_info in dataclasses.fields(data_clz):  # type: ignore
+        if not field_info.init:
+            continue
+        if field_info.metadata.get(&#39;pytree_like&#39;, True):
+            tree_fields.append(field_info.name)
+        else:
+            hashed_fields.append(field_info.name)
+
+    # Generate additional methods.
+    def __repr__(self: T) -&gt; str:
+        return str(self.display())
+
+    def display(self: T, show_values: bool = True, indent: int = 0) -&gt; str:
+        retval = display_class(type(self))
+        for field_info in dataclasses.fields(data_clz):  # type: ignore
+            retval += display_key_and_value(
+                field_info.name, getattr(self, field_info.name), &#34;=&#34;, show_values, indent)
+        return retval
+
+    def tree_flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+        hashed = tuple(getattr(x, name) for name in hashed_fields)
+        trees = tuple(getattr(x, name) for name in tree_fields)
+        return trees, hashed
+
+    def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+        if not isinstance(hashed, tuple):
+            raise TypeError
+        hashed_args = dict(zip(hashed_fields, hashed))
+        tree_args = dict(zip(tree_fields, trees))
+        return cls(**hashed_args, **tree_args)
+
+    # Assign methods to the class.
+    data_clz.__repr__ = __repr__  # type: ignore
+    data_clz.display = display  # type: ignore
+    data_clz.tree_flatten = tree_flatten  # type: ignore
+    data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
+
+    # Assign field lists to the class.
+    data_clz.tree_fields = tree_fields  # type: ignore
+    data_clz.hashed_fields = hashed_fields  # type: ignore
+
+    # Register the class as a JAX PyTree.
+    register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
+
+    # Verify that the generated class is PyTreeLike.
+    assert isinstance(data_clz, PyTreeLike)
+
+    return data_clz</code></pre>
+</details>
+</dd>
+<dt id="tjax.field"><code class="name flex">
+<span>def <span class="ident">field</span></span>(<span>pytree_like: bool = True, **kwargs: Any) ‑> cooperative_dataclasses.dataclasses.Field</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>pytree_like</code></strong></dt>
+<dd>Indicates whether a field is a pytree or static.
+Pytree fields are
+differentiated and traced.</dd>
+<dt><strong><code>kwargs</code></strong></dt>
+<dd>Any of the keyword arguments from <code>dataclasses.field</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def field(pytree_like: bool = True, **kwargs: Any) -&gt; dataclasses.Field:
+    &#34;&#34;&#34;
+    Args:
+        pytree_like: Indicates whether a field is a pytree or static.  Pytree fields are
+            differentiated and traced.
+        kwargs: Any of the keyword arguments from `dataclasses.field`.
+    &#34;&#34;&#34;
+    return dataclasses.field(metadata={**kwargs.pop(&#39;metadata&#39;, {}),
+                                       &#39;pytree_like&#39;: pytree_like},
+                             **kwargs)</code></pre>
+</details>
+</dd>
+<dt id="tjax.is_scalar"><code class="name flex">
+<span>def <span class="ident">is_scalar</span></span>(<span>x: Any) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_scalar(x: Any) -&gt; bool:
+    return isinstance(x, Number) or isinstance(x, (np.ndarray, jnp.ndarray)) and x.shape == ()</code></pre>
+</details>
+</dd>
+<dt id="tjax.jax_allclose"><code class="name flex">
+<span>def <span class="ident">jax_allclose</span></span>(<span>actual: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], desired: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], rtol: Union[float, NoneType] = None, atol: Union[float, NoneType] = None) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def jax_allclose(actual: PyTree,
+                 desired: PyTree,
+                 rtol: Optional[float] = None,
+                 atol: Optional[float] = None) -&gt; bool:
+    if rtol is None:
+        rtol = default_rtol
+    if atol is None:
+        atol = default_atol
+
+    return cast(
+        bool,
+        tree_reduce(jnp.logical_and,
+                    tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
+                    True))</code></pre>
+</details>
+</dd>
+<dt id="tjax.print_generic"><code class="name flex">
+<span>def <span class="ident">print_generic</span></span>(<span>*args: Any, **kwargs: Any) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def print_generic(*args: Any, **kwargs: Any) -&gt; None:
+    for value in args:
+        print(display_generic(value))
+    for key, value in kwargs.items():
+        print(display_key_and_value(key, value, &#34;=&#34;, True, 0))</code></pre>
+</details>
+</dd>
+<dt id="tjax.sum_tensors"><code class="name flex">
+<span>def <span class="ident">sum_tensors</span></span>(<span>tensors: Collection[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]], shape: Union[int, Sequence[int], NoneType] = None) ‑> Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def sum_tensors(tensors: Collection[Tensor],
+                shape: Optional[ShapeLike] = None) -&gt; Tensor:
+    if not tensors:
+        return jnp.zeros(shape)
+    return reduce(add, tensors)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="tjax.Displayable"><code class="flex name class">
+<span>class <span class="ident">Displayable</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This protocol identifies classes that support the <code>display_generic</code> mechanism.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Displayable(Protocol):
+    &#34;&#34;&#34;
+    This protocol identifies classes that support the `display_generic` mechanism.
+    &#34;&#34;&#34;
+    def display(self, show_values: bool = True, indent: int = 0) -&gt; str:
+        ...</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="tjax.Displayable.display"><code class="name flex">
+<span>def <span class="ident">display</span></span>(<span>self, show_values: bool = True, indent: int = 0) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def display(self, show_values: bool = True, indent: int = 0) -&gt; str:
+    ...</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="tjax.Generator"><code class="flex name class">
+<span>class <span class="ident">Generator</span></span>
+<span>(</span><span>*, seed: Optional[int] = None, key: Optional[Tensor] = None, **kwargs: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This class represents a JAX random number generator.
+Unlike <code>numpy.Generator</code>, <code><a title="tjax.Generator" href="#tjax.Generator">Generator</a></code>
+has no mutating methods.
+Instead, its generation methods return a new instance along with
+the generated tensor.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Generator:
+    &#34;&#34;&#34;
+    This class represents a JAX random number generator.  Unlike `numpy.Generator`, `tjax.Generator`
+    has no mutating methods.  Instead, its generation methods return a new instance along with
+    the generated tensor.
+    &#34;&#34;&#34;
+
+    key: Tensor
+
+    def __init__(self,
+                 *,
+                 seed: Optional[int] = None,
+                 key: Optional[Tensor] = None,
+                 **kwargs: Any):
+        super().__init__(**kwargs)
+        if key is None:
+            if seed is None:
+                raise ValueError
+            key = jax.random.PRNGKey(seed)
+        object.__setattr__(self, &#39;key&#39;, key)
+
+    # New methods ----------------------------------------------------------------------------------
+    def split(self, n: int = 2) -&gt; List[Generator]:
+        keys = jax.random.split(self.key, n)
+        return [Generator(key=key) for key in keys]
+
+    def normal(self, std_dev: Tensor, shape: Shape = ()) -&gt; (
+            Tuple[Generator, Tensor]):
+        g1, g2 = self.split()
+        return g1, std_dev * jax.random.normal(g2.key, shape)
+
+    def gamma(self, gamma_shape: Tensor, shape: Shape = ()) -&gt; (
+            Tuple[Generator, Tensor]):
+        g1, g2 = self.split()
+        return g1, jax.random.gamma(g2.key, gamma_shape, shape)
+
+    # Magic methods --------------------------------------------------------------------------------
+    def __eq__(self, other: Any) -&gt; bool:
+        if not isinstance(other, Generator):
+            return NotImplemented
+        return jnp.all(self.key == other.key)
+
+    def __ne__(self, other: Any) -&gt; bool:
+        if not isinstance(other, Generator):
+            return NotImplemented
+        return not self.__eq__(other)
+
+    def __hash__(self) -&gt; int:
+        return hash((int(self.key[0]), int(self.key[1])))</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="tjax.Generator.gamma"><code class="name flex">
+<span>def <span class="ident">gamma</span></span>(<span>self, gamma_shape: Tensor, shape: Shape = ()) ‑> Tuple[<a title="tjax.generator.Generator" href="generator.html#tjax.generator.Generator">Generator</a>, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gamma(self, gamma_shape: Tensor, shape: Shape = ()) -&gt; (
+        Tuple[Generator, Tensor]):
+    g1, g2 = self.split()
+    return g1, jax.random.gamma(g2.key, gamma_shape, shape)</code></pre>
+</details>
+</dd>
+<dt id="tjax.Generator.normal"><code class="name flex">
+<span>def <span class="ident">normal</span></span>(<span>self, std_dev: Tensor, shape: Shape = ()) ‑> Tuple[<a title="tjax.generator.Generator" href="generator.html#tjax.generator.Generator">Generator</a>, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normal(self, std_dev: Tensor, shape: Shape = ()) -&gt; (
+        Tuple[Generator, Tensor]):
+    g1, g2 = self.split()
+    return g1, std_dev * jax.random.normal(g2.key, shape)</code></pre>
+</details>
+</dd>
+<dt id="tjax.Generator.split"><code class="name flex">
+<span>def <span class="ident">split</span></span>(<span>self, n: int = 2) ‑> List[<a title="tjax.generator.Generator" href="generator.html#tjax.generator.Generator">Generator</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def split(self, n: int = 2) -&gt; List[Generator]:
+    keys = jax.random.split(self.key, n)
+    return [Generator(key=key) for key in keys]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="tjax.custom_vjp"><code class="flex name class">
+<span>class <span class="ident">custom_vjp</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set up a JAX-transformable function for a custom VJP rule definition.</p>
+<p>This class is meant to be used as a function decorator. Instances are callables that behave
+similarly to the underlying function to which the decorator was applied, except when a
+reverse-mode differentiation transformation (like <code>jax.grad()</code>) is applied, in which case a
+custom user-supplied VJP rule function is used instead of tracing into and performing automatic
+differentiation of the underlying function’s implementation. There is a single instance method,
+defvjp, which defines the custom VJP rule.</p>
+<p>This decorator precludes the use of forward-mode automatic differentiation.</p>
+<p>This is a shim class to work around an
+<a href="https://github.com/google/jax/issues/2912">issue with JAX's custom_vjp</a>.
+It provides both:</p>
+<ul>
+<li>static arguments, and</li>
+<li>nondifferentiable arguments.</li>
+</ul>
+<p>Static arguments are passed in to both the forward and the backward pass.
+They must be
+hashable.
+Different values for static arguments will generate recompilation.</p>
+<p>The generated backward pass will generate zeroed-out cotangents.
+Ideally, no corresponding
+cotangents would be created, but such a change would have to be done in JAX itself.</p>
+<p>For example::</p>
+<pre><code>from tjax import custom_vjp
+from jax import numpy as jnp
+
+@partial(custom_vjp, nondiff_argnums=2)
+def f(x, y, z):
+return jnp.sin(x) * y + z
+
+def f_fwd(x, y, z):
+return f(x, y, z), (jnp.cos(x), jnp.sin(x), y)
+
+def f_bwd(residuals, output_bar):
+cos_x, sin_x, y = residuals
+x_bar = cos_x * output_bar * y
+y_bar = sin_x * output_bar
+# z_bar is not returned because it's nondifferentiable.
+return x_bar, y_bar
+
+f.defvjp(f_fwd, f_bwd)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fun</code></strong></dt>
+<dd>the function to decorate.</dd>
+<dt><strong><code>static_argnums</code></strong></dt>
+<dd>The indices of the static arguments.</dd>
+<dt><strong><code>nondiff_argnums</code></strong></dt>
+<dd>The indices of the nondifferentiable arguments.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class custom_vjp(Generic[R]):
+    &#34;&#34;&#34;
+    Set up a JAX-transformable function for a custom VJP rule definition.
+
+    This class is meant to be used as a function decorator. Instances are callables that behave
+    similarly to the underlying function to which the decorator was applied, except when a
+    reverse-mode differentiation transformation (like `jax.grad()`) is applied, in which case a
+    custom user-supplied VJP rule function is used instead of tracing into and performing automatic
+    differentiation of the underlying function’s implementation. There is a single instance method,
+    defvjp, which defines the custom VJP rule.
+
+    This decorator precludes the use of forward-mode automatic differentiation.
+
+    This is a shim class to work around an
+    [issue with JAX&#39;s custom_vjp](https://github.com/google/jax/issues/2912).  It provides both:
+
+    - static arguments, and
+    - nondifferentiable arguments.
+
+    Static arguments are passed in to both the forward and the backward pass.  They must be
+    hashable.  Different values for static arguments will generate recompilation.
+
+    The generated backward pass will generate zeroed-out cotangents.  Ideally, no corresponding
+    cotangents would be created, but such a change would have to be done in JAX itself.
+
+    For example::
+
+        from tjax import custom_vjp
+        from jax import numpy as jnp
+
+        @partial(custom_vjp, nondiff_argnums=2)
+        def f(x, y, z):
+        return jnp.sin(x) * y + z
+
+        def f_fwd(x, y, z):
+        return f(x, y, z), (jnp.cos(x), jnp.sin(x), y)
+
+        def f_bwd(residuals, output_bar):
+        cos_x, sin_x, y = residuals
+        x_bar = cos_x * output_bar * y
+        y_bar = sin_x * output_bar
+        # z_bar is not returned because it&#39;s nondifferentiable.
+        return x_bar, y_bar
+
+        f.defvjp(f_fwd, f_bwd)
+    &#34;&#34;&#34;
+    def __init__(self,
+                 fun: Callable[..., R],
+                 static_argnums: Union[int, Tuple[int, ...]] = (),
+                 nondiff_argnums: Union[int, Tuple[int, ...]] = ()):
+        &#34;&#34;&#34;
+        Args:
+            fun: the function to decorate.
+            static_argnums: The indices of the static arguments.
+            nondiff_argnums: The indices of the nondifferentiable arguments.
+        &#34;&#34;&#34;
+        static_argnums = as_tuple(static_argnums)
+        nondiff_argnums = as_tuple(nondiff_argnums)
+        if intersection := set(static_argnums) &amp; set(nondiff_argnums):
+            raise ValueError(
+                f&#34;Arguments {intersection} cannot be both static and nondifferentiable.&#34;)
+        self.nondiff_argnums = nondiff_argnums
+        self.vjp = jax_custom_vjp(fun, nondiff_argnums=static_argnums)
+
+    def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -&gt; None:
+        &#34;&#34;&#34;
+        Implement the custom forward and backward passes of the custom derivative.
+
+        Args:
+            fwd: The custom forward pass.
+            bwd: The custom backward pass.  Cotangents for the nondifferentiable arguments should
+                not be provided by the user-provided backward pass.
+        &#34;&#34;&#34;
+        def new_fwd(*args: Any) -&gt; Tuple[R, Any]:
+            zeroed_args = tuple([tree_map(jnp.zeros_like, args[i])
+                                 for i in self.nondiff_argnums])
+            primal, internal_residuals = fwd(*args)
+            return primal, (zeroed_args, internal_residuals)
+
+        def new_bwd(residuals: Any, output_bar: R) -&gt; Any:
+            zeroed_args, internal_residuals = residuals
+            input_bar = bwd(internal_residuals, output_bar)
+            input_bar = list(input_bar)
+            for i, index in enumerate(self.nondiff_argnums):
+                input_bar[index: index] = [zeroed_args[i]]
+            return tuple(input_bar)
+
+        self.vjp.defvjp(new_fwd, new_bwd)
+
+    def __call__(self, *args: Any) -&gt; R:
+        return self.vjp(*args)
+
+    def __get__(self, instance: Any, owner: Any = None) -&gt; Callable[..., R]:
+        # https://github.com/google/jax/issues/2483
+        return self.vjp.__get__(instance, owner)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Generic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="tjax.custom_vjp.defvjp"><code class="name flex">
+<span>def <span class="ident">defvjp</span></span>(<span>self, fwd: Callable[..., Tuple[~R, Any]], bwd: Callable[..., Any]) ‑> NoneType</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Implement the custom forward and backward passes of the custom derivative.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fwd</code></strong></dt>
+<dd>The custom forward pass.</dd>
+<dt><strong><code>bwd</code></strong></dt>
+<dd>The custom backward pass.
+Cotangents for the nondifferentiable arguments should
+not be provided by the user-provided backward pass.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -&gt; None:
+    &#34;&#34;&#34;
+    Implement the custom forward and backward passes of the custom derivative.
+
+    Args:
+        fwd: The custom forward pass.
+        bwd: The custom backward pass.  Cotangents for the nondifferentiable arguments should
+            not be provided by the user-provided backward pass.
+    &#34;&#34;&#34;
+    def new_fwd(*args: Any) -&gt; Tuple[R, Any]:
+        zeroed_args = tuple([tree_map(jnp.zeros_like, args[i])
+                             for i in self.nondiff_argnums])
+        primal, internal_residuals = fwd(*args)
+        return primal, (zeroed_args, internal_residuals)
+
+    def new_bwd(residuals: Any, output_bar: R) -&gt; Any:
+        zeroed_args, internal_residuals = residuals
+        input_bar = bwd(internal_residuals, output_bar)
+        input_bar = list(input_bar)
+        for i, index in enumerate(self.nondiff_argnums):
+            input_bar[index: index] = [zeroed_args[i]]
+        return tuple(input_bar)
+
+    self.vjp.defvjp(new_fwd, new_bwd)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="tjax.annotations" href="annotations.html">tjax.annotations</a></code></li>
+<li><code><a title="tjax.color_stub" href="color_stub.html">tjax.color_stub</a></code></li>
+<li><code><a title="tjax.display" href="display.html">tjax.display</a></code></li>
+<li><code><a title="tjax.dtypes" href="dtypes.html">tjax.dtypes</a></code></li>
+<li><code><a title="tjax.fix_tree_repr" href="fix_tree_repr.html">tjax.fix_tree_repr</a></code></li>
+<li><code><a title="tjax.generator" href="generator.html">tjax.generator</a></code></li>
+<li><code><a title="tjax.graph" href="graph.html">tjax.graph</a></code></li>
+<li><code><a title="tjax.pytree_like" href="pytree_like.html">tjax.pytree_like</a></code></li>
+<li><code><a title="tjax.shims" href="shims.html">tjax.shims</a></code></li>
+<li><code><a title="tjax.testing" href="testing.html">tjax.testing</a></code></li>
+<li><code><a title="tjax.tools" href="tools.html">tjax.tools</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="two-column">
+<li><code><a title="tjax.assert_jax_allclose" href="#tjax.assert_jax_allclose">assert_jax_allclose</a></code></li>
+<li><code><a title="tjax.dataclass" href="#tjax.dataclass">dataclass</a></code></li>
+<li><code><a title="tjax.field" href="#tjax.field">field</a></code></li>
+<li><code><a title="tjax.is_scalar" href="#tjax.is_scalar">is_scalar</a></code></li>
+<li><code><a title="tjax.jax_allclose" href="#tjax.jax_allclose">jax_allclose</a></code></li>
+<li><code><a title="tjax.print_generic" href="#tjax.print_generic">print_generic</a></code></li>
+<li><code><a title="tjax.sum_tensors" href="#tjax.sum_tensors">sum_tensors</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="tjax.Displayable" href="#tjax.Displayable">Displayable</a></code></h4>
+<ul class="">
+<li><code><a title="tjax.Displayable.display" href="#tjax.Displayable.display">display</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="tjax.Generator" href="#tjax.Generator">Generator</a></code></h4>
+<ul class="">
+<li><code><a title="tjax.Generator.gamma" href="#tjax.Generator.gamma">gamma</a></code></li>
+<li><code><a title="tjax.Generator.normal" href="#tjax.Generator.normal">normal</a></code></li>
+<li><code><a title="tjax.Generator.split" href="#tjax.Generator.split">split</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="tjax.custom_vjp" href="#tjax.custom_vjp">custom_vjp</a></code></h4>
+<ul class="">
+<li><code><a title="tjax.custom_vjp.defvjp" href="#tjax.custom_vjp.defvjp">defvjp</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>

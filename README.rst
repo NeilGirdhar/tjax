@@ -22,6 +22,8 @@ This repository implements a variety of tools for the differential programming l
 
 - Testing tools that automatically produce testing code
 
+See the `documentation <https://neilgirdhar.github.io/tjax/tjax/index.html>`_.
+
 Contribution guidelines
 =======================
 

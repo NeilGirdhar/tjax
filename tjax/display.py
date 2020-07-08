@@ -8,12 +8,14 @@ from jax.interpreters.ad import JVPTracer
 from jax.interpreters.partial_eval import JaxprTracer
 from jax.interpreters.xla import DeviceArray
 
-__all__ = ['Displayable', 'print_generic', 'display_generic', 'display_class',
-           'display_key_and_value']
+__all__ = ['Displayable', 'print_generic']
 
 
 @runtime_checkable
 class Displayable(Protocol):
+    """
+    This protocol identifies classes that support the `display_generic` mechanism.
+    """
     def display(self, show_values: bool = True, indent: int = 0) -> str:
         ...
 

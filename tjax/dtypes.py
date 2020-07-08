@@ -13,7 +13,13 @@ __all__ = ['real_dtype',
 # config.update("jax_enable_x64", True) or else canonicalize_dtype will already have cached the
 # default float width.
 real_dtype = canonicalize_dtype(jnp.float_).type
+"The dtype used by JAX for real values.  Typically, either `numpy.float32` or `numpy.float64`."
+
 complex_dtype = canonicalize_dtype(jnp.complex_).type
+"""
+The dtype used by JAX for complex values.  Typically, either `numpy.complex64` or
+`numpy.complex128`.
+"""
 
 
 default_rtol = {jnp.float32: 1e-4,

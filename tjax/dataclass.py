@@ -1,4 +1,5 @@
-from typing import Any, Hashable, List, Sequence, Tuple, Type, TypeVar
+from dataclasses import dataclass
+from typing import Any, Hashable, List, Sequence, Tuple, Type, TypeVar, MutableMapping
 
 import cooperative_dataclasses as dataclasses
 from jax.tree_util import register_pytree_node
@@ -15,7 +16,61 @@ T = TypeVar('T', bound=Any)
 
 def dataclass(clz: Type[T]) -> Type[T]:
     """
-    some_member: SomeType = field(pytree_like=False)
+    Returns the same class as was passed in, with dunder methods added based on the fields defined
+    in the class.
+
+    Examines PEP 526 annotations to determine fields.  Default values for fields are provided using
+    assignment.  To mark fields as JAX static fields rather than JAX pytree fields, use the `field`
+    function.
+
+    For example::
+    ```python
+    from __future__ import annotations
+
+    from typing import ClassVar
+
+    from tjax import dataclass, field, Tensor
+    from jax import numpy as jnp
+    from jax import grad
+
+    @dataclass
+    class LearnedParameter:
+        weight: Tensor
+        constrain_positive: bool = field(pytree_like=False)
+        minimum_positive_weight: ClassVar[Tensor] = 1e-6
+
+        def trained(self,
+                    self_bar: LearnedParameter,
+                    learning_rate: float) -> LearnedParameter:
+            weight_bar = self_bar.weight
+            weight = self.weight - weight_bar * learning_rate
+            if self.constrain_positive:
+                weight = jnp.maximum(weight, self.minimum_positive_weight)
+            return LearnedParameter(weight=weight,
+                                    constrain_positive=self.constrain_positive)
+
+    def loss(w: LearnedParameter) -> float:
+        return jnp.square(w.weight - 3.3)
+
+    w = LearnedParameter(2.0, True)
+    w_bar = grad(loss)(w)
+    new_w = w.trained(w_bar, 1e-4)
+    ```
+
+    `dataclass` includes a convenient replace method::
+
+        w.replace(weight=3.4)
+
+    Since this dataclass is a pytree, all of JAX's functions that accept pytrees work with it,
+    including iteration, differentiation, and `jax.tree_util` functions.
+
+    Another benefit is the display of dataclasses.  `print(new_w)` gives::
+    ```
+    LearnedParameter
+        weight=Jax Array ()
+                2.0003
+        constrain_positive=True
+    ```
     """
     # pylint: disable=protected-access
 
@@ -25,6 +80,7 @@ def dataclass(clz: Type[T]) -> Type[T]:
     # Partition fields into hashed, tree, and uninitialized.
     hashed_fields: List[str] = []
     tree_fields: List[str] = []
+
     for field_info in dataclasses.fields(data_clz):  # type: ignore
         if not field_info.init:
             continue
@@ -76,6 +132,21 @@ def dataclass(clz: Type[T]) -> Type[T]:
 
 
 def field(pytree_like: bool = True, **kwargs: Any) -> dataclasses.Field:
+    """
+    Args:
+        pytree_like: Indicates whether a field is a pytree or static.  Pytree fields are
+            differentiated and traced.
+        kwargs: Any of the keyword arguments from `dataclasses.field`.
+    """
     return dataclasses.field(metadata={**kwargs.pop('metadata', {}),
                                        'pytree_like': pytree_like},
                              **kwargs)
+
+
+def document_dataclass(pdoc: MutableMapping[str, Any], name: str):
+    pdoc[f'{name}.hashed_fields'] = False
+    pdoc[f'{name}.tree_fields'] = False
+    pdoc[f'{name}.tree_flatten'] = False
+    pdoc[f'{name}.tree_unflatten'] = False
+    pdoc[f'{name}.display'] = False
+    pdoc[f'{name}.replace'] = False

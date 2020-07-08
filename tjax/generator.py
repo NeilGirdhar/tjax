@@ -13,6 +13,11 @@ __all__ = ['Generator']
 
 @dataclass
 class Generator:
+    """
+    This class represents a JAX random number generator.  Unlike `numpy.Generator`, `tjax.Generator`
+    has no mutating methods.  Instead, its generation methods return a new instance along with
+    the generated tensor.
+    """
 
     key: Tensor
 
