@@ -33,25 +33,27 @@
 This library implements a variety of tools for the differential programming library
 [JAX](https://github.com/google/jax).
 &#34;&#34;&#34;
-from .color_stub import *
 from .annotations import *
+from .color_stub import *
 from .dataclass import *
 from .display import *
 from .dtypes import *
 from .generator import *
 from .graph import *
+from .partial import *
 from .pytree_like import *
 from .shims import *
 from .testing import *
 from .tools import *
-
 
 __pdoc__ = {}
 __pdoc__[&#39;real_dtype&#39;] = False
 __pdoc__[&#39;complex_dtype&#39;] = False
 __pdoc__[&#39;PyTreeLike&#39;] = False
 from .dataclass import document_dataclass
+
 document_dataclass(__pdoc__, &#39;Generator&#39;)
+document_dataclass(__pdoc__, &#39;Partial&#39;)
 del document_dataclass
 
 
@@ -86,6 +88,10 @@ __all__ = list(locals())</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="tjax.graph" href="graph.html">tjax.graph</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.partial" href="partial.html">tjax.partial</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -131,8 +137,8 @@ class B:
     z: A
 
 original = B(A(1.2, 3.4))
-desired = B(A(1.2, 5.2))
-actual = B(A(3.0, 4.0))
+desired = B(A(3.0, 4.0))
+actual = B(A(1.2, 5.2))
 
 assert_jax_allclose(actual, desired, 'original', original)
 </code></pre>
@@ -198,8 +204,8 @@ same type as actual and desired, but contains different values.</dd>
         z: A
 
     original = B(A(1.2, 3.4))
-    desired = B(A(1.2, 5.2))
-    actual = B(A(3.0, 4.0))
+    desired = B(A(3.0, 4.0))
+    actual = B(A(1.2, 5.2))
 
     assert_jax_allclose(actual, desired, &#39;original&#39;, original)
     ```
@@ -680,6 +686,99 @@ the generated tensor.</p></div>
 </dd>
 </dl>
 </dd>
+<dt id="tjax.Partial"><code class="flex name class">
+<span>class <span class="ident">Partial</span></span>
+<span>(</span><span>func: Callable[..., Any], /, *args: Any, callable_is_static: bool = True, static_argnums: Tuple[int] = (), static_kwargs: Mapping[str, Any] = {}, **kwargs: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A version of functools.partial that returns a pytree.</p>
+<p>Use it for partial function evaluation in a way that is compatible with JAX's transformations,
+e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Partial(partial):
+    &#34;&#34;&#34;
+    A version of functools.partial that returns a pytree.
+
+    Use it for partial function evaluation in a way that is compatible with JAX&#39;s transformations,
+    e.g., ``Partial(func, *args, **kwargs)``.
+    &#34;&#34;&#34;
+    def __new__(cls,
+                func: Callable[..., Any],
+                /,
+                *args: Any,
+                callable_is_static: bool = True,
+                static_argnums: Tuple[int] = (),
+                static_kwargs: Mapping[str, Any] = {},
+                **kwargs: Any):
+        &#34;&#34;&#34;
+        Args:
+            func: The function being applied.
+            args: The applied positional arguments.
+            callable_is_static: Whether the function callable is static.
+            static_argnums: The indices of the applied positional arguments that are static.
+            static_kwargs: The key-value pairs representing applied keyword arguments that are
+                static.
+            kwargs: The applied keyword arguments.
+        &#34;&#34;&#34;
+        if callable_is_static and isinstance(func, Partial):
+            raise TypeError
+        retval = super().__new__(cls, func, *args, **kwargs)
+        retval.callable_is_static = callable_is_static
+        retval.static_argnums = set(static_argnums)
+        retval.static_kwargs = static_kwargs
+        return retval
+
+    def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+        static_args = []
+        tree_args = []
+
+        def _append(is_static, value):
+            if is_static:
+                static_args.append(value)
+            else:
+                tree_args.append(value)
+
+        _append(self.callable_is_static, self.func)
+        for i, value in enumerate(self.args):
+            _append(i in self.static_argnums, value)
+
+        return ((list(reversed(tree_args)), self.keywords),
+                (self.callable_is_static, self.static_argnums,
+                 list(reversed(static_args)), self.static_kwargs))
+
+    @classmethod
+    def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
+        callable_is_static, static_argnums, static_args, static_kwargs = static
+        tree_args, tree_kwargs = trees
+        args = []
+
+        for i in range(len(static_args) + len(tree_args)):
+            if i == 0:
+                is_static = callable_is_static
+            else:
+                is_static = i - 1 in static_argnums
+            if is_static:
+                args.append(static_args.pop())
+            else:
+                args.append(tree_args.pop())
+
+        return Partial(*args,
+                       callable_is_static=callable_is_static,
+                       static_argnums=static_argnums,
+                       static_kwargs=static_kwargs,
+                       **tree_kwargs)
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        return super().__call__(*args, **self.static_kwargs, **kwargs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>functools.partial</li>
+</ul>
+</dd>
 <dt id="tjax.custom_vjp"><code class="flex name class">
 <span>class <span class="ident">custom_vjp</span></span>
 <span>(</span><span>*args, **kwds)</span>
@@ -906,6 +1005,7 @@ not be provided by the user-provided backward pass.</dd>
 <li><code><a title="tjax.fix_tree_repr" href="fix_tree_repr.html">tjax.fix_tree_repr</a></code></li>
 <li><code><a title="tjax.generator" href="generator.html">tjax.generator</a></code></li>
 <li><code><a title="tjax.graph" href="graph.html">tjax.graph</a></code></li>
+<li><code><a title="tjax.partial" href="partial.html">tjax.partial</a></code></li>
 <li><code><a title="tjax.pytree_like" href="pytree_like.html">tjax.pytree_like</a></code></li>
 <li><code><a title="tjax.shims" href="shims.html">tjax.shims</a></code></li>
 <li><code><a title="tjax.testing" href="testing.html">tjax.testing</a></code></li>
@@ -938,6 +1038,9 @@ not be provided by the user-provided backward pass.</dd>
 <li><code><a title="tjax.Generator.normal" href="#tjax.Generator.normal">normal</a></code></li>
 <li><code><a title="tjax.Generator.split" href="#tjax.Generator.split">split</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="tjax.Partial" href="#tjax.Partial">Partial</a></code></h4>
 </li>
 <li>
 <h4><code><a title="tjax.custom_vjp" href="#tjax.custom_vjp">custom_vjp</a></code></h4>

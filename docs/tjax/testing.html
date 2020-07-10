@@ -65,8 +65,8 @@ def assert_jax_allclose(actual: PyTree,
         z: A
 
     original = B(A(1.2, 3.4))
-    desired = B(A(1.2, 5.2))
-    actual = B(A(3.0, 4.0))
+    desired = B(A(3.0, 4.0))
+    actual = B(A(1.2, 5.2))
 
     assert_jax_allclose(actual, desired, &#39;original&#39;, original)
     ```
@@ -186,8 +186,8 @@ class B:
     z: A
 
 original = B(A(1.2, 3.4))
-desired = B(A(1.2, 5.2))
-actual = B(A(3.0, 4.0))
+desired = B(A(3.0, 4.0))
+actual = B(A(1.2, 5.2))
 
 assert_jax_allclose(actual, desired, 'original', original)
 </code></pre>
@@ -253,8 +253,8 @@ same type as actual and desired, but contains different values.</dd>
         z: A
 
     original = B(A(1.2, 3.4))
-    desired = B(A(1.2, 5.2))
-    actual = B(A(3.0, 4.0))
+    desired = B(A(3.0, 4.0))
+    actual = B(A(1.2, 5.2))
 
     assert_jax_allclose(actual, desired, &#39;original&#39;, original)
     ```

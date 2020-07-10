@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import Any, Hashable, List, Sequence, Tuple, Type, TypeVar, MutableMapping
+from typing import Any, Hashable, List, MutableMapping, Sequence, Tuple, Type, TypeVar
 
 import cooperative_dataclasses as dataclasses
 from jax.tree_util import register_pytree_node
@@ -143,7 +142,7 @@ def field(pytree_like: bool = True, **kwargs: Any) -> dataclasses.Field:
                              **kwargs)
 
 
-def document_dataclass(pdoc: MutableMapping[str, Any], name: str):
+def document_dataclass(pdoc: MutableMapping[str, Any], name: str) -> None:
     pdoc[f'{name}.hashed_fields'] = False
     pdoc[f'{name}.tree_fields'] = False
     pdoc[f'{name}.tree_flatten'] = False
