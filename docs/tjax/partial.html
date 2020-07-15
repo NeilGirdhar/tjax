@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>tjax.partial API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -27,30 +27,42 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">from __future__ import annotations
+
 from functools import partial
-from typing import Hashable, List, Sequence, Tuple, Type, TypeVar, Callable, Any, Mapping
+from typing import (Any, Callable, Dict, Generic, Hashable, Iterable, Mapping, Sequence, Tuple,
+                    Type, TypeVar, cast)
 
 from jax.tree_util import register_pytree_node_class
+
+from .annotations import PyTree
 
 __all__ = [&#39;Partial&#39;]
 
 
+R = TypeVar(&#39;R&#39;)
+
+
 @register_pytree_node_class
-class Partial(partial):
+class Partial(partial, Generic[R]):
     &#34;&#34;&#34;
     A version of functools.partial that returns a pytree.
 
     Use it for partial function evaluation in a way that is compatible with JAX&#39;s transformations,
     e.g., ``Partial(func, *args, **kwargs)``.
     &#34;&#34;&#34;
-    def __new__(cls,
-                func: Callable[..., Any],
+
+    callable_is_static: bool
+    static_argnums: Tuple[int, ...]
+    static_kwargs: Mapping[str, Any]
+
+    def __new__(cls: Type[T],
+                func: Callable[..., R],
                 /,
                 *args: Any,
                 callable_is_static: bool = True,
-                static_argnums: Tuple[int] = (),
+                static_argnums: Tuple[int, ...] = (),
                 static_kwargs: Mapping[str, Any] = {},
-                **kwargs: Any):
+                **kwargs: Any) -&gt; T:
         &#34;&#34;&#34;
         Args:
             func: The function being applied.
@@ -63,17 +75,17 @@ class Partial(partial):
         &#34;&#34;&#34;
         if callable_is_static and isinstance(func, Partial):
             raise TypeError
-        retval = super().__new__(cls, func, *args, **kwargs)
+        retval = super().__new__(cls, func, *args, **kwargs)  # type: ignore
         retval.callable_is_static = callable_is_static
         retval.static_argnums = set(static_argnums)
         retval.static_kwargs = static_kwargs
         return retval
 
-    def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(self: Partial[R]) -&gt; Tuple[Sequence[PyTree], Hashable]:
         static_args = []
         tree_args = []
 
-        def _append(is_static, value):
+        def _append(is_static: bool, value: Any) -&gt; None:
             if is_static:
                 static_args.append(value)
             else:
@@ -88,11 +100,27 @@ class Partial(partial):
                  list(reversed(static_args)), self.static_kwargs))
 
     @classmethod
-    def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
-        callable_is_static, static_argnums, static_args, static_kwargs = static
-        tree_args, tree_kwargs = trees
-        args = []
+    def tree_unflatten(cls: Type[R],
+                       static: Hashable,
+                       trees: Sequence[PyTree]) -&gt; Partial[R]:
+        if not isinstance(static, Iterable):
+            raise RuntimeError
 
+        callable_is_static, static_argnums, static_args, static_kwargs = static
+
+        if not isinstance(static_args, list):
+            raise RuntimeError
+
+        tree_args, tree_kwargs = trees
+
+        if not isinstance(tree_args, list):
+            raise RuntimeError
+        if not isinstance(tree_kwargs, dict):
+            raise RuntimeError
+
+        tree_kwargs = cast(Dict[str, Any], tree_kwargs)
+
+        args = []
         for i in range(len(static_args) + len(tree_args)):
             if i == 0:
                 is_static = callable_is_static
@@ -103,13 +131,13 @@ class Partial(partial):
             else:
                 args.append(tree_args.pop())
 
-        return Partial(*args,
-                       callable_is_static=callable_is_static,
-                       static_argnums=static_argnums,
-                       static_kwargs=static_kwargs,
-                       **tree_kwargs)
+        return Partial[R](*args,
+                          callable_is_static=callable_is_static,
+                          static_argnums=static_argnums,
+                          static_kwargs=static_kwargs,
+                          **tree_kwargs)
 
-    def __call__(self, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any) -&gt; R:
         return super().__call__(*args, **self.static_kwargs, **kwargs)
 
 
@@ -127,7 +155,7 @@ T = TypeVar(&#39;T&#39;, bound=Partial)</code></pre>
 <dl>
 <dt id="tjax.partial.Partial"><code class="flex name class">
 <span>class <span class="ident">Partial</span></span>
-<span>(</span><span>func: Callable[..., Any], /, *args: Any, callable_is_static: bool = True, static_argnums: Tuple[int] = (), static_kwargs: Mapping[str, Any] = {}, **kwargs: Any)</span>
+<span>(</span><span>func: Callable[..., R], /, *args: Any, callable_is_static: bool = True, static_argnums: Tuple[int, ...] = (), static_kwargs: Mapping[str, Any] = {}, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A version of functools.partial that returns a pytree.</p>
@@ -137,21 +165,26 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Partial(partial):
+<pre><code class="python">class Partial(partial, Generic[R]):
     &#34;&#34;&#34;
     A version of functools.partial that returns a pytree.
 
     Use it for partial function evaluation in a way that is compatible with JAX&#39;s transformations,
     e.g., ``Partial(func, *args, **kwargs)``.
     &#34;&#34;&#34;
-    def __new__(cls,
-                func: Callable[..., Any],
+
+    callable_is_static: bool
+    static_argnums: Tuple[int, ...]
+    static_kwargs: Mapping[str, Any]
+
+    def __new__(cls: Type[T],
+                func: Callable[..., R],
                 /,
                 *args: Any,
                 callable_is_static: bool = True,
-                static_argnums: Tuple[int] = (),
+                static_argnums: Tuple[int, ...] = (),
                 static_kwargs: Mapping[str, Any] = {},
-                **kwargs: Any):
+                **kwargs: Any) -&gt; T:
         &#34;&#34;&#34;
         Args:
             func: The function being applied.
@@ -164,17 +197,17 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
         &#34;&#34;&#34;
         if callable_is_static and isinstance(func, Partial):
             raise TypeError
-        retval = super().__new__(cls, func, *args, **kwargs)
+        retval = super().__new__(cls, func, *args, **kwargs)  # type: ignore
         retval.callable_is_static = callable_is_static
         retval.static_argnums = set(static_argnums)
         retval.static_kwargs = static_kwargs
         return retval
 
-    def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(self: Partial[R]) -&gt; Tuple[Sequence[PyTree], Hashable]:
         static_args = []
         tree_args = []
 
-        def _append(is_static, value):
+        def _append(is_static: bool, value: Any) -&gt; None:
             if is_static:
                 static_args.append(value)
             else:
@@ -189,11 +222,27 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
                  list(reversed(static_args)), self.static_kwargs))
 
     @classmethod
-    def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
-        callable_is_static, static_argnums, static_args, static_kwargs = static
-        tree_args, tree_kwargs = trees
-        args = []
+    def tree_unflatten(cls: Type[R],
+                       static: Hashable,
+                       trees: Sequence[PyTree]) -&gt; Partial[R]:
+        if not isinstance(static, Iterable):
+            raise RuntimeError
 
+        callable_is_static, static_argnums, static_args, static_kwargs = static
+
+        if not isinstance(static_args, list):
+            raise RuntimeError
+
+        tree_args, tree_kwargs = trees
+
+        if not isinstance(tree_args, list):
+            raise RuntimeError
+        if not isinstance(tree_kwargs, dict):
+            raise RuntimeError
+
+        tree_kwargs = cast(Dict[str, Any], tree_kwargs)
+
+        args = []
         for i in range(len(static_args) + len(tree_args)):
             if i == 0:
                 is_static = callable_is_static
@@ -204,23 +253,24 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
             else:
                 args.append(tree_args.pop())
 
-        return Partial(*args,
-                       callable_is_static=callable_is_static,
-                       static_argnums=static_argnums,
-                       static_kwargs=static_kwargs,
-                       **tree_kwargs)
+        return Partial[R](*args,
+                          callable_is_static=callable_is_static,
+                          static_argnums=static_argnums,
+                          static_kwargs=static_kwargs,
+                          **tree_kwargs)
 
-    def __call__(self, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any) -&gt; R:
         return super().__call__(*args, **self.static_kwargs, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>functools.partial</li>
+<li>typing.Generic</li>
 </ul>
 <h3>Static methods</h3>
 <dl>
 <dt id="tjax.partial.Partial.tree_unflatten"><code class="name flex">
-<span>def <span class="ident">tree_unflatten</span></span>(<span>trees: Sequence[PyTree]) ‑> 'T'</span>
+<span>def <span class="ident">tree_unflatten</span></span>(<span>static: Hashable, trees: Sequence[PyTree]) ‑> <a title="tjax.partial.Partial" href="#tjax.partial.Partial">Partial</a>[~R]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -229,11 +279,27 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
-    callable_is_static, static_argnums, static_args, static_kwargs = static
-    tree_args, tree_kwargs = trees
-    args = []
+def tree_unflatten(cls: Type[R],
+                   static: Hashable,
+                   trees: Sequence[PyTree]) -&gt; Partial[R]:
+    if not isinstance(static, Iterable):
+        raise RuntimeError
 
+    callable_is_static, static_argnums, static_args, static_kwargs = static
+
+    if not isinstance(static_args, list):
+        raise RuntimeError
+
+    tree_args, tree_kwargs = trees
+
+    if not isinstance(tree_args, list):
+        raise RuntimeError
+    if not isinstance(tree_kwargs, dict):
+        raise RuntimeError
+
+    tree_kwargs = cast(Dict[str, Any], tree_kwargs)
+
+    args = []
     for i in range(len(static_args) + len(tree_args)):
         if i == 0:
             is_static = callable_is_static
@@ -244,18 +310,18 @@ def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
         else:
             args.append(tree_args.pop())
 
-    return Partial(*args,
-                   callable_is_static=callable_is_static,
-                   static_argnums=static_argnums,
-                   static_kwargs=static_kwargs,
-                   **tree_kwargs)</code></pre>
+    return Partial[R](*args,
+                      callable_is_static=callable_is_static,
+                      static_argnums=static_argnums,
+                      static_kwargs=static_kwargs,
+                      **tree_kwargs)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="tjax.partial.Partial.tree_flatten"><code class="name flex">
-<span>def <span class="ident">tree_flatten</span></span>(<span>self: T) ‑> 'Tuple[Sequence[PyTree], Hashable]'</span>
+<span>def <span class="ident">tree_flatten</span></span>(<span>self: <a title="tjax.partial.Partial" href="#tjax.partial.Partial">Partial</a>[R]) ‑> Tuple[Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], Hashable]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -263,11 +329,11 @@ def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+<pre><code class="python">def tree_flatten(self: Partial[R]) -&gt; Tuple[Sequence[PyTree], Hashable]:
     static_args = []
     tree_args = []
 
-    def _append(is_static, value):
+    def _append(is_static: bool, value: Any) -&gt; None:
         if is_static:
             static_args.append(value)
         else:
@@ -313,7 +379,7 @@ def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

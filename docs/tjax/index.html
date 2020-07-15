@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>tjax API documentation</title>
 <meta name="description" content="This library implements a variety of tools for the differential programming library
 [JAX](https://github.com/google/jax)." />
@@ -40,6 +40,7 @@ from .display import *
 from .dtypes import *
 from .generator import *
 from .graph import *
+from .log_cotangent import *
 from .partial import *
 from .pytree_like import *
 from .shims import *
@@ -50,10 +51,14 @@ __pdoc__ = {}
 __pdoc__[&#39;real_dtype&#39;] = False
 __pdoc__[&#39;complex_dtype&#39;] = False
 __pdoc__[&#39;PyTreeLike&#39;] = False
+__pdoc__[&#39;Field&#39;] = False
+__pdoc__[&#39;InitVar&#39;] = False
+__pdoc__[&#39;FrozenInstanceError&#39;] = False
 from .dataclass import document_dataclass
 
 document_dataclass(__pdoc__, &#39;Generator&#39;)
 document_dataclass(__pdoc__, &#39;Partial&#39;)
+document_dataclass(__pdoc__, &#39;LogCotangent&#39;)
 del document_dataclass
 
 
@@ -88,6 +93,10 @@ __all__ = list(locals())</code></pre>
 <div class="desc"></div>
 </dd>
 <dt><code class="name"><a title="tjax.graph" href="graph.html">tjax.graph</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt><code class="name"><a title="tjax.log_cotangent" href="log_cotangent.html">tjax.log_cotangent</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -686,9 +695,142 @@ the generated tensor.</p></div>
 </dd>
 </dl>
 </dd>
+<dt id="tjax.LogCotangent"><code class="flex name class">
+<span>class <span class="ident">LogCotangent</span></span>
+<span>(</span><span>cotangent: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray], **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>LogCotangent logs cotangents in a differentiated jax function.
+For example:</p>
+<pre><code>from jax import grad
+from jax import numpy as jnp
+
+from tjax import LogCotangent
+
+def loss(x, w, log_cotangent):
+    y = x * w
+    z = log_cotangent.forward(y)
+    return jnp.sum(jnp.square(2.0 - z))
+
+x = jnp.array([1.0, 2.0])
+w = jnp.array([2.2, 3.5])
+lg_bar = grad(loss, 2)(x, w, LogCotangent.create(shape=x.shape))
+
+# lg_bar.cotangent now holds the transmitted cotangent.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LogCotangent:
+    &#34;&#34;&#34;
+    LogCotangent logs cotangents in a differentiated jax function.  For example:
+
+        from jax import grad
+        from jax import numpy as jnp
+
+        from tjax import LogCotangent
+
+        def loss(x, w, log_cotangent):
+            y = x * w
+            z = log_cotangent.forward(y)
+            return jnp.sum(jnp.square(2.0 - z))
+
+        x = jnp.array([1.0, 2.0])
+        w = jnp.array([2.2, 3.5])
+        lg_bar = grad(loss, 2)(x, w, LogCotangent.create(shape=x.shape))
+
+        # lg_bar.cotangent now holds the transmitted cotangent.
+    &#34;&#34;&#34;
+    cotangent: Tensor
+
+    @classmethod
+    def create(cls: Type[T], shape: Tuple[int, ...]) -&gt; T:
+        &#34;&#34;&#34;
+        Factory to create LogCotangent object.__class__(
+        Args:
+            shape: The shape of the transmitted tensor and its cotangent.
+        &#34;&#34;&#34;
+        return LogCotangent(jnp.zeros(shape))
+
+    def forward(self, x: Tensor) -&gt; Tensor:
+        &#34;&#34;&#34;
+        This method is called in the forward pass.  It will automatically log the cotangent in the
+        backward pass.
+
+        Args:
+            x: The tensor to be transmitted.
+        Returns: The same tensor that was inputted, x.
+        &#34;&#34;&#34;
+        if x.shape != self.cotangent.shape:
+            raise ValueError
+        return x + self.cotangent</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="tjax.LogCotangent.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>shape: Tuple[int, ...]) ‑> ~T</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Factory to create LogCotangent object.<strong>class</strong>(</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>shape</code></strong></dt>
+<dd>The shape of the transmitted tensor and its cotangent.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def create(cls: Type[T], shape: Tuple[int, ...]) -&gt; T:
+    &#34;&#34;&#34;
+    Factory to create LogCotangent object.__class__(
+    Args:
+        shape: The shape of the transmitted tensor and its cotangent.
+    &#34;&#34;&#34;
+    return LogCotangent(jnp.zeros(shape))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="tjax.LogCotangent.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]) ‑> Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This method is called in the forward pass.
+It will automatically log the cotangent in the
+backward pass.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>x</code></strong></dt>
+<dd>The tensor to be transmitted.</dd>
+</dl>
+<p>Returns: The same tensor that was inputted, x.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x: Tensor) -&gt; Tensor:
+    &#34;&#34;&#34;
+    This method is called in the forward pass.  It will automatically log the cotangent in the
+    backward pass.
+
+    Args:
+        x: The tensor to be transmitted.
+    Returns: The same tensor that was inputted, x.
+    &#34;&#34;&#34;
+    if x.shape != self.cotangent.shape:
+        raise ValueError
+    return x + self.cotangent</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 <dt id="tjax.Partial"><code class="flex name class">
 <span>class <span class="ident">Partial</span></span>
-<span>(</span><span>func: Callable[..., Any], /, *args: Any, callable_is_static: bool = True, static_argnums: Tuple[int] = (), static_kwargs: Mapping[str, Any] = {}, **kwargs: Any)</span>
+<span>(</span><span>func: Callable[..., R], /, *args: Any, callable_is_static: bool = True, static_argnums: Tuple[int, ...] = (), static_kwargs: Mapping[str, Any] = {}, **kwargs: Any)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A version of functools.partial that returns a pytree.</p>
@@ -698,21 +840,26 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Partial(partial):
+<pre><code class="python">class Partial(partial, Generic[R]):
     &#34;&#34;&#34;
     A version of functools.partial that returns a pytree.
 
     Use it for partial function evaluation in a way that is compatible with JAX&#39;s transformations,
     e.g., ``Partial(func, *args, **kwargs)``.
     &#34;&#34;&#34;
-    def __new__(cls,
-                func: Callable[..., Any],
+
+    callable_is_static: bool
+    static_argnums: Tuple[int, ...]
+    static_kwargs: Mapping[str, Any]
+
+    def __new__(cls: Type[T],
+                func: Callable[..., R],
                 /,
                 *args: Any,
                 callable_is_static: bool = True,
-                static_argnums: Tuple[int] = (),
+                static_argnums: Tuple[int, ...] = (),
                 static_kwargs: Mapping[str, Any] = {},
-                **kwargs: Any):
+                **kwargs: Any) -&gt; T:
         &#34;&#34;&#34;
         Args:
             func: The function being applied.
@@ -725,17 +872,17 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
         &#34;&#34;&#34;
         if callable_is_static and isinstance(func, Partial):
             raise TypeError
-        retval = super().__new__(cls, func, *args, **kwargs)
+        retval = super().__new__(cls, func, *args, **kwargs)  # type: ignore
         retval.callable_is_static = callable_is_static
         retval.static_argnums = set(static_argnums)
         retval.static_kwargs = static_kwargs
         return retval
 
-    def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(self: Partial[R]) -&gt; Tuple[Sequence[PyTree], Hashable]:
         static_args = []
         tree_args = []
 
-        def _append(is_static, value):
+        def _append(is_static: bool, value: Any) -&gt; None:
             if is_static:
                 static_args.append(value)
             else:
@@ -750,11 +897,27 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
                  list(reversed(static_args)), self.static_kwargs))
 
     @classmethod
-    def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -&gt; T:
-        callable_is_static, static_argnums, static_args, static_kwargs = static
-        tree_args, tree_kwargs = trees
-        args = []
+    def tree_unflatten(cls: Type[R],
+                       static: Hashable,
+                       trees: Sequence[PyTree]) -&gt; Partial[R]:
+        if not isinstance(static, Iterable):
+            raise RuntimeError
 
+        callable_is_static, static_argnums, static_args, static_kwargs = static
+
+        if not isinstance(static_args, list):
+            raise RuntimeError
+
+        tree_args, tree_kwargs = trees
+
+        if not isinstance(tree_args, list):
+            raise RuntimeError
+        if not isinstance(tree_kwargs, dict):
+            raise RuntimeError
+
+        tree_kwargs = cast(Dict[str, Any], tree_kwargs)
+
+        args = []
         for i in range(len(static_args) + len(tree_args)):
             if i == 0:
                 is_static = callable_is_static
@@ -765,18 +928,150 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
             else:
                 args.append(tree_args.pop())
 
-        return Partial(*args,
-                       callable_is_static=callable_is_static,
-                       static_argnums=static_argnums,
-                       static_kwargs=static_kwargs,
-                       **tree_kwargs)
+        return Partial[R](*args,
+                          callable_is_static=callable_is_static,
+                          static_argnums=static_argnums,
+                          static_kwargs=static_kwargs,
+                          **tree_kwargs)
 
-    def __call__(self, *args: Any, **kwargs: Any):
+    def __call__(self, *args: Any, **kwargs: Any) -&gt; R:
         return super().__call__(*args, **self.static_kwargs, **kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>functools.partial</li>
+<li>typing.Generic</li>
+</ul>
+</dd>
+<dt id="tjax.TypeVar"><code class="flex name class">
+<span>class <span class="ident">TypeVar</span></span>
+<span>(</span><span>name, *constraints, bound=None, covariant=False, contravariant=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Type variable.</p>
+<p>Usage::</p>
+<p>T = TypeVar('T')
+# Can be anything
+A = TypeVar('A', str, bytes)
+# Must be str or bytes</p>
+<p>Type variables exist primarily for the benefit of static type
+checkers.
+They serve as the parameters for generic types as well
+as for generic function definitions.
+See class Generic for more
+information on generic types.
+Generic functions work as follows:</p>
+<p>def repeat(x: T, n: int) -&gt; List[T]:
+'''Return a list containing n references to x.'''
+return [x]*n</p>
+<p>def longest(x: A, y: A) -&gt; A:
+'''Return the longest of two strings.'''
+return x if len(x) &gt;= len(y) else y</p>
+<p>The latter example's signature is essentially the overloading
+of (str, str) -&gt; str and (bytes, bytes) -&gt; bytes.
+Also note
+that if the arguments are instances of some subclass of str,
+the return type is still plain str.</p>
+<p>At runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.</p>
+<p>Type variables defined with covariant=True or contravariant=True
+can be used to declare covariant or contravariant generic types.
+See PEP 484 for more details. By default generic types are invariant
+in all type variables.</p>
+<p>Type variables can be introspected. e.g.:</p>
+<p>T.<strong>name</strong> == 'T'
+T.<strong>constraints</strong> == ()
+T.<strong>covariant</strong> == False
+T.<strong>contravariant</strong> = False
+A.<strong>constraints</strong> == (str, bytes)</p>
+<p>Note that only type variables defined in global scope can be pickled.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TypeVar(_Final, _Immutable, _root=True):
+    &#34;&#34;&#34;Type variable.
+
+    Usage::
+
+      T = TypeVar(&#39;T&#39;)  # Can be anything
+      A = TypeVar(&#39;A&#39;, str, bytes)  # Must be str or bytes
+
+    Type variables exist primarily for the benefit of static type
+    checkers.  They serve as the parameters for generic types as well
+    as for generic function definitions.  See class Generic for more
+    information on generic types.  Generic functions work as follows:
+
+      def repeat(x: T, n: int) -&gt; List[T]:
+          &#39;&#39;&#39;Return a list containing n references to x.&#39;&#39;&#39;
+          return [x]*n
+
+      def longest(x: A, y: A) -&gt; A:
+          &#39;&#39;&#39;Return the longest of two strings.&#39;&#39;&#39;
+          return x if len(x) &gt;= len(y) else y
+
+    The latter example&#39;s signature is essentially the overloading
+    of (str, str) -&gt; str and (bytes, bytes) -&gt; bytes.  Also note
+    that if the arguments are instances of some subclass of str,
+    the return type is still plain str.
+
+    At runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.
+
+    Type variables defined with covariant=True or contravariant=True
+    can be used to declare covariant or contravariant generic types.
+    See PEP 484 for more details. By default generic types are invariant
+    in all type variables.
+
+    Type variables can be introspected. e.g.:
+
+      T.__name__ == &#39;T&#39;
+      T.__constraints__ == ()
+      T.__covariant__ == False
+      T.__contravariant__ = False
+      A.__constraints__ == (str, bytes)
+
+    Note that only type variables defined in global scope can be pickled.
+    &#34;&#34;&#34;
+
+    __slots__ = (&#39;__name__&#39;, &#39;__bound__&#39;, &#39;__constraints__&#39;,
+                 &#39;__covariant__&#39;, &#39;__contravariant__&#39;)
+
+    def __init__(self, name, *constraints, bound=None,
+                 covariant=False, contravariant=False):
+        self.__name__ = name
+        if covariant and contravariant:
+            raise ValueError(&#34;Bivariant types are not supported.&#34;)
+        self.__covariant__ = bool(covariant)
+        self.__contravariant__ = bool(contravariant)
+        if constraints and bound is not None:
+            raise TypeError(&#34;Constraints cannot be combined with bound=...&#34;)
+        if constraints and len(constraints) == 1:
+            raise TypeError(&#34;A single constraint is not allowed&#34;)
+        msg = &#34;TypeVar(name, constraint, ...): constraints must be types.&#34;
+        self.__constraints__ = tuple(_type_check(t, msg) for t in constraints)
+        if bound:
+            self.__bound__ = _type_check(bound, &#34;Bound must be a type.&#34;)
+        else:
+            self.__bound__ = None
+        def_mod = sys._getframe(1).f_globals[&#39;__name__&#39;]  # for pickling
+        if def_mod != &#39;typing&#39;:
+            self.__module__ = def_mod
+
+    def __repr__(self):
+        if self.__covariant__:
+            prefix = &#39;+&#39;
+        elif self.__contravariant__:
+            prefix = &#39;-&#39;
+        else:
+            prefix = &#39;~&#39;
+        return prefix + self.__name__
+
+    def __reduce__(self):
+        return self.__name__</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing._Final</li>
+<li>typing._Immutable</li>
 </ul>
 </dd>
 <dt id="tjax.custom_vjp"><code class="flex name class">
@@ -1005,6 +1300,7 @@ not be provided by the user-provided backward pass.</dd>
 <li><code><a title="tjax.fix_tree_repr" href="fix_tree_repr.html">tjax.fix_tree_repr</a></code></li>
 <li><code><a title="tjax.generator" href="generator.html">tjax.generator</a></code></li>
 <li><code><a title="tjax.graph" href="graph.html">tjax.graph</a></code></li>
+<li><code><a title="tjax.log_cotangent" href="log_cotangent.html">tjax.log_cotangent</a></code></li>
 <li><code><a title="tjax.partial" href="partial.html">tjax.partial</a></code></li>
 <li><code><a title="tjax.pytree_like" href="pytree_like.html">tjax.pytree_like</a></code></li>
 <li><code><a title="tjax.shims" href="shims.html">tjax.shims</a></code></li>
@@ -1040,7 +1336,17 @@ not be provided by the user-provided backward pass.</dd>
 </ul>
 </li>
 <li>
+<h4><code><a title="tjax.LogCotangent" href="#tjax.LogCotangent">LogCotangent</a></code></h4>
+<ul class="">
+<li><code><a title="tjax.LogCotangent.create" href="#tjax.LogCotangent.create">create</a></code></li>
+<li><code><a title="tjax.LogCotangent.forward" href="#tjax.LogCotangent.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="tjax.Partial" href="#tjax.Partial">Partial</a></code></h4>
+</li>
+<li>
+<h4><code><a title="tjax.TypeVar" href="#tjax.TypeVar">TypeVar</a></code></h4>
 </li>
 <li>
 <h4><code><a title="tjax.custom_vjp" href="#tjax.custom_vjp">custom_vjp</a></code></h4>
@@ -1054,7 +1360,7 @@ not be provided by the user-provided backward pass.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>
