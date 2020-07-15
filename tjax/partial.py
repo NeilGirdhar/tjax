@@ -72,7 +72,9 @@ class Partial(partial, Generic[R]):
                  list(reversed(static_args)), self.static_kwargs))
 
     @classmethod
-    def tree_unflatten(static: Hashable, trees: Sequence[PyTree]) -> Partial[R]:
+    def tree_unflatten(cls: Type[R],
+                       static: Hashable,
+                       trees: Sequence[PyTree]) -> Partial[R]:
         if not isinstance(static, Iterable):
             raise RuntimeError
 
