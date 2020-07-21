@@ -10,7 +10,6 @@ def test_log_cotangent():
         z = log_cotangent.forward(y)
         return jnp.sum(jnp.square(2.0 - z))
 
-
     x = jnp.array([1.0, 2.0])
     w = jnp.array([2.2, 3.5])
     lg_bar = grad(loss, 2)(x, w, LogCotangent.create(shape=x.shape))
