@@ -128,7 +128,10 @@ def get_test_string(original_name: str,
         zeroed-out, for example).
     """
     if isinstance(actual, (np.ndarray, DeviceArray)):
-        return "np." + repr(np.asarray(actual))
+        with np.printoptions(precision=int(np.ceil(-np.log10(default_rtol))),
+                             floatmode='maxprec'):
+            return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
+                '  ', ' ')
     if isinstance(actual, Number):
         return str(actual)
     if hasattr(actual, 'display'):
