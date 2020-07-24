@@ -5,6 +5,8 @@ from jax import numpy as jnp
 from .annotations import Tensor
 from .dataclass import dataclass
 
+__all__ = ['LogCotangent']
+
 T = TypeVar('T', bound='LogCotangent')
 
 

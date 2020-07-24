@@ -171,9 +171,9 @@ original.replace(z=original.z.replace(x=3.0, y=4.0))
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>actual</code></strong></dt>
-<dd>The obtain pytree.</dd>
+<dd>The actual value.</dd>
 <dt><strong><code>desired</code></strong></dt>
-<dd>The desired pytree.</dd>
+<dd>The desired value.</dd>
 <dt><strong><code>original_name</code></strong></dt>
 <dd>The variable name that contains the original value.</dd>
 <dt><strong><code>original_value</code></strong></dt>
@@ -238,8 +238,8 @@ same type as actual and desired, but contains different values.</dd>
     The test string can then be pasted.
 
     Args:
-        actual: The obtain pytree.
-        desired: The desired pytree.
+        actual: The actual value.
+        desired: The desired value.
         original_name: The variable name that contains the original value.
         original_value: The original value.  This is usually a pytree like a dataclass that has the
             same type as actual and desired, but contains different values.
@@ -253,7 +253,7 @@ same type as actual and desired, but contains different values.</dd>
 
     try:
         tree_multimap(partial(np.testing.assert_allclose, rtol=rtol, atol=atol), actual, desired)
-    except:
+    except Exception:
         print(&#34;JAX trees don&#39;t match.  Actual:&#34;)
         print(actual)
         print(&#34;Desired:&#34;)
@@ -486,7 +486,17 @@ differentiated and traced.</dd>
 <span>def <span class="ident">jax_allclose</span></span>(<span>actual: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], desired: Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], rtol: Union[float, NoneType] = None, atol: Union[float, NoneType] = None) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>actual</code></strong></dt>
+<dd>The actual value.</dd>
+<dt><strong><code>desired</code></strong></dt>
+<dd>The desired value.</dd>
+<dt><strong><code>rtol</code></strong></dt>
+<dd>The relative tolerance of the comparisons in the comparison.</dd>
+<dt><strong><code>atol</code></strong></dt>
+<dd>The absolute tolerance of the comparisons in the comparison.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -495,6 +505,13 @@ differentiated and traced.</dd>
                  desired: PyTree,
                  rtol: Optional[float] = None,
                  atol: Optional[float] = None) -&gt; bool:
+    &#34;&#34;&#34;
+    Args:
+        actual: The actual value.
+        desired: The desired value.
+        rtol: The relative tolerance of the comparisons in the comparison.
+        atol: The absolute tolerance of the comparisons in the comparison.
+    &#34;&#34;&#34;
     if rtol is None:
         rtol = default_rtol
     if atol is None:
@@ -943,137 +960,6 @@ e.g., <code>Partial(func, *args, **kwargs)</code>.</p></div>
 <li>typing.Generic</li>
 </ul>
 </dd>
-<dt id="tjax.TypeVar"><code class="flex name class">
-<span>class <span class="ident">TypeVar</span></span>
-<span>(</span><span>name, *constraints, bound=None, covariant=False, contravariant=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Type variable.</p>
-<p>Usage::</p>
-<p>T = TypeVar('T')
-# Can be anything
-A = TypeVar('A', str, bytes)
-# Must be str or bytes</p>
-<p>Type variables exist primarily for the benefit of static type
-checkers.
-They serve as the parameters for generic types as well
-as for generic function definitions.
-See class Generic for more
-information on generic types.
-Generic functions work as follows:</p>
-<p>def repeat(x: T, n: int) -&gt; List[T]:
-'''Return a list containing n references to x.'''
-return [x]*n</p>
-<p>def longest(x: A, y: A) -&gt; A:
-'''Return the longest of two strings.'''
-return x if len(x) &gt;= len(y) else y</p>
-<p>The latter example's signature is essentially the overloading
-of (str, str) -&gt; str and (bytes, bytes) -&gt; bytes.
-Also note
-that if the arguments are instances of some subclass of str,
-the return type is still plain str.</p>
-<p>At runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.</p>
-<p>Type variables defined with covariant=True or contravariant=True
-can be used to declare covariant or contravariant generic types.
-See PEP 484 for more details. By default generic types are invariant
-in all type variables.</p>
-<p>Type variables can be introspected. e.g.:</p>
-<p>T.<strong>name</strong> == 'T'
-T.<strong>constraints</strong> == ()
-T.<strong>covariant</strong> == False
-T.<strong>contravariant</strong> = False
-A.<strong>constraints</strong> == (str, bytes)</p>
-<p>Note that only type variables defined in global scope can be pickled.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TypeVar(_Final, _Immutable, _root=True):
-    &#34;&#34;&#34;Type variable.
-
-    Usage::
-
-      T = TypeVar(&#39;T&#39;)  # Can be anything
-      A = TypeVar(&#39;A&#39;, str, bytes)  # Must be str or bytes
-
-    Type variables exist primarily for the benefit of static type
-    checkers.  They serve as the parameters for generic types as well
-    as for generic function definitions.  See class Generic for more
-    information on generic types.  Generic functions work as follows:
-
-      def repeat(x: T, n: int) -&gt; List[T]:
-          &#39;&#39;&#39;Return a list containing n references to x.&#39;&#39;&#39;
-          return [x]*n
-
-      def longest(x: A, y: A) -&gt; A:
-          &#39;&#39;&#39;Return the longest of two strings.&#39;&#39;&#39;
-          return x if len(x) &gt;= len(y) else y
-
-    The latter example&#39;s signature is essentially the overloading
-    of (str, str) -&gt; str and (bytes, bytes) -&gt; bytes.  Also note
-    that if the arguments are instances of some subclass of str,
-    the return type is still plain str.
-
-    At runtime, isinstance(x, T) and issubclass(C, T) will raise TypeError.
-
-    Type variables defined with covariant=True or contravariant=True
-    can be used to declare covariant or contravariant generic types.
-    See PEP 484 for more details. By default generic types are invariant
-    in all type variables.
-
-    Type variables can be introspected. e.g.:
-
-      T.__name__ == &#39;T&#39;
-      T.__constraints__ == ()
-      T.__covariant__ == False
-      T.__contravariant__ = False
-      A.__constraints__ == (str, bytes)
-
-    Note that only type variables defined in global scope can be pickled.
-    &#34;&#34;&#34;
-
-    __slots__ = (&#39;__name__&#39;, &#39;__bound__&#39;, &#39;__constraints__&#39;,
-                 &#39;__covariant__&#39;, &#39;__contravariant__&#39;)
-
-    def __init__(self, name, *constraints, bound=None,
-                 covariant=False, contravariant=False):
-        self.__name__ = name
-        if covariant and contravariant:
-            raise ValueError(&#34;Bivariant types are not supported.&#34;)
-        self.__covariant__ = bool(covariant)
-        self.__contravariant__ = bool(contravariant)
-        if constraints and bound is not None:
-            raise TypeError(&#34;Constraints cannot be combined with bound=...&#34;)
-        if constraints and len(constraints) == 1:
-            raise TypeError(&#34;A single constraint is not allowed&#34;)
-        msg = &#34;TypeVar(name, constraint, ...): constraints must be types.&#34;
-        self.__constraints__ = tuple(_type_check(t, msg) for t in constraints)
-        if bound:
-            self.__bound__ = _type_check(bound, &#34;Bound must be a type.&#34;)
-        else:
-            self.__bound__ = None
-        def_mod = sys._getframe(1).f_globals[&#39;__name__&#39;]  # for pickling
-        if def_mod != &#39;typing&#39;:
-            self.__module__ = def_mod
-
-    def __repr__(self):
-        if self.__covariant__:
-            prefix = &#39;+&#39;
-        elif self.__contravariant__:
-            prefix = &#39;-&#39;
-        else:
-            prefix = &#39;~&#39;
-        return prefix + self.__name__
-
-    def __reduce__(self):
-        return self.__name__</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>typing._Final</li>
-<li>typing._Immutable</li>
-</ul>
-</dd>
 <dt id="tjax.custom_vjp"><code class="flex name class">
 <span>class <span class="ident">custom_vjp</span></span>
 <span>(</span><span>*args, **kwds)</span>
@@ -1344,9 +1230,6 @@ not be provided by the user-provided backward pass.</dd>
 </li>
 <li>
 <h4><code><a title="tjax.Partial" href="#tjax.Partial">Partial</a></code></h4>
-</li>
-<li>
-<h4><code><a title="tjax.TypeVar" href="#tjax.TypeVar">TypeVar</a></code></h4>
 </li>
 <li>
 <h4><code><a title="tjax.custom_vjp" href="#tjax.custom_vjp">custom_vjp</a></code></h4>
