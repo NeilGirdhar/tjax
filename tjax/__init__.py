@@ -9,6 +9,7 @@ from .display import *
 from .dtypes import *
 from .generator import *
 from .graph import *
+from .leaky_integral import *
 from .log_cotangent import *
 from .partial import *
 from .pytree_like import *

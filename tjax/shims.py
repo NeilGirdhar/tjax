@@ -1,10 +1,11 @@
 from typing import Any, Callable, Generic, Tuple, TypeVar, Union
 
+from jax import custom_jvp as jax_custom_jvp
 from jax import custom_vjp as jax_custom_vjp
 from jax import numpy as jnp
-from jax.tree_util import tree_map
+from jax.tree_util import Partial, tree_map
 
-__all__ = ['custom_vjp']
+__all__ = ['custom_jvp', 'custom_vjp']
 
 
 R = TypeVar('R')
@@ -109,5 +110,44 @@ class custom_vjp(Generic[R]):
         return self.vjp(*args)
 
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R]:
-        # https://github.com/google/jax/issues/2483
-        return self.vjp.__get__(instance, owner)
+        if instance is None:
+            return self
+        # Create a partial function application corresponding to a bound method.
+        return Partial(self, instance)
+
+
+class custom_jvp(jax_custom_jvp, Generic[R]):
+    """Set up a JAX-transformable function for a custom JVP rule definition.
+
+    This class is meant to be used as a function decorator. Instances are
+    callables that behave similarly to the underlying function to which the
+    decorator was applied, except when a differentiation transformation (like
+    :py:func:`jax.jvp` or :py:func:`jax.grad`) is applied, in which case a custom user-supplied
+    JVP rule function is used instead of tracing into and performing automatic
+    differentiation of the underlying function's implementation. There is a single
+    instance method, ``defjvp``, which defines the custom JVP rule.
+
+    For example::
+
+    import jax.numpy as jnp
+
+    @jax.custom_jvp
+    def f(x, y):
+        return jnp.sin(x) * y
+
+    @f.defjvp
+    def f_jvp(primals, tangents):
+        x, y = primals
+        x_dot, y_dot = tangents
+        primal_out = f(x, y)
+        tangent_out = jnp.cos(x) * x_dot * y + jnp.sin(x) * y_dot
+        return primal_out, tangent_out
+
+    For a more detailed introduction, see the tutorial_.
+    """
+
+    def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R]:
+        if instance is None:
+            return self
+        # Create a partial function application corresponding to a bound method.
+        return Partial(self, instance)

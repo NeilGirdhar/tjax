@@ -4,6 +4,9 @@ dist/
 .eggs/
 *.egg-info/
 
+# hypothesis
+.hypothesis/
+
 # my[py]
 .mypy_cache/
 
