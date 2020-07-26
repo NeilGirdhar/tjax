@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tjax"
-version = "0.22"
+version = "0.3.2"
 description = "Tools for JAX."
 license = "MIT"
 authors = ["Neil Girdhar <mistersheik@gmail.com>"]
