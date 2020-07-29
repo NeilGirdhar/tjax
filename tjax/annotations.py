@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Hashable, List, Tuple, Union
+from typing import TYPE_CHECKING, Dict, Hashable, List, Sequence, Tuple, Union
 
 import numpy as np
 from jax import numpy as jnp
-from numpy.typing import _Shape as Shape
-from numpy.typing import _ShapeLike as ShapeLike
 
 __all__ = ['Shape',
            'ShapeLike',
@@ -16,6 +14,8 @@ __all__ = ['Shape',
            'PyTree']
 
 
+Shape = Tuple[int, ...]
+ShapeLike = Union[int, Sequence[int]]
 SliceLike = Tuple[Union[int, None, slice], ...]
 Tensor = Union[np.ndarray, jnp.ndarray]
 RealTensor = Tensor

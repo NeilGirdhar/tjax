@@ -75,7 +75,8 @@ class custom_vjp(Generic[R]):
         """
         static_argnums = as_tuple(static_argnums)
         nondiff_argnums = as_tuple(nondiff_argnums)
-        if intersection := set(static_argnums) & set(nondiff_argnums):
+        intersection = set(static_argnums) & set(nondiff_argnums)
+        if intersection:
             raise ValueError(
                 f"Arguments {intersection} cannot be both static and nondifferentiable.")
         self.nondiff_argnums = nondiff_argnums

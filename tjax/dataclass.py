@@ -125,9 +125,6 @@ def dataclass(clz: Type[T]) -> Type[T]:
     # Register the class as a JAX PyTree.
     register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
 
-    # Verify that the generated class is PyTreeLike.
-    assert isinstance(data_clz, PyTreeLike)
-
     return data_clz
 
 
