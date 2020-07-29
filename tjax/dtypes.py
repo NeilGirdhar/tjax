@@ -14,7 +14,7 @@ __all__ = ['int_dtype',
 # config.update("jax_enable_x64", True) or else canonicalize_dtype will already have cached the
 # default float width.
 int_dtype = canonicalize_dtype(jnp.int_).type
-"The dtype used by JAX for int values.  Typically, either `numpy.int32` or `numpy.int64`."
+"The dtype used by JAX for integer values.  Typically, either `numpy.int32` or `numpy.int64`."
 
 real_dtype = canonicalize_dtype(jnp.float_).type
 "The dtype used by JAX for real values.  Typically, either `numpy.float32` or `numpy.float64`."

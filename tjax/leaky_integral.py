@@ -4,13 +4,14 @@ from typing import Optional, Tuple
 
 from jax import numpy as jnp
 
-from tjax import Generator, Tensor, real_dtype
+from .annotations import Tensor
+from .generator import Generator
 
 __all__ = ['leaky_integrate', 'diffused_leaky_integrate']
 
 
 def leaky_integrate(value: Tensor,
-                    time_step: real_dtype,
+                    time_step: Tensor,
                     drift: Optional[Tensor] = None,
                     decay: Optional[Tensor] = None,
                     *,
@@ -44,7 +45,7 @@ def leaky_integrate(value: Tensor,
 
 
 def diffused_leaky_integrate(value: Tensor,
-                             time_step: real_dtype,
+                             time_step: Tensor,
                              rng: Generator,
                              diffusion: Tensor,
                              drift: Optional[Tensor] = None,
