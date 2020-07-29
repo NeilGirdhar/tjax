@@ -40,7 +40,7 @@ class LogCotangent:
         Args:
             shape: The shape of the transmitted tensor and its cotangent.
         """
-        return LogCotangent(jnp.zeros(shape))
+        return cls(jnp.zeros(shape))
 
     def forward(self, x: Tensor) -> Tensor:
         """

@@ -1,5 +1,6 @@
+import sys
 from numbers import Number
-from typing import Any, Protocol, Type, Union, runtime_checkable
+from typing import Any, Type, Union
 
 import colorful as cf
 import networkx as nx
@@ -11,13 +12,19 @@ from jax.interpreters.xla import DeviceArray
 __all__ = ['Displayable', 'print_generic']
 
 
-@runtime_checkable
-class Displayable(Protocol):
-    """
-    This protocol identifies classes that support the `display_generic` mechanism.
-    """
-    def display(self, show_values: bool = True, indent: int = 0) -> str:
-        ...
+if sys.version_info >= (3, 8):
+    from typing import Protocol, runtime_checkable
+
+    @runtime_checkable
+    class Displayable(Protocol):
+        """
+        This protocol identifies classes that support the `display_generic` mechanism.
+        """
+        def display(self, show_values: bool = True, indent: int = 0) -> str:
+            ...
+else:
+    class Displayable:
+        pass
 
 
 def print_generic(*args: Any, **kwargs: Any) -> None:
@@ -43,7 +50,9 @@ def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> st
         return retval
     if isinstance(value, Number) or value is None:
         return cf.cyan(str(value)) + "\n"
-    if isinstance(value, Displayable):
+    if (isinstance(value, Displayable)
+            if sys.version >= (3, 8)
+            else hasattr(value, 'display')):
         return value.display(show_values=show_values, indent=indent)
     if isinstance(value, dict):
         return (display_class(dict)
