@@ -1,6 +1,6 @@
 from functools import partial
 from numbers import Number
-from typing import Any, Optional, cast
+from typing import Any, Optional, Union, cast
 
 import numpy as np
 from jax import numpy as jnp
@@ -111,11 +111,24 @@ def jax_allclose(actual: PyTree,
                     True))
 
 
+def _float_to_string_with_precision(x: Union[float, complex], precision: int) -> str:
+    with np.printoptions(precision=precision, floatmode='maxprec'):
+        return repr(np.array(x))[6:-1]
+
+
+def _float_to_string(x: Union[float, complex], rtol: float, atol: float) -> str:
+    for i in range(20):
+        retval = _float_to_string_with_precision(x, i)
+        if np.allclose(float(retval), x, rtol=rtol, atol=atol):
+            break
+    return retval
+
+
 def get_test_string(original_name: str,
                     actual: Any,
                     original: Any,
-                    rtol: Optional[float] = None,
-                    atol: Optional[float] = None) -> str:
+                    rtol: float,
+                    atol: float) -> str:
     """
     Args:
         original_name: The name of the variable containing an original value.
@@ -127,11 +140,16 @@ def get_test_string(original_name: str,
         A string of Python code that produces the desired value from an "original value" (could be
         zeroed-out, for example).
     """
+    def fts(x: float) -> str:
+        return _float_to_string(x, rtol, atol)
+
     if isinstance(actual, (np.ndarray, DeviceArray)):
-        with np.printoptions(precision=int(np.ceil(-np.log10(default_rtol))),
-                             floatmode='maxprec'):
+        with np.printoptions(formatter={'float_kind': fts,
+                                        'complex_kind': fts}):
             return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
                 '  ', ' ')
+    if isinstance(actual, (float, complex)):
+        return _float_to_string(actual, rtol, atol)
     if isinstance(actual, Number):
         return str(actual)
     if hasattr(actual, 'display'):

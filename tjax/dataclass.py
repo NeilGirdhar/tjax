@@ -6,7 +6,6 @@ from jax.tree_util import register_pytree_node
 
 from .annotations import PyTree
 from .display import display_class, display_key_and_value
-from .pytree_like import PyTreeLike
 
 __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING']
 
