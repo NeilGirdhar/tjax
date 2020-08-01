@@ -51,7 +51,7 @@ def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> st
     if isinstance(value, Number) or value is None:
         return cf.cyan(str(value)) + "\n"
     if (isinstance(value, Displayable)
-            if sys.version >= (3, 8)
+            if sys.version_info >= (3, 8)
             else hasattr(value, 'display')):
         return value.display(show_values=show_values, indent=indent)
     if isinstance(value, dict):
