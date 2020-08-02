@@ -15,7 +15,8 @@ def test_testing(capsys: CaptureFixture, actual: float, desired: str) -> None:
     with pytest.raises(AssertionError):
         assert_jax_allclose(actual, 1e6, "", 0.0, rtol=1e-5, atol=1e-8)
     captured: Any = capsys.readouterr()  # type: ignore
-    assert captured.out == f"""JAX trees don't match.  Actual:
+    assert captured.out == f"""JAX trees don't match.
+Actual:
 {actual}
 Desired:
 1000000.0

@@ -77,14 +77,16 @@ def assert_jax_allclose(actual: PyTree,
 
     try:
         tree_multimap(partial(np.testing.assert_allclose, rtol=rtol, atol=atol), actual, desired)
-    except Exception:
-        print("JAX trees don't match.  Actual:")
+    except AssertionError:
+        print("JAX trees don't match.\nActual:")
         print(actual)
         print("Desired:")
         print(desired)
+        print("Test string:")
         if original_name is not None and original_value is not None:
-            print("Test string:")
-            print(get_test_string(original_name, actual, original_value, rtol, atol))
+            print(get_relative_test_string(original_name, actual, original_value, rtol, atol))
+        else:
+            print(get_test_string(actual, rtol, atol))
         raise
 
 
@@ -124,11 +126,56 @@ def _float_to_string(x: Union[float, complex], rtol: float, atol: float) -> str:
     return retval
 
 
-def get_test_string(original_name: str,
-                    actual: Any,
-                    original: Any,
-                    rtol: float,
-                    atol: float) -> str:
+def get_test_string(actual: Any, rtol: float, atol: float) -> str:
+    """
+    Args:
+        actual: The actual value that was produced, and that should be the desired value.
+        rtol: The relative tolerance of the comparisons in the assertion.
+        atol: The absolute tolerance of the comparisons in the assertion.
+    Returns:
+        A string of Python code that produces the desired value.
+    """
+    def fts(x: float) -> str:
+        return _float_to_string(x, rtol, atol)
+
+    if isinstance(actual, (np.ndarray, DeviceArray)):
+        with np.printoptions(formatter={'float_kind': fts,
+                                        'complex_kind': fts}):
+            return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
+                '  ', ' ')
+    if isinstance(actual, (float, complex)):
+        return _float_to_string(actual, rtol, atol)
+    if isinstance(actual, Number):
+        return str(actual)
+    if hasattr(actual, 'display'):
+        retval = f"{type(actual).__name__}("
+        retval += ",\n".join(
+            f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
+            for fn in actual.tree_fields)
+        if actual.tree_fields and actual.hashed_fields:
+            retval += ',\n'
+        retval += ",\n".join(
+            f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
+            for fn in actual.hashed_fields)
+        retval += ")"
+        return retval
+    if isinstance(actual, (list, tuple)):
+        is_list = isinstance(actual, list)
+        return (("[" if is_list else "(")
+                + ", ".join(get_test_string(sub_actual, rtol, atol)
+                            for i, sub_actual in enumerate(actual))
+                + ("]" if is_list else ")"))
+    if isinstance(actual, dict):
+        return str({key: get_test_string(sub_actual, rtol, atol)
+                    for key, sub_actual in actual.items()})
+    return str(actual)
+
+
+def get_relative_test_string(original_name: str,
+                             actual: Any,
+                             original: Any,
+                             rtol: float,
+                             atol: float) -> str:
     """
     Args:
         original_name: The name of the variable containing an original value.
@@ -155,11 +202,11 @@ def get_test_string(original_name: str,
     if hasattr(actual, 'display'):
         retval = f"{original_name}.replace("
         retval += ",\n".join(
-            f"{fn}=" + get_test_string(f"{original_name}.{fn}",
-                                       getattr(actual, fn),
-                                       getattr(original, fn),
-                                       rtol,
-                                       atol)
+            f"{fn}=" + get_relative_test_string(f"{original_name}.{fn}",
+                                                getattr(actual, fn),
+                                                getattr(original, fn),
+                                                rtol,
+                                                atol)
             for fn in actual.tree_fields
             if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
         retval += ")"
@@ -167,14 +214,16 @@ def get_test_string(original_name: str,
     if isinstance(actual, (list, tuple)):
         is_list = isinstance(actual, list)
         return (("[" if is_list else "(")
-                + ", ".join(get_test_string(f"{original_name}[{i}]", sub_actual, sub_original, rtol,
-                                            atol)
+                + ", ".join(get_relative_test_string(f"{original_name}[{i}]",
+                                                     sub_actual, sub_original,
+                                                     rtol, atol)
                             for i, (sub_actual, sub_original) in enumerate(zip(actual, original)))
                 + ("]" if is_list else ")"))
     if isinstance(actual, dict):
         if not isinstance(original, dict):
             raise TypeError
-        return str({key: get_test_string(f"{original_name}[{key}]", sub_actual, original[key],
-                                         rtol, atol)
+        return str({key: get_relative_test_string(f"{original_name}[{key}]",
+                                                  sub_actual, original[key],
+                                                  rtol, atol)
                     for key, sub_actual in actual.items()})
     return str(actual)
