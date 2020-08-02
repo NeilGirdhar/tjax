@@ -37,9 +37,9 @@ def print_generic(*args: Any, **kwargs: Any) -> None:
 def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> str:
     # pylint: disable=too-many-return-statements
     if isinstance(value, JVPTracer):
-        return cf.magenta(f"JVPTracer {value.shape}") + "\n"
+        return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
     if isinstance(value, JaxprTracer):
-        return cf.magenta(f"JaxprTracer {value.shape}") + "\n"
+        return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
     if isinstance(value, (np.ndarray, DeviceArray)):
         if isinstance(value, np.ndarray):
             retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
