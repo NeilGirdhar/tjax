@@ -58,8 +58,8 @@ def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> st
         return (display_class(dict)
                 + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
                           for key, sub_value in value.items()))
-    if isinstance(value, tuple):
-        return (display_class(tuple)
+    if isinstance(value, (tuple, list)):
+        return (display_class(type(value))
                 + "".join(display_key_and_value("", sub_value, "", show_values, indent)
                           for sub_value in value))
     if isinstance(value, nx.Graph):
