@@ -1,20 +1,27 @@
 from typing import Any, Callable, Generic, Tuple, TypeVar, Union
 
-from jax import custom_jvp as jax_custom_jvp
-from jax import custom_vjp as jax_custom_vjp
+import jax
 from jax import numpy as jnp
 from jax.tree_util import Partial, tree_map
 
-__all__ = ['custom_jvp', 'custom_vjp']
+__all__ = ['jit', 'custom_jvp', 'custom_vjp']
 
 
 R = TypeVar('R')
+F = TypeVar('F', bound=Callable[..., Any])
 
 
 def as_tuple(x: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
     if isinstance(x, int):
         return (x,)
     return x
+
+
+def jit(func: F, **kwargs: Any) -> F:
+    retval = jax.jit(func, **kwargs)
+    if hasattr(func, "__isabstractmethod__"):
+        retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore
+    return retval
 
 
 class custom_vjp(Generic[R]):
@@ -80,7 +87,7 @@ class custom_vjp(Generic[R]):
             raise ValueError(
                 f"Arguments {intersection} cannot be both static and nondifferentiable.")
         self.nondiff_argnums = nondiff_argnums
-        self.vjp = jax_custom_vjp(fun, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
 
     def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -> None:
         """
@@ -117,7 +124,7 @@ class custom_vjp(Generic[R]):
         return Partial(self, instance)
 
 
-class custom_jvp(jax_custom_jvp, Generic[R]):
+class custom_jvp(jax.custom_jvp, Generic[R]):
     """Set up a JAX-transformable function for a custom JVP rule definition.
 
     This class is meant to be used as a function decorator. Instances are
