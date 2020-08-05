@@ -11,10 +11,10 @@ R = TypeVar('R')
 F = TypeVar('F', bound=Callable[..., Any])
 
 
-def as_tuple(x: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
+def as_sorted_tuple(x: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
     if isinstance(x, int):
         return (x,)
-    return x
+    return tuple(sorted(x))
 
 
 def jit(func: F, **kwargs: Any) -> F:
@@ -80,8 +80,8 @@ class custom_vjp(Generic[R]):
             static_argnums: The indices of the static arguments.
             nondiff_argnums: The indices of the nondifferentiable arguments.
         """
-        static_argnums = as_tuple(static_argnums)
-        nondiff_argnums = as_tuple(nondiff_argnums)
+        static_argnums = as_sorted_tuple(static_argnums)
+        nondiff_argnums = as_sorted_tuple(nondiff_argnums)
         intersection = set(static_argnums) & set(nondiff_argnums)
         if intersection:
             raise ValueError(
@@ -124,7 +124,7 @@ class custom_vjp(Generic[R]):
         return Partial(self, instance)
 
 
-class custom_jvp(jax.custom_jvp, Generic[R]):
+class custom_jvp(Generic[R]):
     """Set up a JAX-transformable function for a custom JVP rule definition.
 
     This class is meant to be used as a function decorator. Instances are
@@ -153,6 +153,52 @@ class custom_jvp(jax.custom_jvp, Generic[R]):
 
     For a more detailed introduction, see the tutorial_.
     """
+    def __init__(self,
+                 fun: Callable[..., R],
+                 static_argnums: Union[int, Tuple[int, ...]] = (),
+                 nondiff_argnums: Union[int, Tuple[int, ...]] = ()):
+        """
+        Args:
+            fun: the function to decorate.
+            static_argnums: The indices of the static arguments.
+            nondiff_argnums: The indices of the nondifferentiable arguments.
+        """
+        static_argnums = as_sorted_tuple(static_argnums)
+        nondiff_argnums = as_sorted_tuple(nondiff_argnums)
+        intersection = set(static_argnums) & set(nondiff_argnums)
+        if intersection:
+            raise ValueError(
+                f"Arguments {intersection} cannot be both static and nondifferentiable.")
+        self.nondiff_argnums_excluding_static_args = [
+            nondiff_argnum - sum(1 for x in static_argnums if x < nondiff_argnum)
+            for nondiff_argnum in nondiff_argnums]
+        # self.len_static_argnums = len(static_argnums)
+        self.nondiff_argnums = nondiff_argnums
+        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
+
+    def defjvp(self, jvp: Callable[..., Any]) -> None:
+        """
+        Implement the custom forward pass of the custom derivative.
+
+        Args:
+            fwd: The custom forward pass.
+        """
+        def new_fwd(*args: Any) -> Tuple[R, Any]:
+            static_args = args[: -2]
+            primals, tangents = args[-2:]  # pylint: disable=unbalanced-tuple-unpacking
+            nondiff_args = [primals[i] for i in self.nondiff_argnums_excluding_static_args]
+            new_primals = [p
+                           for i, p in enumerate(primals)
+                           if i not in self.nondiff_argnums_excluding_static_args]
+            new_tangents = [t
+                            for i, t in enumerate(tangents)
+                            if i not in self.nondiff_argnums_excluding_static_args]
+            return self.jvp(*static_args, *nondiff_args, new_primals, new_tangents)
+
+        self.jvp.defjvp(new_fwd)
+
+    def __call__(self, *args: Any) -> R:
+        return self.jvp(*args)
 
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R]:
         if instance is None:
