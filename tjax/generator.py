@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Any, List, Optional, Tuple
 
 import jax.random
+import numpy as np
 from jax import numpy as jnp
 
-from .annotations import Shape, Tensor
+from .annotations import Shape, ShapeLike, Tensor
 from .dataclass import dataclass
 
 __all__ = ['Generator']
@@ -15,8 +16,8 @@ __all__ = ['Generator']
 class Generator:
     """
     This class represents a JAX random number generator.  Unlike `numpy.Generator`, `tjax.Generator`
-    has no mutating methods.  Instead, its generation methods return a new instance along with
-    the generated tensor.
+    has no mutating methods.  Instead, its generation methods return a new instance along with the
+    generated tensor.
     """
 
     key: Tensor
@@ -35,8 +36,22 @@ class Generator:
 
     # New methods ----------------------------------------------------------------------------------
     def split(self, n: int = 2) -> List[Generator]:
+        """
+        Split a generator into a list of generators.
+        """
+        assert self.key.shape == (2,)
         keys = jax.random.split(self.key, n)
         return [Generator(key=key) for key in keys]
+
+    def vmap_split(self, shape: ShapeLike) -> Generator:
+        """
+        Split a generator into a generator that can be passed to a vmapped function.
+        """
+        if isinstance(shape, int):
+            shape = (shape,)
+        shape = tuple(shape)
+        keys = jax.random.split(self.key, np.prod(shape))
+        return Generator(key=keys.reshape(shape + (2,)))
 
     def normal(self, std_dev: Tensor, shape: Shape = ()) -> (
             Tuple[Generator, Tensor]):
