@@ -6,6 +6,7 @@ import colorful as cf
 import networkx as nx
 import numpy as np
 from jax.interpreters.ad import JVPTracer
+from jax.interpreters.batching import BatchTracer
 from jax.interpreters.partial_eval import JaxprTracer
 from jax.interpreters.xla import DeviceArray
 
@@ -40,6 +41,9 @@ def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> st
         return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
     if isinstance(value, JaxprTracer):
         return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
+    if isinstance(value, BatchTracer):
+        return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
+                          f"batched over {value.val.shape[value.batch_dim]}") + "\n"
     if isinstance(value, (np.ndarray, DeviceArray)):
         if isinstance(value, np.ndarray):
             retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
