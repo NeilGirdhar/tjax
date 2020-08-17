@@ -3,6 +3,7 @@ build/
 dist/
 .eggs/
 *.egg-info/
+setup.py
 
 # hypothesis
 .hypothesis/
