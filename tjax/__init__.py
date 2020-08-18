@@ -8,6 +8,7 @@ from .dataclass import *
 from .display import *
 from .dtypes import *
 from .generator import *
+from .gradient_transformation import *
 from .graph import *
 from .leaky_integral import *
 from .log_cotangent import *
