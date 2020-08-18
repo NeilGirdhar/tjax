@@ -1,8 +1,8 @@
 from typing import Tuple, Type, TypeVar
 
+from chex import Array
 from jax import numpy as jnp
 
-from .annotations import Tensor
 from .dataclass import dataclass
 
 __all__ = ['LogCotangent']
@@ -31,7 +31,7 @@ class LogCotangent:
 
         # lg_bar.cotangent now holds the transmitted cotangent.
     """
-    cotangent: Tensor
+    cotangent: Array
 
     @classmethod
     def create(cls: Type[T], shape: Tuple[int, ...]) -> T:
@@ -42,7 +42,7 @@ class LogCotangent:
         """
         return cls(jnp.zeros(shape))
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Array) -> Array:
         """
         This method is called in the forward pass.  It will automatically log the cotangent in the
         backward pass.

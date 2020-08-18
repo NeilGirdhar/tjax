@@ -6,11 +6,12 @@ import jax.scipy
 import jax.test_util
 import numpy as np
 import pytest
+from chex import Array
 from jax import numpy as jnp
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
-from tjax import Tensor, dataclass
+from tjax import dataclass
 from tjax.fixed_point import ComparingIteratedFunctionWithCombinator, IteratedFunction
 
 
@@ -70,22 +71,22 @@ def solve_grad_ax_b(amat: np.ndarray, bvec: np.ndarray) -> np.ndarray:
     return grad_matrix, grad_bvec
 
 
-TPair = Tuple[Tensor, Tensor]
+TPair = Tuple[Array, Array]
 
 
 @dataclass
-class Solver(ComparingIteratedFunctionWithCombinator[TPair, Tensor, Tensor]):
+class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array]):
 
-    def extract_comparand(self, state: Tensor) -> Tensor:
+    def extract_comparand(self, state: Array) -> Array:
         return state
 
-    def iterate_state(self, theta: TPair, x: Tensor) -> Tensor:
+    def iterate_state(self, theta: TPair, x: Array) -> Array:
         matrix, offset = theta
         return jnp.tensordot(matrix, x, 1) + offset
 
 
 @pytest.fixture(name='ax_plus_b', scope='session')
-def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Tensor, Tensor]:
+def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array, Array]:
     return Solver(rtol=1e-10,
                   atol=1e-10,
                   z_iteration_limit=10000,
@@ -101,7 +102,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Tensor
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0, 1)))
-def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Tensor, Tensor],
+def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Array, Array],
                             matrix: np.ndarray,
                             offset: np.ndarray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
@@ -119,16 +120,16 @@ def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Tensor, Tensor],
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0.1, 1)))
-def test_jvp(ax_plus_b: IteratedFunction[TPair, Tensor, Tensor],
+def test_jvp(ax_plus_b: IteratedFunction[TPair, Array, Array],
              matrix: np.ndarray,
              offset: np.ndarray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
     x0 = jnp.zeros_like(offset)
 
-    def f(theta: TPair, x_init: Tensor) -> Tensor:
+    def f(theta: TPair, x_init: Array) -> Array:
         return ax_plus_b.find_fixed_point(theta, x_init).current_state
 
-    def f_vjp(theta: TPair, x_init: Tensor) -> Callable[[Tensor], TPair]:
+    def f_vjp(theta: TPair, x_init: Array) -> Callable[[Array], TPair]:
         return jax.vjp(f, theta, x_init)
 
     jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),
@@ -136,7 +137,7 @@ def test_jvp(ax_plus_b: IteratedFunction[TPair, Tensor, Tensor],
 
 
 def test_gradient(generator: Generator,
-                  ax_plus_b: IteratedFunction[TPair, Tensor, Tensor]) -> None:
+                  ax_plus_b: IteratedFunction[TPair, Array, Array]) -> None:
     """
     Test gradient on the fixed point of Ax + b = x.
     """
@@ -145,7 +146,7 @@ def test_gradient(generator: Generator,
     offset = np.random.rand(mat_size)
     x0 = jnp.zeros_like(offset)
 
-    def loss(params: TPair, x: Tensor) -> Tensor:
+    def loss(params: TPair, x: Array) -> Array:
         return jnp.sum(ax_plus_b.find_fixed_point(params, x).current_state)
 
     jax.test_util.check_grads(loss,

@@ -3,13 +3,14 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Generic, Optional, Tuple, TypeVar
 
+from chex import Array
 from jax import jit
 from jax import numpy as jnp
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
 from jax.tree_util import tree_map, tree_multimap
 
-from tjax import PyTree, Tensor, dataclass, default_atol, default_rtol
+from tjax import PyTree, dataclass, default_atol, default_rtol
 
 from .augmented import AugmentedState, State
 
@@ -161,8 +162,8 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
         """
         raise NotImplementedError
 
-    def converged(self, augmented: TheAugmentedState) -> Tensor:
+    def converged(self, augmented: TheAugmentedState) -> Array:
         """
-        Returns: A Boolean Tensor of shape () indicating whether the pytrees are close.
+        Returns: A Boolean Array of shape () indicating whether the pytrees are close.
         """
         raise NotImplementedError

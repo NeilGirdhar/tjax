@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import Optional, Tuple, TypeVar
 
 import pytest
+from chex import Array
 from jax import grad, jit
 from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
-from tjax import Generator, Tensor, dataclass, real_dtype
+from tjax import Generator, dataclass, real_dtype
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 T = TypeVar('T', bound='EncodingIteratedFunction')
@@ -41,13 +42,13 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
 
 @dataclass
 class EncodingConfiguration:
-    x: Tensor
+    x: Array
 
 
 @dataclass
 class EncodingElement:
 
-    theta: Tensor
+    theta: Array
     diffusion: float = 0.01
 
     def _initial_configuration(self) -> EncodingConfiguration:
@@ -76,7 +77,7 @@ class EncodingElement:
         augmented = eif.find_fixed_point(self, self._initial_configuration())
         return augmented.current_state
 
-    def theta_bar(self, eif: EncodingIteratedFunction) -> Tensor:
+    def theta_bar(self, eif: EncodingIteratedFunction) -> Array:
         def f(encoding: EncodingElement) -> EncodingConfiguration:
             configuration = encoding.infer_configuration(eif)
             return configuration.x

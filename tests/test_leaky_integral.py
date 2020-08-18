@@ -1,12 +1,13 @@
 import numpy as np
+from chex import Numeric
 from numpy.testing import assert_allclose
 
-from tjax import Tensor, leaky_integrate
+from tjax import leaky_integrate
 
 
 def test_time_step_invariance() -> None:
-    def f(n: int) -> Tensor:
-        x: Tensor = 0.0
+    def f(n: int) -> Numeric:
+        x: Numeric = 0.0
         for i in range(n):
             x = leaky_integrate(x, time_step=1 / n, drift=3.0, decay=2.0)
         return x

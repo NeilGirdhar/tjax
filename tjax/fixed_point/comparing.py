@@ -3,10 +3,11 @@ from __future__ import annotations
 from functools import partial
 from typing import Generic, TypeVar
 
+from chex import Array
 from jax import numpy as jnp
 from jax.tree_util import tree_multimap, tree_reduce
 
-from tjax import PyTree, Tensor, dataclass
+from tjax import PyTree, dataclass
 
 from .augmented import AugmentedState, State
 from .iterated_function import IteratedFunction, Parameters
@@ -43,7 +44,7 @@ class ComparingIteratedFunction(
                               iterations=augmented.iterations + 1,
                               last_state=self.extract_comparand(augmented.current_state))
 
-    def converged(self, augmented: ComparingState[State, Comparand]) -> Tensor:
+    def converged(self, augmented: ComparingState[State, Comparand]) -> Array:
         return tree_reduce(jnp.logical_and,
                            tree_multimap(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                          self.extract_comparand(augmented.current_state),

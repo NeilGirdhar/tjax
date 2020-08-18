@@ -3,10 +3,11 @@ from __future__ import annotations
 from functools import partial
 from typing import Generic, Tuple, TypeVar
 
+from chex import Array
 from jax import numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
-from tjax import Generator, PyTree, Tensor, dataclass
+from tjax import Generator, PyTree, dataclass
 
 from ..leaky_integral import leaky_integrate
 from .augmented import AugmentedState, State
@@ -50,7 +51,7 @@ class StochasticIteratedFunction(
                           theta: Parameters,
                           augmented: StochasticState[State, Comparand]) -> (
                               StochasticState[State, Comparand]):
-        def f(value: Tensor, drift: Tensor) -> Tensor:
+        def f(value: Array, drift: Array) -> Array:
             return leaky_integrate(value, 1.0, drift, self.decay, leaky_average=True)
 
         new_state, new_rng = self.stochastic_iterate_state(
@@ -65,7 +66,7 @@ class StochasticIteratedFunction(
                                second_moment_state=new_second_moment_state,
                                rng=new_rng)
 
-    def converged(self, augmented: StochasticState[State, Comparand]) -> Tensor:
+    def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
         data_weight = leaky_integrate(0.0, augmented.iterations, 1.0, self.decay,
                                       leaky_average=True)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
@@ -91,7 +92,7 @@ class StochasticIteratedFunction(
         raise NotImplementedError
 
     # New methods ----------------------------------------------------------------------------------
-    def convergence_atol(self, augmented: StochasticState[State, Comparand]) -> Tensor:
+    def convergence_atol(self, augmented: StochasticState[State, Comparand]) -> Array:
         data_weight = leaky_integrate(0.0, augmented.iterations, 1.0, self.decay,
                                       leaky_average=True)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
