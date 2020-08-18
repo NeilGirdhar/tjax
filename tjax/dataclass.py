@@ -35,7 +35,7 @@ def dataclass(clz: Type[T]) -> Type[T]:
     @dataclass
     class LearnedParameter:
         weight: Array
-        constrain_positive: bool = field(pytree_like=False)
+        constrain_positive: bool = field(static=True)
         minimum_positive_weight: ClassVar[Array] = 1e-6
 
         def trained(self,
@@ -83,10 +83,10 @@ def dataclass(clz: Type[T]) -> Type[T]:
     for field_info in dataclasses.fields(data_clz):  # type: ignore
         if not field_info.init:
             continue
-        if field_info.metadata.get('pytree_like', True):
-            tree_fields.append(field_info.name)
-        else:
+        if field_info.metadata.get('static', False):
             hashed_fields.append(field_info.name)
+        else:
+            tree_fields.append(field_info.name)
 
     # Generate additional methods.
     def __repr__(self: T) -> str:
@@ -127,15 +127,15 @@ def dataclass(clz: Type[T]) -> Type[T]:
     return data_clz
 
 
-def field(pytree_like: bool = True, **kwargs: Any) -> dataclasses.Field:
+def field(*, static: bool = False, **kwargs: Any) -> dataclasses.Field:
     """
     Args:
-        pytree_like: Indicates whether a field is a pytree or static.  Pytree fields are
-            differentiated and traced.
+        static: Indicates whether a field is a pytree or static.  Pytree fields are
+            differentiated and traced.  Static fields are hashed and compared.
         kwargs: Any of the keyword arguments from `dataclasses.field`.
     """
     return dataclasses.field(metadata={**kwargs.pop('metadata', {}),
-                                       'pytree_like': pytree_like},
+                                       'static': static},
                              **kwargs)
 
 

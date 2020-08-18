@@ -75,7 +75,8 @@ class StochasticIteratedFunction(
                                                  rtol=self.rtol * data_weight,
                                                  atol=self.atol * data_weight),
                                          augmented.second_moment_state,
-                                         mean_squared))
+                                         mean_squared),
+                           True)
 
     # Abstract methods -----------------------------------------------------------------------------
     def extract_comparand(self, state: State) -> Comparand:

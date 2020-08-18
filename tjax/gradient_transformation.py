@@ -17,7 +17,7 @@ __all__ = ['MetaParameter', 'GradientTransformation', 'ChainedGradientTransforma
 @dataclass
 class MetaParameter:
 
-    name: str = field(pytree_like=False)
+    name: str = field(static=True)
 
 
 NumericOrMeta = Union[Numeric, MetaParameter]

@@ -17,7 +17,7 @@ C = Callable[[Array, Array], Array]
 @dataclass
 class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array]):
 
-    f: Callable[[PyTree, Array], Array] = field(False)
+    f: Callable[[PyTree, Array], Array] = field(static=True)
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
@@ -36,7 +36,7 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
 @dataclass
 class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, Array, Array]):
 
-    f: Callable[[PyTree, Array], Array] = field(False)
+    f: Callable[[PyTree, Array], Array] = field(static=True)
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
