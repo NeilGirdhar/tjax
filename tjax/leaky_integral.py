@@ -2,19 +2,21 @@ from __future__ import annotations
 
 from typing import Optional, Tuple
 
+from chex import Array
 from jax import numpy as jnp
 
-from tjax import Generator, Tensor, real_dtype
+from .dtypes import real_dtype
+from .generator import Generator
 
 __all__ = ['leaky_integrate', 'diffused_leaky_integrate']
 
 
-def leaky_integrate(value: Tensor,
+def leaky_integrate(value: Array,
                     time_step: real_dtype,
-                    drift: Optional[Tensor] = None,
-                    decay: Optional[Tensor] = None,
+                    drift: Optional[Array] = None,
+                    decay: Optional[Array] = None,
                     *,
-                    leaky_average: bool = False) -> Tensor:
+                    leaky_average: bool = False) -> Array:
     """
     Update the value so that it is the leaky integral (or leaky average).
     Args:
@@ -43,14 +45,14 @@ def leaky_integrate(value: Tensor,
     return value * jnp.exp(-decay * time_step) + scaled_integrand
 
 
-def diffused_leaky_integrate(value: Tensor,
+def diffused_leaky_integrate(value: Array,
                              time_step: real_dtype,
                              rng: Generator,
-                             diffusion: Tensor,
-                             drift: Optional[Tensor] = None,
-                             decay: Optional[Tensor] = None,
+                             diffusion: Array,
+                             drift: Optional[Array] = None,
+                             decay: Optional[Array] = None,
                              *,
-                             leaky_average: bool = False) -> Tuple[Tensor, Generator]:
+                             leaky_average: bool = False) -> Tuple[Array, Generator]:
     """
     Update an Ornstein-Uhlenbeck process.
 

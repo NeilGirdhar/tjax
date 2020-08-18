@@ -2,21 +2,22 @@ from functools import partial
 from typing import Callable, Tuple
 
 import pytest
+from chex import Array
 from jax import grad
 from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
-from tjax import Generator, PyTree, Tensor, dataclass, field
+from tjax import Generator, PyTree, dataclass, field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, IteratedFunction,
                               StochasticIteratedFunctionWithCombinator)
 
-C = Callable[[Tensor, Tensor], Tensor]
+C = Callable[[Array, Array], Array]
 
 
 @dataclass
-class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Tensor, Tensor]):
+class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array]):
 
-    f: Callable[[PyTree, Tensor], Tensor] = field(False)
+    f: Callable[[PyTree, Array], Array] = field(False)
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
@@ -33,9 +34,9 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Tensor, Tens
 
 
 @dataclass
-class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, Tensor, Tensor]):
+class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, Array, Array]):
 
-    f: Callable[[PyTree, Tensor], Tensor] = field(False)
+    f: Callable[[PyTree, Array], Array] = field(False)
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
@@ -52,14 +53,14 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, Tensor
 
     def stochastic_iterate_state(self,
                                  theta: PyTree,
-                                 state: Tensor,
-                                 rng: Generator) -> Tuple[Tensor, Generator]:
+                                 state: Array,
+                                 rng: Generator) -> Tuple[Array, Generator]:
         next_state = self.iterate_state(theta, state)
         new_rng, noise = rng.normal(1e-4)
         return next_state + noise, new_rng
 
 
-def squared_error(theta: Tensor, x: Tensor) -> Tensor:
+def squared_error(theta: Array, x: Array) -> Array:
     return jnp.square(x - theta)
 
 
@@ -70,15 +71,15 @@ def fixture_it_fun() -> NewtonsMethod:
 
 
 @pytest.fixture(scope='session', name='fixed_point_using_while')
-def fixture_fixed_point_using_while(it_fun: IteratedFunction[Tensor, Tensor, Tensor]) -> C:
-    def f(theta: Tensor, x_init: Tensor) -> Tensor:
+def fixture_fixed_point_using_while(it_fun: IteratedFunction[Array, Array, Array]) -> C:
+    def f(theta: Array, x_init: Array) -> Array:
         return it_fun.find_fixed_point(theta, x_init).current_state
     return f
 
 
 @pytest.fixture(scope='session', name='fixed_point_using_scan')
-def fixture_fixed_point_using_scan(it_fun: IteratedFunction[Tensor, Tensor, Tensor]) -> C:
-    def f(theta: Tensor, x_init: Tensor) -> Tensor:
+def fixture_fixed_point_using_scan(it_fun: IteratedFunction[Array, Array, Array]) -> C:
+    def f(theta: Array, x_init: Array) -> Array:
         return it_fun.sample_trajectory(theta, x_init, 2000, None, lambda x: x)[0].current_state
     return f
 
@@ -97,8 +98,8 @@ def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
 @pytest.mark.parametrize('x_init', (3.4, 5.8, -9.2))
 def test_forward(fixed_point_using_while: C,
                  fixed_point_using_scan: C,
-                 theta: Tensor,
-                 x_init: Tensor) -> None:
+                 theta: Array,
+                 x_init: Array) -> None:
     assert_allclose(fixed_point_using_scan(theta, x_init),
                     theta,
                     rtol=1e-1)
@@ -110,7 +111,7 @@ def test_forward(fixed_point_using_while: C,
 @pytest.mark.parametrize('theta', (-10.0, -1.0, 0.0, 1.0, 10.0))
 def test_grad(fixed_point_using_while: C,
               fixed_point_using_scan: C,
-              theta: Tensor) -> None:
+              theta: Array) -> None:
     g = grad(partial(fixed_point_using_while, x_init=8.0))
     h = grad(partial(fixed_point_using_scan, x_init=8.0))
     assert_allclose(1.0, g(theta), rtol=1e-1)
@@ -118,10 +119,10 @@ def test_grad(fixed_point_using_while: C,
 
 
 @pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
-def test_noisy_grad(noisy_it_fun: IteratedFunction[Tensor, Tensor, Tensor],
+def test_noisy_grad(noisy_it_fun: IteratedFunction[Array, Array, Array],
                     theta: float) -> None:
 
-    def fixed_point_using_while_of_theta(theta: Tensor) -> Tensor:
+    def fixed_point_using_while_of_theta(theta: Array) -> Array:
         return noisy_it_fun.find_fixed_point(theta, 8.0).current_state
     assert_allclose(theta,
                     fixed_point_using_while_of_theta(theta),

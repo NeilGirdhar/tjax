@@ -1,11 +1,12 @@
+from chex import Numeric
 from jax import grad
 from jax import numpy as jnp
 
-from tjax import LogCotangent, Tensor, assert_jax_allclose
+from tjax import LogCotangent, assert_jax_allclose
 
 
 def test_log_cotangent() -> None:
-    def loss(x: Tensor, w: Tensor, log_cotangent: LogCotangent) -> Tensor:
+    def loss(x: Numeric, w: Numeric, log_cotangent: LogCotangent) -> Numeric:
         y = x * w
         z = log_cotangent.forward(y)
         return jnp.sum(jnp.square(2.0 - z))

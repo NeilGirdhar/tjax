@@ -4,9 +4,10 @@ from typing import Any, List, Optional, Tuple
 
 import jax.random
 import numpy as np
+from chex import Array
 from jax import numpy as jnp
 
-from .annotations import Shape, ShapeLike, Tensor
+from .annotations import RealArray, Shape, ShapeLike
 from .dataclass import dataclass
 
 __all__ = ['Generator']
@@ -20,12 +21,12 @@ class Generator:
     generated tensor.
     """
 
-    key: Tensor
+    key: Array
 
     def __init__(self,
                  *,
                  seed: Optional[int] = None,
-                 key: Optional[Tensor] = None,
+                 key: Optional[Array] = None,
                  **kwargs: Any):
         super().__init__(**kwargs)
         if key is None:
@@ -53,13 +54,13 @@ class Generator:
         keys = jax.random.split(self.key, np.prod(shape))
         return Generator(key=keys.reshape(shape + (2,)))
 
-    def normal(self, std_dev: Tensor, shape: Shape = ()) -> (
-            Tuple[Generator, Tensor]):
+    def normal(self, std_dev: RealArray, shape: Shape = ()) -> (
+            Tuple[Generator, Array]):
         g1, g2 = self.split()
         return g1, std_dev * jax.random.normal(g2.key, shape)
 
-    def gamma(self, gamma_shape: Tensor, shape: Shape = ()) -> (
-            Tuple[Generator, Tensor]):
+    def gamma(self, gamma_shape: RealArray, shape: Shape = ()) -> (
+            Tuple[Generator, Array]):
         g1, g2 = self.split()
         return g1, jax.random.gamma(g2.key, gamma_shape, shape)
 

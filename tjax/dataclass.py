@@ -28,15 +28,15 @@ def dataclass(clz: Type[T]) -> Type[T]:
 
     from typing import ClassVar
 
-    from tjax import dataclass, field, Tensor
+    from tjax import dataclass, field, Array
     from jax import numpy as jnp
     from jax import grad
 
     @dataclass
     class LearnedParameter:
-        weight: Tensor
+        weight: Array
         constrain_positive: bool = field(pytree_like=False)
-        minimum_positive_weight: ClassVar[Tensor] = 1e-6
+        minimum_positive_weight: ClassVar[Array] = 1e-6
 
         def trained(self,
                     self_bar: LearnedParameter,
