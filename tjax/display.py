@@ -76,10 +76,10 @@ def display_graph(graph: nx.Graph, show_values: bool, indent: int = 0) -> str:
     arrow = cf.base00('⟶  ' if directed else '🡘 ')
     retval = display_class(type(graph))
     for name, value in graph.nodes.items():
-        retval += display_key_and_value(name, value['element'], ": ", show_values, indent)
+        retval += display_key_and_value(name, value, ": ", show_values, indent)
     for (source, target), value in graph.edges.items():
         key = f"{source}{arrow}{target}"
-        retval += display_key_and_value(key, value['link'], ": ", show_values, indent)
+        retval += display_key_and_value(key, value, ": ", show_values, indent)
     return retval
 
 
