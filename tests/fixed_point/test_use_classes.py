@@ -8,7 +8,7 @@ from jax import grad, jit
 from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
-from tjax import Generator, dataclass, real_dtype, field
+from tjax import Generator, dataclass, field, real_dtype
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 T = TypeVar('T', bound='EncodingIteratedFunction')
