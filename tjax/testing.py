@@ -151,12 +151,12 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
         retval = f"{type(actual).__name__}("
         retval += ",\n".join(
             f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-            for fn in actual.tree_fields)
-        if actual.tree_fields and actual.hashed_fields:
+            for fn in actual.nonstatic_fields)
+        if actual.nonstatic_fields and actual.static_fields:
             retval += ',\n'
         retval += ",\n".join(
             f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-            for fn in actual.hashed_fields)
+            for fn in actual.static_fields)
         retval += ")"
         return retval
     if isinstance(actual, (list, tuple)):
@@ -207,7 +207,7 @@ def get_relative_test_string(original_name: str,
                                                 getattr(original, fn),
                                                 rtol,
                                                 atol)
-            for fn in actual.tree_fields
+            for fn in actual.nonstatic_fields
             if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
         retval += ")"
         return retval

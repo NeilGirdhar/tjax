@@ -77,16 +77,16 @@ def dataclass(clz: Type[T]) -> Type[T]:
     data_clz: Type[T] = dataclasses.dataclass(frozen=True)(clz)  # type: ignore
 
     # Partition fields into hashed, tree, and uninitialized.
-    hashed_fields: List[str] = []
-    tree_fields: List[str] = []
+    static_fields: List[str] = []
+    nonstatic_fields: List[str] = []
 
     for field_info in dataclasses.fields(data_clz):  # type: ignore
         if not field_info.init:
             continue
         if field_info.metadata.get('static', False):
-            hashed_fields.append(field_info.name)
+            static_fields.append(field_info.name)
         else:
-            tree_fields.append(field_info.name)
+            nonstatic_fields.append(field_info.name)
 
     # Generate additional methods.
     def __repr__(self: T) -> str:
@@ -100,15 +100,15 @@ def dataclass(clz: Type[T]) -> Type[T]:
         return retval
 
     def tree_flatten(x: T) -> Tuple[Sequence[PyTree], Hashable]:
-        hashed = tuple(getattr(x, name) for name in hashed_fields)
-        trees = tuple(getattr(x, name) for name in tree_fields)
+        hashed = tuple(getattr(x, name) for name in static_fields)
+        trees = tuple(getattr(x, name) for name in nonstatic_fields)
         return trees, hashed
 
     def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -> T:
         if not isinstance(hashed, tuple):
             raise TypeError
-        hashed_args = dict(zip(hashed_fields, hashed))
-        tree_args = dict(zip(tree_fields, trees))
+        hashed_args = dict(zip(static_fields, hashed))
+        tree_args = dict(zip(nonstatic_fields, trees))
         return cls(**hashed_args, **tree_args)
 
     # Assign methods to the class.
@@ -118,8 +118,8 @@ def dataclass(clz: Type[T]) -> Type[T]:
     data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
 
     # Assign field lists to the class.
-    data_clz.tree_fields = tree_fields  # type: ignore
-    data_clz.hashed_fields = hashed_fields  # type: ignore
+    data_clz.nonstatic_fields = nonstatic_fields  # type: ignore
+    data_clz.static_fields = static_fields  # type: ignore
 
     # Register the class as a JAX PyTree.
     register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
@@ -140,8 +140,8 @@ def field(*, static: bool = False, **kwargs: Any) -> dataclasses.Field:
 
 
 def document_dataclass(pdoc: MutableMapping[str, Any], name: str) -> None:
-    pdoc[f'{name}.hashed_fields'] = False
-    pdoc[f'{name}.tree_fields'] = False
+    pdoc[f'{name}.static_fields'] = False
+    pdoc[f'{name}.nonstatic_fields'] = False
     pdoc[f'{name}.tree_flatten'] = False
     pdoc[f'{name}.tree_unflatten'] = False
     pdoc[f'{name}.display'] = False
