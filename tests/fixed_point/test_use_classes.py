@@ -8,7 +8,7 @@ from jax import grad, jit
 from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
-from tjax import Generator, dataclass, real_dtype
+from tjax import Generator, dataclass, real_dtype, field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 T = TypeVar('T', bound='EncodingIteratedFunction')
@@ -43,6 +43,7 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
 @dataclass
 class EncodingConfiguration:
     x: Array
+    y: int = field(static=True)
 
 
 @dataclass
@@ -52,7 +53,7 @@ class EncodingElement:
     diffusion: float = 0.01
 
     def _initial_configuration(self) -> EncodingConfiguration:
-        return EncodingConfiguration(8.0)
+        return EncodingConfiguration(8.0, 1)
 
     def iterate(self,
                 ec: EncodingConfiguration,
@@ -69,7 +70,7 @@ class EncodingElement:
         x = (ec.x * jnp.exp(-decay * time_step)
              + 10. * (self.theta - ec.x) * time_step
              + noise)
-        return EncodingConfiguration(x), new_rng
+        return EncodingConfiguration(x, ec.y), new_rng
 
     @jit
     def infer_configuration(self, eif: EncodingIteratedFunction) -> (
