@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Generic, Hashable, Mapping, Optional, Tuple, TypeVar, Union
+from typing import Callable, Dict, Generic, Mapping, Optional, Tuple, TypeVar, Union
 
 from chex import Numeric
 
@@ -25,7 +25,7 @@ class GradientTransformation(Generic[State, Weights]):
                gradient: Weights,
                state: State,
                parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> (
+               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
                    Tuple[Weights, State]):
         raise NotImplementedError
 
@@ -45,7 +45,7 @@ class GradientTransformation(Generic[State, Weights]):
 
     def replace_meta_parameters_with_defaults(
             self: T,
-            meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> T:
+            meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> T:
         if meta_parameters is None:
             return self
 

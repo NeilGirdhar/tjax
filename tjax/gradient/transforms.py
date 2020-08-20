@@ -1,4 +1,4 @@
-from typing import Generic, Hashable, Mapping, Optional, Tuple, Union
+from typing import Generic, Mapping, Optional, Tuple, Union
 
 from chex import Numeric
 from optax import ScaleByAdamState, ScaleState, scale, scale_by_adam
@@ -25,7 +25,7 @@ class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
                gradient: Weights,
                state: ScaleState,
                parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> (
+               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
                    Tuple[Weights, ScaleState]):
         x = self.replace_meta_parameters_with_defaults(meta_parameters)
         return scale(x.step_size).update(gradient, state, parameters, meta_parameters)
@@ -47,7 +47,7 @@ class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Wei
                gradient: Weights,
                state: ScaleByAdamState,
                parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> (
+               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
                    Tuple[Weights, ScaleState]):
         x = self.replace_meta_parameters_with_defaults(meta_parameters)
         return scale_by_adam(x.beta1, x.beta2, x.epsilon, x.epsilon_root).update(
