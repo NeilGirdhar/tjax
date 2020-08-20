@@ -9,22 +9,24 @@ from .meta_parameter import MetaParameter
 __all__ = ['GradientTransformation']
 
 
-Parameters = TypeVar('Parameters', bound=PyTree)
+Weights = TypeVar('Weights', bound=PyTree)
 State = TypeVar('State', bound=PyTree)
 
 
 @dataclass
-class GradientTransformation(Generic[State, Parameters]):
+class GradientTransformation(Generic[State, Weights]):
 
-    T = TypeVar('T', bound='GradientTransformation[State, Parameters]')
+    T = TypeVar('T', bound='GradientTransformation[State, Weights]')
 
-    def init(self, parameters: Parameters) -> State:
+    def init(self, parameters: Weights) -> State:
         raise NotImplementedError
 
     def update(self,
-               gradient: Parameters,
+               gradient: Weights,
                state: State,
-               parameters: Optional[Parameters]) -> Tuple[Parameters, State]:
+               parameters: Optional[Weights],
+               meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> (
+                   Tuple[Weights, State]):
         raise NotImplementedError
 
     def has_meta_parameters(self) -> bool:
