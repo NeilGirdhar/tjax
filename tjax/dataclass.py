@@ -1,4 +1,4 @@
-from typing import Any, Hashable, List, MutableMapping, Sequence, Tuple, Type, TypeVar
+from typing import Any, Hashable, List, MutableMapping, Sequence, Tuple, Type, TypeVar, overload
 
 import cooperative_dataclasses as dataclasses
 from cooperative_dataclasses import MISSING, Field, FrozenInstanceError, InitVar, fields
@@ -13,7 +13,21 @@ __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MIS
 T = TypeVar('T', bound=Any)
 
 
-def dataclass(clz: Type[T]) -> Type[T]:
+@overload
+def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
+              order: bool = False, unsafe_hash: bool = False, frozen: bool = False) -> Callable[
+                  [Type[T]], Type[T]]:
+    ...
+
+@overload
+def dataclass(cls: Type[T], *, init: bool = True, repr: bool = True, eq: bool = True,
+              order: bool = False, unsafe_hash: bool = False, frozen: bool = False) -> Type[T]:
+    ...
+
+# TODO: use positional-only arguments
+def dataclass(cls: Optional[Type[Any]] = None, *, init: bool = True, repr: bool = True,
+              eq: bool = True, order: bool = False, unsafe_hash: bool = False,
+              frozen: bool = False) -> Any:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
     in the class.
