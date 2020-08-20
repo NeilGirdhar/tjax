@@ -1,13 +1,13 @@
 from typing import Any, Hashable, List, MutableMapping, Sequence, Tuple, Type, TypeVar
 
 import cooperative_dataclasses as dataclasses
-from cooperative_dataclasses import MISSING, Field, FrozenInstanceError, InitVar
+from cooperative_dataclasses import MISSING, Field, FrozenInstanceError, InitVar, fields
 from jax.tree_util import register_pytree_node
 
 from .annotations import PyTree
 from .display import display_class, display_key_and_value
 
-__all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING']
+__all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING', 'fields']
 
 
 T = TypeVar('T', bound=Any)
