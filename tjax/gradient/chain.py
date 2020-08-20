@@ -5,27 +5,27 @@ from chex import Numeric
 from ..annotations import PyTree
 from ..dataclass import dataclass
 from .meta_parameter import MetaParameter
-from .transform import GradientTransformation, Parameters
+from .transform import GradientTransformation, Weights
 
 __all__ = ['ChainedGradientTransformation']
 
 
 @dataclass
-class ChainedGradientTransformation(GradientTransformation[List[PyTree], Parameters],
-                                    Generic[Parameters]):
+class ChainedGradientTransformation(GradientTransformation[List[PyTree], Weights],
+                                    Generic[Weights]):
 
-    U = TypeVar('U', bound='ChainedGradientTransformation[Parameters]')
+    U = TypeVar('U', bound='ChainedGradientTransformation[Weights]')
 
-    transforms: List[GradientTransformation[Any, Parameters]]
+    transforms: List[GradientTransformation[Any, Weights]]
 
-    def init(self, parameters: Parameters) -> List[PyTree]:
+    def init(self, parameters: Weights) -> List[PyTree]:
         return [transform.init(parameters)
                 for transform in self.transforms]
 
     def update(self,
-               gradient: Parameters,
+               gradient: Weights,
                state: List[PyTree],
-               parameters: Optional[Parameters]) -> Tuple[Parameters, List[PyTree]]:
+               parameters: Optional[Weights]) -> Tuple[Weights, List[PyTree]]:
         new_state: List[PyTree] = []
         for sub_state, transform in zip(state, self.transforms):
             gradient, new_state = transform.update(gradient, sub_state, parameters)
