@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Generic, Mapping, Optional, Tuple, TypeVar, Union
+from typing import Callable, Dict, Generic, Hashable, Mapping, Optional, Tuple, TypeVar, Union
 
 from chex import Numeric
 
@@ -27,6 +27,10 @@ class GradientTransformation(Generic[State, Parameters]):
                parameters: Optional[Parameters]) -> Tuple[Parameters, State]:
         raise NotImplementedError
 
+    def has_meta_parameters(self) -> bool:
+        return any(isinstance(getattr(self, field.name), MetaParameter)
+                   for field in fields(self))
+
     def replace_meta_parameters(self: T,
                                 f: Callable[[MetaParameter], Union[Numeric, MetaParameter]]) -> T:
         replacements: Dict[str, Numeric] = {}
@@ -38,19 +42,11 @@ class GradientTransformation(Generic[State, Parameters]):
 
     def replace_meta_parameters_with_defaults(
             self: T,
-            meta_parameters: Optional[Mapping[str, Numeric]] = None) -> T:
+            meta_parameters: Optional[Mapping[Hashable, Numeric]] = None) -> T:
         if meta_parameters is None:
             return self
 
         def f(meta_parameter: MetaParameter) -> Numeric:
             # https://github.com/python/mypy/issues/2608
-            return meta_parameters[meta_parameter.name]  # type: ignore
-        return self.replace_meta_parameters(f)
-
-    def rename_meta_parameters(self: T, prefix: str) -> T:
-        if not prefix:
-            return self
-
-        def f(meta_parameter: MetaParameter) -> MetaParameter:
-            return MetaParameter(prefix + meta_parameter.name)
+            return meta_parameters[meta_parameter.key]  # type: ignore
         return self.replace_meta_parameters(f)
