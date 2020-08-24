@@ -1,3 +1,4 @@
+from functools import partial
 from typing import (Any, Callable, Hashable, List, MutableMapping, Optional, Sequence, Tuple, Type,
                     TypeVar, overload)
 
@@ -16,19 +17,18 @@ T = TypeVar('T', bound=Any)
 
 @overload
 def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
-              order: bool = False, unsafe_hash: bool = False, frozen: bool = False) -> Callable[
+              order: bool = False) -> Callable[
                   [Type[T]], Type[T]]:
     ...
 
 @overload
 def dataclass(cls: Type[T], *, init: bool = True, repr: bool = True, eq: bool = True,
-              order: bool = False, unsafe_hash: bool = False, frozen: bool = False) -> Type[T]:
+              order: bool = False) -> Type[T]:
     ...
 
 # TODO: use positional-only arguments
 def dataclass(cls: Optional[Type[Any]] = None, *, init: bool = True, repr: bool = True,
-              eq: bool = True, order: bool = False, unsafe_hash: bool = False,
-              frozen: bool = False) -> Any:
+              eq: bool = True, order: bool = False) -> Any:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
     in the class.
@@ -86,10 +86,14 @@ def dataclass(cls: Optional[Type[Any]] = None, *, init: bool = True, repr: bool 
         constrain_positive=True
     ```
     """
+    if cls is None:
+        return partial(dataclass, init=init, repr=repr, eq=eq, order=order)
+
     # pylint: disable=protected-access
 
     # Apply dataclass function to cls.
-    data_clz: Type[T] = dataclasses.dataclass(frozen=True)(cls)  # type: ignore
+    data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr, eq=eq,
+                                              order=order, frozen=True)  # type: ignore
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []
