@@ -1,4 +1,5 @@
-from typing import Any, Hashable, List, MutableMapping, Sequence, Tuple, Type, TypeVar, overload
+from typing import (Any, Callable, Hashable, List, MutableMapping, Optional, Sequence, Tuple, Type,
+                    TypeVar, overload)
 
 import cooperative_dataclasses as dataclasses
 from cooperative_dataclasses import MISSING, Field, FrozenInstanceError, InitVar, fields
@@ -87,8 +88,8 @@ def dataclass(cls: Optional[Type[Any]] = None, *, init: bool = True, repr: bool 
     """
     # pylint: disable=protected-access
 
-    # Apply dataclass function to clz.
-    data_clz: Type[T] = dataclasses.dataclass(frozen=True)(clz)  # type: ignore
+    # Apply dataclass function to cls.
+    data_clz: Type[T] = dataclasses.dataclass(frozen=True)(cls)  # type: ignore
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []

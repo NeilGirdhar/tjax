@@ -5,6 +5,7 @@ This library implements a variety of tools for the differential programming libr
 from .annotations import *
 from .color_stub import *
 from .dataclass import *
+from .dataclass import document_dataclass
 from .display import *
 from .dtypes import *
 from .generator import *
@@ -24,7 +25,6 @@ __pdoc__['PyTreeLike'] = False
 __pdoc__['Field'] = False
 __pdoc__['InitVar'] = False
 __pdoc__['FrozenInstanceError'] = False
-from .dataclass import document_dataclass
 
 document_dataclass(__pdoc__, 'Generator')
 document_dataclass(__pdoc__, 'Partial')
