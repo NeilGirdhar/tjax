@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import partial
-from typing import (Any, Callable, Dict, Generic, Hashable, Iterable, Mapping, Sequence, Tuple,
-                    Type, TypeVar, cast)
+from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Tuple, Type, TypeVar,
+                    cast)
 
 from jax.tree_util import register_pytree_node_class
 
@@ -34,7 +35,7 @@ class Partial(partial, Generic[R]):
                 *args: Any,
                 callable_is_static: bool = True,
                 static_argnums: Tuple[int, ...] = (),
-                static_kwargs: Mapping[str, Any] = {},
+                static_kwargs: Mapping[str, Any] = None,
                 **kwargs: Any) -> T:
         """
         Args:
@@ -51,7 +52,7 @@ class Partial(partial, Generic[R]):
         retval = super().__new__(cls, func, *args, **kwargs)  # type: ignore
         retval.callable_is_static = callable_is_static
         retval.static_argnums = set(static_argnums)
-        retval.static_kwargs = static_kwargs
+        retval.static_kwargs = {} if static_kwargs is None else static_kwargs
         return retval
 
     def tree_flatten(self: Partial[R]) -> Tuple[Sequence[PyTree], Hashable]:

@@ -92,7 +92,8 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, TheAugmentedState],
     z_iterator = _ZIterate(iteration_limit=outer_iterated_function.z_iteration_limit,
                            iterated_function=outer_iterated_function)
     z_parameters = _ZParameters(residuals.outer_theta, residuals.x_star, x_star_bar)
-    z_star: State = z_iterator.find_fixed_point(z_parameters, x_star_bar).current_state
+    augmented: TheAugmentedState = z_iterator.find_fixed_point(z_parameters, x_star_bar)
+    z_star: State = augmented.current_state
 
     _, df_by_dtheta = vjp(f_of_theta, residuals.outer_theta)
     theta_bar, = df_by_dtheta(z_star)

@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Generic, Mapping, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Mapping, Optional, Tuple, TypeVar, Union
 
 from chex import Numeric
 
@@ -6,9 +6,10 @@ from ..annotations import PyTree
 from ..dataclass import dataclass, fields
 from .meta_parameter import MetaParameter
 
-__all__ = ['GradientTransformation']
+__all__ = ['GradientTransformation', 'GradientState']
 
 
+GradientState = PyTree
 Weights = TypeVar('Weights', bound=PyTree)
 State = TypeVar('State', bound=PyTree)
 
@@ -24,9 +25,7 @@ class GradientTransformation(Generic[State, Weights]):
     def update(self,
                gradient: Weights,
                state: State,
-               parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
-                   Tuple[Weights, State]):
+               parameters: Optional[Weights]) -> Tuple[Weights, State]:
         raise NotImplementedError
 
     def has_meta_parameters(self) -> bool:
