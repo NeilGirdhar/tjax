@@ -1,6 +1,7 @@
 import sys
+from functools import singledispatch
 from numbers import Number
-from typing import Any, Type, Union
+from typing import Any, Dict, List, Tuple, Type, Union
 
 import colorful as cf
 import networkx as nx
@@ -10,22 +11,7 @@ from jax.interpreters.batching import BatchTracer
 from jax.interpreters.partial_eval import JaxprTracer
 from jax.interpreters.xla import DeviceArray
 
-__all__ = ['Displayable', 'print_generic']
-
-
-if sys.version_info >= (3, 8):
-    from typing import Protocol, runtime_checkable
-
-    @runtime_checkable
-    class Displayable(Protocol):
-        """
-        This protocol identifies classes that support the `display_generic` mechanism.
-        """
-        def display(self, show_values: bool = True, indent: int = 0) -> str:
-            ...
-else:
-    class Displayable:
-        pass
+__all__ = ['print_generic', 'display_generic']
 
 
 def print_generic(*args: Any, **kwargs: Any) -> None:
@@ -35,51 +21,70 @@ def print_generic(*args: Any, **kwargs: Any) -> None:
         print(display_key_and_value(key, value, "=", True, 0))
 
 
+@singledispatch
 def display_generic(value: Any, show_values: bool = True, indent: int = 0) -> str:
-    # pylint: disable=too-many-return-statements
-    if isinstance(value, JVPTracer):
-        return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
-    if isinstance(value, JaxprTracer):
-        return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
-    if isinstance(value, BatchTracer):
-        return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
-                          f"batched over {value.val.shape[value.batch_dim]}") + "\n"
-    if isinstance(value, (np.ndarray, DeviceArray)):
-        if isinstance(value, np.ndarray):
-            retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
-        elif isinstance(value, DeviceArray):
-            retval = cf.violet(f"Jax Array {value.shape}") + "\n"
-        if show_values:
-            retval += _show_array(indent + 1, value)
-        return retval
-    if isinstance(value, Number) or value is None:
-        return cf.cyan(str(value)) + "\n"
-    if (isinstance(value, Displayable)
-            if sys.version_info >= (3, 8)
-            else hasattr(value, 'display')):
-        return value.display(show_values=show_values, indent=indent)
-    if isinstance(value, dict):
-        return (display_class(dict)
-                + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
-                          for key, sub_value in value.items()))
-    if isinstance(value, (tuple, list)):
-        return (display_class(type(value))
-                + "".join(display_key_and_value("", sub_value, "", show_values, indent)
-                          for sub_value in value))
-    if isinstance(value, nx.Graph):
-        return display_graph(value, show_values, indent)
     return cf.red(str(value)) + "\n"
 
 
-def display_graph(graph: nx.Graph, show_values: bool, indent: int = 0) -> str:
-    directed = isinstance(graph, nx.DiGraph)
+@display_generic.register
+def _(value: JVPTracer, show_values: bool = True, indent: int = 0) -> str:
+    return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
+
+
+@display_generic.register
+def _(value: JaxprTracer, show_values: bool = True, indent: int = 0) -> str:
+    return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
+
+
+@display_generic.register
+def _(value: BatchTracer, show_values: bool = True, indent: int = 0) -> str:
+    return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
+                      f"batched over {value.val.shape[value.batch_dim]}") + "\n"
+
+
+@display_generic.register
+def _(value: np.ndarray, show_values: bool = True, indent: int = 0) -> str:
+    retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
+    return retval + _show_array(indent + 1, value)
+
+
+@display_generic.register
+def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
+    retval = cf.violet(f"Jax Array {value.shape}") + "\n"
+    return retval + _show_array(indent + 1, value)
+
+
+@display_generic.register(type(None))
+@display_generic.register(Number)
+def _(value: Union[None, Number], show_values: bool = True, indent: int = 0) -> str:
+    return cf.cyan(str(value)) + "\n"
+
+
+@display_generic.register(dict)
+def _(value: Dict[Any, Any], show_values: bool = True, indent: int = 0) -> str:
+    return (display_class(dict)
+            + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
+                      for key, sub_value in value.items()))
+
+
+@display_generic.register(tuple)
+@display_generic.register(list)
+def _(value: Union[Tuple[Any, ...], List[Any]], show_values: bool = True, indent: int = 0) -> str:
+    return (display_class(type(value))
+            + "".join(display_key_and_value("", sub_value, "", show_values, indent)
+                      for sub_value in value))
+
+
+@display_generic.register
+def _(value: nx.Graph, show_values: bool, indent: int = 0) -> str:
+    directed = isinstance(value, nx.DiGraph)
     arrow = cf.base00('⟶  ' if directed else '🡘 ')
-    retval = display_class(type(graph))
-    for name, value in graph.nodes.items():
-        retval += display_key_and_value(name, value, ": ", show_values, indent)
-    for (source, target), value in graph.edges.items():
+    retval = display_class(type(value))
+    for name, node in value.nodes.items():
+        retval += display_key_and_value(name, node, ": ", show_values, indent)
+    for (source, target), edge in value.edges.items():
         key = f"{source}{arrow}{target}"
-        retval += display_key_and_value(key, value, ": ", show_values, indent)
+        retval += display_key_and_value(key, edge, ": ", show_values, indent)
     return retval
 
 

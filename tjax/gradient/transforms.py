@@ -24,11 +24,8 @@ class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
     def update(self,
                gradient: Weights,
                state: ScaleState,
-               parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
-                   Tuple[Weights, ScaleState]):
-        x = self.replace_meta_parameters_with_defaults(meta_parameters)
-        return scale(x.step_size).update(gradient, state, parameters, meta_parameters)
+               parameters: Optional[Weights]) -> Tuple[Weights, ScaleState]:
+        return scale(self.step_size).update(gradient, state, parameters)
 
 
 @dataclass
@@ -46,9 +43,6 @@ class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Wei
     def update(self,
                gradient: Weights,
                state: ScaleByAdamState,
-               parameters: Optional[Weights],
-               meta_parameters: Optional[Mapping[Any, Numeric]] = None) -> (
-                   Tuple[Weights, ScaleState]):
-        x = self.replace_meta_parameters_with_defaults(meta_parameters)
-        return scale_by_adam(x.beta1, x.beta2, x.epsilon, x.epsilon_root).update(
-            gradient, state, parameters, meta_parameters)
+               parameters: Optional[Weights]) -> Tuple[Weights, ScaleState]:
+        return scale_by_adam(self.beta1, self.beta2, self.epsilon, self.epsilon_root).update(
+            gradient, state, parameters)
