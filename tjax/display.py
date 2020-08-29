@@ -1,4 +1,3 @@
-import sys
 from functools import singledispatch
 from numbers import Number
 from typing import Any, Dict, List, Tuple, Type, Union
@@ -64,7 +63,7 @@ def _(value: Union[None, Number], show_values: bool = True, indent: int = 0) -> 
 def _(value: Dict[Any, Any], show_values: bool = True, indent: int = 0) -> str:
     return (display_class(dict)
             + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
-                      for key, sub_value in value.items()))
+                      for key, sub_value in sorted(value.items())))
 
 
 @display_generic.register(tuple)

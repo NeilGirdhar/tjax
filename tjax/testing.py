@@ -1,6 +1,6 @@
-from functools import partial
-from numbers import Number
-from typing import Any, Optional, Union, cast
+from functools import partial, singledispatch
+from numbers import Complex, Number
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 from jax import numpy as jnp
@@ -10,7 +10,7 @@ from jax.tree_util import tree_multimap, tree_reduce
 from .annotations import PyTree
 from .dtypes import default_atol, default_rtol
 
-__all__ = ['assert_jax_allclose', 'jax_allclose']
+__all__ = ['assert_jax_allclose', 'jax_allclose', 'get_test_string', 'get_relative_test_string']
 
 
 def assert_jax_allclose(actual: PyTree,
@@ -84,7 +84,7 @@ def assert_jax_allclose(actual: PyTree,
         print(desired)
         print("Test string:")
         if original_name is not None and original_value is not None:
-            print(get_relative_test_string(original_name, actual, original_value, rtol, atol))
+            print(get_relative_test_string(actual, original_name, original_value, rtol, atol))
         else:
             print(get_test_string(actual, rtol, atol))
         raise
@@ -113,19 +113,8 @@ def jax_allclose(actual: PyTree,
                     True))
 
 
-def _float_to_string_with_precision(x: Union[float, complex], precision: int) -> str:
-    with np.printoptions(precision=precision, floatmode='maxprec'):
-        return repr(np.array(x))[6:-1]
-
-
-def _float_to_string(x: Union[float, complex], rtol: float, atol: float) -> str:
-    for i in range(20):
-        retval = _float_to_string_with_precision(x, i)
-        if np.allclose(float(retval), x, rtol=rtol, atol=atol):
-            break
-    return retval
-
-
+# get test string ----------------------------------------------------------------------------------
+@singledispatch
 def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     """
     Args:
@@ -135,44 +124,50 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     Returns:
         A string of Python code that produces the desired value.
     """
-    def fts(x: float) -> str:
-        return _float_to_string(x, rtol, atol)
-
-    if isinstance(actual, (np.ndarray, DeviceArray)):
-        with np.printoptions(formatter={'float_kind': fts,
-                                        'complex_kind': fts}):
-            return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
-                '  ', ' ')
-    if isinstance(actual, (float, complex)):
-        return _float_to_string(actual, rtol, atol)
-    if isinstance(actual, Number):
-        return str(actual)
-    if hasattr(actual, 'display'):
-        retval = f"{type(actual).__name__}("
-        retval += ",\n".join(
-            f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-            for fn in actual.nonstatic_fields)
-        if actual.nonstatic_fields and actual.static_fields:
-            retval += ',\n'
-        retval += ",\n".join(
-            f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-            for fn in actual.static_fields)
-        retval += ")"
-        return retval
-    if isinstance(actual, (list, tuple)):
-        is_list = isinstance(actual, list)
-        return (("[" if is_list else "(")
-                + ", ".join(get_test_string(sub_actual, rtol, atol)
-                            for i, sub_actual in enumerate(actual))
-                + ("]" if is_list else ")"))
-    if isinstance(actual, dict):
-        return str({key: get_test_string(sub_actual, rtol, atol)
-                    for key, sub_actual in actual.items()})
     return str(actual)
 
 
-def get_relative_test_string(original_name: str,
-                             actual: Any,
+@get_test_string.register(np.ndarray)
+@get_test_string.register(DeviceArray)
+def _(actual: Union[np.ndarray, DeviceArray], rtol: float, atol: float) -> str:
+    def fts(x: float) -> str:
+        return _float_to_string(x, rtol, atol)
+    with np.printoptions(formatter={'float_kind': fts,
+                                    'complex_kind': fts}):
+        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
+            '  ', ' ')
+
+
+@get_test_string.register
+def _(actual: Complex, rtol: float, atol: float) -> str:
+    return _float_to_string(actual, rtol, atol)
+
+
+@get_test_string.register
+def _(actual: Number, rtol: float, atol: float) -> str:
+    return str(actual)
+
+
+@get_test_string.register(list)
+@get_test_string.register(tuple)
+def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
+    is_list = isinstance(actual, list)
+    return (("[" if is_list else "(")
+            + ", ".join(get_test_string(sub_actual, rtol, atol)
+                        for i, sub_actual in enumerate(actual))
+            + ("]" if is_list else ")"))
+
+
+@get_test_string.register(dict)
+def _(actual: Dict[Any, Any], rtol: float, atol: float) -> str:
+    return '{' + ",\n".join(repr(key) + ': ' + get_test_string(sub_actual, rtol, atol)
+                            for key, sub_actual in actual.items()) + '}'
+
+
+# get relative test string -------------------------------------------------------------------------
+@singledispatch
+def get_relative_test_string(actual: Any,
+                             original_name: str,
                              original: Any,
                              rtol: float,
                              atol: float) -> str:
@@ -187,43 +182,66 @@ def get_relative_test_string(original_name: str,
         A string of Python code that produces the desired value from an "original value" (could be
         zeroed-out, for example).
     """
+    return str(actual)
+
+
+@get_relative_test_string.register(np.ndarray)
+@get_relative_test_string.register(DeviceArray)
+def _(actual: Union[np.ndarray, DeviceArray], original_name: str, original: Any, rtol: float,
+      atol: float) -> str:
     def fts(x: float) -> str:
         return _float_to_string(x, rtol, atol)
+    with np.printoptions(formatter={'float_kind': fts,
+                                    'complex_kind': fts}):
+        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
+            '  ', ' ')
 
-    if isinstance(actual, (np.ndarray, DeviceArray)):
-        with np.printoptions(formatter={'float_kind': fts,
-                                        'complex_kind': fts}):
-            return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
-                '  ', ' ')
-    if isinstance(actual, (float, complex)):
-        return _float_to_string(actual, rtol, atol)
-    if isinstance(actual, Number):
-        return str(actual)
-    if hasattr(actual, 'display'):
-        retval = f"{original_name}.replace("
-        retval += ",\n".join(
-            f"{fn}=" + get_relative_test_string(f"{original_name}.{fn}",
-                                                getattr(actual, fn),
-                                                getattr(original, fn),
-                                                rtol,
-                                                atol)
-            for fn in actual.nonstatic_fields
-            if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
-        retval += ")"
-        return retval
-    if isinstance(actual, (list, tuple)):
-        is_list = isinstance(actual, list)
-        return (("[" if is_list else "(")
-                + ", ".join(get_relative_test_string(f"{original_name}[{i}]",
-                                                     sub_actual, sub_original,
-                                                     rtol, atol)
-                            for i, (sub_actual, sub_original) in enumerate(zip(actual, original)))
-                + ("]" if is_list else ")"))
-    if isinstance(actual, dict):
-        if not isinstance(original, dict):
-            raise TypeError
-        return str({key: get_relative_test_string(f"{original_name}[{key}]",
-                                                  sub_actual, original[key],
-                                                  rtol, atol)
-                    for key, sub_actual in actual.items()})
+
+@get_relative_test_string.register
+def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
+    return _float_to_string(actual, rtol, atol)
+
+
+@get_relative_test_string.register
+def _(actual: Number, original_name: str, original: Any, rtol: float, atol: float) -> str:
     return str(actual)
+
+
+@get_relative_test_string.register(list)
+@get_relative_test_string.register(tuple)
+def _(actual: Union[List[Any], Tuple[Any]], original_name: str, original: Any, rtol: float,
+      atol: float) -> str:
+    is_list = isinstance(actual, list)
+    return (("[" if is_list else "(")
+            + ", ".join(get_relative_test_string(f"{original_name}[{i}]",
+                                                 sub_actual, sub_original,
+                                                 rtol, atol)
+                        for i, (sub_actual, sub_original) in enumerate(zip(actual, original)))
+            + ("]" if is_list else ")"))
+
+
+@get_relative_test_string.register(dict)
+def _(actual: Dict[Any, Any], original_name: str, original: Any, rtol: float, atol: float) -> str:
+    if not isinstance(original, dict):
+        raise TypeError
+
+    def relative_string(key, sub_actual):
+        return get_relative_test_string(
+            f"{original_name}[{key}]", sub_actual, original[key], rtol, atol)
+
+    return '{' + ",\n".join(repr(key) + ': ' + relative_string(key, sub_actual)
+                            for key, sub_actual in actual.items()) + '}'
+
+
+# Private functions --------------------------------------------------------------------------------
+def _float_to_string_with_precision(x: Union[float, complex], precision: int) -> str:
+    with np.printoptions(precision=precision, floatmode='maxprec'):
+        return repr(np.array(x))[6:-1]
+
+
+def _float_to_string(x: Union[float, complex], rtol: float, atol: float) -> str:
+    for i in range(20):
+        retval = _float_to_string_with_precision(x, i)
+        if np.allclose(float(retval), x, rtol=rtol, atol=atol):
+            break
+    return retval

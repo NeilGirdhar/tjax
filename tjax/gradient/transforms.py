@@ -1,4 +1,4 @@
-from typing import Any, Generic, Mapping, Optional, Tuple, Union
+from typing import Generic, Optional, Tuple, Union
 
 from chex import Numeric
 from optax import ScaleByAdamState, ScaleState, scale, scale_by_adam

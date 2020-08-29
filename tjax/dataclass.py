@@ -8,6 +8,7 @@ from jax.tree_util import register_pytree_node
 
 from .annotations import PyTree
 from .display import display_class, display_generic, display_key_and_value
+from .testing import get_relative_test_string, get_test_string, jax_allclose
 
 __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING', 'fields']
 
@@ -16,18 +17,18 @@ T = TypeVar('T', bound=Any)
 
 
 @overload
-def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
+def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Callable[
                   [Type[T]], Type[T]]:
     ...
 
 @overload
-def dataclass(cls: Type[T], *, init: bool = True, repr: bool = True, eq: bool = True,
+def dataclass(cls: Type[T], *, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Type[T]:
     ...
 
 # TODO: use positional-only arguments
-def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr: bool = True,
+def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
@@ -87,12 +88,12 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr: bool = 
     ```
     """
     if cls is None:
-        return partial(dataclass, init=init, repr=repr, eq=eq, order=order)
+        return partial(dataclass, init=init, repr_=repr_, eq=eq, order=order)
 
     # pylint: disable=protected-access
 
     # Apply dataclass function to cls.
-    data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr, eq=eq,
+    data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr_, eq=eq,
                                               order=order, frozen=True)  # type: ignore
 
     # Partition fields into hashed, tree, and uninitialized.
@@ -108,7 +109,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr: bool = 
             nonstatic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def __repr__(self: T) -> str:
+    def __str__(self: T) -> str:
         return str(self.display())
 
     def tree_flatten(x: T) -> Tuple[Sequence[PyTree], Hashable]:
@@ -124,7 +125,8 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr: bool = 
         return cls(**hashed_args, **tree_args)
 
     # Assign methods to the class.
-    data_clz.__repr__ = __repr__  # type: ignore
+    if data_clz.__str__ is object.__str__:
+        data_clz.__str__ = __str__  # type: ignore
     if not hasattr(data_clz, 'display'):
         data_clz.display = display_dataclass  # type: ignore
     data_clz.tree_flatten = tree_flatten  # type: ignore
@@ -137,9 +139,10 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr: bool = 
     # Register the class as a JAX PyTree.
     register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
 
-    # Register the display function of the dataclass.
+    # Register the dynamically-dispatched functions.
     display_generic.register(data_clz, data_clz.display)  # type: ignore
-
+    get_test_string.register(data_clz, get_dataclass_test_string)  # type: ignore
+    get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)  # type: ignore
     return data_clz
 
 
@@ -148,6 +151,38 @@ def display_dataclass(value: T, show_values: bool = True, indent: int = 0) -> st
     for field_info in dataclasses.fields(value):  # type: ignore
         retval += display_key_and_value(
             field_info.name, getattr(value, field_info.name), "=", show_values, indent)
+    return retval
+
+
+def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
+    retval = f"{type(actual).__name__}("
+    retval += ",\n".join(
+        f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
+        for fn in actual.nonstatic_fields)
+    if actual.nonstatic_fields and actual.static_fields:
+        retval += ',\n'
+    retval += ",\n".join(
+        f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
+        for fn in actual.static_fields)
+    retval += ")"
+    return retval
+
+
+def get_relative_dataclass_test_string(actual: Any,
+                                       original_name: str,
+                                       original: Any,
+                                       rtol: float,
+                                       atol: float) -> str:
+    retval = f"{original_name}.replace("
+    retval += ",\n".join(
+        f"{fn}=" + get_relative_test_string(f"{original_name}.{fn}",
+                                            getattr(actual, fn),
+                                            getattr(original, fn),
+                                            rtol,
+                                            atol)
+        for fn in actual.nonstatic_fields
+        if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
+    retval += ")"
     return retval
 
 
