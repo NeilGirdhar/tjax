@@ -50,8 +50,12 @@ class Generator:
         """
         if isinstance(shape, int):
             shape = (shape,)
-        shape = tuple(shape)
-        keys = jax.random.split(self.key, np.prod(shape))
+        else:
+            shape = tuple(shape)
+        prod_shape = np.prod(shape)
+        keys = (self.key
+                if prod_shape == 1
+                else jax.random.split(self.key, prod_shape))
         return Generator(key=keys.reshape(shape + (2,)))
 
     def normal(self, std_dev: RealArray, shape: Shape = ()) -> (
