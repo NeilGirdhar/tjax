@@ -13,7 +13,9 @@ from .testing import get_relative_test_string, get_test_string, jax_allclose
 
 __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING',
            # Helper functions.
-           'fields', 'asdict', 'astuple', 'replace', 'is_dataclass']
+           'fields', 'asdict', 'astuple', 'replace', 'is_dataclass',
+           # New functions.
+           'document_dataclass']
 
 
 T = TypeVar('T', bound=Any)
@@ -25,10 +27,12 @@ def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
                   [Type[T]], Type[T]]:
     ...
 
+
 @overload
 def dataclass(cls: Type[T], *, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Type[T]:
     ...
+
 
 # TODO: use positional-only arguments
 def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool = True,
