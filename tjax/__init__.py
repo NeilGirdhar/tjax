@@ -12,6 +12,7 @@ from .generator import *
 from .graph import *
 from .leaky_integral import *
 from .partial import *
+from .plottable_trajectory import *
 from .pytree_like import *
 from .shims import *
 from .testing import *
