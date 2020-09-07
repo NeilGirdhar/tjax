@@ -29,6 +29,7 @@ colorful = "^0.5.4"
 cooperative_dataclasses = "^0.2.0"
 jax = "^0.1.72"
 jaxlib = "^0.1.51"
+matplotlib = "^3.3"
 networkx = "^2.4"
 numpy = "^1.19"
 
