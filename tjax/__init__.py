@@ -4,7 +4,7 @@ This library implements a variety of tools for the differential programming libr
 """
 from .annotations import *
 from .color_stub import *
-from .copy_cotangent import *
+from .cotangent_tools import *
 from .dataclass import *
 from .display import *
 from .dtypes import *
