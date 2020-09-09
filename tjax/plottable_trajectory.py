@@ -26,7 +26,7 @@ class PlottableTrajectory(Generic[Trajectory]):
     "The period between adjacent data points."
 
     def plot(self,
-             attribute_name: str,
+             data: Array,
              axis: Axes,
              subplot_title: str,
              *,
@@ -36,7 +36,7 @@ class PlottableTrajectory(Generic[Trajectory]):
         """
         Plot the PlottableTrajectory into a matplotlib axis.
         Args:
-            attribute_name: The name of the attribute in the trajectory to plot.
+            data: The data to be plotted.  Typically, this is a sub-element of trajectory.
             axis: A matplotlib axis to plot into.
             subplot_title: The title of the subplot.
             legend: The maximum number of entries for which to generate a legend.
@@ -48,9 +48,9 @@ class PlottableTrajectory(Generic[Trajectory]):
 
         xs = np.linspace(0.0, self.iterations * self.time_step, self.iterations, endpoint=False)[
             clip_slice]
-        all_ys = np.asarray(getattr(self.trajectory, attribute_name))
+        all_ys = np.asarray(data)
         if not np.all(np.isfinite(all_ys)):
-            print(f"Graph {attribute_name} contains infinite numbers.")
+            print(f"Graph {subplot_title} contains infinite numbers.")
 
         for plot_index in np.ndindex(all_ys.shape[1:]):
             ys = all_ys[(clip_slice, *plot_index)]
@@ -65,16 +65,9 @@ class PlottableTrajectory(Generic[Trajectory]):
                     new_ys[j] = acc / denominator
                 ys = new_ys
             axis.plot(xs, ys, label=str(plot_index))
-        if legend > 0 and self.number_of_graph_lines(attribute_name) <= legend:
+        number_of_graph_lines = np.prod(data.shape[1:])
+        if legend > 0 and number_of_graph_lines <= legend:
             axis.legend()
-
-    def number_of_graph_lines(self, attribute_name: str) -> int:
-        """
-        Args:
-            attribute_name: The name of the attribute in the trajectory.
-        Returns: The number of graphed lines for the attribute.
-        """
-        return np.prod(getattr(self.trajectory, attribute_name).shape[1:])
 
     def slice_into(self, s: Union[int, slice]) -> Trajectory:
         "Return a new trajectory whose nonstatic attributed are sliced."
