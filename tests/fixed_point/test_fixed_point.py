@@ -21,13 +21,11 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
-    def iterate_state(self, theta: PyTree, x: PyTree) -> PyTree:
+    def iterate_state(self, theta: PyTree, state: PyTree) -> PyTree:
         # https://github.com/python/mypy/issues/5485
-        g = grad(self.f, 1)(theta, x)  # type: ignore
-        ratio = self.f(theta, x) / g  # type: ignore
-        return x - jnp.where(ratio < 1e6,
-                             ratio * self.step_size,
-                             0.0)
+        g = grad(self.f, 1)(theta, state)  # type: ignore
+        ratio = self.f(theta, state) / g  # type: ignore
+        return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
 
     def extract_comparand(self, state: PyTree) -> PyTree:
         return state
@@ -43,13 +41,11 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, Array,
     def extract_comparand(self, state: PyTree) -> PyTree:
         return state
 
-    def iterate_state(self, theta: PyTree, x: PyTree) -> PyTree:
+    def iterate_state(self, theta: PyTree, state: PyTree) -> PyTree:
         # https://github.com/python/mypy/issues/5485
-        g = grad(self.f, 1)(theta, x)  # type: ignore
-        ratio = self.f(theta, x) / g  # type: ignore
-        return x - jnp.where(ratio < 1e6,
-                             ratio * self.step_size,
-                             0.0)
+        g = grad(self.f, 1)(theta, state)  # type: ignore
+        ratio = self.f(theta, state) / g  # type: ignore
+        return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
 
     def stochastic_iterate_state(self,
                                  theta: PyTree,

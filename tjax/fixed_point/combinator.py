@@ -37,11 +37,11 @@ class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State], State
     iterated_function: IteratedFunction[Parameters, State, TheAugmentedState]
 
     # Implemented methods --------------------------------------------------------------------------
-    def iterate_state(self, theta: _ZParameters[Parameters, State], x: State) -> State:
+    def iterate_state(self, theta: _ZParameters[Parameters, State], state: State) -> State:
         # The state should be called z, but we can't change the interface because of Liskov's
         # substitution principle.
-        z = x
-        del x
+        z = state
+        del state
 
         def f_of_x(x: State) -> State:
             return self.iterated_function.iterate_state(theta.outer_theta, x)
