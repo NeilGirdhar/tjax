@@ -147,7 +147,7 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
     def initial_state(self, initial_state: State) -> TheAugmentedState:
         raise NotImplementedError
 
-    def iterate_state(self, theta: Parameters, x: State) -> State:
+    def iterate_state(self, theta: Parameters, state: State) -> State:
         """
         Returns: The expected value of the next state given the old one.  A state must be
             differentiable.
