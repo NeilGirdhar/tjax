@@ -58,15 +58,22 @@ class Generator:
                 else jax.random.split(self.key, prod_shape))
         return Generator(key=keys.reshape(shape + (2,)))
 
-    def normal(self, std_dev: RealArray, shape: Shape = ()) -> (
-            Tuple[Generator, Array]):
+    def bernoulli(self, p: RealArray, shape: Shape = ()) -> Tuple[Generator, Array]:
+        g1, g2 = self.split()
+        return g1, jax.random.bernoulli(g2.key, p, shape)
+
+    def gamma(self, gamma_shape: RealArray, shape: Shape = ()) -> Tuple[Generator, Array]:
+        g1, g2 = self.split()
+        return g1, jax.random.gamma(g2.key, gamma_shape, shape)
+
+    def normal(self, std_dev: RealArray, shape: Shape = ()) -> Tuple[Generator, Array]:
         g1, g2 = self.split()
         return g1, std_dev * jax.random.normal(g2.key, shape)
 
-    def gamma(self, gamma_shape: RealArray, shape: Shape = ()) -> (
+    def uniform(self, minval: RealArray = 0.0, maxval: RealArray = 0.0, shape: Shape = ()) -> (
             Tuple[Generator, Array]):
         g1, g2 = self.split()
-        return g1, jax.random.gamma(g2.key, gamma_shape, shape)
+        return g1, jax.random.uniform(g2.key, minval=minval, maxval=maxval, shape=shape)
 
     # Magic methods --------------------------------------------------------------------------------
     def __eq__(self, other: Any) -> bool:
