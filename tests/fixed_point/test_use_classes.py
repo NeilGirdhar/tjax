@@ -90,7 +90,7 @@ def test_use_classes(theta: float) -> None:
     eif = EncodingIteratedFunction(iteration_limit=1000,
                                    atol=1e-2,
                                    initial_rng=Generator(seed=123),
-                                   decay=0.1,
+                                   convergence_detection_decay=0.1,
                                    time_step=0.01)
 
     encoding = EncodingElement(theta)
