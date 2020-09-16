@@ -36,7 +36,7 @@ class StochasticIteratedFunction(
         Generic[Parameters, State, Comparand]):
 
     initial_rng: Generator
-    decay: float
+    convergence_detection_decay: float
 
     # Implemented methods --------------------------------------------------------------------------
     def initial_state(self, initial_state: State) -> StochasticState[State, Comparand]:
@@ -52,7 +52,8 @@ class StochasticIteratedFunction(
                           augmented: StochasticState[State, Comparand]) -> (
                               StochasticState[State, Comparand]):
         def f(value: Array, drift: Array) -> Array:
-            return leaky_integrate(value, 1.0, drift, self.decay, leaky_average=True)
+            return leaky_integrate(value, 1.0, drift, self.convergence_detection_decay,
+                                   leaky_average=True)
 
         new_state, new_rng = self.stochastic_iterate_state(
             theta, augmented.current_state, augmented.rng)
@@ -67,7 +68,8 @@ class StochasticIteratedFunction(
                                rng=new_rng)
 
     def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
-        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0, self.decay,
+        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
+                                      self.convergence_detection_decay,
                                       leaky_average=True)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
         return tree_reduce(jnp.logical_and,
@@ -94,7 +96,8 @@ class StochasticIteratedFunction(
 
     # New methods ----------------------------------------------------------------------------------
     def convergence_atol(self, augmented: StochasticState[State, Comparand]) -> Array:
-        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0, self.decay,
+        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
+                                      self.convergence_detection_decay,
                                       leaky_average=True)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)

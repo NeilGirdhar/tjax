@@ -85,7 +85,7 @@ def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
     return NoisyNewtonsMethod(iteration_limit=1000,
                               atol=1e-4,
                               initial_rng=Generator(seed=123),
-                              decay=0.05,
+                              convergence_detection_decay=0.05,
                               f=squared_error,
                               step_size=0.05)
 
