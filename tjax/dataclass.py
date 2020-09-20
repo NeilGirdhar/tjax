@@ -1,6 +1,6 @@
 from functools import partial
 from typing import (Any, Callable, Hashable, List, MutableMapping, Optional, Sequence, Tuple, Type,
-                    TypeVar, overload)
+                    Iterable, TypeVar, overload)
 
 import cooperative_dataclasses as dataclasses
 from cooperative_dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple,
@@ -13,7 +13,8 @@ from .testing import get_relative_test_string, get_test_string, jax_allclose
 
 __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING',
            # Helper functions.
-           'fields', 'asdict', 'astuple', 'replace', 'is_dataclass',
+           'fields', 'asdict', 'astuple', 'replace', 'is_dataclass', 'field_names',
+           'field_names_and_values',
            # New functions.
            'document_dataclass']
 
@@ -203,6 +204,16 @@ def field(*, static: bool = False, **kwargs: Any) -> dataclasses.Field:
     return dataclasses.field(metadata={**kwargs.pop('metadata', {}),
                                        'static': static},
                              **kwargs)
+
+
+def field_names(d: Any) -> Iterable[str]:
+    for field in fields(d):
+        yield field.name
+
+
+def field_names_and_values(d: Any) -> Iterable[Tuple[str, Any]]:
+    for name in field_names(d):
+        yield name, getattr(d, name)
 
 
 def document_dataclass(pdoc: MutableMapping[str, Any], name: str) -> None:
