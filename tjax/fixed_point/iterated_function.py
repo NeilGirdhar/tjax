@@ -20,6 +20,7 @@ __all__ = ['IteratedFunction']
 Parameters = TypeVar('Parameters', bound=PyTree)
 Trajectory = TypeVar('Trajectory', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
+TapFunction = Callable[[None, Tuple[Any, ...]], None]
 
 
 # https://github.com/python/mypy/issues/8539
@@ -78,7 +79,7 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
                           theta: Parameters,
                           initial_state: State,
                           iteration_limit: int,
-                          tap_function: Optional[Callable[[None], None]],
+                          tap_function: Optional[TapFunction],
                           extract: Callable[[TheAugmentedState], Trajectory]) -> (
                               Tuple[TheAugmentedState, Trajectory]):
         """
@@ -114,7 +115,7 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
                          theta: Parameters,
                          initial_state: State,
                          iteration_limit: int,
-                         tap_function: Optional[Callable[[None], None]],
+                         tap_function: Optional[TapFunction],
                          extract: Callable[[TheAugmentedState], Trajectory]) -> (
                              Tuple[TheAugmentedState, Trajectory]):
         """
@@ -128,7 +129,7 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
             extracted = extract(augmented)
             trajectory = tree_multimap(jnp.append, trajectory, extracted)
             if tap_function is not None:
-                tap_function(None)
+                tap_function(None, ())
         return augmented, trajectory
 
     def state_needs_iteration(self, theta: Parameters, augmented: TheAugmentedState) -> bool:
