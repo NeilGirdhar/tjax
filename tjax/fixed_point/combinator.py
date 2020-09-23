@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, Tuple, TypeVar
+from typing import Any, Generic, Tuple, TypeVar
 
 from jax import numpy as jnp
 from jax import vjp
@@ -12,7 +12,8 @@ from ..dataclass import dataclass
 from ..shims import custom_vjp
 from .augmented import State
 from .comparing import ComparingIteratedFunction
-from .iterated_function import Comparand, IteratedFunction, Parameters, TheAugmentedState
+from .iterated_function import (Comparand, IteratedFunction, Parameters, TheAugmentedState,
+                                Trajectory)
 
 __all__ = ['IteratedFunctionWithCombinator']
 
@@ -21,9 +22,9 @@ Differentiand = TypeVar('Differentiand', bound=PyTree)
 
 
 @dataclass
-class _ZResiduals(Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
+class _ZResiduals(Generic[Parameters, State, Comparand, Differentiand, TheAugmentedState]):
     outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, Comparand,
-                                                            TheAugmentedState, Differentiand]
+                                                            Differentiand, Any, TheAugmentedState]
     outer_theta: Parameters
     x_star: State
 
@@ -39,17 +40,21 @@ class _ZParameters(Generic[Parameters, State, Differentiand]):
 @dataclass
 class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differentiand],
                                           Differentiand,
-                                          Differentiand],
+                                          Differentiand,
+                                          None],
                 Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
     """
     The state of _ZIterate is the differentiand of the outer iterated function.
     """
 
     iterated_function: IteratedFunctionWithCombinator[
-        Parameters, State, Comparand, TheAugmentedState, Differentiand]
+        Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
 
     # Implemented methods --------------------------------------------------------------------------
-    def iterate_state(self,
+    def expected_state(self, theta: Parameters, state: State) -> State:
+        raise RuntimeError
+
+    def sampled_state(self,
                       theta: _ZParameters[Parameters, State, Differentiand],
                       state: Differentiand) -> Differentiand:
         # The state should be called z, but we can't change the interface because of Liskov's
@@ -59,7 +64,7 @@ class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differ
 
         def f_of_x(x_differentiand: Differentiand) -> Differentiand:
             x = self.iterated_function.implant_differentiand(theta.x_star, x_differentiand)
-            state = self.iterated_function.iterate_state(theta.outer_theta, x)
+            state = self.iterated_function.expected_state(theta.outer_theta, x)
             return self.iterated_function.extract_differentiand(state)
 
         _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
@@ -70,15 +75,13 @@ class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differ
         return state
 
 
-def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State,
-                                                                     Comparand,
-                                                                     TheAugmentedState,
-                                                                     Differentiand],
+def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, Comparand,
+                                                                     Differentiand, Any,
+                                                                     TheAugmentedState],
              theta: Parameters,
              initial_state: State) -> Tuple[TheAugmentedState, _ZResiduals[Parameters, State,
-                                                                           Comparand,
-                                                                           TheAugmentedState,
-                                                                           Differentiand]]:
+                                                                           Comparand, Differentiand,
+                                                                           TheAugmentedState]]:
     """
     Args:
         theta: The parameters for which gradients can be calculated.
@@ -92,7 +95,7 @@ def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters,
     return augmented, _ZResiduals(outer_iterated_function, theta, augmented.current_state)
 
 
-def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, TheAugmentedState, Differentiand],
+def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand, TheAugmentedState],
              augmented_star_bar: TheAugmentedState) -> Tuple[Parameters]:
     """
     Args:
@@ -110,7 +113,7 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, TheAugmentedSt
     x_star_bar_differentiand = outer_iterated_function.extract_differentiand(x_star_bar)
 
     def f_of_theta(some_theta: Parameters) -> Differentiand:
-        state = outer_iterated_function.iterate_state(some_theta, x_star)
+        state = outer_iterated_function.expected_state(some_theta, x_star)
         return outer_iterated_function.extract_differentiand(state)
 
     z_iterator = _ZIterate(iteration_limit=outer_iterated_function.z_iteration_limit,
@@ -130,8 +133,8 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, TheAugmentedSt
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
 class IteratedFunctionWithCombinator(
-        IteratedFunction[Parameters, State, Comparand, TheAugmentedState],
-        Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
+        IteratedFunction[Parameters, State, Comparand, Trajectory, TheAugmentedState],
+        Generic[Parameters, State, Comparand, Differentiand, Trajectory, TheAugmentedState]):
     """
     An IteratedFunctionWithCombinator is an IteratedFunction that invokes a combinator so that
     differentiation works through the fixed point.  Besides inheriting from this class, no other
