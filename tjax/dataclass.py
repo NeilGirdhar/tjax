@@ -1,6 +1,6 @@
 from functools import partial
-from typing import (Any, Callable, Hashable, List, MutableMapping, Optional, Sequence, Tuple, Type,
-                    Iterable, TypeVar, overload)
+from typing import (Any, Callable, Hashable, Iterable, List, MutableMapping, Optional, Sequence,
+                    Tuple, Type, TypeVar, overload)
 
 import cooperative_dataclasses as dataclasses
 from cooperative_dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple,

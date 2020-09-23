@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, TypeVar
+from typing import Generic
 
 from chex import Array
 from jax import numpy as jnp
 from jax.tree_util import tree_multimap, tree_reduce
 
-from tjax import PyTree, dataclass
+from tjax import dataclass
 
 from .augmented import AugmentedState, State
-from .iterated_function import IteratedFunction, Parameters
+from .iterated_function import Comparand, IteratedFunction, Parameters
 
 __all__ = ['ComparingState', 'ComparingIteratedFunction']
-
-
-Comparand = TypeVar('Comparand', bound=PyTree)
 
 
 @dataclass
@@ -27,7 +24,7 @@ class ComparingState(AugmentedState[State], Generic[State, Comparand]):
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
 class ComparingIteratedFunction(
-        IteratedFunction[Parameters, State, ComparingState[State, Comparand]],
+        IteratedFunction[Parameters, State, Comparand, ComparingState[State, Comparand]],
         Generic[Parameters, State, Comparand]):
 
     # Implemented methods --------------------------------------------------------------------------
@@ -49,11 +46,3 @@ class ComparingIteratedFunction(
                            tree_multimap(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                          self.extract_comparand(augmented.current_state),
                                          augmented.last_state))
-
-    # New methods ----------------------------------------------------------------------------------
-    def extract_comparand(self, state: State) -> Comparand:
-        """
-        Returns: A pytree that will be compared in successive states to check whether the state has
-            converged.
-        """
-        raise NotImplementedError
