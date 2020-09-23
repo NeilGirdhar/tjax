@@ -8,7 +8,7 @@ from jax import jit
 from jax import numpy as jnp
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
-from jax.tree_util import tree_map, tree_multimap
+from jax.tree_util import tree_multimap
 
 from tjax import PyTree, dataclass, default_atol, default_rtol
 
@@ -26,22 +26,17 @@ TapFunction = Callable[[None, Tuple[Any, ...]], None]
 
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
-class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState]):
+class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugmentedState]):
     """
     An IteratedFunction object models an iterated function.
 
-    It is a generic class in terms of two generic types:
-        * Parameters, which models a PyTree subtype for parameters, and
-        * State, which models a PyTree subtype for the state.
-
-    The minimum requirement is to implement iterate_state, which iterates the state given
-    parameters.
-
-    In the case of a stochastic iterated function, iterate_augmented should be augmented, and should
-    return the next augmented state.  iterate_state should return the expected value of the next
-    stochastic state.
-
-    It is possible to modify the stopping condition by overriding state_needs_iteration.
+    It is a generic class in terms of five generic types, all of which are pytrees:
+        * Parameters, which models the iteration parameters,
+        * State, which is the state at each iteration,
+        * Comparand, which is calculated from state and compared between iterations to check
+          convergence,
+        * Trajectory, which is the type produced by sample_trajectory, and
+        * TheAugmentedState, which is typically defined by one of the tjax subclasses.
 
     The two main methods of IteratedFunction are
     * find_fixed_point, which iterates until the fixed point is reached or other stopping conditions
@@ -49,15 +44,16 @@ class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState])
     * sample_trajectory, which iterates for a fixed number of iterations and returns a trajectory.
 
     Args:
+        minimum_iterations: The minimum number of iterations for this fixed point solver.  This must
+            be positive.
         iteration_limit: The maximum number of iterations for this fixed point solver.  This must be
             positive.
         rtol: The relative tolerance for the comparison stopping condition.
         atol: The absolute tolerance for the comparison stopping condition.
-        initial_rng: The inital random number generator.
     """
 
-    minimum_iterations: int = 10
-    iteration_limit: int
+    minimum_iterations: Array = 10
+    iteration_limit: Array
     rtol: float = default_rtol
     atol: float = default_atol
 
@@ -71,17 +67,20 @@ class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState])
         Returns:
             state: The augmented state at the fixed point.
         """
-        return while_loop(partial(self.state_needs_iteration, theta),
-                          partial(self.iterate_augmented, theta),
-                          self.initial_state(initial_state))
+        def f(augmented: TheAugmentedState) -> TheAugmentedState:
+            new_state = self.sampled_state(theta, augmented.current_state)
+            return self.iterate_augmented(new_state, augmented)
 
-    @partial(jit, static_argnums=(3, 4, 5))
+        return while_loop(partial(self.state_needs_iteration, theta),
+                          f,
+                          self.initial_augmented(initial_state))
+
+    @partial(jit, static_argnums=(3, 4))
     def sample_trajectory(self,
                           theta: Parameters,
                           initial_state: State,
                           iteration_limit: int,
-                          tap_function: Optional[TapFunction],
-                          extract: Callable[[TheAugmentedState], Trajectory]) -> (
+                          tap_function: Optional[TapFunction]) -> (
                               Tuple[TheAugmentedState, Trajectory]):
         """
         Args:
@@ -93,45 +92,49 @@ class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState])
             x_star: The augmented state at the fixed point.
             trajectory: A PyTree representing the trajectory of states.
         """
-        def f(augmented: TheAugmentedState, x: None) -> Tuple[
-                TheAugmentedState, Trajectory]:
-            new_augmented = self.iterate_augmented(theta, augmented)
-            extracted = extract(new_augmented)
+        def f(augmented: TheAugmentedState, x: None) -> Tuple[TheAugmentedState, Trajectory]:
+            trajectory: Trajectory
+            new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
+            new_augmented = self.iterate_augmented(new_state, augmented)
             if tap_function is not None:
-                extracted = id_tap(tap_function, None, result=extracted)
-            return new_augmented, extracted
-        return scan(f, self.initial_state(initial_state), None, iteration_limit)
+                trajectory = id_tap(tap_function, None, result=trajectory)
+            return new_augmented, trajectory
+        return scan(f, self.initial_augmented(initial_state), None, iteration_limit)
 
     def debug_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:
         """
         This method is identical to find_fixed_point, but avoids using while_loop and its
         concomitant jit.
         """
-        augmented = self.initial_state(initial_state)
+        augmented = self.initial_augmented(initial_state)
         while self.state_needs_iteration(theta, augmented):
-            augmented = self.iterate_augmented(theta, augmented)
+            new_state = self.sampled_state(theta, augmented.current_state)
+            augmented = self.iterate_augmented(new_state, augmented)
         return augmented
 
     def debug_trajectory(self,
                          theta: Parameters,
                          initial_state: State,
                          iteration_limit: int,
-                         tap_function: Optional[TapFunction],
-                         extract: Callable[[TheAugmentedState], Trajectory]) -> (
+                         tap_function: Optional[TapFunction]) -> (
                              Tuple[TheAugmentedState, Trajectory]):
         """
         This method is identical to sample_trajectory, but avoids using scan and its concomitant
         jit.
         """
-        augmented = self.initial_state(initial_state)
-        trajectory = tree_map(lambda x: jnp.zeros((0,) + x.shape), extract(augmented))
-        for _ in range(iteration_limit):
-            augmented = self.iterate_augmented(theta, augmented)
-            extracted = extract(augmented)
-            trajectory = tree_multimap(jnp.append, trajectory, extracted)
+        augmented = self.initial_augmented(initial_state)
+        for i in range(iteration_limit):
+            trajectory: Trajectory
+            concatenated_trajectory: Trajectory
+            new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
+            augmented = self.iterate_augmented(new_state, augmented)
+            concatenated_trajectory = (
+                trajectory
+                if i == 0
+                else tree_multimap(jnp.append, concatenated_trajectory, trajectory))  # noqa: F821
             if tap_function is not None:
                 tap_function(None, ())
-        return augmented, trajectory
+        return augmented, concatenated_trajectory
 
     def state_needs_iteration(self, theta: Parameters, augmented: TheAugmentedState) -> bool:
         """
@@ -146,21 +149,42 @@ class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState])
         return jnp.logical_and(too_many_iterations, converged)
 
     # Abstract methods -----------------------------------------------------------------------------
-    def initial_state(self, initial_state: State) -> TheAugmentedState:
+    def initial_augmented(self, initial_state: State) -> TheAugmentedState:
         raise NotImplementedError
 
-    def iterate_state(self, theta: Parameters, state: State) -> State:
+    def expected_state(self, theta: Parameters, state: State) -> State:
         """
-        Returns: The expected value of the next state given the old one.  A state must be
-            differentiable.
+        Returns: The expected value of the next state given the old one.  This is used by the
+            combinator.
+        """
+        raise NotImplementedError
+
+    def sampled_state(self, theta: Parameters, state: State) -> State:
+        """
+        Returns: A sampled value of the next state in a trajectory.  This is used when finding the
+            fixed point.
+        """
+        raise NotImplementedError
+
+    def sampled_state_trajectory(self,
+                                 theta: Parameters,
+                                 augmented: TheAugmentedState) -> Tuple[State, Trajectory]:
+        """
+        Returns:
+            sampled_state: A sampled value of the next state in a trajectory.  This is used when
+                finding the fixed point.
+            trajectory: A value to be concatenated into a trajectory.
         """
         raise NotImplementedError
 
     def iterate_augmented(self,
-                          theta: Parameters,
+                          new_state: State,
                           augmented: TheAugmentedState) -> TheAugmentedState:
         """
-        Returns: The value of the next augmented state given the old one.
+        Args:
+            new_state: The new state to fold into the augmented state.
+            augmented: The last augmented state.
+        Returns: The next augmented state.
         """
         raise NotImplementedError
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import pytest
 from chex import Array
@@ -28,21 +28,18 @@ class EncodingState:
 class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['EncodingElement',
                                                                         EncodingState,
                                                                         EncodingConfiguration,
-                                                                        EncodingConfiguration]):
+                                                                        EncodingConfiguration,
+                                                                        Any]):
 
     time_step: real_dtype
 
     # Implemented methods --------------------------------------------------------------------------
-    def iterate_state(self,
-                      theta: EncodingElement,
-                      state: EncodingState) -> EncodingState:
+    def expected_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
         assert isinstance(state, EncodingState)
         new_ec, _ = theta.iterate(state.ec, None, self.time_step)
         return EncodingState(new_ec, state.rng)
 
-    def stochastic_iterate_state(self,
-                                 theta: EncodingElement,
-                                 state: EncodingState) -> EncodingState:
+    def sampled_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
         assert isinstance(state, EncodingState)
         new_ec, new_rng = theta.iterate(state.ec, state.rng, self.time_step)
         return EncodingState(new_ec, new_rng)

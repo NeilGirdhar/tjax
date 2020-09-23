@@ -75,9 +75,9 @@ TPair = Tuple[Array, Array]
 
 
 @dataclass
-class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array]):
+class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array, Array]):
 
-    def iterate_state(self, theta: TPair, x: Array) -> Array:
+    def sampled_state(self, theta: TPair, x: Array) -> Array:
         matrix, offset = theta
         return jnp.tensordot(matrix, x, 1) + offset
 
@@ -92,7 +92,8 @@ class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array]
 
 
 @pytest.fixture(name='ax_plus_b', scope='session')
-def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array]:
+def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array,
+                                                                   Array]:
     return Solver(rtol=1e-10,
                   atol=1e-10,
                   z_iteration_limit=10000,
@@ -108,7 +109,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0, 1)))
-def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Array, Array, Array],
+def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Array, Array, Array, Array],
                             matrix: np.ndarray,
                             offset: np.ndarray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
@@ -126,7 +127,7 @@ def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Array, Array, Arr
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0.1, 1)))
-def test_jvp(ax_plus_b: IteratedFunction[TPair, Array, Array, Array],
+def test_jvp(ax_plus_b: IteratedFunction[TPair, Array, Array, Array, Array],
              matrix: np.ndarray,
              offset: np.ndarray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
@@ -143,7 +144,7 @@ def test_jvp(ax_plus_b: IteratedFunction[TPair, Array, Array, Array],
 
 
 def test_gradient(generator: Generator,
-                  ax_plus_b: IteratedFunction[TPair, Array, Array, Array]) -> None:
+                  ax_plus_b: IteratedFunction[TPair, Array, Array, Array, Array]) -> None:
     """
     Test gradient on the fixed point of Ax + b = x.
     """
