@@ -1,24 +1,21 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, Tuple, TypeVar
+from typing import Generic, Tuple
 
 from chex import Array
 from jax import numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
-from tjax import Generator, PyTree, dataclass
+from tjax import dataclass
 
 from ..leaky_integral import leaky_integrate
 from .augmented import AugmentedState, State
-from .combinator import IteratedFunctionWithCombinator
-from .iterated_function import IteratedFunction, Parameters
+from .combinator import Differentiand, IteratedFunctionWithCombinator
+from .iterated_function import Comparand, IteratedFunction, Parameters
 
 __all__ = ['StochasticState', 'StochasticIteratedFunction',
            'StochasticIteratedFunctionWithCombinator']
-
-
-Comparand = TypeVar('Comparand', bound=PyTree)
 
 
 @dataclass
@@ -26,16 +23,14 @@ class StochasticState(AugmentedState[State], Generic[State, Comparand]):
 
     mean_state: Comparand
     second_moment_state: Comparand
-    rng: Generator
 
 
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
 class StochasticIteratedFunction(
-        IteratedFunction[Parameters, State, StochasticState[State, Comparand]],
+        IteratedFunction[Parameters, State, Comparand, StochasticState[State, Comparand]],
         Generic[Parameters, State, Comparand]):
 
-    initial_rng: Generator
     convergence_detection_decay: float
 
     # Implemented methods --------------------------------------------------------------------------
@@ -44,8 +39,7 @@ class StochasticIteratedFunction(
         return StochasticState(current_state=initial_state,
                                iterations=0,
                                mean_state=mean_state,
-                               second_moment_state=second_moment_state,
-                               rng=self.initial_rng)
+                               second_moment_state=second_moment_state)
 
     def iterate_augmented(self,
                           theta: Parameters,
@@ -55,8 +49,7 @@ class StochasticIteratedFunction(
             return leaky_integrate(value, 1.0, drift, self.convergence_detection_decay,
                                    leaky_average=True)
 
-        new_state, new_rng = self.stochastic_iterate_state(
-            theta, augmented.current_state, augmented.rng)
+        new_state = self.stochastic_iterate_state(theta, augmented.current_state)
         mean_state, second_moment_state = self._sufficient_statistics(augmented.current_state)
         new_mean_state = tree_multimap(f, augmented.mean_state, mean_state)
         new_second_moment_state = tree_multimap(f, augmented.second_moment_state,
@@ -64,8 +57,7 @@ class StochasticIteratedFunction(
         return StochasticState(current_state=new_state,
                                iterations=augmented.iterations + 1,
                                mean_state=new_mean_state,
-                               second_moment_state=new_second_moment_state,
-                               rng=new_rng)
+                               second_moment_state=new_second_moment_state)
 
     def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
         data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
@@ -81,17 +73,7 @@ class StochasticIteratedFunction(
                            True)
 
     # Abstract methods -----------------------------------------------------------------------------
-    def extract_comparand(self, state: State) -> Comparand:
-        """
-        Returns: A pytree that will be compared in successive states to check whether the state has
-            converged.
-        """
-        raise NotImplementedError
-
-    def stochastic_iterate_state(self,
-                                 theta: Parameters,
-                                 state: State,
-                                 rng: Generator) -> Tuple[State, Generator]:
+    def stochastic_iterate_state(self, theta: Parameters, state: State) -> State:
         raise NotImplementedError
 
     # New methods ----------------------------------------------------------------------------------
@@ -111,7 +93,9 @@ class StochasticIteratedFunction(
 
 
 class StochasticIteratedFunctionWithCombinator(
-        IteratedFunctionWithCombinator[Parameters, State, StochasticState[State, Comparand]],
+        IteratedFunctionWithCombinator[Parameters, State, Comparand,
+                                       StochasticState[State, Comparand],
+                                       Differentiand],
         StochasticIteratedFunction[Parameters, State, Comparand],
-        Generic[Parameters, State, Comparand]):
+        Generic[Parameters, State, Comparand, Differentiand]):
     pass

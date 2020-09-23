@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Tuple, TypeVar
+from typing import Optional, Tuple
 
 import pytest
 from chex import Array
@@ -11,34 +11,6 @@ from numpy.testing import assert_allclose
 from tjax import Generator, dataclass, field, real_dtype
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
-T = TypeVar('T', bound='EncodingIteratedFunction')
-U = TypeVar('U', bound='EncodingConfiguration')
-V = TypeVar('V', bound='EncodingElement')
-
-
-@dataclass
-class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['EncodingElement',
-                                                                        'EncodingConfiguration',
-                                                                        'EncodingConfiguration']):
-
-    time_step: real_dtype
-
-    # Implemented methods --------------------------------------------------------------------------
-    def extract_comparand(self, state: EncodingConfiguration) -> EncodingConfiguration:
-        return state
-
-    def iterate_state(self,
-                      theta: EncodingElement,
-                      x: EncodingConfiguration) -> EncodingConfiguration:
-        new_ec, _ = theta.iterate(x, None, self.time_step)
-        return new_ec
-
-    def stochastic_iterate_state(self,
-                                 theta: EncodingElement,
-                                 state: EncodingConfiguration,
-                                 rng: Generator) -> Tuple[EncodingConfiguration, Generator]:
-        return theta.iterate(state, rng, self.time_step)
-
 
 @dataclass
 class EncodingConfiguration:
@@ -47,13 +19,59 @@ class EncodingConfiguration:
 
 
 @dataclass
+class EncodingState:
+    ec: EncodingConfiguration
+    rng: Generator
+
+
+@dataclass
+class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['EncodingElement',
+                                                                        EncodingState,
+                                                                        EncodingConfiguration,
+                                                                        EncodingConfiguration]):
+
+    time_step: real_dtype
+
+    # Implemented methods --------------------------------------------------------------------------
+    def iterate_state(self,
+                      theta: EncodingElement,
+                      state: EncodingState) -> EncodingState:
+        assert isinstance(state, EncodingState)
+        new_ec, _ = theta.iterate(state.ec, None, self.time_step)
+        return EncodingState(new_ec, state.rng)
+
+    def stochastic_iterate_state(self,
+                                 theta: EncodingElement,
+                                 state: EncodingState) -> EncodingState:
+        assert isinstance(state, EncodingState)
+        new_ec, new_rng = theta.iterate(state.ec, state.rng, self.time_step)
+        return EncodingState(new_ec, new_rng)
+
+    def extract_comparand(self, state: EncodingState) -> EncodingConfiguration:
+        assert isinstance(state, EncodingState)
+        return state.ec
+
+    def extract_differentiand(self, state: EncodingState) -> EncodingConfiguration:
+        assert isinstance(state, EncodingState)
+        return state.ec
+
+    def implant_differentiand(self,
+                              state: EncodingState,
+                              differentiand: EncodingConfiguration) -> EncodingState:
+        assert isinstance(state, EncodingState)
+        assert isinstance(differentiand, EncodingConfiguration)
+        return EncodingState(differentiand, state.rng)
+
+
+@dataclass
 class EncodingElement:
 
     theta: Array
     diffusion: float = 0.01
 
-    def _initial_configuration(self) -> EncodingConfiguration:
-        return EncodingConfiguration(8.0, 1)
+    def _initial_state(self) -> EncodingState:
+        return EncodingState(EncodingConfiguration(8.0, 1),
+                             Generator(seed=123))
 
     def iterate(self,
                 ec: EncodingConfiguration,
@@ -73,14 +91,13 @@ class EncodingElement:
         return EncodingConfiguration(x, ec.y), new_rng
 
     @jit
-    def infer_configuration(self, eif: EncodingIteratedFunction) -> (
-            EncodingConfiguration):
-        augmented = eif.find_fixed_point(self, self._initial_configuration())
+    def infer_state(self, eif: EncodingIteratedFunction) -> EncodingState:
+        augmented = eif.find_fixed_point(self, self._initial_state())
         return augmented.current_state
 
     def theta_bar(self, eif: EncodingIteratedFunction) -> Array:
-        def f(encoding: EncodingElement) -> EncodingConfiguration:
-            configuration = encoding.infer_configuration(eif)
+        def f(encoding: EncodingElement) -> Array:
+            configuration = encoding.infer_state(eif).ec
             return configuration.x
         return grad(f)(self).theta
 
@@ -89,14 +106,13 @@ class EncodingElement:
 def test_use_classes(theta: float) -> None:
     eif = EncodingIteratedFunction(iteration_limit=1000,
                                    atol=1e-2,
-                                   initial_rng=Generator(seed=123),
                                    convergence_detection_decay=0.1,
                                    time_step=0.01)
 
     encoding = EncodingElement(theta)
 
     assert_allclose(theta,
-                    encoding.infer_configuration(eif).x,
+                    encoding.infer_state(eif).ec.x,
                     rtol=1e-1,
                     atol=1e-1)
     assert_allclose(1.0,

@@ -1,64 +1,84 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, Tuple
+from typing import Generic, Tuple, TypeVar
 
 from jax import numpy as jnp
 from jax import vjp
 from jax.tree_util import tree_multimap
 
-from tjax import custom_vjp, dataclass
-
+from ..annotations import PyTree
+from ..dataclass import dataclass
+from ..shims import custom_vjp
 from .augmented import State
 from .comparing import ComparingIteratedFunction
-from .iterated_function import IteratedFunction, Parameters, TheAugmentedState
+from .iterated_function import Comparand, IteratedFunction, Parameters, TheAugmentedState
 
 __all__ = ['IteratedFunctionWithCombinator']
 
 
+Differentiand = TypeVar('Differentiand', bound=PyTree)
+
+
 @dataclass
-class _ZResiduals(Generic[Parameters, State, TheAugmentedState]):
-    outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, TheAugmentedState]
+class _ZResiduals(Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
+    outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, Comparand,
+                                                            TheAugmentedState, Differentiand]
     outer_theta: Parameters
     x_star: State
 
 
 @dataclass
-class _ZParameters(Generic[Parameters, State]):
+class _ZParameters(Generic[Parameters, State, Differentiand]):
     outer_theta: Parameters
     x_star: State
-    x_star_bar: State
+    x_star_differentiand: Differentiand
+    x_star_bar_differentiand: Differentiand
 
 
 @dataclass
-class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State], State, State],
-                Generic[Parameters, State, TheAugmentedState]):
+class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differentiand],
+                                          Differentiand,
+                                          Differentiand],
+                Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
+    """
+    The state of _ZIterate is the differentiand of the outer iterated function.
+    """
 
-    iterated_function: IteratedFunction[Parameters, State, TheAugmentedState]
+    iterated_function: IteratedFunctionWithCombinator[
+        Parameters, State, Comparand, TheAugmentedState, Differentiand]
 
     # Implemented methods --------------------------------------------------------------------------
-    def iterate_state(self, theta: _ZParameters[Parameters, State], state: State) -> State:
+    def iterate_state(self,
+                      theta: _ZParameters[Parameters, State, Differentiand],
+                      state: Differentiand) -> Differentiand:
         # The state should be called z, but we can't change the interface because of Liskov's
         # substitution principle.
         z = state
         del state
 
-        def f_of_x(x: State) -> State:
-            return self.iterated_function.iterate_state(theta.outer_theta, x)
+        def f_of_x(x_differentiand: Differentiand) -> Differentiand:
+            x = self.iterated_function.implant_differentiand(theta.x_star, x_differentiand)
+            state = self.iterated_function.iterate_state(theta.outer_theta, x)
+            return self.iterated_function.extract_differentiand(state)
 
-        _, df_by_dx = vjp(f_of_x, theta.x_star)
+        _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
         df_by_dx_times_z, = df_by_dx(z)
-        return tree_multimap(jnp.add, theta.x_star_bar, df_by_dx_times_z)
+        return tree_multimap(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
 
-    def extract_comparand(self, state: State) -> State:
+    def extract_comparand(self, state: Differentiand) -> Differentiand:
         return state
 
 
 def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State,
-                                                                     TheAugmentedState],
+                                                                     Comparand,
+                                                                     TheAugmentedState,
+                                                                     Differentiand],
              theta: Parameters,
              initial_state: State) -> Tuple[TheAugmentedState, _ZResiduals[Parameters, State,
-                                                                           TheAugmentedState]]:
+                                                                           Comparand,
+                                                                           TheAugmentedState,
+                                                                           Differentiand]]:
     """
     Args:
         theta: The parameters for which gradients can be calculated.
@@ -72,7 +92,7 @@ def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters,
     return augmented, _ZResiduals(outer_iterated_function, theta, augmented.current_state)
 
 
-def _ffp_bwd(residuals: _ZResiduals[Parameters, State, TheAugmentedState],
+def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, TheAugmentedState, Differentiand],
              augmented_star_bar: TheAugmentedState) -> Tuple[Parameters]:
     """
     Args:
@@ -84,26 +104,34 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, TheAugmentedState],
     """
     # pylint: disable=protected-access
     outer_iterated_function = residuals.outer_iterated_function
+    x_star = residuals.x_star
+    x_star_differentiand = outer_iterated_function.extract_differentiand(x_star)
     x_star_bar = augmented_star_bar.current_state
+    x_star_bar_differentiand = outer_iterated_function.extract_differentiand(x_star_bar)
 
-    def f_of_theta(some_theta: Parameters) -> State:
-        return outer_iterated_function.iterate_state(some_theta, residuals.x_star)
+    def f_of_theta(some_theta: Parameters) -> Differentiand:
+        state = outer_iterated_function.iterate_state(some_theta, x_star)
+        return outer_iterated_function.extract_differentiand(state)
 
     z_iterator = _ZIterate(iteration_limit=outer_iterated_function.z_iteration_limit,
                            iterated_function=outer_iterated_function)
-    z_parameters = _ZParameters(residuals.outer_theta, residuals.x_star, x_star_bar)
-    augmented: TheAugmentedState = z_iterator.find_fixed_point(z_parameters, x_star_bar)
-    z_star: State = augmented.current_state
+    z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
+                                x_star_bar_differentiand)
+    # pylint: disable=no-member
+    augmented: TheAugmentedState = z_iterator.find_fixed_point(z_parameters,
+                                                               x_star_bar_differentiand)
+    z_star_differentiand: State = augmented.current_state
 
     _, df_by_dtheta = vjp(f_of_theta, residuals.outer_theta)
-    theta_bar, = df_by_dtheta(z_star)
+    theta_bar, = df_by_dtheta(z_star_differentiand)
     return (theta_bar,)
 
 
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
-class IteratedFunctionWithCombinator(IteratedFunction[Parameters, State, TheAugmentedState],
-                                     Generic[Parameters, State, TheAugmentedState]):
+class IteratedFunctionWithCombinator(
+        IteratedFunction[Parameters, State, Comparand, TheAugmentedState],
+        Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
     """
     An IteratedFunctionWithCombinator is an IteratedFunction that invokes a combinator so that
     differentiation works through the fixed point.  Besides inheriting from this class, no other
@@ -127,6 +155,24 @@ class IteratedFunctionWithCombinator(IteratedFunction[Parameters, State, TheAugm
         Returns: The augmented state at the fixed point.
         """
         return super().find_fixed_point(theta, initial_state)
+
+    # Abstract methods -----------------------------------------------------------------------------
+    def extract_differentiand(self, state: State) -> Differentiand:
+        """
+        Returns: The differentiable values in the state.  It is used by the combinator to find
+            cotangents.
+        """
+        raise NotImplementedError
+
+    def implant_differentiand(self, state: State, differentiand: Differentiand) -> State:
+        """
+        Args:
+            state: A state that will provide nondifferentiable values.
+            differentiand: A differentiand that will provide differentiable values.
+        Returns: A state containing differentiable from the differentiand and nondifferentiable
+            values from the inputted state.
+        """
+        raise NotImplementedError
 
     # Apply vjp ------------------------------------------------------------------------------------
     find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)

@@ -18,6 +18,7 @@ __all__ = ['IteratedFunction']
 
 
 Parameters = TypeVar('Parameters', bound=PyTree)
+Comparand = TypeVar('Comparand', bound=PyTree)
 Trajectory = TypeVar('Trajectory', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
 TapFunction = Callable[[None, Tuple[Any, ...]], None]
@@ -25,7 +26,7 @@ TapFunction = Callable[[None, Tuple[Any, ...]], None]
 
 # https://github.com/python/mypy/issues/8539
 @dataclass  # type: ignore
-class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
+class IteratedFunction(Generic[Parameters, State, Comparand, TheAugmentedState]):
     """
     An IteratedFunction object models an iterated function.
 
@@ -166,5 +167,14 @@ class IteratedFunction(Generic[Parameters, State, TheAugmentedState]):
     def converged(self, augmented: TheAugmentedState) -> Array:
         """
         Returns: A Boolean Array of shape () indicating whether the pytrees are close.
+        """
+        raise NotImplementedError
+
+    def extract_comparand(self, state: State) -> Comparand:
+        """
+        Returns: The "comparand", which is a subset of the values in the state that are compared by
+            subclasses to detect convergence.  In ComparingIteratedFunction, the comparand will be
+            compared in successive states to detect convergence.  In StochasticIteratedFunction, the
+            mean and variance of the comparand are used to detect convergence.
         """
         raise NotImplementedError
