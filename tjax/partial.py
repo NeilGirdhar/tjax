@@ -16,13 +16,15 @@ R = TypeVar('R')
 
 
 @register_pytree_node_class
-class Partial(partial, Generic[R]):
+class Partial(partial, Generic[R]):  # type: ignore
     """
     A version of functools.partial that returns a pytree.
 
     Use it for partial function evaluation in a way that is compatible with JAX's transformations,
     e.g., ``Partial(func, *args, **kwargs)``.
     """
+
+    T = TypeVar('T', bound='Partial[R]')
 
     callable_is_static: bool
     static_argnums: Tuple[int, ...]
@@ -113,6 +115,3 @@ class Partial(partial, Generic[R]):
 
     def __call__(self, *args: Any, **kwargs: Any) -> R:
         return super().__call__(*args, **self.static_kwargs, **kwargs)
-
-
-T = TypeVar('T', bound=Partial)

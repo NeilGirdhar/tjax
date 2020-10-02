@@ -1,12 +1,12 @@
 """Plugin that provides support for dataclasses."""
 # Lifted from:
 # https://github.com/python/mypy/blob/master/mypy/plugins/dataclasses.py
-
-from typing import Callable, Dict, List, Optional, Set, Tuple
+# pylint: disable=no-name-in-module
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple
 
 from mypy.nodes import (ARG_OPT, ARG_POS, ARG_STAR2, MDEF, Argument, AssignmentStmt, CallExpr,
-                        Context, Expression, JsonDict, NameExpr, PlaceholderNode, RefExpr,
-                        SymbolTableNode, TempNode, TypeInfo, TypeVarExpr, Var)
+                        Expression, JsonDict, NameExpr, PlaceholderNode, RefExpr, SymbolTableNode,
+                        TempNode, TypeInfo, TypeVarExpr, Var)
 from mypy.plugin import ClassDefContext, Plugin, SemanticAnalyzerPluginInterface
 from mypy.plugins.common import _get_decorator_bool_argument, add_method, deserialize_and_fixup_type
 from mypy.server.trigger import make_wildcard_trigger
@@ -24,7 +24,7 @@ class CustomPlugin(Plugin):
         return None
 
 
-def plugin(version: str):
+def plugin(version: str) -> Any:
     # ignore version argument if the plugin works with all mypy versions.
     return CustomPlugin
 
@@ -43,6 +43,7 @@ SELF_UVAR_NAME = '_U_DT'  # type: Final
 
 
 class DataclassAttribute:
+    # pylint: disable=redefined-builtin
     def __init__(
             self,
             name: str,
@@ -125,7 +126,7 @@ class DataclassTransformer:
                                          [], obj_type)
             info.names[SELF_UVAR_NAME] = SymbolTableNode(MDEF, self_tvar_expr)
             replace_tvar_def = TypeVarDef(SELF_UVAR_NAME, info.fullname + '.' + SELF_UVAR_NAME,
-                                        -1, [], fill_typevars(info))
+                                          -1, [], fill_typevars(info))
             replace_other_type = TypeVarType(replace_tvar_def)
 
             add_method(
@@ -141,9 +142,9 @@ class DataclassTransformer:
         # processed them yet. In order to work around this, we can simply skip generating
         # __init__ if there are no attributes, because if the user truly did not define any,
         # then the object default __init__ with an empty signature will be present anyway.
-        if (decorator_arguments['init'] and
-                ('__init__' not in info.names or info.names['__init__'].plugin_generated) and
-                attributes):
+        if (decorator_arguments['init']
+                and ('__init__' not in info.names or info.names['__init__'].plugin_generated)
+                and attributes):
             add_method(
                 ctx,
                 '__init__',
@@ -151,8 +152,8 @@ class DataclassTransformer:
                 return_type=NoneType(),
             )
 
-        if (decorator_arguments['eq'] and info.get('__eq__') is None or
-                decorator_arguments['order']):
+        if (decorator_arguments['eq'] and info.get('__eq__') is None
+                or decorator_arguments['order']):
             # Type variable for self types in generated methods.
             obj_type = ctx.api.named_type('__builtins__.object')
             self_tvar_expr = TypeVarExpr(SELF_TVAR_NAME, info.fullname + '.' + SELF_TVAR_NAME,
@@ -266,8 +267,8 @@ class DataclassTransformer:
             # x: InitVar[int] is turned into x: int and is removed from the class.
             is_init_var = False
             node_type = get_proper_type(node.type)
-            if (isinstance(node_type, Instance) and
-                    node_type.type.fullname == 'dataclasses.InitVar'):
+            if (isinstance(node_type, Instance)
+                    and node_type.type.fullname == 'dataclasses.InitVar'):
                 is_init_var = True
                 node.type = node_type.args[0]
 
@@ -373,6 +374,7 @@ class DataclassTransformer:
                 var = attr.to_var()
                 var.info = info
                 var.is_property = True
+                # pylint: disable=protected-access
                 var._fullname = info.fullname + '.' + var.name
                 info.names[var.name] = SymbolTableNode(MDEF, var)
 
@@ -389,11 +391,9 @@ def _collect_field_args(expr: Expression) -> Tuple[bool, Dict[str, Expression]]:
     the expression is a call to dataclass.field and the second is a
     dictionary of the keyword arguments that field() was called with.
     """
-    if (
-            isinstance(expr, CallExpr) and
-            isinstance(expr.callee, RefExpr) and
-            expr.callee.fullname in field_makers
-    ):
+    if (isinstance(expr, CallExpr)
+            and isinstance(expr.callee, RefExpr)
+            and expr.callee.fullname in field_makers):
         # field() only takes keyword arguments.
         args = {}
         for name, arg in zip(expr.arg_names, expr.args):
