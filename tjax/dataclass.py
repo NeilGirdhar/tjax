@@ -1,10 +1,10 @@
+import dataclasses as dataclasses
+from dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple, fields,
+                         is_dataclass, replace)
 from functools import partial
-from typing import (Any, Callable, Hashable, Iterable, List, MutableMapping, Optional, Sequence,
-                    Tuple, Type, TypeVar, overload)
+from typing import (Any, Callable, Hashable, Iterable, List, Mapping, MutableMapping, Optional,
+                    Sequence, Tuple, Type, TypeVar, overload)
 
-import cooperative_dataclasses as dataclasses
-from cooperative_dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple,
-                                     fields, is_dataclass, replace)
 from jax.tree_util import register_pytree_node
 
 from .annotations import PyTree
@@ -194,16 +194,37 @@ def get_relative_dataclass_test_string(actual: Any,
     return retval
 
 
-def field(*, static: bool = False, **kwargs: Any) -> dataclasses.Field:
+# NOTE: Actual return type is 'Field[T]', but we want to help type checkers
+# to understand the magic that happens at runtime.
+@overload  # `default` and `default_factory` are optional and mutually exclusive.
+def field(*, static: bool = False, default: T, init: bool = ..., repr: bool = ...,
+          hash: Optional[bool] = ..., compare: bool = ...,
+          metadata: Optional[Mapping[str, Any]] = ...) -> T:
+    ...
+@overload
+def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
+          repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
+          metadata: Optional[Mapping[str, Any]] = ...) -> T:
+    ...
+@overload
+def field(*, static: bool = False, init: bool = ..., repr: bool = ..., hash: Optional[bool] = ...,
+          compare: bool = ..., metadata: Optional[Mapping[str, Any]] = ...) -> Any:
+    ...
+
+
+def field(*, static: bool = False, default: Any, default_factory: Callable[[], Any],
+          init: bool = ..., repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
+          metadata: Optional[Mapping[str, Any]] = ...) -> Any:
     """
     Args:
         static: Indicates whether a field is a pytree or static.  Pytree fields are
             differentiated and traced.  Static fields are hashed and compared.
-        kwargs: Any of the keyword arguments from `dataclasses.field`.
     """
-    return dataclasses.field(metadata={**kwargs.pop('metadata', {}),
-                                       'static': static},
-                             **kwargs)
+    if metadata is ...:
+        metadata = {}
+    return dataclasses.field(metadata={**metadata, 'static': static},
+                             static=static, default=default, default_factory=default_factory,
+                             init=init, repr=repr, hash=hash, compare=compare)
 
 
 def field_names(d: Any) -> Iterable[str]:
