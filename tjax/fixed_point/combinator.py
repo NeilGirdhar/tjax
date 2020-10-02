@@ -51,7 +51,9 @@ class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differ
         Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
 
     # Implemented methods --------------------------------------------------------------------------
-    def expected_state(self, theta: Parameters, state: State) -> State:
+    def expected_state(self,
+                       theta: _ZParameters[Parameters, State, Differentiand],
+                       state: Differentiand) -> Differentiand:
         raise RuntimeError
 
     def sampled_state(self,

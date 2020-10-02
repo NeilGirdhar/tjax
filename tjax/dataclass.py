@@ -1,4 +1,4 @@
-import dataclasses as dataclasses
+import dataclasses
 from dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple, fields,
                          is_dataclass, replace)
 from functools import partial
@@ -139,6 +139,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
         data_clz.display = display_dataclass  # type: ignore
     data_clz.tree_flatten = tree_flatten  # type: ignore
     data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
+    data_clz.replace = replace  # type: ignore
 
     # Assign field lists to the class.
     data_clz.nonstatic_fields = nonstatic_fields  # type: ignore
@@ -196,40 +197,46 @@ def get_relative_dataclass_test_string(actual: Any,
 
 # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
 # to understand the magic that happens at runtime.
+# pylint: disable=redefined-builtin
 @overload  # `default` and `default_factory` are optional and mutually exclusive.
 def field(*, static: bool = False, default: T, init: bool = ..., repr: bool = ...,
           hash: Optional[bool] = ..., compare: bool = ...,
           metadata: Optional[Mapping[str, Any]] = ...) -> T:
     ...
+
+
 @overload
 def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
           repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
           metadata: Optional[Mapping[str, Any]] = ...) -> T:
     ...
+
+
 @overload
 def field(*, static: bool = False, init: bool = ..., repr: bool = ..., hash: Optional[bool] = ...,
           compare: bool = ..., metadata: Optional[Mapping[str, Any]] = ...) -> Any:
     ...
 
 
-def field(*, static: bool = False, default: Any, default_factory: Callable[[], Any],
-          init: bool = ..., repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
-          metadata: Optional[Mapping[str, Any]] = ...) -> Any:
+def field(*, static: bool = False, default: Any = MISSING,
+          default_factory: Callable[[], Any] = MISSING, init: bool = True,  # type: ignore
+          repr: bool = True, hash: Optional[bool] = None, compare: bool = True,
+          metadata: Optional[Mapping[str, Any]] = None) -> Any:
     """
     Args:
         static: Indicates whether a field is a pytree or static.  Pytree fields are
             differentiated and traced.  Static fields are hashed and compared.
     """
-    if metadata is ...:
+    if metadata is None:
         metadata = {}
     return dataclasses.field(metadata={**metadata, 'static': static},
-                             static=static, default=default, default_factory=default_factory,
-                             init=init, repr=repr, hash=hash, compare=compare)
+                             default=default, default_factory=default_factory, init=init, repr=repr,
+                             hash=hash, compare=compare)  # type: ignore
 
 
 def field_names(d: Any) -> Iterable[str]:
-    for field in fields(d):
-        yield field.name
+    for this_field in fields(d):
+        yield this_field.name
 
 
 def field_names_and_values(d: Any) -> Iterable[Tuple[str, Any]]:
