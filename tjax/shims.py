@@ -18,6 +18,9 @@ def as_sorted_tuple(x: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
 
 
 def jit(func: F, **kwargs: Any) -> F:
+    """
+    This version of jit ensures that abstract methods stay abstract.
+    """
     retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
         retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore
