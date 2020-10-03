@@ -6,6 +6,7 @@ from .annotations import *
 from .color_stub import *
 from .cotangent_tools import *
 from .dataclass import *
+from .dataclass_patch import *
 from .display import *
 from .dtypes import *
 from .generator import *
