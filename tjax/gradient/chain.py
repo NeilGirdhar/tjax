@@ -1,10 +1,7 @@
-from typing import Any, Callable, Generic, List, Optional, Tuple, TypeVar, Union
-
-from chex import Numeric
+from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from ..annotations import PyTree
 from ..dataclass import dataclass
-from .meta_parameter import MetaParameter
 from .transform import GradientTransformation, Weights
 
 __all__ = ['ChainedGradientTransformation']
@@ -31,10 +28,3 @@ class ChainedGradientTransformation(GradientTransformation[List[PyTree], Weights
             gradient, new_sub_state = transform.update(gradient, sub_state, parameters)
             new_state.append(new_sub_state)
         return gradient, new_state
-
-    def replace_meta_parameters(self: U,  # type: ignore
-                                f: Callable[[MetaParameter], Union[Numeric, MetaParameter]]) -> U:
-        new_transforms = []
-        for transform in self.transforms:
-            new_transforms.append(transform.replace_meta_parameters(f))
-        return self.replace(transforms=new_transforms)
