@@ -1,22 +1,18 @@
-from typing import Generic, Optional, Tuple, Union
+from typing import Generic, Optional, Tuple
 
 from chex import Numeric
 from optax import ScaleByAdamState, ScaleState, scale, scale_by_adam
 
 from ..dataclass import dataclass
-from .meta_parameter import MetaParameter
 from .transform import GradientTransformation, Weights
 
 __all__ = ['Scale', 'ScaleByAdam']
 
 
-NumericOrMeta = Union[Numeric, MetaParameter]
-
-
 @dataclass
 class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
 
-    step_size: NumericOrMeta
+    step_size: Numeric
 
     def init(self, parameters: Weights) -> ScaleState:
         return scale(self.step_size).init(parameters)
@@ -31,10 +27,10 @@ class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
 @dataclass
 class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Weights]):
 
-    beta1: NumericOrMeta = 0.9
-    beta2: NumericOrMeta = 0.999
-    epsilon: NumericOrMeta = 1e-8
-    epsilon_root: NumericOrMeta = 0.0
+    beta1: Numeric = 0.9
+    beta2: Numeric = 0.999
+    epsilon: Numeric = 1e-8
+    epsilon_root: Numeric = 0.0
 
     def init(self, parameters: Weights) -> ScaleByAdamState:
         return scale_by_adam(self.beta1, self.beta2, self.epsilon, self.epsilon_root).init(
