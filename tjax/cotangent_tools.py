@@ -1,4 +1,5 @@
-from typing import Tuple, TypeVar
+from functools import partial
+from typing import Optional, Tuple, TypeVar
 
 from jax.experimental.host_callback import id_print
 
@@ -29,18 +30,20 @@ def _copy_cotangent_bwd(residuals: None, xy_bar: Tuple[X, X]) -> Tuple[X, X]:
 copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 
 
-@custom_vjp
-def print_cotangent(x: X) -> X:
+@partial(custom_vjp, static_argnums=1)
+def print_cotangent(x: X, what: Optional[str] = None) -> X:
     return x
 
 
-def _print_cotangent_fwd(x: X) -> Tuple[X, None]:
+def _print_cotangent_fwd(x: X, what: Optional[str]) -> Tuple[X, None]:
     return x, None
 
 
-def _print_cotangent_bwd(residuals: None, x_bar: X) -> Tuple[X]:
+def _print_cotangent_bwd(what: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
     del residuals
-    x_bar = id_print(x_bar)
+    x_bar = (id_print(x_bar)
+             if what is None
+             else id_print(x_bar, what=what))
     return (x_bar,)
 
 
