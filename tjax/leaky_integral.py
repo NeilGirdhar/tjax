@@ -69,6 +69,6 @@ def diffused_leaky_integrate(value: Array,
     variance = (diffusion * time_step
                 if decay is None
                 else diffusion / decay * -jnp.expm1(-decay * time_step))
-    new_rng, jump = rng.normal(jnp.sqrt(variance), shape=value.shape)
+    jump, new_rng = rng.normal(jnp.sqrt(variance), shape=value.shape)
     return (leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump,
             new_rng)

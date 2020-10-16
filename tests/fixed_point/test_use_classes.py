@@ -80,8 +80,7 @@ class EncodingElement:
             new_rng = None
             noise = 0.0
         else:
-            new_rng, noise = rng.normal(
-                jnp.sqrt(2.0 * self.diffusion * time_step), shape=())
+            noise, new_rng = rng.normal(jnp.sqrt(2.0 * self.diffusion * time_step), shape=())
         x = (ec.x * jnp.exp(-decay * time_step)
              + 10. * (self.theta - ec.x) * time_step
              + noise)
