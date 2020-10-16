@@ -107,9 +107,11 @@ class custom_vjp(Generic[R]):
             primal, internal_residuals = fwd(*args)
             return primal, (zeroed_args, internal_residuals)
 
-        def new_bwd(residuals: Any, output_bar: R) -> Any:
+        def new_bwd(*args: Any) -> Any:
+            output_bar: R
+            *static_args, residuals, output_bar = args
             zeroed_args, internal_residuals = residuals
-            input_bar = bwd(internal_residuals, output_bar)
+            input_bar = bwd(*static_args, internal_residuals, output_bar)
             input_bar = list(input_bar)
             for i, index in enumerate(self.nondiff_argnums):
                 input_bar[index: index] = [zeroed_args[i]]
