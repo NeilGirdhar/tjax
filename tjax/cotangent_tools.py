@@ -1,17 +1,15 @@
-from functools import partial
 from typing import Optional, Tuple, TypeVar
 
 from jax import numpy as jnp
 from jax.experimental.host_callback import id_print
 from jax.tree_util import tree_map
 
-from .annotations import PyTree
 from .shims import custom_vjp
 
-__all__ = ['zero_out_cotangent', 'copy_cotangent', 'print_cotangent']
+__all__ = ['zero_out_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cotangent']
 
 
-X = TypeVar('X', bound=PyTree)
+X = TypeVar('X')
 
 
 # zero_out_cotangent -------------------------------------------------------------------------------
@@ -33,9 +31,12 @@ zero_out_cotangent.defvjp(_zero_out_cotangent_fwd, _zero_out_cotangent_bwd)
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
-@custom_vjp
 def copy_cotangent(x: X, y: X) -> Tuple[X, X]:
     return x, y
+
+
+# Apply after to work around mypy deficiency.
+copy_cotangent = custom_vjp(copy_cotangent)
 
 
 def _copy_cotangent_fwd(x: X, y: X) -> Tuple[Tuple[X, X], None]:
@@ -51,8 +52,27 @@ def _copy_cotangent_bwd(residuals: None, xy_bar: Tuple[X, X]) -> Tuple[X, X]:
 copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 
 
+# replace_cotangent --------------------------------------------------------------------------------
+def replace_cotangent(x: X, new_cotangent: X) -> X:
+    return x
+
+
+# Apply after to work around mypy deficiency.
+replace_cotangent = custom_vjp(replace_cotangent)
+
+
+def _replace_cotangent_fwd(x: X, new_cotangent: X) -> Tuple[X, None]:
+    return x, new_cotangent
+
+
+def _replace_cotangent_bwd(residuals: X, x_bar: X) -> Tuple[X, X]:
+    return residuals, x_bar
+
+
+replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)
+
+
 # print_cotangent ----------------------------------------------------------------------------------
-@partial(custom_vjp, static_argnums=1)
 def print_cotangent(x: X, what: Optional[str] = None) -> X:
     return x
 
@@ -67,6 +87,10 @@ def _print_cotangent_bwd(what: Optional[str], residuals: None, x_bar: X) -> Tupl
              if what is None
              else id_print(x_bar, what=what))
     return (x_bar,)
+
+
+# Apply after to work around mypy deficiency.
+print_cotangent = custom_vjp(print_cotangent, static_argnums=1)
 
 
 print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
