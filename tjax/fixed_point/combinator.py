@@ -98,7 +98,7 @@ def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters,
 
 
 def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand, TheAugmentedState],
-             augmented_star_bar: TheAugmentedState) -> Tuple[Parameters]:
+             augmented_star_bar: TheAugmentedState) -> Tuple[None, Parameters, None]:
     """
     Args:
         residuals: residuals produced by _ffp_fwd.
@@ -129,7 +129,7 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
 
     _, df_by_dtheta = vjp(f_of_theta, residuals.outer_theta)
     theta_bar, = df_by_dtheta(z_star_differentiand)
-    return (theta_bar,)
+    return None, theta_bar, None
 
 
 # https://github.com/python/mypy/issues/8539
@@ -149,7 +149,7 @@ class IteratedFunctionWithCombinator(
     z_iteration_limit: int = 1000
 
     # Overridden methods ---------------------------------------------------------------------------
-    @partial(custom_vjp[TheAugmentedState], nondiff_argnums=(0, 2))
+    @custom_vjp
     def find_fixed_point(self,  # type: ignore
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
