@@ -143,7 +143,7 @@ def test_noisy_grad(noisy_it_fun: IteratedFunction[Array, Array, Array, Array, A
                     theta: float) -> None:
 
     def fixed_point_using_while_of_theta(theta: Array) -> Array:
-        state = (8.0, Generator(seed=123))
+        state = (8.0, Generator.from_seed(123))
         x, rng = noisy_it_fun.find_fixed_point(theta, state).current_state
         return x
     assert_allclose(theta,

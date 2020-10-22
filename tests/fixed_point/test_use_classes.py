@@ -68,7 +68,7 @@ class EncodingElement:
 
     def _initial_state(self) -> EncodingState:
         return EncodingState(EncodingConfiguration(8.0, 1),
-                             Generator(seed=123))
+                             Generator.from_seed(123))
 
     def iterate(self,
                 ec: EncodingConfiguration,
