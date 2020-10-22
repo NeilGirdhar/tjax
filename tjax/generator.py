@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, TypeVar, Type
 
 import jax.random
 import numpy as np
@@ -13,6 +13,9 @@ from .dataclass import dataclass
 __all__ = ['Generator']
 
 
+T = TypeVar('T', bound='Generator')
+
+
 @dataclass
 class Generator:
     """
@@ -23,17 +26,10 @@ class Generator:
 
     key: Array
 
-    def __init__(self,
-                 *,
-                 seed: Optional[int] = None,
-                 key: Optional[Array] = None,
-                 **kwargs: Any):
-        super().__init__(**kwargs)
-        if key is None:
-            if seed is None:
-                raise ValueError
-            key = jax.random.PRNGKey(seed)
-        object.__setattr__(self, 'key', key)
+    # Class methods --------------------------------------------------------------------------------
+    @classmethod
+    def from_seed(cls: Type[T], seed: int) -> T:
+        return cls(jax.random.PRNGKey(seed))
 
     # New methods ----------------------------------------------------------------------------------
     def split(self, n: int = 2) -> List[Generator]:
