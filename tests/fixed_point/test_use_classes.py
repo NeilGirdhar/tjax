@@ -42,6 +42,7 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
     def sampled_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
         assert isinstance(state, EncodingState)
         new_ec, new_rng = theta.iterate(state.ec, state.rng, self.time_step)
+        assert new_rng is not None
         return EncodingState(new_ec, new_rng)
 
     def extract_comparand(self, state: EncodingState) -> EncodingConfiguration:

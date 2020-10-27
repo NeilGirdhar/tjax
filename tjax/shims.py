@@ -1,8 +1,7 @@
-from typing import Any, Callable, Generic, Tuple, TypeVar, Union
+from typing import Any, Callable, Generic, Tuple, TypeVar, Union, cast
 
 import jax
-from jax import numpy as jnp
-from jax.tree_util import Partial, tree_map
+from jax.tree_util import Partial
 
 __all__ = ['jit', 'custom_jvp', 'custom_vjp']
 
@@ -21,7 +20,7 @@ def jit(func: F, **kwargs: Any) -> F:
     """
     This version of jit ensures that abstract methods stay abstract.
     """
-    retval = jax.jit(func, **kwargs)
+    retval = cast(F, jax.jit(func, **kwargs))
     if hasattr(func, "__isabstractmethod__"):
         retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore
     return retval
@@ -34,6 +33,8 @@ class custom_vjp(Generic[R]):
     - allow custom_vjp to be used on methods, and
     - rename nondiff_argnums to static_argnums.
     """
+    vjp: jax.custom_vjp
+
     def __init__(self,
                  fun: Callable[..., R],
                  static_argnums: Union[int, Tuple[int, ...]] = ()):
@@ -43,10 +44,10 @@ class custom_vjp(Generic[R]):
             static_argnums: The indices of the static arguments.
         """
         static_argnums = as_sorted_tuple(static_argnums)
-        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)  # type: ignore
 
     def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -> None:
-        self.vjp.defvjp(fwd, bwd)
+        self.vjp.defvjp(fwd, bwd)  # type: ignore
 
     def __call__(self, *args: Any) -> R:
         return self.vjp(*args)
@@ -74,7 +75,7 @@ class custom_jvp(Generic[R]):
             static_argnums: The indices of the static arguments.
         """
         static_argnums = as_sorted_tuple(static_argnums)
-        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
+        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)  # type: ignore
 
     def defjvp(self, jvp: Callable[..., R]) -> None:
         """
@@ -83,7 +84,7 @@ class custom_jvp(Generic[R]):
         Args:
             fwd: The custom forward pass.
         """
-        self.jvp.defjvp(jvp)
+        self.jvp.defjvp(jvp)  # type: ignore
 
     def __call__(self, *args: Any) -> R:
         return self.jvp(*args)

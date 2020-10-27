@@ -92,9 +92,9 @@ def _print_cotangent_fwd(x: X, what: Optional[str]) -> Tuple[X, None]:
 
 def _print_cotangent_bwd(what: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
     del residuals
-    x_bar = (id_print(x_bar)
+    x_bar = (id_print(x_bar)  # type: ignore
              if what is None
-             else id_print(x_bar, what=what))
+             else id_print(x_bar, what=what))  # type: ignore
     return (x_bar,)
 
 

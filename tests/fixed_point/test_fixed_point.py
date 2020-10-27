@@ -99,7 +99,7 @@ def fixture_fixed_point_using_while(
 
 @pytest.fixture(scope='session', name='fixed_point_using_scan')
 def fixture_fixed_point_using_scan(
-    it_fun: IteratedFunction[Array, Array, Array, Array, Array]) -> C:
+        it_fun: IteratedFunction[Array, Array, Array, Array, Array]) -> C:
     def f(theta: Array, x_init: Array) -> Array:
         return it_fun.sample_trajectory(theta, x_init, 2000, None)[0].current_state
     return f

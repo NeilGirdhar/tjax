@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from functools import partial
 from typing import Any, Generic, Tuple, TypeVar
 
 from jax import numpy as jnp
@@ -123,8 +122,7 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
     z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
                                 x_star_bar_differentiand)
     # pylint: disable=no-member
-    augmented: TheAugmentedState = z_iterator.find_fixed_point(z_parameters,
-                                                               x_star_bar_differentiand)
+    augmented = z_iterator.find_fixed_point(z_parameters, x_star_bar_differentiand)
     z_star_differentiand: State = augmented.current_state
 
     _, df_by_dtheta = vjp(f_of_theta, residuals.outer_theta)
@@ -150,7 +148,7 @@ class IteratedFunctionWithCombinator(
 
     # Overridden methods ---------------------------------------------------------------------------
     @custom_vjp
-    def find_fixed_point(self,  # type: ignore
+    def find_fixed_point(self,  # type: ignore # pylint: disable=method-hidden
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
         """
