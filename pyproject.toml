@@ -31,6 +31,7 @@ jaxlib = "^0.1.55"
 matplotlib = "^3.3"
 networkx = "^2.4"
 numpy = "^1.19"
+optax = "^0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5"
