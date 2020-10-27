@@ -10,8 +10,9 @@ from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
 from jax.tree_util import tree_multimap
 
-from tjax import PyTree, dataclass, default_atol, default_rtol
-
+from ..annotations import PyTree, TapFunctionTransforms
+from ..dataclass import dataclass
+from ..dtypes import default_atol, default_rtol
 from .augmented import AugmentedState, State
 
 __all__ = ['IteratedFunction']
@@ -21,7 +22,7 @@ Parameters = TypeVar('Parameters', bound=PyTree)
 Comparand = TypeVar('Comparand', bound=PyTree)
 Trajectory = TypeVar('Trajectory', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
-TapFunction = Callable[[None, Tuple[Any, ...]], None]
+TapFunction = Callable[[None, TapFunctionTransforms], None]
 
 
 # https://github.com/python/mypy/issues/8539
@@ -58,7 +59,9 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     atol: float = default_atol
 
     # New methods ----------------------------------------------------------------------------------
-    def find_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:
+    def find_fixed_point(self,  # pylint: disable=function-redefined, method-hidden
+                         theta: Parameters,
+                         initial_state: State) -> TheAugmentedState:
         """
         Args:
             theta: The parameters for which gradients can be calculated.
@@ -74,9 +77,9 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
                           f,
                           self.initial_augmented(initial_state))
 
-    find_fixed_point = jit(find_fixed_point)
+    find_fixed_point = jit(find_fixed_point)  # pylint: disable=used-before-assignment
 
-    def sample_trajectory(self,
+    def sample_trajectory(self,  # pylint: disable=function-redefined, method-hidden
                           theta: Parameters,
                           initial_state: State,
                           iteration_limit: int,
@@ -101,6 +104,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             return new_augmented, trajectory
         return scan(f, self.initial_augmented(initial_state), None, iteration_limit)
 
+    # pylint: disable=used-before-assignment
     sample_trajectory = jit(sample_trajectory, static_argnums=(3, 4))
 
     def debug_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:

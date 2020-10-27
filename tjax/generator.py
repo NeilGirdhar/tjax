@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple, TypeVar, Type
+from typing import Any, List, Tuple, Type, TypeVar
 
 import jax.random
 import numpy as np
@@ -49,6 +49,7 @@ class Generator:
         else:
             shape = tuple(shape)
         prod_shape = np.prod(shape)
+        assert isinstance(prod_shape, int)
         keys = (self.key
                 if prod_shape == 1
                 else jax.random.split(self.key, prod_shape))

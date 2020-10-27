@@ -13,6 +13,9 @@ from jax.interpreters.xla import DeviceArray
 __all__ = ['print_generic', 'display_generic']
 
 
+# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
+
+
 def print_generic(*args: Any, **kwargs: Any) -> None:
     for value in args:
         print(display_generic(value))
@@ -30,43 +33,43 @@ def _(value: JVPTracer, show_values: bool = True, indent: int = 0) -> str:
     return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
 
 
-@display_generic.register
+@display_generic.register  # type: ignore
 def _(value: JaxprTracer, show_values: bool = True, indent: int = 0) -> str:
     return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
 
 
-@display_generic.register
+@display_generic.register  # type: ignore
 def _(value: BatchTracer, show_values: bool = True, indent: int = 0) -> str:
     return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
                       f"batched over {value.val.shape[value.batch_dim]}") + "\n"
 
 
-@display_generic.register
+@display_generic.register  # type: ignore
 def _(value: np.ndarray, show_values: bool = True, indent: int = 0) -> str:
     retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
     return retval + _show_array(indent + 1, value)
 
 
-@display_generic.register
+@display_generic.register  # type: ignore
 def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
     retval = cf.violet(f"Jax Array {value.shape}") + "\n"
     return retval + _show_array(indent + 1, value)
 
 
-@display_generic.register(type(None))
+@display_generic.register(type(None))  # type: ignore
 @display_generic.register(Number)
 def _(value: Union[None, Number], show_values: bool = True, indent: int = 0) -> str:
     return cf.cyan(str(value)) + "\n"
 
 
-@display_generic.register(dict)
+@display_generic.register(dict)  # type: ignore
 def _(value: Dict[Any, Any], show_values: bool = True, indent: int = 0) -> str:
     return (display_class(dict)
             + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
                       for key, sub_value in sorted(value.items())))
 
 
-@display_generic.register(tuple)
+@display_generic.register(tuple)  # type: ignore
 @display_generic.register(list)
 def _(value: Union[Tuple[Any, ...], List[Any]], show_values: bool = True, indent: int = 0) -> str:
     return (display_class(type(value))
@@ -74,7 +77,7 @@ def _(value: Union[Tuple[Any, ...], List[Any]], show_values: bool = True, indent
                       for sub_value in value))
 
 
-@display_generic.register
+@display_generic.register  # type: ignore
 def _(value: nx.Graph, show_values: bool, indent: int = 0) -> str:
     directed = isinstance(value, nx.DiGraph)
     arrow = cf.base00('⟶  ' if directed else '🡘 ')

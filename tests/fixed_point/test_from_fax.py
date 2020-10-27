@@ -53,7 +53,7 @@ def solve_ax_b(amat: np.ndarray, bvec: np.ndarray) -> np.ndarray:
     return np.linalg.solve(matrix, bvec)
 
 
-def solve_grad_ax_b(amat: np.ndarray, bvec: np.ndarray) -> np.ndarray:
+def solve_grad_ax_b(amat: np.ndarray, bvec: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
     Solve for the gradient of the fixed point x = Ax + b.
 
@@ -103,7 +103,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
 # Tests --------------------------------------------------------------------------------------------
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)
+@hypothesis.settings(max_examples=100, deadline=5000.)  # type: ignore
 @hypothesis.given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
@@ -121,7 +121,7 @@ def test_simple_contraction(ax_plus_b: IteratedFunction[TPair, Array, Array, Arr
     assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)
+@hypothesis.settings(max_examples=100, deadline=5000.)  # type: ignore
 @hypothesis.given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
@@ -137,9 +137,9 @@ def test_jvp(ax_plus_b: IteratedFunction[TPair, Array, Array, Array, Array],
         return ax_plus_b.find_fixed_point(theta, x_init).current_state
 
     def f_vjp(theta: TPair, x_init: Array) -> Callable[[Array], TPair]:
-        return jax.vjp(f, theta, x_init)
+        return jax.vjp(f, theta, x_init)  # type: ignore
 
-    jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),
+    jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore
                             rtol=1e-4, atol=1e-4)
 
 
@@ -150,13 +150,13 @@ def test_gradient(generator: Generator,
     """
     mat_size = 10
     matrix = generate_stable_matrix(generator, mat_size, 1e-1)
-    offset = np.random.rand(mat_size)
+    offset = np.random.rand(mat_size)  # type: ignore
     x0 = jnp.zeros_like(offset)
 
     def loss(params: TPair, x: Array) -> Array:
         return jnp.sum(ax_plus_b.find_fixed_point(params, x).current_state)
 
-    jax.test_util.check_grads(loss,
+    jax.test_util.check_grads(loss,  # type: ignore
                               ((matrix, offset), x0),
                               order=1,
                               modes=["rev"],

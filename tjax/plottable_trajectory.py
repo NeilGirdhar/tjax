@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Generic, Optional, TypeVar, Union
 
 import numpy as np
@@ -22,7 +23,7 @@ class PlottableTrajectory(Generic[Trajectory]):
     "The trajectory is PyTree containing the plotted data in its nonstatic attributes."
     iterations: int
     "The number of data points in each of the plotted attributes."
-    time_step: Array
+    time_step: float
     "The period between adjacent data points."
 
     def plot(self,
@@ -58,7 +59,7 @@ class PlottableTrajectory(Generic[Trajectory]):
                 new_ys = np.zeros_like(ys)
                 acc = np.zeros_like(ys[0])
                 denominator = 0.0
-                scale = np.exp(-decay * self.time_step)
+                scale = math.exp(-decay * self.time_step)
                 for j, y in enumerate(ys):
                     acc = acc * scale + y * self.time_step
                     denominator = denominator * scale + self.time_step

@@ -114,6 +114,7 @@ def jax_allclose(actual: PyTree,
 
 
 # get test string ----------------------------------------------------------------------------------
+# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
 @singledispatch
 def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     """
@@ -138,17 +139,17 @@ def _(actual: Union[np.ndarray, DeviceArray], rtol: float, atol: float) -> str:
             '  ', ' ')
 
 
-@get_test_string.register
+@get_test_string.register  # type: ignore
 def _(actual: Complex, rtol: float, atol: float) -> str:
     return _float_to_string(actual, rtol, atol)
 
 
-@get_test_string.register
+@get_test_string.register  # type: ignore
 def _(actual: Number, rtol: float, atol: float) -> str:
     return str(actual)
 
 
-@get_test_string.register(list)
+@get_test_string.register(list)  # type: ignore
 @get_test_string.register(tuple)
 def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
     is_list = isinstance(actual, list)
@@ -158,7 +159,7 @@ def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
             + ("]" if is_list else ")"))
 
 
-@get_test_string.register(dict)
+@get_test_string.register(dict)  # type: ignore
 def _(actual: Dict[Any, Any], rtol: float, atol: float) -> str:
     return '{' + ",\n".join(repr(key) + ': ' + get_test_string(sub_actual, rtol, atol)
                             for key, sub_actual in actual.items()) + '}'
@@ -185,7 +186,7 @@ def get_relative_test_string(actual: Any,
     return str(actual)
 
 
-@get_relative_test_string.register(np.ndarray)
+@get_relative_test_string.register(np.ndarray)  # type: ignore
 @get_relative_test_string.register(DeviceArray)
 def _(actual: Union[np.ndarray, DeviceArray], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
@@ -197,17 +198,17 @@ def _(actual: Union[np.ndarray, DeviceArray], original_name: str, original: Any,
             '  ', ' ')
 
 
-@get_relative_test_string.register
+@get_relative_test_string.register  # type: ignore
 def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
     return _float_to_string(actual, rtol, atol)
 
 
-@get_relative_test_string.register
+@get_relative_test_string.register  # type: ignore
 def _(actual: Number, original_name: str, original: Any, rtol: float, atol: float) -> str:
     return str(actual)
 
 
-@get_relative_test_string.register(list)
+@get_relative_test_string.register(list)  # type: ignore
 @get_relative_test_string.register(tuple)
 def _(actual: Union[List[Any], Tuple[Any]], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
@@ -220,7 +221,7 @@ def _(actual: Union[List[Any], Tuple[Any]], original_name: str, original: Any, r
             + ("]" if is_list else ")"))
 
 
-@get_relative_test_string.register(dict)
+@get_relative_test_string.register(dict)  # type: ignore
 def _(actual: Dict[Any, Any], original_name: str, original: Any, rtol: float, atol: float) -> str:
     if not isinstance(original, dict):
         raise TypeError

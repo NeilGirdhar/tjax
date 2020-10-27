@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Tuple, TypeVar, Union
+from typing import Any, Callable, Dict, Sequence, Tuple, TypeVar, Union
 
 from chex import Array
 from jax import vjp
@@ -12,6 +12,7 @@ __all__ = ['Shape',
            'RealArray',
            'ComplexArray',
            'PyTree',
+           'TapFunctionTransforms',
            'vjp_with_aux']
 
 
@@ -21,6 +22,7 @@ SliceLike = Tuple[Union[int, None, slice], ...]
 RealArray = Array
 ComplexArray = Array
 PyTree = Any
+TapFunctionTransforms = Sequence[Tuple[str, Dict[str, Any]]]
 
 
 T = TypeVar('T')
