@@ -1,12 +1,14 @@
-from typing import Callable, Optional, Tuple, TypeVar
+from functools import partial
+from typing import Any, Callable, Optional, Tuple, TypeVar, Union
 
+from jax import vjp
 from jax.experimental.host_callback import id_print
 from jax.tree_util import tree_map
 
 from .annotations import Array
 from .shims import custom_vjp
 
-__all__ = ['transform_cotangent', 'mapped_transform_cotangent', 'copy_cotangent',
+__all__ = ['transform_cotangent', 'mapped_transform_cotangent', 'copy_cotangent', 'block_cotangent',
            'replace_cotangent', 'print_cotangent']
 
 
@@ -79,6 +81,32 @@ def _replace_cotangent_bwd(residuals: X, x_bar: X) -> Tuple[X, X]:
 
 
 replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)  # type: ignore
+
+
+# block_cotangent ----------------------------------------------------------------------------------
+def block_cotangent(f: Callable[..., X],
+                    block_argnums: Union[int, Tuple[int, ...]],
+                    static_argnums: Union[int, Tuple[int, ...]]=()) -> Callable[..., X]:
+    if isinstance(block_argnums, int):
+        block_argnums = (block_argnums,)
+    set_block_argnums = set(block_argnums)
+
+    @partial(custom_vjp, static_argnums=static_argnums)
+    def blocked_f(*args: Any, **kwargs: Any) -> Any:
+        return f(*args, **kwargs)
+
+    def blocked_f_fwd(*args: Any, **kwargs: Any) -> Tuple[Any, Any]:
+        return vjp(f, *args, **kwargs)  # type: ignore
+
+    def blocked_f_bwd(residuals: Any, output_bar: Any) -> Tuple[Any, ...]:
+        f_vjp = residuals
+        input_bar = f_vjp(output_bar)
+        return tuple(None if i in set_block_argnums else x_bar
+                     for i, x_bar in enumerate(input_bar))
+
+    blocked_f.defvjp(blocked_f_fwd, blocked_f_bwd)
+
+    return blocked_f  # type: ignore
 
 
 # print_cotangent ----------------------------------------------------------------------------------
