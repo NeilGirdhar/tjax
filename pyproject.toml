@@ -1,15 +1,15 @@
 [build-system]
-requires = ["setuptools", "poetry>=1.0"]
-build-backend = "poetry.masonry.api"
+requires = ["setuptools", "poetry_core>=1.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "tjax"
-version = "0.6.7"
+version = "0.6.8"
 description = "Tools for JAX."
 license = "MIT"
 authors = ["Neil Girdhar <mistersheik@gmail.com>"]
 readme = "README.rst"
-repository = "https://github.com/NeilGirdhar/cmm"
+repository = "https://github.com/NeilGirdhar/tjax"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
