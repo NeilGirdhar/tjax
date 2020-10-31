@@ -67,7 +67,7 @@ class PlottableTrajectory(Generic[Trajectory]):
                 ys = new_ys
             axis.plot(xs, ys, label=str(plot_index))
         number_of_graph_lines = np.prod(data.shape[1:])
-        if legend > 0 and number_of_graph_lines <= legend:
+        if legend > 0 and 0 < number_of_graph_lines <= legend:
             axis.legend()
 
     def slice_into(self, s: Union[int, slice]) -> Trajectory:
