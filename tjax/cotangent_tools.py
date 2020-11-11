@@ -3,42 +3,13 @@ from typing import Any, Callable, Optional, Tuple, TypeVar, Union
 
 from jax import vjp
 from jax.experimental.host_callback import id_print
-from jax.tree_util import tree_map
 
-from .annotations import Array
 from .shims import custom_vjp
 
-__all__ = ['transform_cotangent', 'mapped_transform_cotangent', 'copy_cotangent', 'block_cotangent',
-           'replace_cotangent', 'print_cotangent']
+__all__ = ['copy_cotangent', 'block_cotangent', 'replace_cotangent', 'print_cotangent']
 
 
 X = TypeVar('X')
-
-
-# transform_cotangent ------------------------------------------------------------------------------
-def transform_cotangent(f: Callable[[X], X], x: X) -> X:
-    return x
-
-
-# Apply after to work around mypy deficiency.
-transform_cotangent = custom_vjp(transform_cotangent, static_argnums=0)  # type: ignore
-
-
-def _transform_cotangent_fwd(f: Callable[[X], X], x: X) -> Tuple[X, None]:
-    return x, None
-
-
-def _transform_cotangent_bwd(f: Callable[[X], X], residuals: None, x_bar: X) -> Tuple[X]:
-    return (f(x_bar),)
-
-
-transform_cotangent.defvjp(_transform_cotangent_fwd, _transform_cotangent_bwd)  # type: ignore
-
-
-def mapped_transform_cotangent(g: Callable[[Array], Array], x: X) -> X:
-    def f(x_bar: X) -> X:
-        return tree_map(g, x_bar)
-    return transform_cotangent(f, x)
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
@@ -86,7 +57,7 @@ replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)  # type
 # block_cotangent ----------------------------------------------------------------------------------
 def block_cotangent(f: Callable[..., X],
                     block_argnums: Union[int, Tuple[int, ...]],
-                    static_argnums: Union[int, Tuple[int, ...]]=()) -> Callable[..., X]:
+                    static_argnums: Union[int, Tuple[int, ...]] = ()) -> Callable[..., X]:
     if isinstance(block_argnums, int):
         block_argnums = (block_argnums,)
     set_block_argnums = set(block_argnums)
