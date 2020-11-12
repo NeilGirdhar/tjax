@@ -73,15 +73,28 @@ class StochasticIteratedFunction(
                            True)
 
     # New methods ----------------------------------------------------------------------------------
-    def convergence_atol(self, augmented: StochasticState[State, Comparand]) -> Array:
+    def minimum_tolerances(self, augmented: StochasticState[State, Comparand]) -> Tuple[Array,
+                                                                                        Array]:
+        """
+        Returns:
+            The minimum value of atol that would lead to convergence now.
+            The minimum value of rtol that would lead to convergence now.
+        """
+        def safe_divide(numerator: Array, denominator: Array) -> Array:
+            return  jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)
+
         data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
                                       self.convergence_detection_decay,
                                       leaky_average=True)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
-        return jnp.where(data_weight > 0.0,
-                         tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)) / data_weight,
-                         jnp.inf)
+        scaled_variance = tree_multimap(safe_divide, variance, mean_squared)
+
+        minium_atol = safe_divide(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
+                                  data_weight)
+        minium_rtol = safe_divide(tree_reduce(jnp.maximum, tree_map(jnp.amax, scaled_variance)),
+                                  data_weight)
+        return minium_atol, minium_rtol
 
     # Private methods ------------------------------------------------------------------------------
     def _sufficient_statistics(self, state: State) -> Tuple[Comparand, Comparand]:
