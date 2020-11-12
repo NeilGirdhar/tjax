@@ -149,10 +149,11 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             augmented: The state.
         Returns: True while iteration needs to continue.
         """
-        converged = jnp.logical_not(jnp.logical_and(augmented.iterations > self.minimum_iterations,
-                                                    self.converged(augmented)))
-        too_many_iterations = augmented.iterations < self.iteration_limit
-        return jnp.logical_and(too_many_iterations, converged)
+        enough_iterations = augmented.iterations > self.minimum_iterations
+        converged = self.converged(augmented)
+        not_too_many_iterations = augmented.iterations < self.iteration_limit
+        return jnp.logical_and(not_too_many_iterations,
+                               jnp.logical_not(jnp.logical_and(enough_iterations, converged)))
 
     # Abstract methods -----------------------------------------------------------------------------
     def initial_augmented(self, initial_state: State) -> TheAugmentedState:
