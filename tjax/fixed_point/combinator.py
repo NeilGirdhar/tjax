@@ -117,7 +117,8 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
         state = outer_iterated_function.expected_state(some_theta, x_star)
         return outer_iterated_function.extract_differentiand(state)
 
-    z_iterator = _ZIterate(iteration_limit=outer_iterated_function.z_iteration_limit,
+    z_iterator = _ZIterate(minimum_iterations=outer_iterated_function.z_minimum_iterations,
+                           maximum_iterations=outer_iterated_function.z_maximum_iterations,
                            iterated_function=outer_iterated_function)
     z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
                                 x_star_bar_differentiand)
@@ -141,10 +142,11 @@ class IteratedFunctionWithCombinator(
     action is necessary to get this capability.
 
     Attributes:
-        z_iteration_limit:
+        z_maximum_iterations:
             The maximum number of iterations to use to evaluate the adjoint's fixed point.
     """
-    z_iteration_limit: int = 1000
+    z_minimum_iterations: int = 11
+    z_maximum_iterations: int = 1000
 
     # Overridden methods ---------------------------------------------------------------------------
     @custom_vjp

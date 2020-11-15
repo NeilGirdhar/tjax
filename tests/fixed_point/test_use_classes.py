@@ -101,7 +101,8 @@ class EncodingElement:
 
 @pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
 def test_use_classes(theta: float) -> None:
-    eif = EncodingIteratedFunction(iteration_limit=1000,
+    eif = EncodingIteratedFunction(minimum_iterations=11,
+                                   maximum_iterations=1000,
                                    atol=1e-2,
                                    convergence_detection_decay=0.1,
                                    time_step=0.01)

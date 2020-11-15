@@ -94,10 +94,11 @@ class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array,
 @pytest.fixture(name='ax_plus_b', scope='session')
 def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array,
                                                                    Array]:
-    return Solver(rtol=1e-10,
+    return Solver(minimum_iterations=11,
+                  maximum_iterations=10000,
+                  rtol=1e-10,
                   atol=1e-10,
-                  z_iteration_limit=10000,
-                  iteration_limit=10000)
+                  z_maximum_iterations=10000)
 
 
 # Tests --------------------------------------------------------------------------------------------
