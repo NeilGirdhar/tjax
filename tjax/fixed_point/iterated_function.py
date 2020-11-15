@@ -47,14 +47,14 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     Args:
         minimum_iterations: The minimum number of iterations for this fixed point solver.  This must
             be positive.
-        iteration_limit: The maximum number of iterations for this fixed point solver.  This must be
-            positive.
+        maximum_iterations: The maximum number of iterations for this fixed point solver.  This must
+            be positive.
         rtol: The relative tolerance for the comparison stopping condition.
         atol: The absolute tolerance for the comparison stopping condition.
     """
 
-    minimum_iterations: Array = 10
-    iteration_limit: Array
+    minimum_iterations: Array
+    maximum_iterations: Array
     rtol: float = default_rtol
     atol: float = default_atol
 
@@ -82,14 +82,14 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     def sample_trajectory(self,  # pylint: disable=function-redefined, method-hidden
                           theta: Parameters,
                           initial_state: State,
-                          iteration_limit: int,
+                          maximum_iterations: int,
                           tap_function: Optional[TapFunction]) -> (
                               Tuple[TheAugmentedState, Trajectory]):
         """
         Args:
             theta: The parameters for which gradients can be calculated.
             initial_state: An initial guess of the final state.
-            iteration_limit: The number of steps in the trajectory.  Unlike the eponymous member
+            maximum_iterations: The number of steps in the trajectory.  Unlike the eponymous member
                 variable, this must be static.
         Returns:
             x_star: The augmented state at the fixed point.
@@ -102,7 +102,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             if tap_function is not None:
                 trajectory = id_tap(tap_function, None, result=trajectory)
             return new_augmented, trajectory
-        return scan(f, self.initial_augmented(initial_state), None, iteration_limit)
+        return scan(f, self.initial_augmented(initial_state), None, maximum_iterations)
 
     # pylint: disable=used-before-assignment
     sample_trajectory = jit(sample_trajectory, static_argnums=(3, 4))
@@ -121,7 +121,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     def debug_trajectory(self,
                          theta: Parameters,
                          initial_state: State,
-                         iteration_limit: int,
+                         maximum_iterations: int,
                          tap_function: Optional[TapFunction]) -> (
                              Tuple[TheAugmentedState, Trajectory]):
         """
@@ -129,7 +129,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
         jit.
         """
         augmented = self.initial_augmented(initial_state)
-        for i in range(iteration_limit):
+        for i in range(maximum_iterations):
             trajectory: Trajectory
             concatenated_trajectory: Trajectory
             new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
@@ -149,9 +149,9 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             augmented: The state.
         Returns: True while iteration needs to continue.
         """
-        enough_iterations = augmented.iterations > self.minimum_iterations
+        enough_iterations = augmented.iterations >= self.minimum_iterations
         converged = self.converged(augmented)
-        not_too_many_iterations = augmented.iterations < self.iteration_limit
+        not_too_many_iterations = augmented.iterations < self.maximum_iterations
         return jnp.logical_and(not_too_many_iterations,
                                jnp.logical_not(jnp.logical_and(enough_iterations, converged)))
 

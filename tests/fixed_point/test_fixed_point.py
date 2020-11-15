@@ -86,7 +86,8 @@ def squared_error(theta: Array, x: Array) -> Array:
 @pytest.fixture(scope='session', name='it_fun')
 def fixture_it_fun() -> NewtonsMethod:
     step_size = 0.01
-    return NewtonsMethod(f=squared_error, step_size=step_size, iteration_limit=2000)
+    return NewtonsMethod(minimum_iterations=11, maximum_iterations=2000, f=squared_error,
+                         step_size=step_size)
 
 
 @pytest.fixture(scope='session', name='fixed_point_using_while')
@@ -107,7 +108,8 @@ def fixture_fixed_point_using_scan(
 
 @pytest.fixture(scope='session', name='noisy_it_fun')
 def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
-    return NoisyNewtonsMethod(iteration_limit=1000,
+    return NoisyNewtonsMethod(minimum_iterations=11,
+                              maximum_iterations=1000,
                               atol=1e-4,
                               convergence_detection_decay=0.05,
                               f=squared_error,
