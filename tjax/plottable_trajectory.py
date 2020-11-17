@@ -56,7 +56,7 @@ class PlottableTrajectory(Generic[Trajectory]):
         for plot_index in np.ndindex(all_ys.shape[1:]):
             ys = all_ys[(clip_slice, *plot_index)]
             if decay is not None:
-                new_ys = np.zeros_like(ys)
+                new_ys = np.zeros(ys.shape)  # Use floating point dtype no matter ys's dtype.
                 acc = np.zeros_like(ys[0])
                 denominator = 0.0
                 scale = math.exp(-decay * self.time_step)
