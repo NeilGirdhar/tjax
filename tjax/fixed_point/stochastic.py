@@ -7,9 +7,8 @@ from chex import Array
 from jax import numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
-from tjax import dataclass
-
-from ..leaky_integral import leaky_integrate
+from ..dataclass import dataclass
+from ..leaky_integral import leaky_data_weight, leaky_integrate
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -60,9 +59,7 @@ class StochasticIteratedFunction(
                                second_moment_state=new_second_moment_state)
 
     def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
-        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
-                                      self.convergence_detection_decay,
-                                      leaky_average=True)
+        data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
         return tree_reduce(jnp.logical_and,
                            tree_multimap(partial(jnp.allclose,
@@ -81,11 +78,9 @@ class StochasticIteratedFunction(
             The minimum value of rtol that would lead to convergence now.
         """
         def safe_divide(numerator: Array, denominator: Array) -> Array:
-            return  jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)
+            return jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)
 
-        data_weight = leaky_integrate(0.0, augmented.iterations, 1.0,
-                                      self.convergence_detection_decay,
-                                      leaky_average=True)
+        data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(jnp.square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
         scaled_variance = tree_multimap(safe_divide, variance, mean_squared)

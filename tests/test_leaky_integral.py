@@ -1,8 +1,10 @@
 import numpy as np
+import pytest
 from chex import Numeric
+from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
-from tjax import leaky_integrate
+from tjax import leaky_integrate, leaky_integrate_time_series
 
 
 def test_time_step_invariance() -> None:
@@ -14,3 +16,9 @@ def test_time_step_invariance() -> None:
 
     a = np.array([f(n) for n in [1, 5, 20, 100]])
     assert_allclose(a, a[0])  # type: ignore
+
+
+@pytest.mark.parametrize('decay', [0.1, 1.0, 10.0])
+def test_time_series(decay: float) -> None:
+    n = jnp.ones(100) * 12.0
+    assert_allclose(n, leaky_integrate_time_series(n, decay))

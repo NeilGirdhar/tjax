@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from typing import Generic, Optional, TypeVar, Union
 
 import numpy as np
@@ -10,6 +9,7 @@ from matplotlib.axes import Axes
 
 from .annotations import PyTree
 from .dataclass import dataclass
+from .leaky_integral import leaky_integrate_time_series
 
 __all__ = ['PlottableTrajectory']
 
@@ -56,15 +56,7 @@ class PlottableTrajectory(Generic[Trajectory]):
         for plot_index in np.ndindex(all_ys.shape[1:]):
             ys = all_ys[(clip_slice, *plot_index)]
             if decay is not None:
-                new_ys = np.zeros(ys.shape)  # Use floating point dtype no matter ys's dtype.
-                acc = np.zeros_like(ys[0])
-                denominator = 0.0
-                scale = math.exp(-decay * self.time_step)
-                for j, y in enumerate(ys):
-                    acc = acc * scale + y * self.time_step
-                    denominator = denominator * scale + self.time_step
-                    new_ys[j] = acc / denominator
-                ys = new_ys
+                ys = leaky_integrate_time_series(ys, decay)
             axis.plot(xs, ys, label=str(plot_index))
         number_of_graph_lines = np.prod(data.shape[1:])
         if legend > 0 and 0 < number_of_graph_lines <= legend:
