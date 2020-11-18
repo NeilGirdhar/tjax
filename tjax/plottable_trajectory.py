@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Generic, Optional, TypeVar, Union
+from typing import Generic, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 from chex import Array
@@ -32,6 +32,7 @@ class PlottableTrajectory(Generic[Trajectory]):
              subplot_title: str,
              *,
              legend: int = 0,
+             labels: Optional[Sequence[str]] = None,
              decay: Optional[float] = None,
              clip_slice: slice = slice(None)) -> None:
         """
@@ -53,13 +54,16 @@ class PlottableTrajectory(Generic[Trajectory]):
         if not np.all(np.isfinite(all_ys)):
             print(f"Graph {subplot_title} contains infinite numbers.")
 
-        for plot_index in np.ndindex(all_ys.shape[1:]):
+        plot_indices = list(np.ndindex(all_ys.shape[1:]))
+        if labels is None:
+            labels = [str(x) for x in plot_indices]
+        for plot_index, label in zip(plot_indices, labels):
             ys = all_ys[(clip_slice, *plot_index)]
             if decay is not None:
                 ys = leaky_integrate_time_series(ys, decay)
-            axis.plot(xs, ys, label=str(plot_index))
+            axis.plot(xs, ys, label=label)
         number_of_graph_lines = np.prod(data.shape[1:])
-        if legend > 0 and 0 < number_of_graph_lines <= legend:
+        if labels is not None or legend > 0 and 0 < number_of_graph_lines <= legend:
             axis.legend()
 
     def slice_into(self, s: Union[int, slice]) -> Trajectory:
