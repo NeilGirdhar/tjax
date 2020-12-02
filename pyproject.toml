@@ -55,7 +55,3 @@ exclude = ["__init__.py", "__pycache__", "README.rst"]
 [tool.pytype]
 disable = "ignored-abstractmethod"
 exclude = ["**/*_test.py", "**/test_*.py'"]
-
-[tool.dephell.main]
-from = {format = "poetry", path = "pyproject.toml"}
-to = {format = "setuppy", path = "setup.py"}
