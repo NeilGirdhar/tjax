@@ -1,6 +1,5 @@
-
 import pytest
-from _pytest.capture import CaptureFixture
+from pytest import CaptureFixture
 
 from tjax import assert_jax_allclose
 
