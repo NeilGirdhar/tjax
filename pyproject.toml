@@ -35,7 +35,7 @@ numpy = "^1.19"
 optax = "^0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5"
+pytest = "^6.2"
 hypothesis = "^5"
 
 [tool.isort]
