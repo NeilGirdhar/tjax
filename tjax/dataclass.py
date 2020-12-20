@@ -1,6 +1,7 @@
 import dataclasses
-from dataclasses import (MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple, fields,
-                         is_dataclass, replace)
+from dataclasses import MISSING, Field, FrozenInstanceError, InitVar, asdict, astuple
+from dataclasses import fields as d_fields
+from dataclasses import is_dataclass, replace
 from functools import partial
 from typing import (Any, Callable, Hashable, Iterable, List, Mapping, MutableMapping, Optional,
                     Sequence, Tuple, Type, TypeVar, overload)
@@ -14,7 +15,7 @@ from .testing import get_relative_test_string, get_test_string, jax_allclose
 __all__ = ['dataclass', 'field', 'Field', 'FrozenInstanceError', 'InitVar', 'MISSING',
            # Helper functions.
            'fields', 'asdict', 'astuple', 'replace', 'is_dataclass', 'field_names',
-           'field_names_and_values', 'field_names_values_metadata',
+           'field_names_and_values', 'field_names_values_metadata', 'field_values',
            # New functions.
            'document_dataclass']
 
@@ -234,18 +235,32 @@ def field(*, static: bool = False, default: Any = MISSING,
                              hash=hash, compare=compare)  # type: ignore
 
 
-def field_names(d: Any) -> Iterable[str]:
-    for this_field in fields(d):
+def fields(d: Any, *, static: Optional[bool] = None) -> Iterable[Field[Any]]:
+    if static is None:
+        yield from d_fields(d)
+    for this_field in d_fields(d):
+        if this_field.metadata.get('static', False) == static:
+            yield this_field
+
+
+def field_names(d: Any, *, static: Optional[bool] = None) -> Iterable[str]:
+    for this_field in fields(d, static=static):
         yield this_field.name
 
 
-def field_names_and_values(d: Any) -> Iterable[Tuple[str, Any]]:
-    for name in field_names(d):
+def field_names_and_values(d: Any, *, static: Optional[bool] = None) -> Iterable[Tuple[str, Any]]:
+    for name in field_names(d, static=static):
         yield name, getattr(d, name)
 
 
-def field_names_values_metadata(d: Any) -> Iterable[Tuple[str, Any, Mapping[str, Any]]]:
-    for this_field in fields(d):
+def field_values(d: Any, *, static: Optional[bool] = None) -> Iterable[Any]:
+    for name in field_names(d, static=static):
+        yield getattr(d, name)
+
+
+def field_names_values_metadata(d: Any, *, static: Optional[bool] = None) -> (
+        Iterable[Tuple[str, Any, Mapping[str, Any]]]):
+    for this_field in fields(d, static=static):
         yield this_field.name, getattr(d, this_field.name), this_field.metadata
 
 
