@@ -1,5 +1,5 @@
 from functools import partial, singledispatch
-from numbers import Complex, Number
+from numbers import Real, Complex, Number
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -131,7 +131,7 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
 @get_test_string.register(np.ndarray)
 @get_test_string.register(DeviceArray)
 def _(actual: Union[np.ndarray, DeviceArray], rtol: float, atol: float) -> str:
-    def fts(x: float) -> str:
+    def fts(x: Complex) -> str:
         return _float_to_string(x, rtol, atol)
     with np.printoptions(formatter={'float_kind': fts,
                                     'complex_kind': fts}):
@@ -141,7 +141,7 @@ def _(actual: Union[np.ndarray, DeviceArray], rtol: float, atol: float) -> str:
 
 @get_test_string.register  # type: ignore
 def _(actual: Complex, rtol: float, atol: float) -> str:
-    return _float_to_string(actual, rtol, atol)
+    return _float_to_string(complex(actual), rtol, atol)
 
 
 @get_test_string.register  # type: ignore
@@ -190,7 +190,7 @@ def get_relative_test_string(actual: Any,
 @get_relative_test_string.register(DeviceArray)
 def _(actual: Union[np.ndarray, DeviceArray], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
-    def fts(x: float) -> str:
+    def fts(x: Complex) -> str:
         return _float_to_string(x, rtol, atol)
     with np.printoptions(formatter={'float_kind': fts,
                                     'complex_kind': fts}):
@@ -240,7 +240,13 @@ def _float_to_string_with_precision(x: Union[float, complex], precision: int) ->
         return repr(np.array(x))[6:-1]
 
 
-def _float_to_string(x: Union[float, complex], rtol: float, atol: float) -> str:
+def _float_to_string(x: Complex, rtol: float, atol: float) -> str:
+    if isinstance(x, Real):
+        x = float(x)
+    elif isinstance(x, Complex):
+        x = complex(x)
+    else:
+        raise TypeError
     for i in range(20):
         retval = _float_to_string_with_precision(x, i)
         if np.allclose(float(retval), x, rtol=rtol, atol=atol):
