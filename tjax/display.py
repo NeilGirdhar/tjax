@@ -124,6 +124,8 @@ def _show_array(indent: int, array: Union[np.ndarray, DeviceArray]) -> str:
     if 1 in array.shape:
         return _show_array(indent, array[tuple(0 if s == 1 else slice(None)
                                                for s in array.shape)])
+    if any(x > 10 for x in array.shape):
+        return ""
     if len(array.shape) == 1:
         return _indent_space(indent) + "  ".join(_format_number(array[i])
                                                  for i in range(array.shape[0])) + "\n"

@@ -1,5 +1,5 @@
 from functools import partial, singledispatch
-from numbers import Real, Complex, Number
+from numbers import Complex, Number, Real
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -240,15 +240,16 @@ def _float_to_string_with_precision(x: Union[float, complex], precision: int) ->
         return repr(np.array(x))[6:-1]
 
 
-def _float_to_string(x: Complex, rtol: float, atol: float) -> str:
+def _float_to_string(x: complex, rtol: float, atol: float) -> str:
+    y: Union[float, complex]
     if isinstance(x, Real):
-        x = float(x)
+        y = float(x)
     elif isinstance(x, Complex):
-        x = complex(x)
+        y = complex(x)
     else:
         raise TypeError
     for i in range(20):
-        retval = _float_to_string_with_precision(x, i)
-        if np.allclose(float(retval), x, rtol=rtol, atol=atol):
+        retval = _float_to_string_with_precision(y, i)
+        if np.allclose(complex(retval), x, rtol=rtol, atol=atol):
             break
     return retval
