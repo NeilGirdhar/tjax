@@ -7,7 +7,7 @@ import networkx as nx
 import numpy as np
 from jax.interpreters.ad import JVPTracer
 from jax.interpreters.batching import BatchTracer
-from jax.interpreters.partial_eval import JaxprTracer, DynamicJaxprTracer
+from jax.interpreters.partial_eval import DynamicJaxprTracer, JaxprTracer
 from jax.interpreters.xla import DeviceArray
 
 __all__ = ['print_generic', 'display_generic']
@@ -42,6 +42,7 @@ def _(value: JaxprTracer, show_values: bool = True, indent: int = 0) -> str:
 def _(value: DynamicJaxprTracer, show_values: bool = True, indent: int = 0) -> str:
     return cf.magenta(f"DynamicJaxprTracer {value.shape} {value.dtype}") + "\n"
 
+
 @display_generic.register  # type: ignore
 def _(value: BatchTracer, show_values: bool = True, indent: int = 0) -> str:
     return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
@@ -56,8 +57,7 @@ def _(value: np.ndarray, show_values: bool = True, indent: int = 0) -> str:
 
 @display_generic.register  # type: ignore
 def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
-    retval = cf.violet(f"Jax Array {value.shape}") + "\n"
-    return retval + _show_array(indent + 1, value)
+    return cf.violet(f"Jax Array {value.shape} {value.dtype}") + "\n"
 
 
 @display_generic.register(type(None))  # type: ignore
