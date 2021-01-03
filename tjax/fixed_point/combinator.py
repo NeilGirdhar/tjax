@@ -141,6 +141,10 @@ class IteratedFunctionWithCombinator(
     differentiation works through the fixed point.  Besides inheriting from this class, no other
     action is necessary to get this capability.
 
+    It is a generic class with all of the parameters of IteratedFunction, and Differentiand, which
+    is the type of the *portion of the state* with respect to which derivatives at the fixed point
+    are calculated.
+
     Attributes:
         z_maximum_iterations:
             The maximum number of iterations to use to evaluate the adjoint's fixed point.
