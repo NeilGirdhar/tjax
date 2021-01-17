@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Generic, Optional, Sequence, TypeVar, Union
+from typing import Any, Generic, Optional, Sequence, Type, TypeVar, Union
 
 import numpy as np
 from chex import Array
@@ -20,11 +20,9 @@ Trajectory = TypeVar('Trajectory', bound=PyTree)
 @dataclass
 class PlottableTrajectory(Generic[Trajectory]):
     trajectory: Trajectory
-    "The trajectory is PyTree containing the plotted data in its nonstatic attributes."
-    iterations: int
-    "The number of data points in each of the plotted attributes."
-    time_step: float
-    "The period between adjacent data points."
+    "The trajectory is a PyTree containing the plotted data in its nonstatic attributes."
+    times: np.ndarray
+    "The times corresponding to the data points in each of the plotted attributes."
 
     def plot(self,
              data: Array,
@@ -48,8 +46,7 @@ class PlottableTrajectory(Generic[Trajectory]):
         axis.set_title(subplot_title)
         axis.ticklabel_format(useOffset=False)
 
-        xs = np.linspace(0.0, self.iterations * self.time_step, self.iterations, endpoint=False)[
-            clip_slice]
+        times = self.times[clip_slice]
         all_ys = np.asarray(data)
         if not np.all(np.isfinite(all_ys)):
             print(f"Graph {subplot_title} contains infinite numbers.")
@@ -61,7 +58,7 @@ class PlottableTrajectory(Generic[Trajectory]):
             ys = all_ys[(clip_slice, *plot_index)]
             if decay is not None:
                 ys = leaky_integrate_time_series(ys, decay)
-            axis.plot(xs, ys, label=label)
+            axis.plot(times, ys, label=label)
         number_of_graph_lines = np.prod(data.shape[1:])
         if labels is not None or legend > 0 and 0 < number_of_graph_lines <= legend:
             axis.legend()
