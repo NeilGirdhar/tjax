@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Optional, Sequence, Type, TypeVar, Union
+from typing import Generic, Optional, Sequence, TypeVar, Union
 
 import numpy as np
 from chex import Array
@@ -27,8 +27,8 @@ class PlottableTrajectory(Generic[Trajectory]):
     def plot(self,
              data: Array,
              axis: Axes,
-             subplot_title: str,
              *,
+             title: Optional[str] = None,
              legend: int = 0,
              labels: Optional[Sequence[str]] = None,
              decay: Optional[float] = None,
@@ -38,18 +38,20 @@ class PlottableTrajectory(Generic[Trajectory]):
         Args:
             data: The data to be plotted.  Typically, this is a sub-element of trajectory.
             axis: A matplotlib axis to plot into.
-            subplot_title: The title of the subplot.
+            title: The title of the subplot.
             legend: The maximum number of entries for which to generate a legend.
             decay: If not none, applies a leaky-integral with the given decay to the plotted points.
             clip_slice: Restrict the plot to a slice.
         """
-        axis.set_title(subplot_title)
+        if title is not None:
+            axis.set_title(title)
         axis.ticklabel_format(useOffset=False)
 
         times = self.times[clip_slice]
         all_ys = np.asarray(data)
         if not np.all(np.isfinite(all_ys)):
-            print(f"Graph {subplot_title} contains infinite numbers.")
+            print(f"Graph {'' if title is None else title + ' '}contains infinite numbers.")
+            all_ys = np.where(np.isfinite(all_ys), all_ys, 0.0)
 
         plot_indices = list(np.ndindex(all_ys.shape[1:]))
         if labels is None:
