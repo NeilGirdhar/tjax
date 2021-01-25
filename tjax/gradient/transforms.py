@@ -11,7 +11,6 @@ __all__ = ['Scale', 'ScaleByAdam', 'AdditiveWeightDecay']
 
 @dataclass
 class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
-
     step_size: Numeric
 
     def init(self, parameters: Weights) -> ScaleState:
@@ -26,7 +25,6 @@ class Scale(GradientTransformation[ScaleState, Weights], Generic[Weights]):
 
 @dataclass
 class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Weights]):
-
     beta1: Numeric = 0.9
     beta2: Numeric = 0.999
     epsilon: Numeric = 1e-8
@@ -46,7 +44,6 @@ class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Wei
 
 @dataclass
 class AdditiveWeightDecay(GradientTransformation[None, Weights], Generic[Weights]):
-
     weight_decay: Numeric = 0.0
 
     def init(self, parameters: Weights) -> None:
