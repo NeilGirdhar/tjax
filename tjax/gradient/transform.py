@@ -23,6 +23,15 @@ class GradientTransformation(Generic[State, Weights]):
                gradient: Weights,
                state: State,
                parameters: Optional[Weights]) -> Tuple[Weights, State]:
+        """
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+        Returns:
+            new_gradient: The modified gradient.
+            new_gradient_state: The new gradient state.
+        """
         raise NotImplementedError
 
 
@@ -36,7 +45,15 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
                gradient: Weights,
                state: State,
                parameters: Optional[Weights]) -> Tuple[Weights, State]:
-
+        """
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+        Returns:
+            new_gradient: The modified gradient.
+            new_gradient_state: The new gradient state.
+        """
         def hessian_vector_product(v: Weights) -> Weights:
             d = tree_reduce(jnp.add, tree_multimap(jnp.vdot, gradient, v), 0.0)
             return tree_map(lambda x: x * d, gradient)
@@ -49,4 +66,15 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
                             parameters: Optional[Weights],
                             hessian_vector_product: Callable[[Weights], Weights]) -> (
                                 Tuple[Weights, State]):
+        """
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+            hessian_vector_product: A function that maps v to the Hessian of the loss with respect
+                ot the weights times v.
+        Returns:
+            new_gradient: The modified gradient.
+            new_gradient_state: The new gradient state.
+        """
         raise NotImplementedError
