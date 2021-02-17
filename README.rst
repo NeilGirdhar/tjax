@@ -21,8 +21,11 @@ Tjax's major components are:
   (See `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/dataclass.py>`_ and `mypy_plugin <https://github.com/NeilGirdhar/tjax/blob/master/tjax/mypy_plugin.py>`_.)
 
 - A fixed point finding library heavily based on `fax <https://github.com/gehring/fax>`_.  Our
-  library supports stochastic iterated functions, and avoids leaking JAX tracers.  (See
-  `fixed_point <https://github.com/NeilGirdhar/tjax/blob/master/tjax/fixed_point>`_.)
+  library (`fixed_point <https://github.com/NeilGirdhar/tjax/blob/master/tjax/fixed_point>`_):
+
+  - supports stochastic iterated functions,
+  - uses dataclasses instead of closures to avoid leaking JAX tracers, and
+  - supports higher-order differentiation.
 
 ----------------
 Minor components

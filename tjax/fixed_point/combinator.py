@@ -10,11 +10,11 @@ from ..annotations import PyTree
 from ..dataclass import dataclass
 from ..shims import custom_vjp
 from .augmented import State
-from .comparing import ComparingIteratedFunction
+from .comparing import ComparingIteratedFunction, ComparingState
 from .iterated_function import (Comparand, IteratedFunction, Parameters, TheAugmentedState,
                                 Trajectory)
 
-__all__ = ['IteratedFunctionWithCombinator']
+__all__ = ['IteratedFunctionWithCombinator', 'ComparingIteratedFunctionWithCombinator']
 
 
 Differentiand = TypeVar('Differentiand', bound=PyTree)
@@ -34,46 +34,6 @@ class _ZParameters(Generic[Parameters, State, Differentiand]):
     x_star: State
     x_star_differentiand: Differentiand
     x_star_bar_differentiand: Differentiand
-
-
-@dataclass
-class _ZIterate(ComparingIteratedFunction[_ZParameters[Parameters, State, Differentiand],
-                                          Differentiand,
-                                          Differentiand,
-                                          None],
-                Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
-    """
-    The state of _ZIterate is the differentiand of the outer iterated function.
-    """
-
-    iterated_function: IteratedFunctionWithCombinator[
-        Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
-
-    # Implemented methods --------------------------------------------------------------------------
-    def expected_state(self,
-                       theta: _ZParameters[Parameters, State, Differentiand],
-                       state: Differentiand) -> Differentiand:
-        raise RuntimeError
-
-    def sampled_state(self,
-                      theta: _ZParameters[Parameters, State, Differentiand],
-                      state: Differentiand) -> Differentiand:
-        # The state should be called z, but we can't change the interface because of Liskov's
-        # substitution principle.
-        z = state
-        del state
-
-        def f_of_x(x_differentiand: Differentiand) -> Differentiand:
-            x = self.iterated_function.implant_differentiand(theta.x_star, x_differentiand)
-            state = self.iterated_function.expected_state(theta.outer_theta, x)
-            return self.iterated_function.extract_differentiand(state)
-
-        _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
-        df_by_dx_times_z, = df_by_dx(z)
-        return tree_multimap(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
-
-    def extract_comparand(self, state: Differentiand) -> Differentiand:
-        return state
 
 
 def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, Comparand,
@@ -185,3 +145,60 @@ class IteratedFunctionWithCombinator(
 
     # Apply vjp ------------------------------------------------------------------------------------
     find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)
+
+
+class ComparingIteratedFunctionWithCombinator(
+        IteratedFunctionWithCombinator[Parameters, State, Comparand, Differentiand, Trajectory,
+                                       ComparingState[State, Comparand]],
+        ComparingIteratedFunction[Parameters, State, Comparand, Trajectory],
+        Generic[Parameters, State, Comparand, Differentiand, Trajectory]):
+    pass
+
+
+@dataclass
+class _ZIterate(ComparingIteratedFunctionWithCombinator[
+        _ZParameters[Parameters, State, Differentiand],
+        Differentiand,
+        Differentiand,
+        Differentiand,
+        None],
+        Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
+    """
+    The state of _ZIterate is the differentiand of the outer iterated function.
+    """
+    iterated_function: IteratedFunctionWithCombinator[
+        Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
+
+    # Implemented methods --------------------------------------------------------------------------
+    def expected_state(self,
+                       theta: _ZParameters[Parameters, State, Differentiand],
+                       state: Differentiand) -> Differentiand:
+        return self.sampled_state(theta, state)
+
+    def sampled_state(self,
+                      theta: _ZParameters[Parameters, State, Differentiand],
+                      state: Differentiand) -> Differentiand:
+        # The state should be called z, but we can't change the interface because of Liskov's
+        # substitution principle.
+        z = state
+        del state
+
+        def f_of_x(x_differentiand: Differentiand) -> Differentiand:
+            x = self.iterated_function.implant_differentiand(theta.x_star, x_differentiand)
+            state = self.iterated_function.expected_state(theta.outer_theta, x)
+            return self.iterated_function.extract_differentiand(state)
+
+        _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
+        df_by_dx_times_z, = df_by_dx(z)
+        return tree_multimap(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
+
+    def extract_comparand(self, state: Differentiand) -> Differentiand:
+        return state
+
+    def extract_differentiand(self, state: Differentiand) -> Differentiand:
+        return state
+
+    def implant_differentiand(self,
+                              state: Differentiand,
+                              differentiand: Differentiand) -> Differentiand:
+        return differentiand
