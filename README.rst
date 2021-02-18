@@ -39,10 +39,10 @@ Tjax also includes:
 - A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
   `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/display.py>`_.)
 
-- Versions of :python:`custom_vjp` and :python:`custom_jvp` that support both static and non-differentiable
-  arguments.  (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/shims.py>`_.)
+- Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods.
+  (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/shims.py>`_.)
 
-- Tools for working with cotangents: :python:`copy_cotangent` and :python:`print_cotangent`.  (See
+- Tools for working with cotangents.  (See
   `cotangent_tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/cotangent_tools.py>`_.)
 
 - A random number generator class :python:`Generator`.  (See `generator <https://github.com/NeilGirdhar/tjax/blob/master/tjax/generator.py>`_.)
@@ -57,7 +57,7 @@ Tjax also includes:
 
 - A Matplotlib trajectory plotter :python:`PlottableTrajectory`.  (See `plottable_trajectory <https://github.com/NeilGirdhar/tjax/blob/master/tjax/plottable_trajectory.py>`_.)
 
-- A testing function :python:`assert_jax_allclose` that automatically produces testing code, and the related
+- A testing function :python:`assert_jax_allclose` that automatically produces testing code.  And, a related
   function :python:`jax_allclose`.  (See `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/testing.py>`_.)
 
 - Basic tools :python:`sum_tensors` and :python:`is_scalar`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/tools.py>`_.)
