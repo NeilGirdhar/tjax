@@ -9,6 +9,7 @@ from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..dataclass import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
+from ..tools import abs_square
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -60,7 +61,7 @@ class StochasticIteratedFunction(
 
     def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
-        mean_squared = tree_map(jnp.square, augmented.mean_state)
+        mean_squared = tree_map(abs_square, augmented.mean_state)
         return tree_reduce(jnp.logical_and,
                            tree_multimap(partial(jnp.allclose,
                                                  rtol=self.rtol * data_weight,
@@ -81,7 +82,7 @@ class StochasticIteratedFunction(
             return jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)
 
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
-        mean_squared = tree_map(jnp.square, augmented.mean_state)
+        mean_squared = tree_map(abs_square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
         scaled_variance = tree_multimap(safe_divide, variance, mean_squared)
 
@@ -94,7 +95,7 @@ class StochasticIteratedFunction(
     # Private methods ------------------------------------------------------------------------------
     def _sufficient_statistics(self, state: State) -> Tuple[Comparand, Comparand]:
         comparand = self.extract_comparand(state)
-        squared_comparand = tree_map(jnp.square, comparand)
+        squared_comparand = tree_map(abs_square, comparand)
         return comparand, squared_comparand
 
 
