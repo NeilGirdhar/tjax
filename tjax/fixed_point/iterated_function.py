@@ -11,7 +11,7 @@ from jax.lax import scan, while_loop
 from jax.tree_util import tree_multimap
 
 from ..annotations import PyTree, TapFunctionTransforms
-from ..dataclass import dataclass
+from ..dataclass import dataclass, field
 from ..dtypes import default_atol, default_rtol
 from .augmented import AugmentedState, State
 
@@ -55,8 +55,8 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
 
     minimum_iterations: Array
     maximum_iterations: Array
-    rtol: float = default_rtol
-    atol: float = default_atol
+    rtol: float = field(default_factory=default_rtol)
+    atol: float = field(default_factory=default_atol)
 
     # New methods ----------------------------------------------------------------------------------
     def find_fixed_point(self,  # pylint: disable=function-redefined, method-hidden

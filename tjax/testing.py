@@ -71,9 +71,9 @@ def assert_jax_allclose(actual: PyTree,
         atol: The absolute tolerance of the comparisons in the assertion.
     """
     if rtol is None:
-        rtol = default_rtol
+        rtol = default_rtol()
     if atol is None:
-        atol = default_atol
+        atol = default_atol()
 
     try:
         tree_multimap(partial(np.testing.assert_allclose, rtol=rtol, atol=atol), actual, desired)
@@ -102,9 +102,9 @@ def jax_allclose(actual: PyTree,
         atol: The absolute tolerance of the comparisons in the comparison.
     """
     if rtol is None:
-        rtol = default_rtol
+        rtol = default_rtol()
     if atol is None:
-        atol = default_atol
+        atol = default_atol()
 
     return cast(
         bool,
