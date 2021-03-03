@@ -106,7 +106,7 @@ python-versions = "*"
 
 [[package]]
 name = "hypothesis"
-version = "6.3.4"
+version = "6.4.0"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -475,8 +475,8 @@ flatbuffers = [
     {file = "flatbuffers-1.12.tar.gz", hash = "sha256:63bb9a722d5e373701913e226135b28a6f6ac200d5cc7b4d919fa38d73b44610"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.3.4-py3-none-any.whl", hash = "sha256:69f7d32270f52a14f853cb3673eae65fc2f057601f6e7b5502e5c905985d8c69"},
-    {file = "hypothesis-6.3.4.tar.gz", hash = "sha256:26771ce7f21c2ed08e93f62bdd63755dab051c163cc9d54544269b5b8b550eac"},
+    {file = "hypothesis-6.4.0-py3-none-any.whl", hash = "sha256:89e3b3c4252f07d1135f67679ee94ace507155242868d56e24640b445046d182"},
+    {file = "hypothesis-6.4.0.tar.gz", hash = "sha256:c41aed6cd183f5fe3f54613b3fc86c8eccd0d1dd158474dd424133fc038b94a3"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-3.7.0-py3-none-any.whl", hash = "sha256:c6af5dbf1126cd959c4a8d8efd61d4d3c83bddb0459a17e554284a077574b614"},
