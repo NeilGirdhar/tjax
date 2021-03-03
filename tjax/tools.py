@@ -9,7 +9,7 @@ from jax import numpy as jnp
 
 from .annotations import ShapeLike
 
-__all__ = ['sum_tensors', 'is_scalar', 'abs_square']
+__all__ = ['sum_tensors', 'is_scalar', 'abs_square', 'safe_divide']
 
 
 def sum_tensors(tensors: Collection[Array],
@@ -25,3 +25,7 @@ def is_scalar(x: Any) -> bool:
 
 def abs_square(x: Array) -> Array:
     return jnp.square(x.real) + jnp.square(x.imag)
+
+
+def safe_divide(numerator: Array, denominator: Array) -> Array:
+    return jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)

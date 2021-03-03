@@ -209,3 +209,11 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             mean and variance of the comparand are used to detect convergence.
         """
         raise NotImplementedError
+
+    def minimum_tolerances(self, augmented: TheAugmentedState) -> Tuple[Array, Array]:
+        """
+        Returns:
+            The minimum value of atol that would lead to convergence now.
+            The minimum value of rtol that would lead to convergence now.
+        """
+        raise NotImplementedError

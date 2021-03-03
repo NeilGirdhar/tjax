@@ -9,7 +9,7 @@ from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..dataclass import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
-from ..tools import abs_square
+from ..tools import abs_square, safe_divide
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -70,7 +70,6 @@ class StochasticIteratedFunction(
                                          mean_squared),
                            True)
 
-    # New methods ----------------------------------------------------------------------------------
     def minimum_tolerances(self, augmented: StochasticState[State, Comparand]) -> Tuple[Array,
                                                                                         Array]:
         """
@@ -78,9 +77,6 @@ class StochasticIteratedFunction(
             The minimum value of atol that would lead to convergence now.
             The minimum value of rtol that would lead to convergence now.
         """
-        def safe_divide(numerator: Array, denominator: Array) -> Array:
-            return jnp.where(denominator > 0.0, numerator / denominator, jnp.inf)
-
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
