@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Optional, Tuple
 
+import jax.numpy as jnp
 import pytest
 from chex import Array
 from jax import grad, jit
-from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
 from tjax import Generator, dataclass, field, real_dtype

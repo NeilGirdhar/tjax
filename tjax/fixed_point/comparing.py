@@ -3,8 +3,8 @@ from __future__ import annotations
 from functools import partial
 from typing import Generic, Tuple
 
+import jax.numpy as jnp
 from chex import Array
-from jax import numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..dataclass import dataclass

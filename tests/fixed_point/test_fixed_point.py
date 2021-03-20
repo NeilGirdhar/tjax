@@ -1,10 +1,10 @@
 from functools import partial
 from typing import Callable, Tuple
 
+import jax.numpy as jnp
 import pytest
 from chex import Array
 from jax import grad
-from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
 from tjax import Generator, PyTree, dataclass, field

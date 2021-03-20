@@ -54,7 +54,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     from typing import ClassVar
 
     from tjax import dataclass, field, Array
-    from jax import numpy as jnp
+    import jax.numpy as jnp
     from jax import grad
 
     @dataclass

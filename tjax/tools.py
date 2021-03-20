@@ -3,9 +3,9 @@ from numbers import Number
 from operator import add
 from typing import Any, Collection, Optional
 
+import jax.numpy as jnp
 import numpy as np
 from chex import Array
-from jax import numpy as jnp
 
 from .annotations import ShapeLike
 

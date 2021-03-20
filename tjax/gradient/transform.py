@@ -1,6 +1,6 @@
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
-from jax import numpy as jnp
+import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..annotations import PyTree

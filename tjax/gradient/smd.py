@@ -1,7 +1,7 @@
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
+import jax.numpy as jnp
 from chex import Array, Numeric
-from jax import numpy as jnp
 from jax.tree_util import tree_map, tree_multimap
 
 from ..annotations import PyTree

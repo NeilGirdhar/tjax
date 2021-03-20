@@ -3,9 +3,9 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Generic, Optional, Tuple, TypeVar
 
+import jax.numpy as jnp
 from chex import Array
 from jax import jit
-from jax import numpy as jnp
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
 from jax.tree_util import tree_multimap

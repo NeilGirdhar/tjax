@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Generic, Tuple, TypeVar
 
-from jax import numpy as jnp
+import jax.numpy as jnp
 from jax import vjp
 from jax.tree_util import tree_multimap
 

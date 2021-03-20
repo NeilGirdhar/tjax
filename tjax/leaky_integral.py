@@ -3,9 +3,9 @@ from __future__ import annotations
 from numbers import Integral
 from typing import Optional, Tuple
 
+import jax.numpy as jnp
 import numpy as np
 from chex import Array
-from jax import numpy as jnp
 from jax.lax import scan
 
 from .dataclass import dataclass

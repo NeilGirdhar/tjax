@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Type
 
+import jax.numpy as jnp
 import numpy as np
-from jax import numpy as jnp
 from jax.dtypes import canonicalize_dtype
 
 __all__ = ['int_dtype',

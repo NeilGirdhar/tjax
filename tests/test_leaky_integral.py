@@ -1,7 +1,7 @@
+import jax.numpy as jnp
 import numpy as np
 import pytest
 from chex import Numeric
-from jax import numpy as jnp
 from numpy.testing import assert_allclose
 
 from tjax import leaky_integrate, leaky_integrate_time_series

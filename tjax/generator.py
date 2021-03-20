@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any, List, Tuple, Type, TypeVar
 
+import jax.numpy as jnp
 import jax.random
 import numpy as np
 from chex import Array
-from jax import numpy as jnp
 
 from .annotations import RealArray, Shape, ShapeLike
 from .dataclass import dataclass

@@ -2,8 +2,8 @@ from functools import partial, singledispatch
 from numbers import Complex, Number, Real
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
+import jax.numpy as jnp
 import numpy as np
-from jax import numpy as jnp
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_multimap, tree_reduce
 

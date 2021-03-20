@@ -2,12 +2,12 @@ from typing import Callable, Tuple
 
 import hypothesis.extra.numpy
 import jax
+import jax.numpy as jnp
 import jax.scipy
 import jax.test_util
 import numpy as np
 import pytest
 from chex import Array
-from jax import numpy as jnp
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
