@@ -1,6 +1,7 @@
+from collections.abc import Mapping
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Dict, List, Tuple, Type, Union
+from typing import Any, List, Tuple, Type, Union
 
 import colorful as cf
 import networkx as nx
@@ -66,9 +67,9 @@ def _(value: Union[None, Number], show_values: bool = True, indent: int = 0) -> 
     return cf.cyan(str(value)) + "\n"
 
 
-@display_generic.register(dict)  # type: ignore
-def _(value: Dict[Any, Any], show_values: bool = True, indent: int = 0) -> str:
-    return (display_class(dict)
+@display_generic.register(Mapping)  # type: ignore
+def _(value: Mapping[Any, Any], show_values: bool = True, indent: int = 0) -> str:
+    return (display_class(type(value))
             + "".join(display_key_and_value(key, sub_value, "=", show_values, indent)
                       for key, sub_value in sorted(value.items())))
 
