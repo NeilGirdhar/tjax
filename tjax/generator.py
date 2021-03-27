@@ -48,8 +48,7 @@ class Generator:
             shape = (shape,)
         else:
             shape = tuple(shape)
-        prod_shape = np.prod(shape)
-        assert isinstance(prod_shape, int)
+        prod_shape = int(np.prod(shape))
         keys = (self.key
                 if prod_shape == 1
                 else jax.random.split(self.key, prod_shape))
