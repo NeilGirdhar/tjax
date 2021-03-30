@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Tuple, Type, TypeVar
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
 import jax.numpy as jnp
 import jax.random
@@ -57,6 +57,14 @@ class Generator:
     def bernoulli(self, p: RealArray, shape: Shape = ()) -> Tuple[Array, Generator]:
         new_g, this_g = self.split()
         return jax.random.bernoulli(this_g.key, p, shape), new_g
+
+    def choice(self,
+               a: Union[int, Array],
+               shape: Shape = (),
+               replace: bool = True,
+               p: Optional[Array] = None) -> Tuple[Array, Generator]:
+        new_g, this_g = self.split()
+        return jax.random.choice(self.key, a, shape, replace, p), new_g
 
     def gamma(self, gamma_shape: RealArray, shape: Shape = ()) -> Tuple[Array, Generator]:
         new_g, this_g = self.split()
