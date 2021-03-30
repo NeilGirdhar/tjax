@@ -91,4 +91,4 @@ class Generator:
         return not self.__eq__(other)
 
     def __hash__(self) -> int:
-        return hash((int(self.key[0]), int(self.key[1])))
+        return hash(tuple(np.ravel(self.key)))
