@@ -27,8 +27,7 @@ def register_graph_as_jax_pytree(cls: Type[T]) -> None:
         return graph
 
     def tree_flatten(self: T) -> Tuple[Sequence[PyTree], Hashable]:
-        # https://github.com/python/mypy/issues/8768
-        return ((dict(self.nodes), dict(self.edges)), None)  # type: ignore
+        return ((dict(self.nodes), dict(self.edges)), None)
 
     register_pytree_node(cls, tree_flatten, tree_unflatten)
 
