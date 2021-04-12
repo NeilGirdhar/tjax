@@ -7,7 +7,7 @@ from jax import vjp
 from jax.tree_util import tree_multimap
 
 from ..annotations import PyTree
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from ..shims import custom_vjp
 from .augmented import State
 from .comparing import ComparingIteratedFunction, ComparingState

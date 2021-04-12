@@ -1,7 +1,7 @@
 from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from ..annotations import PyTree
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from .transform import GradientTransformation, Weights
 
 __all__ = ['ChainedGradientTransformation']

@@ -5,7 +5,7 @@ from chex import Array, Numeric
 from jax.tree_util import tree_map, tree_multimap
 
 from ..annotations import PyTree
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from .transform import SecondOrderGradientTransformation
 
 __all__ = ['SMDState', 'SMDGradient']

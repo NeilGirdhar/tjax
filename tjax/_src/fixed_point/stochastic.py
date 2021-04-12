@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from chex import Array
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..tools import abs_square, safe_divide
 from .augmented import AugmentedState, State

@@ -8,7 +8,7 @@ import numpy as np
 from chex import Array
 
 from .annotations import RealArray, Shape, ShapeLike
-from .dataclass import dataclass
+from .dataclasses import dataclass
 
 __all__ = ['Generator']
 
@@ -23,7 +23,6 @@ class Generator:
     has no mutating methods.  Instead, its generation methods return a new instance along with the
     generated tensor.
     """
-
     key: Array
 
     # Class methods --------------------------------------------------------------------------------

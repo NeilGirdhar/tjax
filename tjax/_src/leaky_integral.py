@@ -8,7 +8,7 @@ import numpy as np
 from chex import Array
 from jax.lax import scan
 
-from .dataclass import dataclass
+from .dataclasses import dataclass
 from .dtypes import real_dtype
 from .generator import Generator
 

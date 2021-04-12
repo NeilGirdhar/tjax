@@ -11,7 +11,7 @@ from jax.lax import scan, while_loop
 from jax.tree_util import tree_multimap
 
 from ..annotations import PyTree, TapFunctionTransforms
-from ..dataclass import dataclass, field
+from ..dataclasses import dataclass, field
 from ..dtypes import default_atol, default_rtol
 from .augmented import AugmentedState, State
 

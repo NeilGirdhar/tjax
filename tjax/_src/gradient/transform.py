@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..annotations import PyTree
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from ..tools import abs_square
 
 __all__ = ['GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',

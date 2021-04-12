@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Generic, TypeVar
 
 from ..annotations import PyTree
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 
 __all__ = ['AugmentedState']
 

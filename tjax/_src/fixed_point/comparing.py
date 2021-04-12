@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from chex import Array
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from ..tools import safe_divide
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory

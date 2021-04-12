@@ -31,11 +31,11 @@ def plugin(version: str) -> Any:
 
 # The set of decorators that generate dataclasses.
 dataclass_makers = {
-    'tjax.dataclass.dataclass',
+    'tjax._src.dataclasses.dataclass.dataclass',
 }  # type: Final
 
 field_makers = {
-    'tjax.dataclass.field',
+    'tjax._src.dataclasses.helpers.field',
 }  # type: Final
 
 SELF_TVAR_NAME = '_DT'  # type: Final

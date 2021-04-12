@@ -3,7 +3,7 @@ from typing import Generic, Optional, Tuple
 from chex import Numeric
 from optax import ScaleByAdamState, ScaleState, additive_weight_decay, scale, scale_by_adam
 
-from ..dataclass import dataclass
+from ..dataclasses import dataclass
 from .transform import GradientTransformation, Weights
 
 __all__ = ['Scale', 'ScaleByAdam', 'AdditiveWeightDecay']

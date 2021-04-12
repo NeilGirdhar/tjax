@@ -8,7 +8,7 @@ from jax.tree_util import tree_map
 from matplotlib.axes import Axes
 
 from .annotations import PyTree
-from .dataclass import dataclass
+from .dataclasses import dataclass
 from .leaky_integral import leaky_integrate_time_series
 
 __all__ = ['PlottableTrajectory']
