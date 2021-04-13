@@ -3,11 +3,11 @@ This library implements a variety of tools for the differential programming libr
 [JAX](https://github.com/google/jax).
 """
 from . import dataclasses, fixed_point, gradient
-from ._src.dataclasses import dataclass
 from ._src.annotations import (Array, BoolArray, ComplexArray, IntegerArray, PyTree, RealArray,
                                Shape, ShapeLike, SliceLike, TapFunctionTransforms)
 from ._src.cotangent_tools import (block_cotangent, copy_cotangent, print_cotangent,
                                    replace_cotangent)
+from ._src.dataclasses import dataclass
 from ._src.display import display_generic, print_generic
 from ._src.dtypes import (complex_dtype, default_atol, default_rtol, default_tols, int_dtype,
                           real_dtype)

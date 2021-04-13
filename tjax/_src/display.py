@@ -6,6 +6,7 @@ from typing import Any, List, Tuple, Type, Union
 import colorful as cf
 import networkx as nx
 import numpy as np
+from jax.errors import TracerArrayConversionError
 from jax.interpreters.ad import JVPTracer
 from jax.interpreters.batching import BatchTracer
 from jax.interpreters.partial_eval import DynamicJaxprTracer, JaxprTracer
@@ -58,7 +59,14 @@ def _(value: np.ndarray, show_values: bool = True, indent: int = 0) -> str:
 
 @display_generic.register  # type: ignore
 def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
-    return cf.violet(f"Jax Array {value.shape} {value.dtype}") + "\n"
+    base_string = cf.violet(f"Jax Array {value.shape} {value.dtype}") + "\n"
+    try:
+        np_value = np.asarray(value)
+    except TracerArrayConversionError:
+        array_string = ""
+    else:
+        array_string = _show_array(indent + 1, np_value)
+    return base_string + array_string
 
 
 @display_generic.register(type(None))  # type: ignore
