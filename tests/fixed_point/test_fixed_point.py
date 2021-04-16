@@ -3,11 +3,11 @@ from typing import Callable, Tuple
 
 import jax.numpy as jnp
 import pytest
-from chex import Array
 from jax import grad
 from numpy.testing import assert_allclose
 
-from tjax import Generator, PyTree, dataclass, field
+from tjax import Array, Generator, PyTree, dataclass
+from tjax.dataclasses import field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               IteratedFunction, StochasticIteratedFunctionWithCombinator)
 

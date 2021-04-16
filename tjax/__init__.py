@@ -3,8 +3,10 @@ This library implements a variety of tools for the differential programming libr
 [JAX](https://github.com/google/jax).
 """
 from . import dataclasses, fixed_point, gradient
-from ._src.annotations import (Array, BoolArray, ComplexArray, IntegerArray, PyTree, RealArray,
-                               Shape, ShapeLike, SliceLike, TapFunctionTransforms)
+from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
+                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, PyTree,
+                               Real, RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
+                               TapFunctionTransforms)
 from ._src.cotangent_tools import (block_cotangent, copy_cotangent, print_cotangent,
                                    replace_cotangent)
 from ._src.dataclasses import dataclass
@@ -21,7 +23,7 @@ from ._src.testing import (assert_jax_allclose, get_relative_test_string, get_te
                            jax_allclose)
 from ._src.tools import abs_square, is_scalar, safe_divide, sum_tensors
 
-__all__ = ['Array', 'BoolArray', 'ComplexArray', 'Generator', 'IntegerArray', 'Partial',
+__all__ = ['Array', 'BooleanArray', 'ComplexArray', 'Generator', 'IntegralArray', 'Partial',
            'PlottableTrajectory', 'PyTree', 'RealArray', 'Shape', 'ShapeLike', 'SliceLike',
            'TapFunctionTransforms', 'abs_square', 'assert_jax_allclose', 'block_cotangent',
            'complex_dtype', 'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclass',
@@ -30,7 +32,8 @@ __all__ = ['Array', 'BoolArray', 'ComplexArray', 'Generator', 'IntegerArray', 'P
            'get_test_string', 'gradient', 'int_dtype', 'is_scalar', 'jax_allclose', 'jit',
            'leaky_covariance', 'leaky_data_weight', 'leaky_integrate',
            'leaky_integrate_time_series', 'print_cotangent', 'print_generic', 'real_dtype',
-           'replace_cotangent', 'safe_divide', 'sum_tensors']
+           'replace_cotangent', 'safe_divide', 'sum_tensors', 'Integral', 'Real', 'Complex',
+           'BooleanNumeric', 'IntegralNumeric', 'RealNumeric', 'ComplexNumeric']
 #
 # __pdoc__ = {}
 # __pdoc__['real_dtype'] = False

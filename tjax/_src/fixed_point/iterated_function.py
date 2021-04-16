@@ -4,13 +4,13 @@ from functools import partial
 from typing import Any, Callable, Generic, Optional, Tuple, TypeVar
 
 import jax.numpy as jnp
-from chex import Array
 from jax import jit
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
 from jax.tree_util import tree_multimap
 
-from ..annotations import PyTree, TapFunctionTransforms
+from ..annotations import (BooleanNumeric, IntegralNumeric, PyTree, RealNumeric,
+                           TapFunctionTransforms)
 from ..dataclasses import dataclass, field
 from ..dtypes import default_atol, default_rtol
 from .augmented import AugmentedState, State
@@ -53,10 +53,10 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
         atol: The absolute tolerance for the comparison stopping condition.
     """
 
-    minimum_iterations: Array
-    maximum_iterations: Array
-    rtol: float = field(default_factory=default_rtol)
-    atol: float = field(default_factory=default_atol)
+    minimum_iterations: IntegralNumeric
+    maximum_iterations: IntegralNumeric
+    rtol: RealNumeric = field(default_factory=default_rtol)
+    atol: RealNumeric = field(default_factory=default_atol)
 
     # New methods ----------------------------------------------------------------------------------
     def find_fixed_point(self,  # pylint: disable=function-redefined, method-hidden
@@ -195,7 +195,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
         """
         raise NotImplementedError
 
-    def converged(self, augmented: TheAugmentedState) -> Array:
+    def converged(self, augmented: TheAugmentedState) -> BooleanNumeric:
         """
         Returns: A Boolean Array of shape () indicating whether the pytrees are close.
         """
@@ -210,7 +210,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
         """
         raise NotImplementedError
 
-    def minimum_tolerances(self, augmented: TheAugmentedState) -> Tuple[Array, Array]:
+    def minimum_tolerances(self, augmented: TheAugmentedState) -> Tuple[RealNumeric, RealNumeric]:
         """
         Returns:
             The minimum value of atol that would lead to convergence now.

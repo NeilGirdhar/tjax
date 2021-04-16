@@ -5,9 +5,8 @@ from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 import jax.numpy as jnp
 import jax.random
 import numpy as np
-from chex import Array
 
-from .annotations import RealArray, Shape, ShapeLike
+from .annotations import Array, BooleanArray, RealArray, RealNumeric, Shape, ShapeLike
 from .dataclasses import dataclass
 
 __all__ = ['Generator']
@@ -23,7 +22,7 @@ class Generator:
     has no mutating methods.  Instead, its generation methods return a new instance along with the
     generated tensor.
     """
-    key: Array
+    key: jnp.ndarray
 
     # Class methods --------------------------------------------------------------------------------
     @classmethod
@@ -51,9 +50,11 @@ class Generator:
         keys = (self.key
                 if prod_shape == 1
                 else jax.random.split(self.key, prod_shape))
-        return Generator(key=keys.reshape(shape + (2,)))
+        # https://github.com/google/jax/issues/6473
+        keys = keys.reshape(shape + (2,))  # type: ignore
+        return Generator(keys)
 
-    def bernoulli(self, p: RealArray, shape: Shape = ()) -> Tuple[Array, Generator]:
+    def bernoulli(self, p: RealNumeric, shape: Shape = ()) -> Tuple[BooleanArray, Generator]:
         new_g, this_g = self.split()
         return jax.random.bernoulli(this_g.key, p, shape), new_g
 
@@ -61,20 +62,20 @@ class Generator:
                a: Union[int, Array],
                shape: Shape = (),
                replace: bool = True,
-               p: Optional[Array] = None) -> Tuple[Array, Generator]:
+               p: Optional[RealArray] = None) -> Tuple[Union[int, Array], Generator]:
         new_g, this_g = self.split()
         return jax.random.choice(this_g.key, a, shape, replace, p), new_g
 
-    def gamma(self, gamma_shape: RealArray, shape: Shape = ()) -> Tuple[Array, Generator]:
+    def gamma(self, gamma_shape: RealNumeric, shape: Shape = ()) -> Tuple[RealArray, Generator]:
         new_g, this_g = self.split()
         return jax.random.gamma(this_g.key, gamma_shape, shape), new_g
 
-    def normal(self, std_dev: RealArray, shape: Shape = ()) -> Tuple[Array, Generator]:
+    def normal(self, std_dev: RealNumeric, shape: Shape = ()) -> Tuple[RealArray, Generator]:
         new_g, this_g = self.split()
         return std_dev * jax.random.normal(this_g.key, shape), new_g
 
-    def uniform(self, minval: RealArray = 0.0, maxval: RealArray = 0.0, shape: Shape = ()) -> (
-            Tuple[Array, Generator]):
+    def uniform(self, minval: RealNumeric = 0.0, maxval: RealNumeric = 0.0, shape: Shape = ()) -> (
+            Tuple[RealArray, Generator]):
         new_g, this_g = self.split()
         return jax.random.uniform(this_g.key, minval=minval, maxval=maxval, shape=shape), new_g
 

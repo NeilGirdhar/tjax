@@ -4,9 +4,9 @@ from functools import partial
 from typing import Generic, Tuple
 
 import jax.numpy as jnp
-from chex import Array
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
+from ..annotations import BooleanNumeric, ComplexNumeric, RealNumeric
 from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..tools import abs_square, safe_divide
@@ -46,7 +46,7 @@ class StochasticIteratedFunction(
                           new_state: State,
                           augmented: StochasticState[State, Comparand]) -> (
                               StochasticState[State, Comparand]):
-        def f(value: Array, drift: Array) -> Array:
+        def f(value: ComplexNumeric, drift: ComplexNumeric) -> ComplexNumeric:
             return leaky_integrate(value, 1.0, drift, self.convergence_detection_decay,
                                    leaky_average=True)
 
@@ -59,7 +59,7 @@ class StochasticIteratedFunction(
                                mean_state=new_mean_state,
                                second_moment_state=new_second_moment_state)
 
-    def converged(self, augmented: StochasticState[State, Comparand]) -> Array:
+    def converged(self, augmented: StochasticState[State, Comparand]) -> BooleanNumeric:
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
         return tree_reduce(jnp.logical_and,
@@ -70,8 +70,9 @@ class StochasticIteratedFunction(
                                          mean_squared),
                            True)
 
-    def minimum_tolerances(self, augmented: StochasticState[State, Comparand]) -> Tuple[Array,
-                                                                                        Array]:
+    def minimum_tolerances(self,
+                           augmented: StochasticState[State, Comparand]) -> Tuple[RealNumeric,
+                                                                                  RealNumeric]:
         """
         Returns:
             The minimum value of atol that would lead to convergence now.
@@ -86,6 +87,8 @@ class StochasticIteratedFunction(
                                   data_weight)
         minium_rtol = safe_divide(tree_reduce(jnp.maximum, tree_map(jnp.amax, scaled_variance)),
                                   data_weight)
+        assert not isinstance(minium_atol, complex)
+        assert not isinstance(minium_rtol, complex)
         return minium_atol, minium_rtol
 
     # Private methods ------------------------------------------------------------------------------

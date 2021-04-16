@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Generic, Optional, Sequence, TypeVar, Union
+from typing import Generic, Optional, Sequence, TypeVar
 
 import numpy as np
-from chex import Array
 from jax.tree_util import tree_map
 from matplotlib.axes import Axes
 
-from .annotations import PyTree
+from .annotations import PyTree, RealArray, SliceLike
 from .dataclasses import dataclass
 from .leaky_integral import leaky_integrate_time_series
 
@@ -25,14 +24,14 @@ class PlottableTrajectory(Generic[Trajectory]):
     "The times corresponding to the data points in each of the plotted attributes."
 
     def plot(self,
-             data: Array,
+             data: RealArray,
              axis: Axes,
              *,
              title: Optional[str] = None,
              legend: int = 0,
              labels: Optional[Sequence[str]] = None,
              decay: Optional[float] = None,
-             clip_slice: slice = slice(None)) -> None:
+             clip_slice: SliceLike = slice(None)) -> None:
         """
         Plot the PlottableTrajectory into a matplotlib axis.
         Args:
@@ -65,6 +64,6 @@ class PlottableTrajectory(Generic[Trajectory]):
         if labels is not None or legend > 0 and 0 < number_of_graph_lines <= legend:
             axis.legend()
 
-    def slice_into(self, s: Union[int, slice]) -> Trajectory:
+    def slice_into(self, s: SliceLike) -> Trajectory:
         "Return a new trajectory whose nonstatic attributed are sliced."
         return tree_map(lambda x: x[s], self.trajectory)

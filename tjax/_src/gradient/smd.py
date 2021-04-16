@@ -1,10 +1,9 @@
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
 import jax.numpy as jnp
-from chex import Array, Numeric
 from jax.tree_util import tree_map, tree_multimap
 
-from ..annotations import PyTree
+from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
 from .transform import SecondOrderGradientTransformation
 
@@ -28,7 +27,7 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
     Neural Networks, 1999. ICANN 99. Ninth International Conference on (Conf. Publ. No. 470), 2,
     569–574. https://doi.org/10.1049/cp:19991170
     """
-    meta_learning_rate: Numeric = 1e-2
+    meta_learning_rate: RealNumeric = 1e-2
 
     def init(self, parameters: Weights) -> SMDState[Weights]:
         z = tree_map(jnp.zeros_like, parameters)
@@ -43,7 +42,7 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
         negative_gradient = tree_map(jnp.negative, gradient)  # delta
 
         # Update log-learning rate.
-        def g(log_p: Array, delta: Array, v: Array) -> Array:
+        def g(log_p: RealNumeric, delta: ComplexNumeric, v: ComplexNumeric) -> ComplexNumeric:
             return log_p + self.meta_learning_rate * delta * v
 
         new_log_learning_rate = tree_multimap(g, state.log_learning_rate, negative_gradient,
@@ -54,7 +53,10 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
         gradient = tree_multimap(jnp.multiply, learning_rate, negative_gradient)
 
         # Update v.
-        def f(v: Array, p: Array, delta: Array, hv: Array) -> Array:
+        def f(v: ComplexNumeric,
+              p: RealNumeric,
+              delta: ComplexNumeric,
+              hv: ComplexNumeric) -> ComplexNumeric:
             return v + p * delta - hv
 
         new_v = tree_multimap(f, state.v, learning_rate, negative_gradient,

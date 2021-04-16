@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from numbers import Integral
+from numbers import Integral, Real
 from typing import Optional, Tuple
 
 import jax.numpy as jnp
 import numpy as np
-from chex import Array
 from jax.lax import scan
 
+from .annotations import ComplexArray, ComplexNumeric, RealNumeric
 from .dataclasses import dataclass
 from .dtypes import real_dtype
 from .generator import Generator
@@ -16,18 +16,19 @@ __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
            'leaky_integrate_time_series', 'leaky_covariance']
 
 
-def leaky_integrate(value: Array,
-                    time_step: Array,
-                    drift: Optional[Array] = None,
-                    decay: Optional[Array] = None,
+def leaky_integrate(value: ComplexNumeric,
+                    time_step: RealNumeric,
+                    drift: Optional[ComplexNumeric] = None,
+                    decay: Optional[ComplexNumeric] = None,
                     *,
-                    leaky_average: bool = False) -> Array:
+                    leaky_average: bool = False) -> ComplexNumeric:
     """
     Update the value so that it is the leaky integral (or leaky average).
     Args:
         value: The current value of the leaky integral or average.
         time_step: The number of seconds that have passed.
-        decay: If provided, must be positive, and the value decays by exp(-decay) every second.
+        decay: If provided, must have positive real component, and the value decays by exp(-decay)
+            every second.
         drift: If provided, the value increases by this every second.
         leaky_average: A flag indicating a leaky average rather than a leaky integral.  This scales
             the drift by the real component (in case the decay is complex) of the decay.
@@ -50,14 +51,14 @@ def leaky_integrate(value: Array,
     return value * jnp.exp(-decay * time_step) + scaled_integrand
 
 
-def diffused_leaky_integrate(value: Array,
-                             time_step: Array,
+def diffused_leaky_integrate(value: ComplexArray,
+                             time_step: RealNumeric,
                              rng: Generator,
-                             diffusion: Array,
-                             drift: Optional[Array] = None,
-                             decay: Optional[Array] = None,
+                             diffusion: RealNumeric,
+                             drift: Optional[ComplexNumeric] = None,
+                             decay: Optional[ComplexNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> Tuple[Array, Generator]:
+                             leaky_average: bool = False) -> Tuple[ComplexNumeric, Generator]:
     """
     Update an Ornstein-Uhlenbeck process.
 
@@ -79,32 +80,30 @@ def diffused_leaky_integrate(value: Array,
             new_rng)
 
 
-def leaky_data_weight(iterations_times_time_step: Array,
-                      decay: Array) -> Array:
+def leaky_data_weight(iterations_times_time_step: RealNumeric,
+                      decay: RealNumeric) -> RealNumeric:
     """
     Returns: The amount of data that has been incorporated and has not been decayed.
     """
-    return leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True)
+    retval = leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True)
+    assert isinstance(retval, (jnp.ndarray, Real))
+    return retval
 
 
 @dataclass
 class _FilterCarry:
-    iterations: Array
-    value: Array
+    iterations: RealNumeric
+    value: ComplexArray
 
 
-def leaky_integrate_time_series(time_series: Array, decay: Array) -> Array:
-    """
-    Args:
-        time_series: A sequence of
-        f: A function that maps from value, drift to new_value.
-        reweighted: Rescales the early
-    """
-    def g(carry: _FilterCarry, drift: Array) -> Tuple[_FilterCarry, Array]:
+def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
+
+    def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
-        data_weight = leaky_data_weight(new_iterations, decay)
+        data_weight = leaky_data_weight(new_iterations, decay.real)
 
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
+        assert isinstance(new_value, jnp.ndarray)
         new_carry = _FilterCarry(new_iterations, new_value)
         outputted_value = new_value / data_weight
         return new_carry, outputted_value
@@ -120,16 +119,16 @@ def leaky_integrate_time_series(time_series: Array, decay: Array) -> Array:
     return filtered_time_series
 
 
-def leaky_covariance(x_time_series: Array,
-                     y_time_series: Array,
-                     decay: Array,
-                     covariance_matrix: bool = False) -> Array:
+def leaky_covariance(x_time_series: ComplexArray,
+                     y_time_series: ComplexArray,
+                     decay: ComplexNumeric,
+                     covariance_matrix: bool = False) -> ComplexArray:
     if covariance_matrix:
         if x_time_series.shape[0] != y_time_series.shape[0]:
             raise ValueError
         s = (np.newaxis,)
 
-        def times(a: Array, b: Array) -> Array:
+        def times(a: ComplexArray, b: ComplexArray) -> ComplexArray:
             return a[(..., *(s * (b.ndim - 1)))] * b[(slice(None), *(s * (a.ndim - 1)))]
     else:
         if x_time_series.shape != y_time_series.shape:

@@ -4,9 +4,9 @@ from functools import partial
 from typing import Generic, Tuple
 
 import jax.numpy as jnp
-from chex import Array
 from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
+from ..annotations import BooleanNumeric, RealNumeric
 from ..dataclasses import dataclass
 from ..tools import safe_divide
 from .augmented import AugmentedState, State
@@ -45,14 +45,14 @@ class ComparingIteratedFunction(
                               iterations=augmented.iterations + 1,
                               last_state=self.extract_comparand(augmented.current_state))
 
-    def converged(self, augmented: ComparingState[State, Comparand]) -> Array:
+    def converged(self, augmented: ComparingState[State, Comparand]) -> BooleanNumeric:
         return tree_reduce(jnp.logical_and,
                            tree_multimap(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                          self.extract_comparand(augmented.current_state),
                                          augmented.last_state))
 
-    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> Tuple[Array,
-                                                                                       Array]:
+    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> Tuple[RealNumeric,
+                                                                                       RealNumeric]:
         """
         Returns:
             The minimum value of atol that would lead to convergence now.

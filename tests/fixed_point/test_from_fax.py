@@ -7,11 +7,10 @@ import jax.scipy
 import jax.test_util
 import numpy as np
 import pytest
-from chex import Array
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
-from tjax import dataclass
+from tjax import Array, dataclass
 from tjax.fixed_point import ComparingIteratedFunctionWithCombinator, IteratedFunction
 
 

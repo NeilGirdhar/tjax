@@ -4,11 +4,11 @@ from typing import Any, Optional, Tuple
 
 import jax.numpy as jnp
 import pytest
-from chex import Array
 from jax import grad, jit
 from numpy.testing import assert_allclose
 
-from tjax import Generator, dataclass, field, real_dtype
+from tjax import Array, Generator, RealNumeric, dataclass
+from tjax.dataclasses import field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 
@@ -31,7 +31,7 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
                                                                         EncodingConfiguration,
                                                                         Any]):
 
-    time_step: real_dtype
+    time_step: RealNumeric
 
     # Implemented methods --------------------------------------------------------------------------
     def expected_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
@@ -74,7 +74,7 @@ class EncodingElement:
     def iterate(self,
                 ec: EncodingConfiguration,
                 rng: Optional[Generator],
-                time_step: real_dtype) -> Tuple[EncodingConfiguration,
+                time_step: RealNumeric) -> Tuple[EncodingConfiguration,
                                                 Optional[Generator]]:
         decay = 1e-4
         if rng is None:

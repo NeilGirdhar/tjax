@@ -1,11 +1,10 @@
 from functools import partial
 
 import numpy as np
-from chex import Array
 from jax import vjp
 from numpy.testing import assert_equal
 
-from tjax import block_cotangent, copy_cotangent, replace_cotangent
+from tjax import Array, block_cotangent, copy_cotangent, replace_cotangent
 
 
 def test_copy_cotangent() -> None:

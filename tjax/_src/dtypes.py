@@ -42,7 +42,11 @@ def complex_dtype() -> Type[np.complexfloating[Any, Any]]:
 
 def default_rtol() -> float:
     return {jnp.float32: 1e-4, jnp.float64: 1e-5}[real_dtype()]
+
+
 def default_atol() -> float:
     return {jnp.float32: 1e-6, jnp.float64: 1e-8}[real_dtype()]
+
+
 def default_tols() -> Mapping[str, float]:
     return dict(rtol=default_rtol(), atol=default_atol())

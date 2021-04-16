@@ -122,7 +122,7 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
         Hessian.
         """
         return self.third_order_update(gradient, state, parameters, hessian_vector_product,
-                                       abs_square(gradient))
+                                       tree_map(abs_square, gradient))
 
     def third_order_update(self,
                            gradient: Weights,

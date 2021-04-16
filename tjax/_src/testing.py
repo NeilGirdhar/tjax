@@ -25,12 +25,12 @@ def assert_jax_allclose(actual: PyTree,
     pytree.  If the assertion fails, a passing test string is printed::
 
     ```python
-    from tjax import assert_jax_allclose, dataclass, Array
+    from tjax import assert_jax_allclose, dataclass, RealNumeric
 
     @dataclass
     class A:
-        x: Array
-        y: Array
+        x: RealNumeric
+        y: RealNumeric
 
     @dataclass
     class B:
