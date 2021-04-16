@@ -36,8 +36,11 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     in the class.
 
     Examines PEP 526 annotations to determine fields.  Default values for fields are provided using
-    assignment.  To mark fields as JAX static fields rather than JAX pytree fields, use the `field`
-    function.
+    assignment.
+
+    To mark fields as static fields rather than JAX pytree fields, use the `field` function.
+    In JAX, a static attribute is one that induces recompilation of a function when it changes, and
+    consequently there is more flexibility about what can be done with such an attribute.
 
     For example::
     ```python
@@ -45,8 +48,9 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
 
     from typing import ClassVar
 
-    from tjax import dataclass, field, Array
     import jax.numpy as jnp
+    from tjax import Array, dataclass
+    from tjax.dataclasses import field
     from jax import grad
 
     @dataclass
