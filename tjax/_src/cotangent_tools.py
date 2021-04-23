@@ -1,12 +1,16 @@
+from dataclasses import dataclass
 from functools import partial
-from typing import Any, Callable, Optional, Tuple, TypeVar, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, TypeVar, Union
 
+import jax.numpy as jnp
 from jax import vjp
 from jax.experimental.host_callback import id_print
+from jax.tree_util import tree_map
 
 from .shims import custom_vjp
 
-__all__ = ['copy_cotangent', 'block_cotangent', 'replace_cotangent', 'print_cotangent']
+__all__ = ['copy_cotangent', 'block_cotangent', 'replace_cotangent', 'print_cotangent',
+           'CotangentMapper']
 
 
 X = TypeVar('X')
@@ -102,3 +106,38 @@ print_cotangent = custom_vjp(print_cotangent, static_argnums=1)  # type: ignore
 
 
 print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # type: ignore
+
+
+# print_cotangent ----------------------------------------------------------------------------------
+_T = TypeVar('_T')
+
+
+@dataclass
+class CotangentMapper:
+    cotangent_names: Sequence[str]
+
+    def to_mapping(self, cotangents: _T) -> Mapping[str, _T]:
+        """
+        Args:
+            cotangents: A PyTree whose nonstatic fields are arrays representing the group of
+                cotangents.
+        Returns: A mapping from cotangent names to sub-arrays representing individual cotangents.
+        """
+        return {cotangent_name: tree_map(lambda x: x[index], cotangents)
+                for index, cotangent_name in enumerate(self.cotangent_names)}
+
+    def vmap(self, x: _T, index: Optional[int]) -> _T:
+        """
+        Args:
+            x: The value of the nonzero cotangent.
+            index: The index of the nonzero cotangent.
+        Returns: A zeroed copy of x broadcasted to hold each of the cotangents, with up to one
+            element holding x.
+        """
+        def f(x: jnp.ndarray) -> jnp.ndarray:
+            z = jnp.zeros((len(self.cotangent_names),) + x.shape, dtype=x.dtype)
+            if index is None:
+                return z
+            return z.at[index].set(x)
+
+        return tree_map(f, x)
