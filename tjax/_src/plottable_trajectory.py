@@ -53,7 +53,8 @@ class PlottableTrajectory(Generic[Trajectory]):
             all_ys = np.where(np.isfinite(all_ys), all_ys, 0.0)
 
         plot_indices = list(np.ndindex(all_ys.shape[1:]))
-        if labels is None:
+        labels_provided = labels is not None
+        if not labels_provided:
             labels = [str(x) for x in plot_indices]
         for plot_index, label in zip(plot_indices, labels):
             ys = all_ys[(clip_slice, *plot_index)]
@@ -61,7 +62,7 @@ class PlottableTrajectory(Generic[Trajectory]):
                 ys = leaky_integrate_time_series(ys, decay)
             axis.plot(times, ys, label=label)
         number_of_graph_lines = np.prod(data.shape[1:])
-        if labels is not None or legend > 0 and 0 < number_of_graph_lines <= legend:
+        if labels_provided or legend > 0 and 0 < number_of_graph_lines <= legend:
             axis.legend()
 
     def slice_into(self, s: SliceLike) -> Trajectory:
