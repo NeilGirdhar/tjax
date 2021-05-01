@@ -9,7 +9,7 @@ from jax.tree_util import tree_map, tree_multimap, tree_reduce
 from ..annotations import BooleanNumeric, ComplexNumeric, RealNumeric
 from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
-from ..tools import abs_square, safe_divide
+from ..tools import abs_square, divide_nonnegative
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -81,12 +81,13 @@ class StochasticIteratedFunction(
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
-        scaled_variance = tree_multimap(safe_divide, variance, mean_squared)
+        scaled_variance = tree_multimap(divide_nonnegative, variance, mean_squared)
 
-        minium_atol = safe_divide(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
-                                  data_weight)
-        minium_rtol = safe_divide(tree_reduce(jnp.maximum, tree_map(jnp.amax, scaled_variance)),
-                                  data_weight)
+        minium_atol = divide_nonnegative(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
+                                         data_weight)
+        minium_rtol = divide_nonnegative(tree_reduce(jnp.maximum,
+                                                     tree_map(jnp.amax, scaled_variance)),
+                                         data_weight)
         assert not isinstance(minium_atol, complex)
         assert not isinstance(minium_rtol, complex)
         return minium_atol, minium_rtol

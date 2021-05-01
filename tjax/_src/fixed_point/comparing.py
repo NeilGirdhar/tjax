@@ -8,7 +8,7 @@ from jax.tree_util import tree_map, tree_multimap, tree_reduce
 
 from ..annotations import BooleanNumeric, RealNumeric
 from ..dataclasses import dataclass
-from ..tools import safe_divide
+from ..tools import divide_nonnegative
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
 
@@ -61,7 +61,7 @@ class ComparingIteratedFunction(
         comparand = self.extract_comparand(augmented.current_state)
         abs_last = tree_map(jnp.abs, augmented.last_state)
         delta = tree_map(jnp.abs, tree_multimap(jnp.subtract, comparand, augmented.last_state))
-        delta_over_b = tree_multimap(safe_divide, delta, abs_last)
+        delta_over_b = tree_multimap(divide_nonnegative, delta, abs_last)
         minium_atol = tree_reduce(jnp.maximum, tree_map(jnp.amax, delta))
         minium_rtol = tree_reduce(jnp.maximum, tree_map(jnp.amax, delta_over_b))
         return minium_atol, minium_rtol

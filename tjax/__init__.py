@@ -21,7 +21,7 @@ from ._src.plottable_trajectory import PlottableTrajectory
 from ._src.shims import custom_jvp, custom_vjp, jit
 from ._src.testing import (assert_jax_allclose, get_relative_test_string, get_test_string,
                            jax_allclose)
-from ._src.tools import abs_square, is_scalar, safe_divide, sum_tensors
+from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar, sum_tensors
 
 __all__ = ['Array', 'BooleanArray', 'ComplexArray', 'Generator', 'IntegralArray', 'Partial',
            'PlottableTrajectory', 'PyTree', 'RealArray', 'Shape', 'ShapeLike', 'SliceLike',
@@ -32,8 +32,8 @@ __all__ = ['Array', 'BooleanArray', 'ComplexArray', 'Generator', 'IntegralArray'
            'get_test_string', 'gradient', 'int_dtype', 'is_scalar', 'jax_allclose', 'jit',
            'leaky_covariance', 'leaky_data_weight', 'leaky_integrate',
            'leaky_integrate_time_series', 'print_cotangent', 'print_generic', 'real_dtype',
-           'replace_cotangent', 'safe_divide', 'sum_tensors', 'Integral', 'Real', 'Complex',
-           'BooleanNumeric', 'IntegralNumeric', 'RealNumeric', 'ComplexNumeric']
+           'replace_cotangent', 'divide_nonnegative', 'divide_where', 'sum_tensors', 'Integral',
+           'Real', 'Complex', 'BooleanNumeric', 'IntegralNumeric', 'RealNumeric', 'ComplexNumeric']
 #
 # __pdoc__ = {}
 # __pdoc__['real_dtype'] = False
