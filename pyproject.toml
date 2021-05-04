@@ -34,8 +34,12 @@ numpy = ">=1.20,<1.21"
 optax = "^0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2"
+flake8 = ">=3.9"
 hypothesis = "^6"
+isort = ">=5.8"
+mypy = ">=0.812"
+pylint = ">=2.8"
+pytest = "^6.2"
 
 [tool.isort]
 line_length = 100
