@@ -33,7 +33,7 @@ class custom_vjp(Generic[R]):
     - allow custom_vjp to be used on methods, and
     - rename nondiff_argnums to static_argnums.
     """
-    vjp: jax.custom_vjp
+    vjp: jax.custom_vjp[R]
 
     def __init__(self,
                  fun: Callable[..., R],
