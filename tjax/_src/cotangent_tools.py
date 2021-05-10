@@ -9,8 +9,8 @@ from jax.tree_util import tree_map
 
 from .shims import custom_vjp
 
-__all__ = ['copy_cotangent', 'block_cotangent', 'replace_cotangent', 'print_cotangent',
-           'CotangentMapper']
+__all__ = ['copy_cotangent', 'block_cotangent', 'block_variable_cotangent', 'replace_cotangent',
+           'print_cotangent', 'CotangentMapper']
 
 
 X = TypeVar('X')
@@ -59,6 +59,9 @@ replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)  # type
 
 
 # block_cotangent ----------------------------------------------------------------------------------
+_T = TypeVar('_T')
+
+
 def block_cotangent(f: Callable[..., X],
                     block_argnums: Union[int, Tuple[int, ...]],
                     static_argnums: Union[int, Tuple[int, ...]] = ()) -> Callable[..., X]:
@@ -82,6 +85,11 @@ def block_cotangent(f: Callable[..., X],
     blocked_f.defvjp(blocked_f_fwd, blocked_f_bwd)
 
     return blocked_f  # type: ignore
+
+
+@partial(block_cotangent, block_argnums=0)
+def block_variable_cotangent(x: _T) -> _T:
+    return x
 
 
 # print_cotangent ----------------------------------------------------------------------------------
@@ -109,9 +117,6 @@ print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # type: igno
 
 
 # print_cotangent ----------------------------------------------------------------------------------
-_T = TypeVar('_T')
-
-
 @dataclass
 class CotangentMapper:
     cotangent_names: Sequence[str]
@@ -123,7 +128,7 @@ class CotangentMapper:
                 cotangents.
         Returns: A mapping from cotangent names to sub-arrays representing individual cotangents.
         """
-        return {cotangent_name: tree_map(lambda x: x[index], cotangents)
+        return {cotangent_name: tree_map(lambda x, index=index: x[index], cotangents)
                 for index, cotangent_name in enumerate(self.cotangent_names)}
 
     def vmap(self, x: _T, index: Optional[int]) -> _T:

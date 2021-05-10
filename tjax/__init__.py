@@ -7,8 +7,8 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
                                ComplexNumeric, Integral, IntegralArray, IntegralNumeric, PyTree,
                                Real, RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
                                TapFunctionTransforms)
-from ._src.cotangent_tools import (CotangentMapper, block_cotangent, copy_cotangent,
-                                   print_cotangent, replace_cotangent)
+from ._src.cotangent_tools import (CotangentMapper, block_cotangent, block_variable_cotangent,
+                                   copy_cotangent, print_cotangent, replace_cotangent)
 from ._src.dataclasses import dataclass
 from ._src.display import display_generic, print_generic
 from ._src.dtypes import (complex_dtype, default_atol, default_rtol, default_tols, int_dtype,
