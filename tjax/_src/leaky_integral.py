@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Integral, Real
-from typing import Optional, Tuple
+from typing import Optional, Tuple, overload
 
 import jax.numpy as jnp
 import numpy as np
@@ -16,6 +16,22 @@ __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
            'leaky_integrate_time_series', 'leaky_covariance']
 
 
+@overload
+def leaky_integrate(value: RealNumeric,
+                    time_step: RealNumeric,
+                    drift: Optional[RealNumeric] = None,
+                    decay: Optional[RealNumeric] = None,
+                    *,
+                    leaky_average: bool = False) -> RealNumeric:
+    ...
+@overload
+def leaky_integrate(value: ComplexNumeric,
+                    time_step: RealNumeric,
+                    drift: Optional[ComplexNumeric] = None,
+                    decay: Optional[ComplexNumeric] = None,
+                    *,
+                    leaky_average: bool = False) -> ComplexNumeric:
+    ...
 def leaky_integrate(value: ComplexNumeric,
                     time_step: RealNumeric,
                     drift: Optional[ComplexNumeric] = None,
@@ -51,6 +67,26 @@ def leaky_integrate(value: ComplexNumeric,
     return value * jnp.exp(-decay * time_step) + scaled_integrand
 
 
+@overload
+def diffused_leaky_integrate(value: RealArray,
+                             time_step: RealNumeric,
+                             rng: Generator,
+                             diffusion: RealNumeric,
+                             drift: Optional[RealNumeric] = None,
+                             decay: Optional[RealNumeric] = None,
+                             *,
+                             leaky_average: bool = False) -> Tuple[RealNumeric, Generator]:
+    ...
+@overload
+def diffused_leaky_integrate(value: ComplexArray,
+                             time_step: RealNumeric,
+                             rng: Generator,
+                             diffusion: RealNumeric,
+                             drift: Optional[ComplexNumeric] = None,
+                             decay: Optional[ComplexNumeric] = None,
+                             *,
+                             leaky_average: bool = False) -> Tuple[ComplexNumeric, Generator]:
+    ...
 def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
                              rng: Generator,

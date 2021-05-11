@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 from tjax import Array, Generator, PyTree, dataclass
 from tjax.dataclasses import field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
-                              IteratedFunction, StochasticIteratedFunctionWithCombinator)
+                              StochasticIteratedFunctionWithCombinator)
 
 C = Callable[[Array, Array], Array]
 
@@ -18,7 +18,7 @@ State = Tuple[PyTree, Generator]
 
 
 @dataclass
-class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array, Array, Array]):
+class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array, Array, None]):
 
     f: Callable[[PyTree, Array], Array] = field(static=True)
     step_size: float
@@ -67,15 +67,15 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
         return new_x + noise, new_rng
 
     def extract_comparand(self, state: State) -> PyTree:
-        x, rng = state
+        x, _ = state
         return x
 
     def extract_differentiand(self, state: State) -> PyTree:
-        x, rng = state
+        x, _ = state
         return x
 
     def implant_differentiand(self, state: State, differentiand: Array) -> State:
-        x, rng = state
+        _, rng = state
         return differentiand, rng
 
 
@@ -91,16 +91,14 @@ def fixture_it_fun() -> NewtonsMethod:
 
 
 @pytest.fixture(scope='session', name='fixed_point_using_while')
-def fixture_fixed_point_using_while(
-        it_fun: IteratedFunction[Array, Array, Array, Array, Array]) -> C:
+def fixture_fixed_point_using_while(it_fun: NewtonsMethod) -> C:
     def f(theta: Array, x_init: Array) -> Array:
         return it_fun.find_fixed_point(theta, x_init).current_state
     return f
 
 
 @pytest.fixture(scope='session', name='fixed_point_using_scan')
-def fixture_fixed_point_using_scan(
-        it_fun: IteratedFunction[Array, Array, Array, Array, Array]) -> C:
+def fixture_fixed_point_using_scan(it_fun: NewtonsMethod) -> C:
     def f(theta: Array, x_init: Array) -> Array:
         return it_fun.sample_trajectory(theta, x_init, 2000, None)[0].current_state
     return f
@@ -141,12 +139,11 @@ def test_grad(fixed_point_using_while: C,
 
 
 @pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
-def test_noisy_grad(noisy_it_fun: IteratedFunction[Array, Array, Array, Array, Array],
-                    theta: float) -> None:
+def test_noisy_grad(noisy_it_fun: NoisyNewtonsMethod, theta: float) -> None:
 
-    def fixed_point_using_while_of_theta(theta: Array) -> Array:
+    def fixed_point_using_while_of_theta(theta: float) -> float:
         state = (8.0, Generator.from_seed(123))
-        x, rng = noisy_it_fun.find_fixed_point(theta, state).current_state
+        x, _ = noisy_it_fun.find_fixed_point(theta, state).current_state
         return x
     assert_allclose(theta,
                     fixed_point_using_while_of_theta(theta),

@@ -7,14 +7,14 @@ import pytest
 from jax import grad, jit
 from numpy.testing import assert_allclose
 
-from tjax import Array, Generator, RealNumeric, dataclass
+from tjax import Generator, RealNumeric, dataclass
 from tjax.dataclasses import field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 
 @dataclass
 class EncodingConfiguration:
-    x: Array
+    x: RealNumeric
     y: int = field(static=True)
 
 
@@ -30,7 +30,6 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
                                                                         EncodingConfiguration,
                                                                         EncodingConfiguration,
                                                                         Any]):
-
     time_step: RealNumeric
 
     # Implemented methods --------------------------------------------------------------------------
@@ -63,8 +62,7 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
 
 @dataclass
 class EncodingElement:
-
-    theta: Array
+    theta: RealNumeric
     diffusion: float = 0.01
 
     def _initial_state(self) -> EncodingState:
@@ -75,8 +73,9 @@ class EncodingElement:
                 ec: EncodingConfiguration,
                 rng: Optional[Generator],
                 time_step: RealNumeric) -> Tuple[EncodingConfiguration,
-                                                Optional[Generator]]:
+                                                 Optional[Generator]]:
         decay = 1e-4
+        noise: RealNumeric
         if rng is None:
             new_rng = None
             noise = 0.0
@@ -92,8 +91,8 @@ class EncodingElement:
         augmented = eif.find_fixed_point(self, self._initial_state())
         return augmented.current_state
 
-    def theta_bar(self, eif: EncodingIteratedFunction) -> Array:
-        def f(encoding: EncodingElement) -> Array:
+    def theta_bar(self, eif: EncodingIteratedFunction) -> RealNumeric:
+        def f(encoding: EncodingElement) -> RealNumeric:
             configuration = encoding.infer_state(eif).ec
             return configuration.x
         return grad(f)(self).theta

@@ -9,7 +9,7 @@ from tjax import RealNumeric, leaky_integrate, leaky_integrate_time_series
 def test_time_step_invariance() -> None:
     def f(n: int) -> RealNumeric:
         x: RealNumeric = 0.0
-        for i in range(n):
+        for _ in range(n):
             x = leaky_integrate(x, time_step=1 / n, drift=3.0, decay=2.0)
         return x
 
