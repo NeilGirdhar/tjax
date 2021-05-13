@@ -7,7 +7,7 @@ import jax.numpy as jnp
 import numpy as np
 from jax.lax import scan
 
-from .annotations import ComplexArray, ComplexNumeric, RealNumeric
+from .annotations import ComplexArray, ComplexNumeric, RealArray, RealNumeric
 from .dataclasses import dataclass
 from .dtypes import real_dtype
 from .generator import Generator
@@ -24,6 +24,8 @@ def leaky_integrate(value: RealNumeric,
                     *,
                     leaky_average: bool = False) -> RealNumeric:
     ...
+
+
 @overload
 def leaky_integrate(value: ComplexNumeric,
                     time_step: RealNumeric,
@@ -32,6 +34,8 @@ def leaky_integrate(value: ComplexNumeric,
                     *,
                     leaky_average: bool = False) -> ComplexNumeric:
     ...
+
+
 def leaky_integrate(value: ComplexNumeric,
                     time_step: RealNumeric,
                     drift: Optional[ComplexNumeric] = None,
@@ -75,8 +79,10 @@ def diffused_leaky_integrate(value: RealArray,
                              drift: Optional[RealNumeric] = None,
                              decay: Optional[RealNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> Tuple[RealNumeric, Generator]:
+                             leaky_average: bool = False) -> RealNumeric:
     ...
+
+
 @overload
 def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
@@ -85,8 +91,10 @@ def diffused_leaky_integrate(value: ComplexArray,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> Tuple[ComplexNumeric, Generator]:
+                             leaky_average: bool = False) -> ComplexNumeric:
     ...
+
+
 def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
                              rng: Generator,
@@ -94,7 +102,7 @@ def diffused_leaky_integrate(value: ComplexArray,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> Tuple[ComplexNumeric, Generator]:
+                             leaky_average: bool = False) -> ComplexNumeric:
     """
     Update an Ornstein-Uhlenbeck process.
 
@@ -111,9 +119,8 @@ def diffused_leaky_integrate(value: ComplexArray,
     variance = (diffusion * time_step
                 if decay is None
                 else diffusion / decay * -jnp.expm1(-decay * time_step))
-    jump, new_rng = rng.normal(jnp.sqrt(variance), shape=value.shape)
-    return (leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump,
-            new_rng)
+    jump = jnp.sqrt(variance) * rng.normal(value.shape)
+    return leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump
 
 
 def leaky_data_weight(iterations_times_time_step: RealNumeric,

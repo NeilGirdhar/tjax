@@ -63,7 +63,8 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
 
     def sampled_state(self, theta: PyTree, state: State) -> State:
         new_x, rng = self.expected_state(theta, state)
-        noise, new_rng = rng.normal(1e-4)
+        rng, new_rng = rng.split()
+        noise = 1e-4 * rng.normal()
         return new_x + noise, new_rng
 
     def extract_comparand(self, state: State) -> PyTree:
