@@ -65,7 +65,7 @@ def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
     except TracerArrayConversionError:
         array_string = ""
     else:
-        array_string = _show_array(indent + 1, np_value)
+        array_string = _show_array(indent + 1, np_value)  # type: ignore
     return base_string + array_string
 
 
@@ -125,7 +125,7 @@ def _format_number(x: float) -> str:
     return f"{x:10.4f}"
 
 
-def _show_array(indent: int, array: Union[np.ndarray, DeviceArray]) -> str:
+def _show_array(indent: int, array: np.ndarray) -> str:
     if len(array.shape) == 0:
         return _indent_space(indent) + _format_number(array[()]) + "\n"
     if np.prod(array.shape) == 0:
