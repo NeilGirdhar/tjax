@@ -20,7 +20,6 @@ __all__ = ['StochasticState', 'StochasticIteratedFunction',
 
 @dataclass
 class StochasticState(AugmentedState[State], Generic[State, Comparand]):
-
     mean_state: Comparand
     second_moment_state: Comparand
 
@@ -31,8 +30,7 @@ class StochasticIteratedFunction(
         IteratedFunction[Parameters, State, Comparand, Trajectory,
                          StochasticState[State, Comparand]],
         Generic[Parameters, State, Comparand, Trajectory]):
-
-    convergence_detection_decay: float
+    convergence_detection_decay: RealNumeric
 
     # Implemented methods --------------------------------------------------------------------------
     def initial_augmented(self, initial_state: State) -> StochasticState[State, Comparand]:

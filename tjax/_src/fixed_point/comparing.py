@@ -17,7 +17,6 @@ __all__ = ['ComparingState', 'ComparingIteratedFunction']
 
 @dataclass
 class ComparingState(AugmentedState[State], Generic[State, Comparand]):
-
     last_state: Comparand
 
 

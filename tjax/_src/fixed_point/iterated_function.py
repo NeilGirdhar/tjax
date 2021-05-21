@@ -52,7 +52,6 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
         rtol: The relative tolerance for the comparison stopping condition.
         atol: The absolute tolerance for the comparison stopping condition.
     """
-
     minimum_iterations: IntegralNumeric
     maximum_iterations: IntegralNumeric
     rtol: RealNumeric = field(default_factory=default_rtol)
