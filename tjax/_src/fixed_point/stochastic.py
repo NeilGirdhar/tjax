@@ -34,11 +34,12 @@ class StochasticIteratedFunction(
 
     # Implemented methods --------------------------------------------------------------------------
     def initial_augmented(self, initial_state: State) -> StochasticState[State, Comparand]:
-        mean_state, second_moment_state = self._sufficient_statistics(initial_state)
+        comparand = self.extract_comparand(initial_state)
+        zero_comparand = tree_map(jnp.zeros_like, comparand)
         return StochasticState(current_state=initial_state,
                                iterations=0,
-                               mean_state=mean_state,
-                               second_moment_state=second_moment_state)
+                               mean_state=zero_comparand,
+                               second_moment_state=zero_comparand)
 
     def iterate_augmented(self,
                           new_state: State,
@@ -81,14 +82,14 @@ class StochasticIteratedFunction(
         variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
         scaled_variance = tree_multimap(divide_nonnegative, variance, mean_squared)
 
-        minium_atol = divide_nonnegative(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
-                                         data_weight)
-        minium_rtol = divide_nonnegative(tree_reduce(jnp.maximum,
-                                                     tree_map(jnp.amax, scaled_variance)),
-                                         data_weight)
-        assert not isinstance(minium_atol, complex)
-        assert not isinstance(minium_rtol, complex)
-        return minium_atol, minium_rtol
+        minimum_atol = divide_nonnegative(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
+                                          data_weight)
+        minimum_rtol = divide_nonnegative(tree_reduce(jnp.maximum,
+                                                      tree_map(jnp.amax, scaled_variance)),
+                                          data_weight)
+        assert not isinstance(minimum_atol, complex)
+        assert not isinstance(minimum_rtol, complex)
+        return minimum_atol, minimum_rtol
 
     # Private methods ------------------------------------------------------------------------------
     def _sufficient_statistics(self, state: State) -> Tuple[Comparand, Comparand]:
