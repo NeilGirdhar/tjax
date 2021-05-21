@@ -126,11 +126,10 @@ def diffused_leaky_integrate(value: ComplexArray,
 def leaky_data_weight(iterations_times_time_step: RealNumeric,
                       decay: RealNumeric) -> RealNumeric:
     """
-    Returns: The amount of data that has been incorporated and has not been decayed.
+    Returns: The amount of data that has been incorporated and has not been decayed.  That is,
+        leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True)
     """
-    retval = leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True)
-    assert isinstance(retval, (jnp.ndarray, Real))
-    return retval
+    return -jnp.expm1(-iterations_times_time_step * decay)
 
 
 @dataclass
