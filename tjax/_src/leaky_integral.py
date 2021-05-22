@@ -152,7 +152,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
     # Cast the dtype from integer to floating point to prevent integer rounding.
     initial_value = jnp.zeros(time_series[0].shape,
-                              dtype=(real_dtype
+                              dtype=(real_dtype()
                                      if issubclass(time_series.dtype.type, Integral)
                                      else time_series.dtype))
     initial_carry = _FilterCarry(0.0, initial_value)
