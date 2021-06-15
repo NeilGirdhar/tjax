@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from numbers import Integral, Real
+from numbers import Integral
 from typing import Optional, Tuple, overload
 
 import jax.numpy as jnp

@@ -66,7 +66,6 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
         theta_bar: cotangents for theta
         zeroed_xs: cotangents for initial_state
     """
-    # pylint: disable=protected-access
     outer_iterated_function = residuals.outer_iterated_function
     x_star = residuals.x_star
     x_star_differentiand = outer_iterated_function.extract_differentiand(x_star)

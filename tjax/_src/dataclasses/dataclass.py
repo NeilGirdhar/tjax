@@ -95,8 +95,6 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     if cls is None:
         return partial(dataclass, init=init, repr_=repr_, eq=eq, order=order)
 
-    # pylint: disable=protected-access
-
     # Apply dataclass function to cls.
     data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr_, eq=eq,
                                               order=order, frozen=True)  # type: ignore
