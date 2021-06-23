@@ -10,13 +10,13 @@ import pytest
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
-from tjax import Array, dataclass
+from tjax import Array, RealArray, dataclass
 from tjax.fixed_point import ComparingIteratedFunction, ComparingIteratedFunctionWithCombinator
 
 
 def generate_stable_matrix(generator: Generator,
                            size: int,
-                           eps: float = 1e-2) -> np.ndarray:
+                           eps: float = 1e-2) -> RealArray:
     """
     Generate a random matrix who's singular values are less than 1 - `eps`.
 
@@ -31,13 +31,13 @@ def generate_stable_matrix(generator: Generator,
     return make_stable(mat, eps)
 
 
-def make_stable(matrix: np.ndarray, eps: float) -> np.ndarray:
+def make_stable(matrix: RealArray, eps: float) -> RealArray:
     u, s, vt = np.linalg.svd(matrix)
     s = np.clip(s, 0, 1 - eps)
     return u.dot(s[:, None] * vt)
 
 
-def solve_ax_b(amat: np.ndarray, bvec: np.ndarray) -> np.ndarray:
+def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
     """
     Solve for the fixed point x = Ax + b.
 
@@ -52,7 +52,7 @@ def solve_ax_b(amat: np.ndarray, bvec: np.ndarray) -> np.ndarray:
     return np.linalg.solve(matrix, bvec)
 
 
-def solve_grad_ax_b(amat: np.ndarray, bvec: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealArray]:
     """
     Solve for the gradient of the fixed point x = Ax + b.
 
@@ -109,8 +109,8 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0, 1)))
 def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, Array, Array],
-                            matrix: np.ndarray,
-                            offset: np.ndarray) -> None:
+                            matrix: RealArray,
+                            offset: RealArray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
     x0 = jnp.zeros_like(offset)
 
@@ -127,8 +127,8 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, A
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0.1, 1)))
 def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, Array, Array, Array],
-             matrix: np.ndarray,
-             offset: np.ndarray) -> None:
+             matrix: RealArray,
+             offset: RealArray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
     x0 = jnp.zeros_like(offset)
 

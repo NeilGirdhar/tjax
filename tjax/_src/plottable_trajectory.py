@@ -20,7 +20,7 @@ Trajectory = TypeVar('Trajectory', bound=PyTree)
 class PlottableTrajectory(Generic[Trajectory]):
     trajectory: Trajectory
     "The trajectory is a PyTree containing the plotted data in its nonstatic attributes."
-    times: np.ndarray
+    times: RealArray
     "The times corresponding to the data points in each of the plotted attributes."
 
     def plot(self,
@@ -58,7 +58,7 @@ class PlottableTrajectory(Generic[Trajectory]):
             print(f"Graph {'' if title is None else title + ' '}contains infinite numbers.")
             all_ys = np.where(np.isfinite(all_ys), all_ys, 0.0)
 
-        plot_indices = list(np.ndindex(all_ys.shape[1:]))
+        plot_indices = list(np.ndindex(*all_ys.shape[1:]))
         if labels is not None:
             if len(plot_indices) != len(labels):
                 raise ValueError

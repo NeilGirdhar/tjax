@@ -12,6 +12,8 @@ from jax.interpreters.batching import BatchTracer
 from jax.interpreters.partial_eval import DynamicJaxprTracer, JaxprTracer
 from jax.interpreters.xla import DeviceArray
 
+from .annotations import Array
+
 __all__ = ['print_generic', 'display_generic']
 
 
@@ -51,8 +53,9 @@ def _(value: BatchTracer, show_values: bool = True, indent: int = 0) -> str:
                       f"batched over {value.val.shape[value.batch_dim]}") + "\n"
 
 
-@display_generic.register  # type: ignore
-def _(value: np.ndarray, show_values: bool = True, indent: int = 0) -> str:
+# pylint: disable=unsubscriptable-object
+@display_generic.register(np.ndarray)  # type: ignore
+def _(value: Array, show_values: bool = True, indent: int = 0) -> str:
     retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
     return retval + _show_array(indent + 1, value)
 
@@ -125,7 +128,7 @@ def _format_number(x: float) -> str:
     return f"{x:10.4f}"
 
 
-def _show_array(indent: int, array: np.ndarray) -> str:
+def _show_array(indent: int, array: Array) -> str:
     if len(array.shape) == 0:
         return _indent_space(indent) + _format_number(array[()]) + "\n"
     if np.prod(array.shape) == 0:

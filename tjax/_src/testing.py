@@ -7,7 +7,7 @@ import numpy as np
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_multimap, tree_reduce
 
-from .annotations import PyTree
+from .annotations import Array, PyTree
 from .dtypes import default_atol, default_rtol
 
 __all__ = ['assert_jax_allclose', 'jax_allclose', 'get_test_string', 'get_relative_test_string']
@@ -128,9 +128,11 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     return str(actual)
 
 
-@get_test_string.register(np.ndarray)
+# https://github.com/PyCQA/pylint/issues/4326
+# pylint: disable=unsubscriptable-object
+@get_test_string.register(np.ndarray)  # type: ignore
 @get_test_string.register(DeviceArray)
-def _(actual: Union[np.ndarray, DeviceArray], rtol: float, atol: float) -> str:
+def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
     def fts(x: Complex) -> str:
         return _float_to_string(x, rtol, atol)
     with np.printoptions(formatter={'float_kind': fts,
@@ -186,9 +188,11 @@ def get_relative_test_string(actual: Any,
     return str(actual)
 
 
+# https://github.com/PyCQA/pylint/issues/4326
+# pylint: disable=unsubscriptable-object
 @get_relative_test_string.register(np.ndarray)  # type: ignore
 @get_relative_test_string.register(DeviceArray)
-def _(actual: Union[np.ndarray, DeviceArray], original_name: str, original: Any, rtol: float,
+def _(actual: Union[Array, DeviceArray], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
     def fts(x: Complex) -> str:
         return _float_to_string(x, rtol, atol)

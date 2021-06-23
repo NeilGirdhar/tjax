@@ -142,7 +142,8 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
-        data_weight = leaky_data_weight(new_iterations, decay.real)
+        # https://github.com/google/jax/issues/7085
+        data_weight = leaky_data_weight(new_iterations, decay.real)  # type: ignore
 
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
         assert isinstance(new_value, jnp.ndarray)
