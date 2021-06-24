@@ -1,18 +1,37 @@
 from functools import reduce
 from numbers import Number
 from operator import add
-from typing import Any, Collection, Optional, overload
+from typing import Any, Collection, Optional, Union, overload
 
 import jax.numpy as jnp
 import numpy as np
 
-from .annotations import BooleanNumeric, ComplexArray, ComplexNumeric, RealNumeric, ShapeLike
+from .annotations import (BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
+                          RealArray, RealNumeric, ShapeLike)
 
 __all__ = ['sum_tensors', 'is_scalar', 'abs_square', 'divide_nonnegative']
 
 
-def sum_tensors(tensors: Collection[ComplexArray],
-                shape: Optional[ShapeLike] = None) -> ComplexArray:
+@overload
+def sum_tensors(tensors: Collection[IntegralNumeric],
+                shape: Optional[ShapeLike] = None) -> IntegralNumeric:
+    ...
+
+
+@overload
+def sum_tensors(tensors: Collection[RealNumeric],
+                shape: Optional[ShapeLike] = None) -> RealNumeric:
+    ...
+
+
+@overload
+def sum_tensors(tensors: Collection[ComplexNumeric],
+                shape: Optional[ShapeLike] = None) -> ComplexNumeric:
+    ...
+
+
+def sum_tensors(tensors: Collection[Union[IntegralNumeric, ComplexNumeric]],
+                shape: Optional[ShapeLike] = None) -> Union[IntegralNumeric, ComplexNumeric]:
     if not tensors:
         return jnp.zeros(shape)
     return reduce(add, tensors)
@@ -28,7 +47,7 @@ def abs_square(x: ComplexNumeric) -> RealNumeric:
 
 @overload
 def divide_where(dividend: RealNumeric,
-                 divisor: RealNumeric,
+                 divisor: Union[RealNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
                  otherwise: Optional[RealNumeric] = None) -> RealNumeric:
@@ -37,7 +56,7 @@ def divide_where(dividend: RealNumeric,
 
 @overload
 def divide_where(dividend: ComplexNumeric,
-                 divisor: ComplexNumeric,
+                 divisor: Union[ComplexNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
                  otherwise: Optional[ComplexNumeric] = None) -> ComplexNumeric:
@@ -45,7 +64,7 @@ def divide_where(dividend: ComplexNumeric,
 
 
 def divide_where(dividend: ComplexNumeric,
-                 divisor: ComplexNumeric,
+                 divisor: Union[ComplexNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
                  otherwise: Optional[ComplexNumeric] = None) -> ComplexNumeric:
