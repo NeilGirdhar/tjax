@@ -9,32 +9,7 @@ import numpy as np
 from .annotations import (BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
                           RealArray, RealNumeric, ShapeLike)
 
-__all__ = ['sum_tensors', 'is_scalar', 'abs_square', 'divide_nonnegative']
-
-
-@overload
-def sum_tensors(tensors: Collection[IntegralNumeric],
-                shape: Optional[ShapeLike] = None) -> IntegralNumeric:
-    ...
-
-
-@overload
-def sum_tensors(tensors: Collection[RealNumeric],
-                shape: Optional[ShapeLike] = None) -> RealNumeric:
-    ...
-
-
-@overload
-def sum_tensors(tensors: Collection[ComplexNumeric],
-                shape: Optional[ShapeLike] = None) -> ComplexNumeric:
-    ...
-
-
-def sum_tensors(tensors: Collection[Union[IntegralNumeric, ComplexNumeric]],
-                shape: Optional[ShapeLike] = None) -> Union[IntegralNumeric, ComplexNumeric]:
-    if not tensors:
-        return jnp.zeros(shape)
-    return reduce(add, tensors)
+__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative']
 
 
 def is_scalar(x: Any) -> bool:
