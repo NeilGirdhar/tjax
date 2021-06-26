@@ -16,6 +16,14 @@ def is_scalar(x: Any) -> bool:
     return isinstance(x, Number) or isinstance(x, (np.ndarray, jnp.ndarray)) and x.shape == ()
 
 
+@overload
+def abs_square(x: ComplexArray) -> RealArray:
+    ...
+
+@overload
+def abs_square(x: ComplexNumeric) -> RealNumeric:
+    ...
+
 def abs_square(x: ComplexNumeric) -> RealNumeric:
     return jnp.square(x.real) + jnp.square(x.imag)
 
