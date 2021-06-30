@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 import jax.numpy as jnp
 import numpy as np
 from jax.interpreters.xla import DeviceArray
-from jax.tree_util import tree_multimap, tree_reduce
+from jax.tree_util import tree_flatten, tree_multimap, tree_reduce
 
 from .annotations import Array, PyTree
 from .dtypes import default_atol, default_rtol
@@ -40,24 +40,25 @@ def assert_jax_allclose(actual: PyTree,
     desired = B(A(3.0, 4.0))
     actual = B(A(1.2, 5.2))
 
-    assert_jax_allclose(actual, desired, 'original', original)
+    assert_jax_allclose(actual, desired)
     ```
     This prints::
     ```
-    JAX trees don't match.  Actual:
-    B
-        z=A
-            x=3.0
-            y=4.0
-
-    Desired:
-    B
+    JAX trees don't match with rtol=0.0001 and atol=1e-06.
+    Mismatched elements: 2 / 2 (100%)
+    Maximum absolute difference: 1.8
+    Maximum relative difference: 0.6
+    Actual: B
         z=A
             x=1.2
             y=5.2
 
-    Test string:
-    original.replace(z=original.z.replace(x=3.0, y=4.0))
+    Desired: B
+        z=A
+            x=3.0
+            y=4.0
+
+    Test string: B(z=A(x=1.2, y=5.2))
     ```
     The test string can then be pasted.
 
@@ -70,24 +71,31 @@ def assert_jax_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
     """
+    __tracebackhide__ = True
     if rtol is None:
         rtol = default_rtol()
     if atol is None:
         atol = default_atol()
 
+    flattened_actual, structure_actual = tree_flatten(actual)
+    flattened_desired, structure_desired = tree_flatten(desired)
+    if structure_actual != structure_desired:
+        raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
+    linearized_actual = np.concatenate([np.ravel(x) for x in flattened_actual])
+    linearized_desired = np.concatenate([np.ravel(x) for x in flattened_desired])
     try:
-        tree_multimap(partial(np.testing.assert_allclose, rtol=rtol, atol=atol), actual, desired)
-    except AssertionError:
-        print("JAX trees don't match.\nActual:")
-        print(actual)
-        print("Desired:")
-        print(desired)
-        print("Test string:")
-        if original_name is not None and original_value is not None:
-            print(get_relative_test_string(actual, original_name, original_value, rtol, atol))
-        else:
-            print(get_test_string(actual, rtol, atol))
-        raise
+        np.testing.assert_allclose(linearized_actual, linearized_desired, rtol=rtol, atol=atol)
+    except AssertionError as exception:
+        old_message = exception.args[0].split('\n')
+        best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
+        test_string = (get_relative_test_string(actual, original_name, original_value, rtol, atol)
+                       if original_name is not None and original_value is not None
+                       else get_test_string(actual, rtol, atol))
+        message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
+                  f"{best_part_of_old_message}\n"
+                  f"Actual: {actual}\nDesired: {desired}\n"
+                  f"Test string: {test_string}")
+        raise AssertionError(message) from None
 
 
 def jax_allclose(actual: PyTree,
@@ -143,7 +151,8 @@ def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
 
 @get_test_string.register  # type: ignore
 def _(actual: Complex, rtol: float, atol: float) -> str:
-    return _float_to_string(complex(actual), rtol, atol)
+    x = float(actual) if isinstance(actual, Real) else complex(actual)
+    return _float_to_string(x, rtol, atol)
 
 
 @get_test_string.register  # type: ignore

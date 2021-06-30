@@ -1,13 +1,11 @@
-from functools import reduce
 from numbers import Number
-from operator import add
-from typing import Any, Collection, Optional, Union, overload
+from typing import Any, Optional, Union, overload
 
 import jax.numpy as jnp
 import numpy as np
 
-from .annotations import (BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
-                          RealArray, RealNumeric, ShapeLike)
+from .annotations import (BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric, RealArray,
+                          RealNumeric)
 
 __all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative']
 
