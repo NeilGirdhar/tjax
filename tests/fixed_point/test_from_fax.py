@@ -75,9 +75,9 @@ TPair = Tuple[Array, Array]
 
 @dataclass
 class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array, Array]):
-    def sampled_state(self, theta: TPair, x: Array) -> Array:
+    def sampled_state(self, theta: TPair, state: Array) -> Array:
         matrix, offset = theta
-        return jnp.tensordot(matrix, x, 1) + offset
+        return jnp.tensordot(matrix, state, 1) + offset
 
     def extract_comparand(self, state: Array) -> Array:
         return state

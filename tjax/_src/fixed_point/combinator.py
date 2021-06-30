@@ -81,7 +81,6 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
                            iterated_function=outer_iterated_function)
     z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
                                 x_star_bar_differentiand)
-    # pylint: disable=no-member
     augmented = z_iterator.find_fixed_point(z_parameters, x_star_bar_differentiand)
     z_star_differentiand: State = augmented.current_state
 
