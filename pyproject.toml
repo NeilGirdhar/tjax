@@ -25,6 +25,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
+yapf = ">=0.31"
 colorful = "^0.5.4"
 jax = "^0.2.13"
 jaxlib = ">=0.1"

@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import jax.numpy as jnp
 import numpy as np
+import yapf
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_flatten, tree_multimap, tree_reduce
 
@@ -18,6 +19,7 @@ def assert_jax_allclose(actual: PyTree,
                         original_name: Optional[str] = None,
                         original_value: Optional[PyTree] = None,
                         *,
+                        column_limit: int = 100,
                         rtol: Optional[float] = None,
                         atol: Optional[float] = None) -> None:
     """
@@ -58,7 +60,8 @@ def assert_jax_allclose(actual: PyTree,
             x=3.0
             y=4.0
 
-    Test string: B(z=A(x=1.2, y=5.2))
+    Test string:
+    actual = B(z=A(x=1.2, y=5.2))
     ```
     The test string can then be pasted.
 
@@ -71,7 +74,6 @@ def assert_jax_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
     """
-    __tracebackhide__ = True
     if rtol is None:
         rtol = default_rtol()
     if atol is None:
@@ -91,10 +93,14 @@ def assert_jax_allclose(actual: PyTree,
         test_string = (get_relative_test_string(actual, original_name, original_value, rtol, atol)
                        if original_name is not None and original_value is not None
                        else get_test_string(actual, rtol, atol))
+        style_config = yapf.style.CreatePEP8Style()
+        style_config['COLUMN_LIMIT'] = column_limit
+        test_string = yapf.yapf_api.FormatCode("actual = " + test_string,
+                                               style_config=style_config)[0]  # type: ignore
         message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
                   f"{best_part_of_old_message}\n"
                   f"Actual: {actual}\nDesired: {desired}\n"
-                  f"Test string: {test_string}")
+                  f"Test string:\n{test_string}")
         raise AssertionError(message) from None
 
 
@@ -136,8 +142,6 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     return str(actual)
 
 
-# https://github.com/PyCQA/pylint/issues/4326
-# pylint: disable=unsubscriptable-object
 @get_test_string.register(np.ndarray)  # type: ignore
 @get_test_string.register(DeviceArray)
 def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
@@ -197,8 +201,6 @@ def get_relative_test_string(actual: Any,
     return str(actual)
 
 
-# https://github.com/PyCQA/pylint/issues/4326
-# pylint: disable=unsubscriptable-object
 @get_relative_test_string.register(np.ndarray)  # type: ignore
 @get_relative_test_string.register(DeviceArray)
 def _(actual: Union[Array, DeviceArray], original_name: str, original: Any, rtol: float,

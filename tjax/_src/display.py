@@ -53,10 +53,9 @@ def _(value: BatchTracer, show_values: bool = True, indent: int = 0) -> str:
                       f"batched over {value.val.shape[value.batch_dim]}") + "\n"
 
 
-# pylint: disable=unsubscriptable-object
 @display_generic.register(np.ndarray)  # type: ignore
 def _(value: Array, show_values: bool = True, indent: int = 0) -> str:
-    retval = cf.yellow(f"NumPy Array {value.shape}") + "\n"
+    retval = cf.yellow(f"NumPy Array {value.shape} {value.dtype}") + "\n"
     return retval + _show_array(indent + 1, value)
 
 
