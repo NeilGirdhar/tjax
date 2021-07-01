@@ -83,25 +83,28 @@ def assert_jax_allclose(actual: PyTree,
     flattened_desired, structure_desired = tree_flatten(desired)
     if structure_actual != structure_desired:
         raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
-    linearized_actual = np.concatenate([np.ravel(x) for x in flattened_actual])
-    linearized_desired = np.concatenate([np.ravel(x) for x in flattened_desired])
-    try:
-        np.testing.assert_allclose(linearized_actual, linearized_desired, rtol=rtol, atol=atol)
-    except AssertionError as exception:
-        old_message = exception.args[0].split('\n')
-        best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-        test_string = (get_relative_test_string(actual, original_name, original_value, rtol, atol)
-                       if original_name is not None and original_value is not None
-                       else get_test_string(actual, rtol, atol))
-        style_config = yapf.style.CreatePEP8Style()
-        style_config['COLUMN_LIMIT'] = column_limit
-        test_string = yapf.yapf_api.FormatCode("actual = " + test_string,
-                                               style_config=style_config)[0]  # type: ignore
-        message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
-                  f"{best_part_of_old_message}\n"
-                  f"Actual: {actual}\nDesired: {desired}\n"
-                  f"Test string:\n{test_string}")
-        raise AssertionError(message) from None
+
+    def f_assert_allclose(actual: Array, desired: Array) -> None:
+        try:
+            np.testing.assert_allclose(actual, desired, rtol=rtol, atol=atol)
+        except AssertionError as exception:
+            old_message = exception.args[0].split('\n')
+            best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
+            test_string = (get_relative_test_string(actual, original_name, original_value, rtol,
+                                                    atol)
+                           if original_name is not None and original_value is not None
+                           else get_test_string(actual, rtol, atol))
+            style_config = yapf.style.CreatePEP8Style()
+            style_config['COLUMN_LIMIT'] = column_limit
+            test_string = yapf.yapf_api.FormatCode("actual = " + test_string,
+                                                   style_config=style_config)[0]  # type: ignore
+            message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
+                      f"{best_part_of_old_message}\n"
+                      f"Actual: {actual}\nDesired: {desired}\n"
+                      f"Test string:\n{test_string}")
+            raise AssertionError(message) from None
+
+    tree_multimap(f_assert_allclose, flattened_actual, flattened_desired)
 
 
 def jax_allclose(actual: PyTree,
