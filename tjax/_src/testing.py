@@ -84,7 +84,7 @@ def assert_jax_allclose(actual: PyTree,
     if structure_actual != structure_desired:
         raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
 
-    def f_assert_allclose(actual: Array, desired: Array) -> None:
+    def f_assert_allclose(rtol: float, atol: float, actual: Array, desired: Array) -> None:
         try:
             np.testing.assert_allclose(actual, desired, rtol=rtol, atol=atol)
         except AssertionError as exception:
@@ -104,7 +104,7 @@ def assert_jax_allclose(actual: PyTree,
                       f"Test string:\n{test_string}")
             raise AssertionError(message) from None
 
-    tree_multimap(f_assert_allclose, flattened_actual, flattened_desired)
+    tree_multimap(partial(f_assert_allclose, rtol, atol), flattened_actual, flattened_desired)
 
 
 def jax_allclose(actual: PyTree,
