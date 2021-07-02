@@ -1,6 +1,6 @@
 from functools import partial, singledispatch
 from numbers import Complex, Number, Real
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import jax.numpy as jnp
 import numpy as np
@@ -97,7 +97,7 @@ def assert_jax_allclose(actual: PyTree,
             style_config = yapf.style.CreatePEP8Style()
             style_config['COLUMN_LIMIT'] = column_limit
             test_string = yapf.yapf_api.FormatCode("actual = " + test_string,
-                                                   style_config=style_config)[0]  # type: ignore
+                                                   style_config=style_config)[0]
             message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
                       f"{best_part_of_old_message}\n"
                       f"Actual: {actual}\nDesired: {desired}\n"
@@ -123,11 +123,9 @@ def jax_allclose(actual: PyTree,
     if atol is None:
         atol = default_atol()
 
-    return cast(
-        bool,
-        tree_reduce(jnp.logical_and,
-                    tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
-                    True))
+    return tree_reduce(jnp.logical_and,
+                       tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
+                       True)
 
 
 # get test string ----------------------------------------------------------------------------------
@@ -145,7 +143,7 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     return str(actual)
 
 
-@get_test_string.register(np.ndarray)  # type: ignore
+@get_test_string.register(np.ndarray)
 @get_test_string.register(DeviceArray)
 def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
     def fts(x: Complex) -> str:

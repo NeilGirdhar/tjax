@@ -21,7 +21,7 @@ def register_graph_as_jax_pytree(cls: Type[T]) -> None:
 
         graph = cls()
         graph.add_nodes_from(node_dicts.items())
-        graph.add_edges_from([(source, target, data)  # type: ignore
+        graph.add_edges_from([(source, target, data)
                               for (source, target), data in edge_dicts.items()])
 
         return graph

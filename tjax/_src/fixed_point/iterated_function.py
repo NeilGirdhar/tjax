@@ -25,8 +25,7 @@ TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
 TapFunction = Callable[[None, TapFunctionTransforms], None]
 
 
-# https://github.com/python/mypy/issues/8539
-@dataclass  # type: ignore
+@dataclass
 class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugmentedState]):
     """
     An IteratedFunction object models an iterated function.

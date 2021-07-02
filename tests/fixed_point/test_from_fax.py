@@ -32,7 +32,7 @@ def generate_stable_matrix(generator: Generator,
 
 
 def make_stable(matrix: RealArray, eps: float) -> RealArray:
-    u, s, vt = np.linalg.svd(matrix)
+    u, s, vt = np.linalg.svd(matrix)  # type: ignore
     s = np.clip(s, 0, 1 - eps)
     return u.dot(s[:, None] * vt)
 
@@ -49,7 +49,7 @@ def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
         A vector `x` such that x = Ax + b.
     """
     matrix = np.eye(amat.shape[0]) - amat
-    return np.linalg.solve(matrix, bvec)
+    return np.linalg.solve(matrix, bvec)  # type: ignore
 
 
 def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealArray]:
@@ -102,7 +102,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
 # Tests --------------------------------------------------------------------------------------------
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)  # type: ignore
+@hypothesis.settings(max_examples=100, deadline=5000.)
 @hypothesis.given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
@@ -120,7 +120,7 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, A
     assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)  # type: ignore
+@hypothesis.settings(max_examples=100, deadline=5000.)
 @hypothesis.given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
@@ -149,7 +149,7 @@ def test_gradient(generator: Generator,
     """
     mat_size = 10
     matrix = generate_stable_matrix(generator, mat_size, 1e-1)
-    offset = np.random.rand(mat_size)  # type: ignore
+    offset = np.random.rand(mat_size)
     x0 = jnp.zeros_like(offset)
 
     def loss(params: TPair, x: Array) -> Array:

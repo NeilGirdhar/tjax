@@ -20,8 +20,7 @@ class ComparingState(AugmentedState[State], Generic[State, Comparand]):
     last_state: Comparand
 
 
-# https://github.com/python/mypy/issues/8539
-@dataclass  # type: ignore
+@dataclass
 class ComparingIteratedFunction(
         IteratedFunction[Parameters, State, Comparand, Trajectory,
                          ComparingState[State, Comparand]],

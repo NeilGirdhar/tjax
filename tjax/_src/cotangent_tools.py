@@ -74,7 +74,7 @@ def block_cotangent(f: Callable[..., X],
         return f(*args, **kwargs)
 
     def blocked_f_fwd(*args: Any, **kwargs: Any) -> Tuple[Any, Any]:
-        return vjp(f, *args, **kwargs)  # type: ignore
+        return vjp(f, *args, **kwargs)
 
     def blocked_f_bwd(residuals: Any, output_bar: Any) -> Tuple[Any, ...]:
         f_vjp = residuals

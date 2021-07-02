@@ -25,8 +25,7 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
 
     # Implemented methods --------------------------------------------------------------------------
     def sampled_state(self, theta: PyTree, state: Array) -> Array:
-        # https://github.com/python/mypy/issues/5485
-        g = grad(self.f, 1)(theta, state)  # type: ignore
+        g = grad(self.f, 1)(theta, state)
         ratio = self.f(theta, state) / g  # type: ignore
         return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
 
@@ -55,8 +54,7 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
     # Implemented methods --------------------------------------------------------------------------
     def expected_state(self, theta: PyTree, state: State) -> State:
         x, rng = state
-        # https://github.com/python/mypy/issues/5485
-        g = grad(self.f, 1)(theta, x)  # type: ignore
+        g = grad(self.f, 1)(theta, x)
         ratio = self.f(theta, x) / g  # type: ignore
         new_x = x - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
         return new_x, rng

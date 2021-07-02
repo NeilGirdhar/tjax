@@ -89,8 +89,7 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
     return None, theta_bar, None
 
 
-# https://github.com/python/mypy/issues/8539
-@dataclass  # type: ignore
+@dataclass
 class IteratedFunctionWithCombinator(
         IteratedFunction[Parameters, State, Comparand, Trajectory, TheAugmentedState],
         Generic[Parameters, State, Comparand, Differentiand, Trajectory, TheAugmentedState]):

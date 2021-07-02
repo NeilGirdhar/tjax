@@ -14,7 +14,7 @@ def test_time_step_invariance() -> None:
         return x
 
     a = np.array([f(n) for n in [1, 5, 20, 100]])
-    assert_allclose(a, a[0])  # type: ignore
+    assert_allclose(a, a[0])
 
 
 @pytest.mark.parametrize('decay', [0.1, 1.0, 10.0])

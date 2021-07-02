@@ -67,7 +67,7 @@ def _(value: DeviceArray, show_values: bool = True, indent: int = 0) -> str:
     except TracerArrayConversionError:
         array_string = ""
     else:
-        array_string = _show_array(indent + 1, np_value)  # type: ignore
+        array_string = _show_array(indent + 1, np_value)
     return base_string + array_string
 
 

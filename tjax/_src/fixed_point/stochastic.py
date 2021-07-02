@@ -24,8 +24,7 @@ class StochasticState(AugmentedState[State], Generic[State, Comparand]):
     second_moment_state: Comparand
 
 
-# https://github.com/python/mypy/issues/8539
-@dataclass  # type: ignore
+@dataclass
 class StochasticIteratedFunction(
         IteratedFunction[Parameters, State, Comparand, Trajectory,
                          StochasticState[State, Comparand]],

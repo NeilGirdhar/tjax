@@ -103,7 +103,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     static_fields: List[str] = []
     nonstatic_fields: List[str] = []
 
-    for field_info in dataclasses.fields(data_clz):  # type: ignore
+    for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
             continue
         if field_info.metadata.get('static', False):
@@ -131,28 +131,28 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     if data_clz.__str__ is object.__str__:
         data_clz.__str__ = __str__  # type: ignore
     if not hasattr(data_clz, 'display'):
-        data_clz.display = display_dataclass  # type: ignore
-    data_clz.tree_flatten = tree_flatten  # type: ignore
-    data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
-    data_clz.replace = replace  # type: ignore
+        data_clz.display = display_dataclass
+    data_clz.tree_flatten = tree_flatten
+    data_clz.tree_unflatten = classmethod(tree_unflatten)
+    data_clz.replace = replace
 
     # Assign field lists to the class.
-    data_clz.nonstatic_fields = nonstatic_fields  # type: ignore
-    data_clz.static_fields = static_fields  # type: ignore
+    data_clz.nonstatic_fields = nonstatic_fields
+    data_clz.static_fields = static_fields
 
     # Register the class as a JAX PyTree.
     register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
 
     # Register the dynamically-dispatched functions.
-    display_generic.register(data_clz, data_clz.display)  # type: ignore
-    get_test_string.register(data_clz, get_dataclass_test_string)  # type: ignore
-    get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)  # type: ignore
+    display_generic.register(data_clz, data_clz.display)
+    get_test_string.register(data_clz, get_dataclass_test_string)
+    get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)
     return data_clz
 
 
 def display_dataclass(value: T, show_values: bool = True, indent: int = 0) -> str:
     retval = display_class(type(value))
-    for field_info in dataclasses.fields(value):  # type: ignore
+    for field_info in dataclasses.fields(value):
         retval += display_key_and_value(
             field_info.name, getattr(value, field_info.name), "=", show_values, indent)
     return retval

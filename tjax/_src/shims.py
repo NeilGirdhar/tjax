@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, Tuple, TypeVar, Union, cast
+from typing import Any, Callable, Generic, Tuple, TypeVar, Union
 
 import jax
 from jax.tree_util import Partial
@@ -20,7 +20,7 @@ def jit(func: F, **kwargs: Any) -> F:
     """
     This version of jit ensures that abstract methods stay abstract.
     """
-    retval = cast(F, jax.jit(func, **kwargs))
+    retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
         retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore
     return retval
@@ -44,10 +44,10 @@ class custom_vjp(Generic[R]):
             static_argnums: The indices of the static arguments.
         """
         static_argnums = as_sorted_tuple(static_argnums)
-        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)  # type: ignore
+        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
 
     def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -> None:
-        self.vjp.defvjp(fwd, bwd)  # type: ignore
+        self.vjp.defvjp(fwd, bwd)
 
     def __call__(self, *args: Any) -> R:
         return self.vjp(*args)
@@ -75,7 +75,7 @@ class custom_jvp(Generic[R]):
             static_argnums: The indices of the static arguments.
         """
         static_argnums = as_sorted_tuple(static_argnums)
-        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)  # type: ignore
+        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
 
     def defjvp(self, jvp: Callable[..., R]) -> None:
         """
