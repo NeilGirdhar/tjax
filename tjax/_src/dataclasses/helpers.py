@@ -83,7 +83,7 @@ def field_names_values_metadata(d: Any, *, static: Optional[bool] = None) -> (
 
 def document_dataclass(pdoc: MutableMapping[str, Any], name: str) -> None:
     pdoc[f'{name}.static_fields'] = False
-    pdoc[f'{name}.nonstatic_fields'] = False
+    pdoc[f'{name}.dynamic_fields'] = False
     pdoc[f'{name}.tree_flatten'] = False
     pdoc[f'{name}.tree_unflatten'] = False
     pdoc[f'{name}.display'] = False

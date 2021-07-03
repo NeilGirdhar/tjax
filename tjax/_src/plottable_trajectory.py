@@ -19,7 +19,7 @@ Trajectory = TypeVar('Trajectory', bound=PyTree)
 @dataclass
 class PlottableTrajectory(Generic[Trajectory]):
     trajectory: Trajectory
-    "The trajectory is a PyTree containing the plotted data in its nonstatic attributes."
+    "The trajectory is a PyTree containing the plotted data in its dynamic attributes."
     times: RealArray
     "The times corresponding to the data points in each of the plotted attributes."
 
@@ -93,5 +93,5 @@ class PlottableTrajectory(Generic[Trajectory]):
             axis.legend()
 
     def slice_into(self, s: SliceLike) -> Trajectory:
-        "Return a new trajectory whose nonstatic attributed are sliced."
+        "Return a new trajectory whose dynamic attributed are sliced."
         return tree_map(lambda x: x[s], self.trajectory)

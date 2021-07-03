@@ -124,7 +124,7 @@ class CotangentMapper:
     def to_mapping(self, cotangents: _T) -> Mapping[str, _T]:
         """
         Args:
-            cotangents: A PyTree whose nonstatic fields are arrays representing the group of
+            cotangents: A PyTree whose dynamic fields are arrays representing the group of
                 cotangents.
         Returns: A mapping from cotangent names to sub-arrays representing individual cotangents.
         """

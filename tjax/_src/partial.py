@@ -23,7 +23,7 @@ class Partial(partial, Generic[R]):  # type: ignore
     Use it for partial function evaluation in a way that is compatible with JAX's transformations,
     e.g., ``Partial(func, *args, **kwargs)``.
 
-    JAX's version of this class in jax.tree_util assumes that all parameters are nonstatic and the
+    JAX's version of this class in jax.tree_util assumes that all parameters are dynamic and the
     callable is static.  This version allows you to specify which parameters are static and whether
     the callable is static.
     """

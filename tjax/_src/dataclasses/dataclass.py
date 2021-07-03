@@ -101,7 +101,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []
-    nonstatic_fields: List[str] = []
+    dynamic_fields: List[str] = []
 
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
@@ -109,7 +109,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
         if field_info.metadata.get('static', False):
             static_fields.append(field_info.name)
         else:
-            nonstatic_fields.append(field_info.name)
+            dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
     def __str__(self: T) -> str:
@@ -117,14 +117,14 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
 
     def tree_flatten(x: T) -> Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
-        trees = tuple(getattr(x, name) for name in nonstatic_fields)
+        trees = tuple(getattr(x, name) for name in dynamic_fields)
         return trees, hashed
 
     def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -> T:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(static_fields, hashed))
-        tree_args = dict(zip(nonstatic_fields, trees))
+        tree_args = dict(zip(dynamic_fields, trees))
         return cls(**hashed_args, **tree_args)
 
     # Assign methods to the class.
@@ -137,7 +137,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     data_clz.replace = replace
 
     # Assign field lists to the class.
-    data_clz.nonstatic_fields = nonstatic_fields
+    data_clz.dynamic_fields = dynamic_fields
     data_clz.static_fields = static_fields
 
     # Register the class as a JAX PyTree.
@@ -162,8 +162,8 @@ def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
     retval = f"{type(actual).__name__}("
     retval += ",\n".join(
         f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-        for fn in actual.nonstatic_fields)
-    if actual.nonstatic_fields and actual.static_fields:
+        for fn in actual.dynamic_fields)
+    if actual.dynamic_fields and actual.static_fields:
         retval += ',\n'
     retval += ",\n".join(
         f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
@@ -184,7 +184,7 @@ def get_relative_dataclass_test_string(actual: Any,
                                             getattr(original, fn),
                                             rtol,
                                             atol)
-        for fn in actual.nonstatic_fields
+        for fn in actual.dynamic_fields
         if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
     retval += ")"
     return retval
