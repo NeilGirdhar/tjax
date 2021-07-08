@@ -90,10 +90,10 @@ def assert_tree_allclose(actual: PyTree,
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-            test_string = (get_relative_test_string(desired, original_name, original_value, rtol,
+            test_string = (get_relative_test_string(actual, original_name, original_value, rtol,
                                                     atol)
                            if original_name is not None and original_value is not None
-                           else get_test_string(desired, rtol, atol))
+                           else get_test_string(actual, rtol, atol))
             style_config = yapf.style.CreatePEP8Style()
             style_config['COLUMN_LIMIT'] = column_limit
             test_string = yapf.yapf_api.FormatCode("desired = " + test_string,

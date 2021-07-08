@@ -18,13 +18,14 @@ def test_testing(capsys: CaptureFixture[str], actual: float, desired: str) -> No
     assert captured.out == captured.err == ""  # Nothing should be printed.
     assertion_string = exception.value.args[0]
     pattern = rf"""
-JAX trees don't match with rtol=1e-05 and atol=1e-08\.
+Tree leafs don't match at position 0 with rtol=1e-05 and atol=1e-08\.
 Mismatched elements: 1 / 1 \(100%\)
 Maximum absolute difference: .+
 Maximum relative difference: .+
+
 Actual: {actual}
 Desired: 1000000\.0
 Test string:
-actual = {desired}
+desired = {desired}
 """
     assert re.match(pattern, assertion_string)
