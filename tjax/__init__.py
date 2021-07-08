@@ -19,17 +19,17 @@ from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, le
 from ._src.partial import Partial
 from ._src.plottable_trajectory import PlottableTrajectory
 from ._src.shims import custom_jvp, custom_vjp, jit
-from ._src.testing import (assert_jax_allclose, get_relative_test_string, get_test_string,
-                           jax_allclose)
+from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
+                           tree_allclose)
 from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar
 
 __all__ = ['Array', 'BooleanArray', 'ComplexArray', 'Generator', 'IntegralArray', 'Partial',
            'PlottableTrajectory', 'PyTree', 'RealArray', 'Shape', 'ShapeLike', 'SliceLike',
-           'TapFunctionTransforms', 'abs_square', 'assert_jax_allclose', 'block_cotangent',
+           'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose', 'block_cotangent',
            'complex_dtype', 'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclass',
            'dataclasses', 'default_atol', 'default_rtol', 'default_tols',
            'diffused_leaky_integrate', 'display_generic', 'fixed_point', 'get_relative_test_string',
-           'get_test_string', 'gradient', 'int_dtype', 'is_scalar', 'jax_allclose', 'jit',
+           'get_test_string', 'gradient', 'int_dtype', 'is_scalar', 'tree_allclose', 'jit',
            'leaky_covariance', 'leaky_data_weight', 'leaky_integrate',
            'leaky_integrate_time_series', 'print_cotangent', 'print_generic', 'real_dtype',
            'replace_cotangent', 'divide_nonnegative', 'divide_where', 'Integral', 'Real', 'Complex',

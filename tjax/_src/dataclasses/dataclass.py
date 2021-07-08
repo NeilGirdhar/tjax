@@ -7,7 +7,7 @@ from jax.tree_util import register_pytree_node
 
 from ..annotations import PyTree
 from ..display import display_class, display_generic, display_key_and_value
-from ..testing import get_relative_test_string, get_test_string, jax_allclose
+from ..testing import get_relative_test_string, get_test_string, tree_allclose
 
 __all__ = ['dataclass', 'InitVar', 'MISSING', 'FrozenInstanceError']
 
@@ -185,6 +185,6 @@ def get_relative_dataclass_test_string(actual: Any,
                                             rtol,
                                             atol)
         for fn in actual.dynamic_fields
-        if not jax_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
+        if not tree_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
     retval += ")"
     return retval

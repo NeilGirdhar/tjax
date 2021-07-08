@@ -3,7 +3,7 @@ import re
 import pytest
 from pytest import CaptureFixture
 
-from tjax import assert_jax_allclose
+from tjax import assert_tree_allclose
 
 
 @pytest.mark.parametrize("actual, desired",
@@ -13,7 +13,7 @@ from tjax import assert_jax_allclose
                           (1.23456789e8, "1\\.23457e\\+08")])
 def test_testing(capsys: CaptureFixture[str], actual: float, desired: str) -> None:
     with pytest.raises(AssertionError) as exception:
-        assert_jax_allclose(actual, 1e6, rtol=1e-5, atol=1e-8)
+        assert_tree_allclose(actual, 1e6, rtol=1e-5, atol=1e-8)
     captured = capsys.readouterr()
     assert captured.out == captured.err == ""  # Nothing should be printed.
     assertion_string = exception.value.args[0]

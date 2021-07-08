@@ -11,23 +11,23 @@ from jax.tree_util import tree_flatten, tree_multimap, tree_reduce
 from .annotations import Array, PyTree
 from .dtypes import default_atol, default_rtol
 
-__all__ = ['assert_jax_allclose', 'jax_allclose', 'get_test_string', 'get_relative_test_string']
+__all__ = ['assert_tree_allclose', 'tree_allclose', 'get_test_string', 'get_relative_test_string']
 
 
-def assert_jax_allclose(actual: PyTree,
-                        desired: PyTree,
-                        original_name: Optional[str] = None,
-                        original_value: Optional[PyTree] = None,
-                        *,
-                        column_limit: int = 100,
-                        rtol: Optional[float] = None,
-                        atol: Optional[float] = None) -> None:
+def assert_tree_allclose(actual: PyTree,
+                         desired: PyTree,
+                         original_name: Optional[str] = None,
+                         original_value: Optional[PyTree] = None,
+                         *,
+                         column_limit: int = 100,
+                         rtol: Optional[float] = None,
+                         atol: Optional[float] = None) -> None:
     """
     Asserts that every tensor in an actual pytree matches the corresponding tensor in a desired
     pytree.  If the assertion fails, a passing test string is printed::
 
     ```python
-    from tjax import assert_jax_allclose, dataclass, RealNumeric
+    from tjax import assert_tree_allclose, dataclass, RealNumeric
 
     @dataclass
     class A:
@@ -42,7 +42,7 @@ def assert_jax_allclose(actual: PyTree,
     desired = B(A(3.0, 4.0))
     actual = B(A(1.2, 5.2))
 
-    assert_jax_allclose(actual, desired)
+    assert_tree_allclose(actual, desired)
     ```
     This prints::
     ```
@@ -84,33 +84,32 @@ def assert_jax_allclose(actual: PyTree,
     if structure_actual != structure_desired:
         raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
 
-    def f_assert_allclose(rtol: float, atol: float, actual: Array, desired: Array) -> None:
+    for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
         try:
-            np.testing.assert_allclose(actual, desired, rtol=rtol, atol=atol)
+            np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-            test_string = (get_relative_test_string(actual, original_name, original_value, rtol,
+            test_string = (get_relative_test_string(desired, original_name, original_value, rtol,
                                                     atol)
                            if original_name is not None and original_value is not None
-                           else get_test_string(actual, rtol, atol))
+                           else get_test_string(desired, rtol, atol))
             style_config = yapf.style.CreatePEP8Style()
             style_config['COLUMN_LIMIT'] = column_limit
-            test_string = yapf.yapf_api.FormatCode("actual = " + test_string,
+            test_string = yapf.yapf_api.FormatCode("desired = " + test_string,
                                                    style_config=style_config)[0]
-            message =(f"\nJAX trees don't match with rtol={rtol} and atol={atol}.\n"
-                      f"{best_part_of_old_message}\n"
-                      f"Actual: {actual}\nDesired: {desired}\n"
-                      f"Test string:\n{test_string}")
+            message = (
+                f"\nTree leafs don't match at position {i} with rtol={rtol} and atol={atol}.\n"
+                f"{best_part_of_old_message}\n\n"
+                f"Actual: {actual}\nDesired: {desired}\n"
+                f"Test string:\n{test_string}")
             raise AssertionError(message) from None
 
-    tree_multimap(partial(f_assert_allclose, rtol, atol), flattened_actual, flattened_desired)
 
-
-def jax_allclose(actual: PyTree,
-                 desired: PyTree,
-                 rtol: Optional[float] = None,
-                 atol: Optional[float] = None) -> bool:
+def tree_allclose(actual: PyTree,
+                  desired: PyTree,
+                  rtol: Optional[float] = None,
+                  atol: Optional[float] = None) -> bool:
     """
     Args:
         actual: The actual value.
