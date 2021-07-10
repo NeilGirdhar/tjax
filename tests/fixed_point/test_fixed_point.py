@@ -19,7 +19,6 @@ State = Tuple[PyTree, Generator]
 
 @dataclass
 class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array, Array, None]):
-
     f: Callable[[PyTree, Array], Array] = field(static=True)
     step_size: float
 
@@ -47,7 +46,6 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
 @dataclass
 class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State, Array, Array,
                                                                   Array]):
-
     f: Callable[[PyTree, Array], Array] = field(static=True)
     step_size: float
 

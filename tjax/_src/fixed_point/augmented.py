@@ -13,6 +13,5 @@ State = TypeVar('State', bound=PyTree)
 
 @dataclass
 class AugmentedState(Generic[State]):
-
     current_state: State
     iterations: int
