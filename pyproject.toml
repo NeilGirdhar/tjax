@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "tjax"
-version = "0.12.5"
+version = "0.12.6"
 description = "Tools for JAX."
 license = "MIT"
 authors = ["Neil Girdhar <mistersheik@gmail.com>"]
@@ -24,8 +24,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-yapf = ">=0.31"
+python = ">=3.7.1,<4"
 colorful = "^0.5.4"
 jax = "^0.2.13"
 jaxlib = ">=0.1"
@@ -33,6 +32,7 @@ matplotlib = "^3.3"
 networkx = "^2.4"
 numpy = ">=1.21"
 optax = "^0"
+yapf = ">=0.31"
 
 [tool.poetry.dev-dependencies]
 flake8 = ">=3.9"
