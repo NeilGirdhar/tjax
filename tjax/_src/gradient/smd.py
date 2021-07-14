@@ -1,7 +1,7 @@
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map, tree_multimap
+from jax.tree_util import tree_map
 
 from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
@@ -45,12 +45,11 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
         def g(log_p: RealNumeric, delta: ComplexNumeric, v: ComplexNumeric) -> ComplexNumeric:
             return log_p + self.meta_learning_rate * delta * v
 
-        new_log_learning_rate = tree_multimap(g, state.log_learning_rate, negative_gradient,
-                                              state.v)
+        new_log_learning_rate = tree_map(g, state.log_learning_rate, negative_gradient, state.v)
         learning_rate = tree_map(jnp.exp, new_log_learning_rate)  # p
 
         # Calculate gradient.
-        gradient = tree_multimap(jnp.multiply, learning_rate, negative_gradient)
+        gradient = tree_map(jnp.multiply, learning_rate, negative_gradient)
 
         # Update v.
         def f(v: ComplexNumeric,
@@ -59,7 +58,7 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
               hv: ComplexNumeric) -> ComplexNumeric:
             return v + p * delta - hv
 
-        new_v = tree_multimap(f, state.v, learning_rate, negative_gradient,
-                              hessian_vector_product(state.v))
+        new_v = tree_map(f, state.v, learning_rate, negative_gradient,
+                         hessian_vector_product(state.v))
 
         return gradient, SMDState[Weights](new_log_learning_rate, new_v)

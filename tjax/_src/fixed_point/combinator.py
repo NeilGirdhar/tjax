@@ -4,7 +4,7 @@ from typing import Any, Generic, Tuple, TypeVar
 
 import jax.numpy as jnp
 from jax import vjp
-from jax.tree_util import tree_multimap
+from jax.tree_util import tree_map
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
@@ -187,7 +187,7 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
 
         _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
         df_by_dx_times_z, = df_by_dx(z)
-        return tree_multimap(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
+        return tree_map(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
 
     def extract_comparand(self, state: Differentiand) -> Differentiand:
         return state

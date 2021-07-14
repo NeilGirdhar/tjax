@@ -4,7 +4,7 @@ from functools import partial
 from typing import Generic, Tuple
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map, tree_multimap, tree_reduce
+from jax.tree_util import tree_map, tree_reduce
 
 from ..annotations import BooleanNumeric, ComplexNumeric, RealNumeric
 from ..dataclasses import dataclass
@@ -49,9 +49,8 @@ class StochasticIteratedFunction(
                                    leaky_average=True)
 
         mean_state, second_moment_state = self._sufficient_statistics(augmented.current_state)
-        new_mean_state = tree_multimap(f, augmented.mean_state, mean_state)
-        new_second_moment_state = tree_multimap(f, augmented.second_moment_state,
-                                                second_moment_state)
+        new_mean_state = tree_map(f, augmented.mean_state, mean_state)
+        new_second_moment_state = tree_map(f, augmented.second_moment_state, second_moment_state)
         return StochasticState(current_state=new_state,
                                iterations=augmented.iterations + 1,
                                mean_state=new_mean_state,
@@ -61,11 +60,10 @@ class StochasticIteratedFunction(
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
         return tree_reduce(jnp.logical_and,
-                           tree_multimap(partial(jnp.allclose,
-                                                 rtol=self.rtol * data_weight,
-                                                 atol=self.atol * data_weight),
-                                         augmented.second_moment_state,
-                                         mean_squared),
+                           tree_map(partial(jnp.allclose, rtol=self.rtol * data_weight,
+                                            atol=self.atol * data_weight),
+                                    augmented.second_moment_state,
+                                    mean_squared),
                            True)
 
     def minimum_tolerances(self,
@@ -78,8 +76,8 @@ class StochasticIteratedFunction(
         """
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
-        variance = tree_multimap(jnp.subtract, augmented.second_moment_state, mean_squared)
-        scaled_variance = tree_multimap(divide_nonnegative, variance, mean_squared)
+        variance = tree_map(jnp.subtract, augmented.second_moment_state, mean_squared)
+        scaled_variance = tree_map(divide_nonnegative, variance, mean_squared)
 
         minimum_atol = divide_nonnegative(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance)),
                                           data_weight)

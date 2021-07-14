@@ -6,7 +6,7 @@ import jax.numpy as jnp
 import numpy as np
 import yapf
 from jax.interpreters.xla import DeviceArray
-from jax.tree_util import tree_flatten, tree_multimap, tree_reduce
+from jax.tree_util import tree_flatten, tree_map, tree_reduce
 
 from .annotations import Array, PyTree
 from .dtypes import default_atol, default_rtol
@@ -123,7 +123,7 @@ def tree_allclose(actual: PyTree,
         atol = default_atol()
 
     return tree_reduce(jnp.logical_and,
-                       tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
+                       tree_map(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
                        True)
 
 

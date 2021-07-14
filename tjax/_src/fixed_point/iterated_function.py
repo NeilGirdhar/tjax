@@ -7,7 +7,7 @@ import jax.numpy as jnp
 from jax import jit
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan, while_loop
-from jax.tree_util import tree_multimap
+from jax.tree_util import tree_map
 
 from ..annotations import (BooleanNumeric, IntegralNumeric, PyTree, RealNumeric,
                            TapFunctionTransforms)
@@ -135,7 +135,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             concatenated_trajectory = (
                 trajectory
                 if i == 0
-                else tree_multimap(jnp.append, concatenated_trajectory, trajectory))  # noqa: F821
+                else tree_map(jnp.append, concatenated_trajectory, trajectory))  # noqa: F821
             if tap_function is not None:
                 tap_function(None, ())
         return augmented, concatenated_trajectory
