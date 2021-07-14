@@ -67,14 +67,16 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
         zeroed_xs: cotangents for initial_state
     """
     outer_iterated_function = residuals.outer_iterated_function
+    outer_theta = residuals.outer_theta
     x_star = residuals.x_star
-    x_star_differentiand = outer_iterated_function.extract_differentiand(x_star)
+    x_star_differentiand = outer_iterated_function.extract_differentiand(outer_theta, x_star)
     x_star_bar = augmented_star_bar.current_state
-    x_star_bar_differentiand = outer_iterated_function.extract_differentiand(x_star_bar)
+    x_star_bar_differentiand = outer_iterated_function.extract_differentiand(outer_theta,
+                                                                             x_star_bar)
 
     def f_of_theta(some_theta: Parameters) -> Differentiand:
         state = outer_iterated_function.expected_state(some_theta, x_star)
-        return outer_iterated_function.extract_differentiand(state)
+        return outer_iterated_function.extract_differentiand(outer_theta, state)
 
     z_iterator = _ZIterate(minimum_iterations=outer_iterated_function.z_minimum_iterations,
                            maximum_iterations=outer_iterated_function.z_maximum_iterations,
@@ -123,14 +125,17 @@ class IteratedFunctionWithCombinator(
         return super().find_fixed_point(theta, initial_state)
 
     # Abstract methods -----------------------------------------------------------------------------
-    def extract_differentiand(self, state: State) -> Differentiand:
+    def extract_differentiand(self, theta: Parameters, state: State) -> Differentiand:
         """
         Returns: The differentiable values in the state.  It is used by the combinator to find
             cotangents.
         """
         raise NotImplementedError
 
-    def implant_differentiand(self, state: State, differentiand: Differentiand) -> State:
+    def implant_differentiand(self,
+                              theta: Parameters,
+                              state: State,
+                              differentiand: Differentiand) -> State:
         """
         Args:
             state: A state that will provide nondifferentiable values.
@@ -181,9 +186,10 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
         del state
 
         def f_of_x(x_differentiand: Differentiand) -> Differentiand:
-            x = self.iterated_function.implant_differentiand(theta.x_star, x_differentiand)
+            x = self.iterated_function.implant_differentiand(theta.outer_theta, theta.x_star,
+                                                             x_differentiand)
             state = self.iterated_function.expected_state(theta.outer_theta, x)
-            return self.iterated_function.extract_differentiand(state)
+            return self.iterated_function.extract_differentiand(theta.outer_theta, state)
 
         _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
         df_by_dx_times_z, = df_by_dx(z)
@@ -192,10 +198,13 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
     def extract_comparand(self, state: Differentiand) -> Differentiand:
         return state
 
-    def extract_differentiand(self, state: Differentiand) -> Differentiand:
+    def extract_differentiand(self,
+                              theta: _ZParameters[Parameters, State, Differentiand],
+                              state: Differentiand) -> Differentiand:
         return state
 
     def implant_differentiand(self,
+                              theta: _ZParameters[Parameters, State, Differentiand],
                               state: Differentiand,
                               differentiand: Differentiand) -> Differentiand:
         return differentiand

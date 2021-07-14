@@ -48,11 +48,14 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
         assert isinstance(state, EncodingState)
         return state.ec
 
-    def extract_differentiand(self, state: EncodingState) -> EncodingConfiguration:
+    def extract_differentiand(self,
+                              theta: EncodingElement,
+                              state: EncodingState) -> EncodingConfiguration:
         assert isinstance(state, EncodingState)
         return state.ec
 
     def implant_differentiand(self,
+                              theta: EncodingElement,
                               state: EncodingState,
                               differentiand: EncodingConfiguration) -> EncodingState:
         assert isinstance(state, EncodingState)

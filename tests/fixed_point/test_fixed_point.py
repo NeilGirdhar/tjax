@@ -36,10 +36,10 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
     def extract_comparand(self, state: Array) -> Array:
         return state
 
-    def extract_differentiand(self, state: Array) -> Array:
+    def extract_differentiand(self, theta: PyTree, state: Array) -> Array:
         return state
 
-    def implant_differentiand(self, state: Array, differentiand: Array) -> Array:
+    def implant_differentiand(self, theta: PyTree, state: Array, differentiand: Array) -> Array:
         return differentiand
 
 
@@ -67,11 +67,11 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
         x, _ = state
         return x
 
-    def extract_differentiand(self, state: State) -> PyTree:
+    def extract_differentiand(self, theta: PyTree, state: State) -> PyTree:
         x, _ = state
         return x
 
-    def implant_differentiand(self, state: State, differentiand: Array) -> State:
+    def implant_differentiand(self, theta: PyTree, state: State, differentiand: Array) -> State:
         _, rng = state
         return differentiand, rng
 

@@ -82,10 +82,10 @@ class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array,
     def extract_comparand(self, state: Array) -> Array:
         return state
 
-    def extract_differentiand(self, state: Array) -> Array:
+    def extract_differentiand(self, theta: TPair, state: Array) -> Array:
         return state
 
-    def implant_differentiand(self, state: Array, differentiand: Array) -> Array:
+    def implant_differentiand(self, theta: TPair, state: Array, differentiand: Array) -> Array:
         return differentiand
 
 
