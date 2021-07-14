@@ -43,6 +43,7 @@ class custom_vjp(Generic[R]):
             fun: the function to decorate.
             static_argnums: The indices of the static arguments.
         """
+        super().__init__()
         static_argnums = as_sorted_tuple(static_argnums)
         self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
 
