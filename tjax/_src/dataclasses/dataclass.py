@@ -6,7 +6,7 @@ from typing import Any, Callable, Hashable, List, Optional, Sequence, Tuple, Typ
 from jax.tree_util import register_pytree_node
 
 from ..annotations import PyTree
-from ..display import display_class, display_generic, display_key_and_value
+from ..display import BatchDimensionIterator, display_class, display_generic, display_key_and_value
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 
 __all__ = ['dataclass', 'InitVar', 'MISSING', 'FrozenInstanceError']
@@ -150,11 +150,17 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     return data_clz
 
 
-def display_dataclass(value: T, show_values: bool = True, indent: int = 0) -> str:
+def display_dataclass(value: T,
+                      show_values: bool = True,
+                      indent: int = 0,
+                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     retval = display_class(type(value))
+    bdi = BatchDimensionIterator(batch_dims)
     for field_info in dataclasses.fields(value):
-        retval += display_key_and_value(
-            field_info.name, getattr(value, field_info.name), "=", show_values, indent)
+        sub_value = getattr(value, field_info.name)
+        sub_batch_dims = bdi.advance(sub_value)
+        retval += display_key_and_value(field_info.name, sub_value, "=", show_values, indent + 1,
+                                        sub_batch_dims)
     return retval
 
 

@@ -4,9 +4,9 @@ from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, TypeVar, U
 
 import jax.numpy as jnp
 from jax import vjp
-from jax.experimental.host_callback import id_print
 from jax.tree_util import tree_map
 
+from .display import id_display
 from .shims import custom_vjp
 
 __all__ = ['copy_cotangent', 'block_cotangent', 'block_variable_cotangent', 'replace_cotangent',
@@ -93,19 +93,17 @@ def block_variable_cotangent(x: _T) -> _T:
 
 
 # print_cotangent ----------------------------------------------------------------------------------
-def print_cotangent(x: X, what: Optional[str] = None) -> X:
+def print_cotangent(x: X, name: Optional[str] = None) -> X:
     return x
 
 
-def _print_cotangent_fwd(x: X, what: Optional[str]) -> Tuple[X, None]:
+def _print_cotangent_fwd(x: X, name: Optional[str]) -> Tuple[X, None]:
     return x, None
 
 
-def _print_cotangent_bwd(what: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
+def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
     del residuals
-    x_bar = (id_print(x_bar)  # type: ignore
-             if what is None
-             else id_print(x_bar, what=what))  # type: ignore
+    x_bar = id_display(x_bar, name)
     return (x_bar,)
 
 
