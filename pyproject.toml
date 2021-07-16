@@ -1,98 +1,96 @@
 [build-system]
-requires = ["setuptools", "poetry_core>=1.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ['setuptools', 'poetry_core>=1.0']
+build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
-name = "tjax"
-version = "0.13.1"
+name = 'tjax'
+version = '0.13.1'
 description = "Tools for JAX."
-license = "MIT"
-authors = ["Neil Girdhar <mistersheik@gmail.com>"]
-readme = "README.rst"
-repository = "https://github.com/NeilGirdhar/tjax"
+license = 'MIT'
+authors = ['Neil Girdhar <mistersheik@gmail.com>']
+readme = 'README.rst'
+repository = 'https://github.com/NeilGirdhar/tjax'
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "License :: OSI Approved :: MIT License"]
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Science/Research',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Topic :: Scientific/Engineering :: Artificial Intelligence',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Utilities',
+    'Typing :: Typed',
+    'License :: OSI Approved :: MIT License']
 
 [tool.poetry.dependencies]
-python = ">=3.7.1,<3.10"
-colorful = "^0.5.4"
-jax = "^0.2.13"
-jaxlib = ">=0.1"
-matplotlib = "^3.3"
-networkx = "^2.4"
-numpy = ">=1.21"
-optax = "^0"
-yapf = ">=0.31"
+python = '>=3.7.1,<3.10'
+colorful = '^0.5.4'
+jax = '^0.2.13'
+jaxlib = '>=0.1'
+matplotlib = '^3.3'
+networkx = '^2.4'
+numpy = '>=1.21'
+optax = '^0'
+yapf = '>=0.31'
 
 [tool.poetry.dev-dependencies]
-flake8 = ">=3.9"
-hypothesis = "^6"
-isort = ">=5.8"
+flake8 = '>=3.9'
+hypothesis = '^6'
+isort = '>=5.8'
 jupyter = '>=1'
 jupyter-client = '<=6.1.12'
-mypy = ">=0.900"
-pylint = ">=2.8"
-pytest = "^6.2"
+mypy = '>=0.900'
+pylint = '>=2.8'
+pytest = '^6.2'
 
 [tool.isort]
 line_length = 100
-known_first_party = ["tfax"]
-known_third_party = ["jax"]
 multi_line_output = 0
-skip_glob = [".pytype/*.py"]
-skip = []
+skip_glob = ['.pytype/*.py']
 
 [tool.pycodestyle]
 max-line-length = 100
-exclude = ["__init__.py", "__pycache__", "README.rst"]
+exclude = ['__init__.py', '__pycache__', 'README.rst']
 
 [tool.pytest]
 
 [tool.pytype]
-disable = "ignored-abstractmethod"
-exclude = ["**/*_test.py", "**/test_*.py'"]
+disable = 'ignored-abstractmethod'
 
 [tool.pylint.master]
 jobs = 0
 
 [tool.pylint.messages_control]
 disable = [
-    "abstract-method",
-    "arguments-differ",
-    "cyclic-import",  # https://github.com/PyCQA/pylint/issues/3525
+    'abstract-method',
+    'arguments-differ',
+    'cyclic-import',  # https://github.com/PyCQA/pylint/issues/3525
     'duplicate-code',
-    "invalid-name",
-    "invalid-unary-operand-type",
-    "missing-docstring",
-    "no-member",
-    "no-self-use",
-    "too-few-public-methods",
-    "too-many-arguments",
-    "too-many-branches",
-    "too-many-locals",
-    "too-many-return-statements",
-    "too-many-statements",
-    "unused-argument"]
+    'invalid-name',
+    'invalid-unary-operand-type',
+    'missing-docstring',
+    'no-member',
+    'no-self-use',
+    'too-few-public-methods',
+    'too-many-arguments',
+    'too-many-branches',
+    'too-many-locals',
+    'too-many-return-statements',
+    'too-many-statements',
+    'unused-argument']
 enable= [
     'useless-suppression',
     'use-symbolic-message-instead']
 
 [tool.pylint.reports]
-output-format = "colorized"
+output-format = 'colorized'
 
 [tool.pylint.similarities]
 min-similarity-lines = 10
-ignore-imports = "yes"
+ignore-imports = 'yes'
 
 [tool.mypy]
 plugins = 'tjax.mypy_plugin'
