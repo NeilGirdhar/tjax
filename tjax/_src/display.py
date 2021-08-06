@@ -133,13 +133,21 @@ _T = TypeVar('_T')
 
 def id_display(x: _T, name: Optional[str] = None) -> _T:
     def tap(x: _T, transforms: TapFunctionTransforms) -> None:
+        nonlocal name
         batch_dims: Optional[Tuple[Optional[int], ...]] = None
-        for t in transforms:
-            if isinstance(t, tuple) and len(t) == 2 and t[0] == 'batch':
-                batch_dims = t[1]['batch_dims']
+        flags = []
+        for transform_name, transform_dict in transforms:
+            if transform_name == 'batch':
+                batch_dims = transform_dict['batch_dims']
+                continue
+            if transform_name in ['jvp', 'mask', 'transpose']:
+                flags.append(transform_name)
+                continue
         if name is None:
             print_generic(x, batch_dims=batch_dims)
         else:
+            if flags:
+                name += f" [{', '.join(flags)}]"
             print_generic(batch_dims=batch_dims, **{name: x})
     return id_tap(tap, x, result=x)
 
