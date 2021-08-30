@@ -113,7 +113,7 @@ class IteratedFunctionWithCombinator(
 
     # Overridden methods ---------------------------------------------------------------------------
     @custom_vjp
-    def find_fixed_point(self,  # type: ignore # pylint: disable=method-hidden
+    def find_fixed_point(self,
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
         """

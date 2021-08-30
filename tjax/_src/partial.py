@@ -76,8 +76,8 @@ class Partial(partial, Generic[R]):  # type: ignore
             _append(i in self.static_argnums, value)
 
         return ((list(reversed(tree_args)), self.keywords),
-                (self.callable_is_static, self.static_argnums,
-                 list(reversed(static_args)), self.static_kwargs))
+                (self.callable_is_static, self.static_argnums, list(reversed(static_args)),
+                 self.static_kwargs))
 
     @classmethod
     def tree_unflatten(cls: Type[R],
