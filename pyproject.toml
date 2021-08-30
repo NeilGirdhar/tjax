@@ -41,7 +41,7 @@ flake8 = '>=3.9'
 hypothesis = '^6'
 isort = '>=5.8'
 jupyter = '>=1'
-jupyter-client = '<=6.1.12'
+jupyter-client = '>=7'
 mypy = '>=0.900'
 pylint = '>=2.8'
 pytest = '^6.2'
@@ -67,7 +67,6 @@ jobs = 0
 disable = [
     'abstract-method',
     'arguments-differ',
-    'cyclic-import',  # https://github.com/PyCQA/pylint/issues/3525
     'duplicate-code',
     'invalid-name',
     'invalid-unary-operand-type',
