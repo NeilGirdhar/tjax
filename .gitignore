@@ -3,19 +3,12 @@ build/
 dist/
 .eggs/
 *.egg-info/
-setup.py
-
-# hypothesis
-.hypothesis/
-
-# my[py]
-.mypy_cache/
-
-# pytype
-.pytype/
 
 # Byte-compiled Python
 *.pyc
+
+# hypothesis
+.hypothesis/
 
 # vim
 *.orig
