@@ -1,5 +1,3 @@
-# https://github.com/PyCQA/pylint/issues/4326
-# pylint: disable=unsubscriptable-object
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Dict, Sequence, Tuple, Union

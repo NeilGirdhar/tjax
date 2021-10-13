@@ -57,7 +57,7 @@ class custom_vjp(Generic[R]):
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)
+        return Partial(self, instance)  # type: ignore
 
 
 class custom_jvp(Generic[R]):
@@ -94,4 +94,4 @@ class custom_jvp(Generic[R]):
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)
+        return Partial(self, instance)  # type: ignore

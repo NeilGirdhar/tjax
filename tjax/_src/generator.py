@@ -6,6 +6,7 @@ import jax.numpy as jnp
 import jax.random
 import numpy as np
 
+from jax.random import KeyArray, PRNGKey
 from .annotations import Array, BooleanArray, RealArray, RealNumeric, Shape, ShapeLike
 from .dataclasses import dataclass
 
@@ -23,12 +24,12 @@ class Generator:
     has no mutating methods.  Instead, its generation methods return a new instance along with the
     generated tensor.
     """
-    key: jnp.ndarray
+    key: KeyArray
 
     # Class methods --------------------------------------------------------------------------------
     @classmethod
     def from_seed(cls: Type[T], seed: int) -> T:
-        return cls(jax.random.PRNGKey(seed))
+        return cls(PRNGKey(seed))
 
     # New methods ----------------------------------------------------------------------------------
     def is_vmapped(self) -> bool:
@@ -60,20 +61,20 @@ class Generator:
         return Generator(keys)
 
     def bernoulli(self, p: RealNumeric, shape: Optional[Shape] = None) -> BooleanArray:
-        return jax.random.bernoulli(self.key, p, shape)
+        return jax.random.bernoulli(self.key, p, shape)  # type: ignore
 
     def choice(self,
                a: Union[int, Array],
                shape: Shape = (),
                replace: bool = True,
                p: Optional[RealArray] = None) -> Union[int, Array]:
-        return jax.random.choice(self.key, a, shape, replace, p)
+        return jax.random.choice(self.key, a, shape, replace, p)  # type: ignore
 
     def gamma(self,
               gamma_shape: RealNumeric,
               shape: Optional[Shape] = None,
               dtype: DTypeLikeFloat = np.float64) -> RealArray:
-        return jax.random.gamma(self.key, gamma_shape, shape)
+        return jax.random.gamma(self.key, gamma_shape, shape)  # type: ignore
 
     def normal(self,
                shape: Shape = (),
@@ -85,18 +86,4 @@ class Generator:
                 dtype: DTypeLikeFloat = np.float64,
                 minval: RealNumeric = 0.,
                 maxval: RealNumeric = 1.) -> RealArray:
-        return jax.random.uniform(self.key, shape, dtype, minval, maxval)
-
-    # Magic methods --------------------------------------------------------------------------------
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Generator):
-            return NotImplemented
-        return jnp.all(self.key == other.key)
-
-    def __ne__(self, other: Any) -> bool:
-        if not isinstance(other, Generator):
-            return NotImplemented
-        return not self.__eq__(other)
-
-    def __hash__(self) -> int:
-        return hash(tuple(np.ravel(self.key)))
+        return jax.random.uniform(self.key, shape, dtype, minval, maxval)  # type: ignore

@@ -112,7 +112,6 @@ class IteratedFunctionWithCombinator(
     z_maximum_iterations: int = 1000
 
     # Overridden methods ---------------------------------------------------------------------------
-    @custom_vjp
     def find_fixed_point(self,
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
@@ -123,6 +122,8 @@ class IteratedFunctionWithCombinator(
         Returns: The augmented state at the fixed point.
         """
         return super().find_fixed_point(theta, initial_state)
+
+    find_fixed_point = custom_vjp(find_fixed_point)  # type: ignore
 
     # Abstract methods -----------------------------------------------------------------------------
     def extract_differentiand(self, theta: Parameters, state: State) -> Differentiand:
@@ -146,7 +147,7 @@ class IteratedFunctionWithCombinator(
         raise NotImplementedError
 
     # Apply vjp ------------------------------------------------------------------------------------
-    find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)
+    find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)  # type: ignore
 
 
 class ComparingIteratedFunctionWithCombinator(
