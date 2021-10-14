@@ -27,4 +27,4 @@ def test_block_cotangent() -> None:
 
     p, g = vjp(f, 1.0, 2.0)
     assert_equal(p, np.array(3.0))
-    assert_equal(g(4.0), (4.0, 0.0))
+    assert_equal(g(4.0), (np.array(4.0), np.array(0.0)))
