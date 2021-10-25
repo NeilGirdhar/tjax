@@ -5,8 +5,8 @@ from typing import Any, List, Optional, Type, TypeVar, Union
 import jax.numpy as jnp
 import jax.random
 import numpy as np
-
 from jax.random import KeyArray, PRNGKey
+
 from .annotations import Array, BooleanArray, RealArray, RealNumeric, Shape, ShapeLike
 from .dataclasses import dataclass
 

@@ -86,7 +86,7 @@ def assert_tree_allclose(actual: PyTree,
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
         try:
-            np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)
+            np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)  # type: ignore
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")

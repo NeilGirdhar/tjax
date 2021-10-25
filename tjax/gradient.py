@@ -1,11 +1,19 @@
-from tjax._src.gradient.aliases import adam, adamw
+from tjax._src.gradient.aliases import adam, adamw, sgd
 from tjax._src.gradient.chain import ChainedGradientTransformation
 from tjax._src.gradient.smd import SMDGradient, SMDState
 from tjax._src.gradient.transform import (GradientState, GradientTransformation,
                                           SecondOrderGradientTransformation,
                                           ThirdOrderGradientTransformation)
-from tjax._src.gradient.transforms import AdditiveWeightDecay, Scale, ScaleByAdam
+from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEvery, Centralize, Ema,
+                                           Scale, ScaleByAdam, ScaleByBelief, ScaleByParamBlockNorm,
+                                           ScaleByParamBlockRMS, ScaleByRAdam, ScaleByRms,
+                                           ScaleByRss, ScaleBySchedule, ScaleByStddev,
+                                           ScaleByTrustRatio, ScaleByYogi, Trace)
 
-__all__ = ['AdditiveWeightDecay', 'ChainedGradientTransformation', 'GradientState',
-           'GradientTransformation', 'SMDGradient', 'SMDState', 'Scale', 'ScaleByAdam',
-           'SecondOrderGradientTransformation', 'ThirdOrderGradientTransformation', 'adam', 'adamw']
+__all__ = ['ChainedGradientTransformation', 'GradientState', 'GradientTransformation',
+           'SMDGradient', 'SMDState', 'SecondOrderGradientTransformation',
+           'ThirdOrderGradientTransformation', 'adam', 'adamw', 'sgd',
+           'Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleByAdam', 'Scale',
+           'ScaleByParamBlockNorm', 'ScaleByParamBlockRMS', 'ScaleByBelief', 'ScaleByYogi',
+           'ScaleByRAdam', 'AddDecayedWeights', 'ScaleBySchedule', 'ScaleByTrustRatio', 'AddNoise',
+           'ApplyEvery', 'Centralize']
