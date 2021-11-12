@@ -23,14 +23,22 @@ __all__ = ['print_generic', 'display_generic', 'id_display']
 
 def print_generic(*args: Any,
                   batch_dims: Optional[Tuple[Optional[int], ...]] = None,
+                  raise_on_nan: bool = True,
                   **kwargs: Any) -> None:
     bdi = BatchDimensionIterator(batch_dims)
+    found_nan = False
     for value in args:
         sub_batch_dims = bdi.advance(value)
-        print(display_generic(value, batch_dims=sub_batch_dims))
+        s = display_generic(value, batch_dims=sub_batch_dims)
+        print(s)
+        found_nan = found_nan or raise_on_nan and 'nan' in str(s)
     for key, value in kwargs.items():
         sub_batch_dims = bdi.advance(value)
-        print(display_key_and_value(key, value, "=", batch_dims=sub_batch_dims))
+        s = display_key_and_value(key, value, "=", batch_dims=sub_batch_dims)
+        print(s)
+        found_nan = found_nan or raise_on_nan and 'nan' in str(s)
+    if found_nan:
+        assert False
 
 
 @singledispatch
@@ -228,7 +236,7 @@ def _show_array(indent: int, array: Array) -> str:
     if 1 in array.shape:
         return _show_array(indent, array[tuple(0 if s == 1 else slice(None)
                                                for s in array.shape)])
-    if any(x > 10 for x in array.shape):
+    if any(x > 12 for x in array.shape):
         return ""
     if len(array.shape) == 1:
         return _indent_space(indent) + "  ".join(_format_number(array[i])
