@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import partial, singledispatch
 from numbers import Complex, Number, Real
 from typing import Any, Dict, List, Optional, Tuple, Union

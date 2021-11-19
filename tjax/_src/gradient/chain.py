@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from ..annotations import PyTree

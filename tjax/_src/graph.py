@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
 
 import colorful as cf

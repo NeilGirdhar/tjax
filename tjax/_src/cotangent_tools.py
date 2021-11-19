@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from functools import partial
 from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, TypeVar, Union

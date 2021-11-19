@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 from dataclasses import MISSING, FrozenInstanceError, InitVar, replace
 from functools import partial

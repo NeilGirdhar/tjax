@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import dataclasses
 from dataclasses import MISSING, Field, asdict, astuple
 from dataclasses import fields as d_fields

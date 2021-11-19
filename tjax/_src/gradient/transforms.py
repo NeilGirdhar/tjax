@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Callable, Generic, Optional, Tuple, Union
 
 import jax.numpy as jnp
