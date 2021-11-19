@@ -1,4 +1,4 @@
-from tjax._src.gradient.aliases import adam, adamw, sgd
+from tjax._src.gradient.aliases import adam, adamw, rmsprop, sgd
 from tjax._src.gradient.chain import ChainedGradientTransformation
 from tjax._src.gradient.smd import SMDGradient, SMDState
 from tjax._src.gradient.transform import (GradientState, GradientTransformation,
@@ -12,7 +12,7 @@ from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEve
 
 __all__ = ['ChainedGradientTransformation', 'GradientState', 'GradientTransformation',
            'SMDGradient', 'SMDState', 'SecondOrderGradientTransformation',
-           'ThirdOrderGradientTransformation', 'adam', 'adamw', 'sgd',
+           'ThirdOrderGradientTransformation', 'adam', 'adamw', 'rmsprop', 'sgd',
            'Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleByAdam', 'Scale',
            'ScaleByParamBlockNorm', 'ScaleByParamBlockRMS', 'ScaleByBelief', 'ScaleByYogi',
            'ScaleByRAdam', 'AddDecayedWeights', 'ScaleBySchedule', 'ScaleByTrustRatio', 'AddNoise',
