@@ -169,10 +169,10 @@ class ScaleByAdam(GradientTransformation[ScaleByAdamState, Weights], Generic[Wei
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
-    mu_dtype: Any = field(default=None, static=True)  # TODO: use when optax exposes it.
+    mu_dtype: Any = field(default=None, static=True)
 
     def init(self, parameters: Weights) -> ScaleByAdamState:
-        return scale_by_adam(self.b1, self.b2, self.eps, self.eps_root).init(
+        return scale_by_adam(self.b1, self.b2, self.eps, self.eps_root, self.mu_dtype).init(
             parameters)
 
     def update(self,
