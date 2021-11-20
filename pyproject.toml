@@ -32,7 +32,7 @@ jax = '^0.2.21'
 matplotlib = '^3.3'
 networkx = '^2.4'
 numpy = '>=1.21'
-optax = '^0'
+optax = '>=0.1'
 yapf = '>=0.31'
 
 [tool.poetry.dev-dependencies]

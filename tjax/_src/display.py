@@ -141,7 +141,7 @@ def _(value: Union[Tuple[Any, ...], List[Any]],
 _T = TypeVar('_T')
 
 
-def id_display(x: _T, name: Optional[str] = None, *, no_jvp=False) -> _T:
+def id_display(x: _T, name: Optional[str] = None, *, no_jvp: bool = False) -> _T:
     def tap(x: _T, transforms: TapFunctionTransforms) -> None:
         nonlocal name
         batch_dims: Optional[Tuple[Optional[int], ...]] = None
@@ -162,7 +162,8 @@ def id_display(x: _T, name: Optional[str] = None, *, no_jvp=False) -> _T:
                 final_name = name + f" [{', '.join(flags)}]"
             else:
                 final_name = name
-            print_generic(batch_dims=batch_dims, **{final_name: x})
+            # https://github.com/python/mypy/issues/11583
+            print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore
     return id_tap(tap, x, result=x)
 
 
