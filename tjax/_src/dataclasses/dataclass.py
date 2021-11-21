@@ -79,10 +79,6 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     new_w = w.trained(w_bar, 1e-4)
     ```
 
-    `dataclass` includes a convenient replace method::
-
-        w.replace(weight=3.4)
-
     Since this dataclass is a pytree, all of JAX's functions that accept pytrees work with it,
     including iteration, differentiation, and `jax.tree_util` functions.
 
@@ -115,7 +111,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
 
     # Generate additional methods.
     def __str__(self: T) -> str:
-        return str(self.display())
+        return str(display_generic(self))
 
     def tree_flatten(x: T) -> Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
@@ -132,8 +128,6 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     # Assign methods to the class.
     if data_clz.__str__ is object.__str__:
         data_clz.__str__ = __str__  # type: ignore
-    if not hasattr(data_clz, 'display'):
-        data_clz.display = display_dataclass
     data_clz.tree_flatten = tree_flatten
     data_clz.tree_unflatten = classmethod(tree_unflatten)
     data_clz.replace = replace
@@ -146,7 +140,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
 
     # Register the dynamically-dispatched functions.
-    display_generic.register(data_clz, data_clz.display)
+    display_generic.register(data_clz, display_dataclass)
     get_test_string.register(data_clz, get_dataclass_test_string)
     get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)
     return data_clz
@@ -185,7 +179,7 @@ def get_relative_dataclass_test_string(actual: Any,
                                        original: Any,
                                        rtol: float,
                                        atol: float) -> str:
-    retval = f"{original_name}.replace("
+    retval = f"replace({original_name}, "
     retval += ",\n".join(
         f"{fn}=" + get_relative_test_string(f"{original_name}.{fn}",
                                             getattr(actual, fn),
