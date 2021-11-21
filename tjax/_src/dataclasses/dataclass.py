@@ -92,6 +92,7 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
     """
     if cls is None:
         return partial(dataclass, init=init, repr_=repr_, eq=eq, order=order)
+    non_none_cls = cls
 
     # Apply dataclass function to cls.
     data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr_, eq=eq,
@@ -118,25 +119,23 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
         trees = tuple(getattr(x, name) for name in dynamic_fields)
         return trees, hashed
 
-    def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -> T:
+    def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> T:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(static_fields, hashed))
         tree_args = dict(zip(dynamic_fields, trees))
-        return cls(**hashed_args, **tree_args)
+        return non_none_cls(**hashed_args, **tree_args)
 
     # Assign methods to the class.
     if data_clz.__str__ is object.__str__:
         data_clz.__str__ = __str__  # type: ignore
-    data_clz.tree_flatten = tree_flatten
-    data_clz.tree_unflatten = classmethod(tree_unflatten)
 
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
     data_clz.static_fields = static_fields
 
     # Register the class as a JAX PyTree.
-    register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
+    register_pytree_node(data_clz, tree_flatten, tree_unflatten)
 
     # Register the dynamically-dispatched functions.
     display_generic.register(data_clz, display_dataclass)
