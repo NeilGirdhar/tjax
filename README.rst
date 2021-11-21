@@ -17,24 +17,30 @@ Major components
 
 Tjax's major components are:
 
-- A dataclass decorator :python:`dataclasss` that facilitates defining JAX trees, and has a MyPy plugin.
-  (See `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/dataclasses>`_ and `mypy_plugin <https://github.com/NeilGirdhar/tjax/blob/master/tjax/mypy_plugin.py>`_.)
+- A `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/dataclasses>`_ and `mypy_plugin <https://github.com/NeilGirdhar/tjax/blob/master/tjax/mypy_plugin.py>`_ decorator :python:`dataclasss` that facilitates defining structured JAX objects (so-called "pytrees"), which benefits from:
 
-- A fixed point finding library heavily based on `fax <https://github.com/gehring/fax>`_.  Our
-  library (`fixed_point <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/fixed_point>`_):
+  - the ability to mark fields as static (not available in `chex.dataclass`),
+  - a MyPy plugin, and
+  - a display method that produces formatted text according to the tree structure.
 
-  - supports stochastic iterated functions,
-  - uses dataclasses instead of closures to avoid leaking JAX tracers, and
-  - supports higher-order differentiation.
+- A `fixed_point <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/fixed_point>`_ finding library heavily based on `fax <https://github.com/gehring/fax>`_.  Our
+  library
+
+  - supports stochastic iterated functions, and
+  - uses dataclasses instead of closures to avoid leaking JAX tracers.
+
+- A `shim <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/gradient>`_ for the gradient transformation library `optax <https://github.com/deepmind/optax>`_ that supports:
+
+
+  - easy differentiation and vectorization of “gradient transformation” (learning rule) parameters,
+  - gradient transformation objects that can be passed *dynamically* to jitted functions, and
+  - generic type annotations.
 
 ----------------
 Minor components
 ----------------
 
 Tjax also includes:
-
-- An object-oriented wrapper on top of `optax <https://github.com/deepmind/optax>`_.  (See
-  `gradient <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/gradient>`_.)
 
 - A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
   `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/display.py>`_.)
