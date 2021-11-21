@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
-from dataclasses import MISSING, FrozenInstanceError, InitVar, replace
+from dataclasses import MISSING, FrozenInstanceError, InitVar
 from functools import partial
 from typing import Any, Callable, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar, overload
 
@@ -130,7 +130,6 @@ def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool =
         data_clz.__str__ = __str__  # type: ignore
     data_clz.tree_flatten = tree_flatten
     data_clz.tree_unflatten = classmethod(tree_unflatten)
-    data_clz.replace = replace
 
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
