@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Generic, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Generic, Optional, Tuple, Union
 
 import jax.numpy as jnp
 from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, lamb, lars,
                    noisy_sgd, radam, rmsprop, sgd, sm3, yogi)
 
-from ..annotations import IntegralNumeric, PyTree, RealNumeric
+from ..annotations import IntegralNumeric, RealNumeric
 from ..dataclasses import asdict, dataclass, field
-from .transform import GradientTransformation, Weights
+from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import MaskOrFn, Schedule
 
 __all__ = ['AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LARS', 'Lamb',
@@ -17,23 +17,8 @@ __all__ = ['AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LAR
 # Types --------------------------------------------------------------------------------------------
 ScalarOrSchedule = Union[float, Schedule]
 
+
 # Transforms from optax._src.alias.py --------------------------------------------------------------
-T = TypeVar('T', bound='GenericGradientState')
-
-
-@dataclass
-class GenericGradientState:
-    """
-    This class serves as a simple container for gradient states.  This allows instance checks,
-    strict type annotations, and type checking.
-    """
-    data: PyTree
-
-    @classmethod
-    def wrap(cls: Type[T], weights: Weights, state: PyTree) -> Tuple[Weights, T]:
-        return weights, cls(state)
-
-
 @dataclass
 class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
     learning_rate: ScalarOrSchedule
@@ -113,7 +98,6 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
                parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adam(**asdict(self)).update(gradient, state.data, parameters))
-
 
 
 @dataclass

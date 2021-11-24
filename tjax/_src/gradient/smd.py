@@ -7,7 +7,7 @@ from jax.tree_util import tree_map
 
 from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
-from .transform import SecondOrderGradientTransformation
+from .transform import GradientState, SecondOrderGradientTransformation
 
 __all__ = ['SMDState', 'SMDGradient']
 
@@ -16,7 +16,7 @@ Weights = TypeVar('Weights', bound=PyTree)
 
 
 @dataclass
-class SMDState(Generic[Weights]):
+class SMDState(GradientState, Generic[Weights]):
     log_learning_rate: Weights
     v: Weights
 

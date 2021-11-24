@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, Optional, Tuple, TypeVar
+from typing import Callable, Generic, Optional, Tuple, Type, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
@@ -9,14 +9,39 @@ from ..annotations import PyTree
 from ..dataclasses import dataclass
 from ..tools import abs_square
 
-__all__ = ['GradientTransformation', 'SecondOrderGradientTransformation',
+__all__ = ['GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',
            'ThirdOrderGradientTransformation']
+
+
+# Gradient states ----------------------------------------------------------------------------------
+T = TypeVar('T', bound='GenericGradientState')
+U = TypeVar('U', bound=PyTree)
+
+
+@dataclass
+class GradientState:
+    """
+    This base class allows instance checks, and strict type annotations.
+    """
+
+
+@dataclass
+class GenericGradientState(GradientState):
+    """
+    This class serves as a simple container for gradient states because optax doesn't provide a
+    suitable base class.
+    """
+    data: PyTree
+
+    @classmethod
+    def wrap(cls: Type[T], weights: Weights, state: PyTree) -> Tuple[Weights, T]:
+        return weights, cls(state)
 
 
 # The weights type variable must be the same type variable that is used for the parameters.  After
 # all, these must be compatible pytrees.
 Weights = TypeVar('Weights', bound=PyTree)
-State = TypeVar('State', bound=PyTree)
+State = TypeVar('State', bound=GradientState)
 
 
 @dataclass

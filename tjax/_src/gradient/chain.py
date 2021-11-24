@@ -4,29 +4,33 @@ from typing import Any, Generic, List, Optional, Tuple, TypeVar
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
-from .transform import GradientTransformation, Weights
+from .transform import GradientState, GradientTransformation, Weights
 
 __all__ = ['ChainedGradientTransformation']
 
 
 @dataclass
-class ChainedGradientTransformation(GradientTransformation[List[PyTree], Weights],
-                                    Generic[Weights]):
+class ChainedGradientState(GradientState):
+    sub_states: List[PyTree]
 
+
+@dataclass
+class ChainedGradientTransformation(GradientTransformation[ChainedGradientState, Weights],
+                                    Generic[Weights]):
     U = TypeVar('U', bound='ChainedGradientTransformation[Weights]')
 
     transforms: List[GradientTransformation[Any, Weights]]
 
-    def init(self, parameters: Weights) -> List[PyTree]:
-        return [transform.init(parameters)
-                for transform in self.transforms]
+    def init(self, parameters: Weights) -> ChainedGradientState:
+        return ChainedGradientState([transform.init(parameters)
+                                     for transform in self.transforms])
 
     def update(self,
                gradient: Weights,
-               state: List[PyTree],
-               parameters: Optional[Weights]) -> Tuple[Weights, List[PyTree]]:
+               state: ChainedGradientState,
+               parameters: Optional[Weights]) -> Tuple[Weights, ChainedGradientState]:
         new_state: List[PyTree] = []
-        for sub_state, transform in zip(state, self.transforms):
+        for sub_state, transform in zip(state.sub_states, self.transforms):
             gradient, new_sub_state = transform.update(gradient, sub_state, parameters)
             new_state.append(new_sub_state)
-        return gradient, new_state
+        return gradient, ChainedGradientState(new_state)

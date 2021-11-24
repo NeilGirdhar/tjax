@@ -2,7 +2,8 @@ from tjax._src.gradient.aliases import (DPSGD, LARS, SGD, SM3, AdaBelief, AdaFac
                                         AdamW, Fromage, Lamb, NoisySGD, RAdam, RMSProp, Yogi)
 from tjax._src.gradient.chain import ChainedGradientTransformation
 from tjax._src.gradient.smd import SMDGradient, SMDState
-from tjax._src.gradient.transform import (GradientTransformation, SecondOrderGradientTransformation,
+from tjax._src.gradient.transform import (GradientState, GradientTransformation,
+                                          SecondOrderGradientTransformation,
                                           ThirdOrderGradientTransformation)
 from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEvery, Centralize, Ema,
                                            Scale, ScaleByAdam, ScaleByBelief, ScaleByParamBlockNorm,
@@ -12,7 +13,7 @@ from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEve
 
 __all__ = ['ChainedGradientTransformation', 'SMDGradient', 'SMDState',
            # transform.py
-           'GradientTransformation', 'SecondOrderGradientTransformation',
+           'GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',
            'ThirdOrderGradientTransformation',
            # aliases.py
            'AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LARS', 'Lamb',

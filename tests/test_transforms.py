@@ -154,8 +154,9 @@ def test_scale() -> None:
     for i in range(1, STEPS + 1):
         factor = 0.1 ** i
         rescaler = Scale[Any](factor)
+        empty_state = rescaler.init(updates)
         # Apply rescaling.
-        scaled_updates, _ = rescaler.update(updates, None, None)
+        scaled_updates, _ = rescaler.update(updates, empty_state, updates)
         # Manually scale updates.
         def rescale(t: Any) -> Any:
             return t * factor  # pylint:disable=cell-var-from-loop
@@ -174,5 +175,6 @@ def test_centralize(inputs: Any, outputs: Any) -> None:
     inputs = jnp.asarray(inputs)
     outputs = jnp.asarray(outputs)
     centralizer = Centralize[Any]()
-    centralized_inputs, _ = centralizer.update(inputs, None, None)
+    empty_state = centralizer.init(inputs)
+    centralized_inputs, _ = centralizer.update(inputs, empty_state, None)
     chex.assert_tree_all_close(centralized_inputs, outputs)
