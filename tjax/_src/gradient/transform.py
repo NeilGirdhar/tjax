@@ -9,11 +9,12 @@ from ..annotations import PyTree
 from ..dataclasses import dataclass
 from ..tools import abs_square
 
-__all__ = ['GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',
+__all__ = ['GradientTransformation', 'SecondOrderGradientTransformation',
            'ThirdOrderGradientTransformation']
 
 
-GradientState = PyTree
+# The weights type variable must be the same type variable that is used for the parameters.  After
+# all, these must be compatible pytrees.
 Weights = TypeVar('Weights', bound=PyTree)
 State = TypeVar('State', bound=PyTree)
 

@@ -8,10 +8,10 @@ import numpy as np
 import pytest
 from optax import apply_updates
 
-from tjax.gradient import (AddDecayedWeights, ApplyEvery, Centralize, ChainedGradientTransformation,
-                           Ema, GradientTransformation, Scale, ScaleByAdam, ScaleByParamBlockNorm,
-                           ScaleByParamBlockRMS, ScaleByRms, ScaleByStddev, ScaleByTrustRatio,
-                           Trace, sgd)
+from tjax.gradient import (SGD, AddDecayedWeights, ApplyEvery, Centralize,
+                           ChainedGradientTransformation, Ema, GradientTransformation, Scale,
+                           ScaleByAdam, ScaleByParamBlockNorm, ScaleByParamBlockRMS, ScaleByRms,
+                           ScaleByStddev, ScaleByTrustRatio, Trace)
 
 STEPS = 50
 LR = 1e-2
@@ -110,16 +110,16 @@ def test_ema_debias() -> None:
 
 
 def test_apply_every() -> None:
-    # The frequency of the application of sgd
+    # The frequency of the application of SGD
     k = 4
     zero_update = (jnp.array([0., 0.]), jnp.array([0., 0.]))
 
-    # optax sgd
+    # optax SGD
     optax_sgd_params = init_params
-    sgd_transform = sgd(LR, 0.0)
+    sgd_transform = SGD(LR, 0.0)
     state_sgd = sgd_transform.init(optax_sgd_params)
 
-    # optax sgd plus apply every
+    # optax SGD plus apply every
     optax_sgd_apply_every_params = init_params
     sgd_apply_every = ChainedGradientTransformation([ApplyEvery[Any](k=k),
                                                      Trace[Any](decay=0, nesterov=False),
@@ -128,7 +128,7 @@ def test_apply_every() -> None:
     transform_fn = variant(sgd_apply_every.update)
 
     for i in range(STEPS):
-        # Apply a step of sgd
+        # Apply a step of SGD
         updates_sgd, state_sgd = sgd_transform.update(per_step_updates, state_sgd, None)
         optax_sgd_params = apply_updates(optax_sgd_params, updates_sgd)
 

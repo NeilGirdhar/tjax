@@ -7,14 +7,14 @@ from optax import AddNoiseState
 from optax import ApplyEvery as ApplyEveryState
 from optax import (EmaState, EmptyState, ScaleByAdamState, ScaleByRmsState, ScaleByRssState,
                    ScaleByRStdDevState, ScaleByScheduleState, ScaleBySM3State,
-                   ScaleByTrustRatioState, ScaleState, Schedule, TraceState, add_decayed_weights,
-                   add_noise, apply_every, centralize, ema, scale, scale_by_adam, scale_by_belief,
+                   ScaleByTrustRatioState, ScaleState, TraceState, add_decayed_weights, add_noise,
+                   apply_every, centralize, ema, scale, scale_by_adam, scale_by_belief,
                    scale_by_param_block_norm, scale_by_param_block_rms, scale_by_radam,
                    scale_by_rms, scale_by_rss, scale_by_schedule, scale_by_sm3, scale_by_stddev,
                    scale_by_trust_ratio, scale_by_yogi, trace)
 from optax._src.transform import ScaleByBeliefState  # type: ignore
 
-from ..annotations import RealNumeric
+from ..annotations import IntegralNumeric, RealNumeric
 from ..dataclasses import dataclass, field
 from ..generator import Generator
 from .transform import GradientTransformation, Weights
@@ -22,9 +22,27 @@ from .transform import GradientTransformation, Weights
 __all__ = ['Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleByAdam', 'Scale',
            'ScaleByParamBlockNorm', 'ScaleByParamBlockRMS', 'ScaleByBelief', 'ScaleByYogi',
            'ScaleByRAdam', 'AddDecayedWeights', 'ScaleBySchedule', 'ScaleByTrustRatio', 'AddNoise',
-           'ApplyEvery', 'Centralize']
+           'ApplyEvery', 'Centralize', 'ScaleBySM3',
+           'Schedule']
+
+# New classes --------------------------------------------------------------------------------------
+@dataclass
+class Schedule:
+    """
+    This class differs from optax.Schedule in that it's a pytree.  It can therefore be passed
+    dynamically (since it marks the callable as static).  This allows it to participate in the union
+    ScalarOrSchedule.
+    """
+    step_size_fn: Callable[[IntegralNumeric], RealNumeric] = field(static=True)
+
+    def __call__(self, count: IntegralNumeric) -> RealNumeric:
+        return self.step_size_fn(count)
 
 
+# Types --------------------------------------------------------------------------------------------
+MaskOrFn = Optional[Union[bool, Weights, Callable[[Weights], Any]]]
+
+# Transforms from optax._src.transform.py ----------------------------------------------------------
 @dataclass
 class Trace(GradientTransformation[TraceState, Weights], Generic[Weights]):
     """Compute a trace of past updates.
@@ -281,7 +299,7 @@ class ScaleByYogi(GradientTransformation[ScaleByAdamState, Weights], Generic[Wei
     """Rescale updates according to the Yogi algorithm.
 
     References:
-        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html) #pylint:disable=line-too-long
+        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html) # noqa: E501, pylint: disable=line-too-long
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -353,7 +371,7 @@ class AddDecayedWeights(GradientTransformation[EmptyState, Weights], Generic[Wei
         weight_decay: RealNumeric = 0.0
     """
     weight_decay: RealNumeric = 0.0
-    mask: Optional[Union[Any, Callable[[Weights], Any]]] = field(default=None, static=True)
+    mask: MaskOrFn[Weights] = field(default=None, static=True)
 
     def init(self, parameters: Weights) -> EmptyState:
         return add_decayed_weights(self.weight_decay, self.mask).init(parameters)
@@ -373,7 +391,7 @@ class ScaleBySchedule(GradientTransformation[ScaleByScheduleState, Weights], Gen
         step_size_fn: a function that takes an update count as input and proposes
             the step_size to multiply the updates by.
     """
-    step_size_fn: Schedule = field(static=True)
+    step_size_fn: Schedule
 
     def init(self, parameters: Weights) -> ScaleByScheduleState:
         return scale_by_schedule(self.step_size_fn).init(parameters)
