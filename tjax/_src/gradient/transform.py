@@ -38,12 +38,13 @@ class GenericGradientState(GradientState):
         return weights, cls(state)
 
 
-# The weights type variable must be the same type variable that is used for the parameters.  After
+# The weights type variable must be the same type variable that is used for the gradients.  After
 # all, these must be compatible pytrees.
 Weights = TypeVar('Weights', bound=PyTree)
 State = TypeVar('State', bound=GradientState)
 
 
+# Gradient transformation base classes -------------------------------------------------------------
 @dataclass
 class GradientTransformation(Generic[State, Weights]):
     """
