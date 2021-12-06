@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any, Callable, Generic, Optional, Tuple, Union
 
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
@@ -9,7 +10,7 @@ from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema,
                    scale_by_yogi, trace)
 
 from ..annotations import IntegralNumeric, RealNumeric
-from ..dataclasses import asdict, dataclass, field
+from ..dataclasses import dataclass, field
 from ..generator import Generator
 from .transform import GenericGradientState, GradientTransformation, Weights
 

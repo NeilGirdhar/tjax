@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from typing import Any, Callable, Generic, Optional, Tuple, Union
 
 import jax.numpy as jnp
@@ -7,7 +8,7 @@ from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, l
                    noisy_sgd, radam, rmsprop, sgd, sm3, yogi)
 
 from ..annotations import IntegralNumeric, RealNumeric
-from ..dataclasses import asdict, dataclass, field
+from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import MaskOrFn, Schedule
 

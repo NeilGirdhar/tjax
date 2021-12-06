@@ -1,15 +1,10 @@
 from __future__ import annotations
 
 import dataclasses
-from dataclasses import MISSING, Field, asdict, astuple
-from dataclasses import fields as d_fields
-from dataclasses import is_dataclass, replace
-from typing import (Any, Callable, Iterable, Mapping, MutableMapping, Optional, Tuple, TypeVar,
-                    overload)
+from dataclasses import MISSING
+from typing import Any, Callable, Mapping, Optional, TypeVar, overload
 
-__all__ = ['field', 'Field', 'fields', 'asdict', 'astuple', 'replace', 'is_dataclass',
-           'field_names', 'field_names_and_values', 'field_names_values_metadata', 'field_values',
-           'document_dataclass']
+__all__ = ['field']
 
 
 T = TypeVar('T', bound=Any)
@@ -52,41 +47,3 @@ def field(*, static: bool = False, default: Any = MISSING,
     return dataclasses.field(metadata={**metadata, 'static': static},
                              default=default, default_factory=default_factory, init=init, repr=repr,
                              hash=hash, compare=compare)  # type: ignore
-
-
-def fields(d: Any, *, static: Optional[bool] = None) -> Iterable[Field[Any]]:
-    if static is None:
-        yield from d_fields(d)
-    for this_field in d_fields(d):
-        if this_field.metadata.get('static', False) == static:
-            yield this_field
-
-
-def field_names(d: Any, *, static: Optional[bool] = None) -> Iterable[str]:
-    for this_field in fields(d, static=static):
-        yield this_field.name
-
-
-def field_names_and_values(d: Any, *, static: Optional[bool] = None) -> Iterable[Tuple[str, Any]]:
-    for name in field_names(d, static=static):
-        yield name, getattr(d, name)
-
-
-def field_values(d: Any, *, static: Optional[bool] = None) -> Iterable[Any]:
-    for name in field_names(d, static=static):
-        yield getattr(d, name)
-
-
-def field_names_values_metadata(d: Any, *, static: Optional[bool] = None) -> (
-        Iterable[Tuple[str, Any, Mapping[str, Any]]]):
-    for this_field in fields(d, static=static):
-        yield this_field.name, getattr(d, this_field.name), this_field.metadata
-
-
-def document_dataclass(pdoc: MutableMapping[str, Any], name: str) -> None:
-    pdoc[f'{name}.static_fields'] = False
-    pdoc[f'{name}.dynamic_fields'] = False
-    pdoc[f'{name}.tree_flatten'] = False
-    pdoc[f'{name}.tree_unflatten'] = False
-    pdoc[f'{name}.display'] = False
-    pdoc[f'{name}.replace'] = False
