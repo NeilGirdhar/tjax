@@ -80,6 +80,9 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
 
     z_iterator = _ZIterate(minimum_iterations=outer_iterated_function.z_minimum_iterations,
                            maximum_iterations=outer_iterated_function.z_maximum_iterations,
+                           rtol=outer_iterated_function.rtol, atol=outer_iterated_function.atol,
+                           z_minimum_iterations=outer_iterated_function.z_minimum_iterations,
+                           z_maximum_iterations=outer_iterated_function.z_maximum_iterations,
                            iterated_function=outer_iterated_function)
     z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
                                 x_star_bar_differentiand)
@@ -108,8 +111,8 @@ class IteratedFunctionWithCombinator(
         z_maximum_iterations:
             The maximum number of iterations to use to evaluate the adjoint's fixed point.
     """
-    z_minimum_iterations: int = 11
-    z_maximum_iterations: int = 1000
+    z_minimum_iterations: int
+    z_maximum_iterations: int
 
     # Overridden methods ---------------------------------------------------------------------------
     def find_fixed_point(self,

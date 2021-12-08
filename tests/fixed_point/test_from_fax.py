@@ -96,6 +96,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
                   maximum_iterations=10000,
                   rtol=1e-10,
                   atol=1e-10,
+                  z_minimum_iterations=11,
                   z_maximum_iterations=10000)
 
 

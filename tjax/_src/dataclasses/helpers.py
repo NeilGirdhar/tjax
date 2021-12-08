@@ -1,3 +1,4 @@
+# pylint: disable=redefined-builtin
 from __future__ import annotations
 
 import dataclasses
@@ -14,7 +15,6 @@ T = TypeVar('T', bound=Any)
 if sys.version_info >= (3, 10):
     # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
     # to understand the magic that happens at runtime.
-    # pylint: disable=redefined-builtin
     @overload  # `default` and `default_factory` are optional and mutually exclusive.
     def field(*, static: bool = False, default: T, init: bool = ..., repr: bool = ...,
               hash: Optional[bool] = ..., compare: bool = ...,
@@ -39,7 +39,8 @@ if sys.version_info >= (3, 10):
     def field(*, static: bool = False, default: Any = MISSING,
               default_factory: Callable[[], Any] = MISSING, init: bool = True,  # type: ignore
               repr: bool = True, hash: Optional[bool] = None, compare: bool = True,
-              metadata: Optional[Mapping[str, Any]] = None, kw_only: bool = MISSING) -> Any:
+              metadata: Optional[Mapping[str, Any]] = None,
+              kw_only: Any = MISSING) -> Any:
         """
         Args:
             static: Indicates whether a field is a pytree or static.  Pytree fields are
@@ -53,7 +54,6 @@ if sys.version_info >= (3, 10):
 else:
     # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
     # to understand the magic that happens at runtime.
-    # pylint: disable=redefined-builtin
     @overload  # `default` and `default_factory` are optional and mutually exclusive.
     def field(*, static: bool = False, default: T, init: bool = ..., repr: bool = ...,
               hash: Optional[bool] = ..., compare: bool = ...,

@@ -57,7 +57,7 @@ class Generator:
                 if prod_shape == 1
                 else jax.random.split(self.key, prod_shape))
         # https://github.com/google/jax/issues/6473
-        keys = keys.reshape(shape + (2,))  # type: ignore
+        keys = keys.reshape(shape + (2,))
         return Generator(keys)
 
     def bernoulli(self, p: RealNumeric, shape: Optional[Shape] = None) -> BooleanArray:

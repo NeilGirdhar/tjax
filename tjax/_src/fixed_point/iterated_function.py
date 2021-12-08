@@ -11,8 +11,7 @@ from jax.tree_util import tree_map
 
 from ..annotations import (BooleanNumeric, IntegralNumeric, PyTree, RealNumeric,
                            TapFunctionTransforms)
-from ..dataclasses import dataclass, field
-from ..dtypes import default_atol, default_rtol
+from ..dataclasses import dataclass
 from .augmented import AugmentedState, State
 
 __all__ = ['IteratedFunction']
@@ -53,8 +52,8 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     """
     minimum_iterations: IntegralNumeric
     maximum_iterations: IntegralNumeric
-    rtol: RealNumeric = field(default_factory=default_rtol)
-    atol: RealNumeric = field(default_factory=default_atol)
+    rtol: RealNumeric
+    atol: RealNumeric
 
     # New methods ----------------------------------------------------------------------------------
     def find_fixed_point(self,
@@ -98,7 +97,8 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
             new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
             new_augmented = self.iterate_augmented(new_state, augmented)
             if tap_function is not None:
-                trajectory = id_tap(tap_function, None, result=trajectory)
+                trajectory = id_tap(tap_function,  # type: ignore[no-untyped-call]
+                                    None, result=trajectory)
             return new_augmented, trajectory
         return scan(f, self.initial_augmented(initial_state), None, maximum_iterations)
 
