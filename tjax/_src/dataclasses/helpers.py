@@ -21,20 +21,17 @@ if sys.version_info >= (3, 10):
               metadata: Optional[Mapping[str, Any]] = ..., kw_only: bool = ...) -> T:
         ...
 
-
     @overload
     def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
               repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
               metadata: Optional[Mapping[str, Any]] = ..., kw_only: bool = ...) -> T:
         ...
 
-
     @overload
     def field(*, static: bool = False, init: bool = ..., repr: bool = ...,
               hash: Optional[bool] = ..., compare: bool = ...,
               metadata: Optional[Mapping[str, Any]] = ..., kw_only: bool = ...) -> Any:
         ...
-
 
     def field(*, static: bool = False, default: Any = MISSING,
               default_factory: Callable[[], Any] = MISSING, init: bool = True,  # type: ignore
@@ -60,20 +57,17 @@ else:
               metadata: Optional[Mapping[str, Any]] = ...) -> T:
         ...
 
-
     @overload
     def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
               repr: bool = ..., hash: Optional[bool] = ..., compare: bool = ...,
               metadata: Optional[Mapping[str, Any]] = ...) -> T:
         ...
 
-
     @overload
     def field(*, static: bool = False, init: bool = ..., repr: bool = ...,
               hash: Optional[bool] = ..., compare: bool = ...,
               metadata: Optional[Mapping[str, Any]] = ...) -> Any:
         ...
-
 
     def field(*, static: bool = False, default: Any = MISSING,
               default_factory: Callable[[], Any] = MISSING, init: bool = True,  # type: ignore

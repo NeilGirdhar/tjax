@@ -157,6 +157,7 @@ def test_scale() -> None:
         empty_state = rescaler.init(updates)
         # Apply rescaling.
         scaled_updates, _ = rescaler.update(updates, empty_state, updates)
+
         # Manually scale updates.
         def rescale(t: Any) -> Any:
             return t * factor  # pylint:disable=cell-var-from-loop
