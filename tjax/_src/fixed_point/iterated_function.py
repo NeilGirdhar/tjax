@@ -56,6 +56,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
     atol: RealNumeric
 
     # New methods ----------------------------------------------------------------------------------
+    @jit
     def find_fixed_point(self,
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
@@ -74,8 +75,7 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
                           f,
                           self.initial_augmented(initial_state))
 
-    find_fixed_point = jit(find_fixed_point)
-
+    @partial(jit, sample_trajectory, static_argnums=(3, 4))
     def sample_trajectory(self,
                           theta: Parameters,
                           initial_state: State,
@@ -101,8 +101,6 @@ class IteratedFunction(Generic[Parameters, State, Comparand, Trajectory, TheAugm
                                     None, result=trajectory)
             return new_augmented, trajectory
         return scan(f, self.initial_augmented(initial_state), None, maximum_iterations)
-
-    sample_trajectory = jit(sample_trajectory, static_argnums=(3, 4))
 
     def debug_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:
         """
