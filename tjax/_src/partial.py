@@ -34,10 +34,9 @@ class Partial(partial, Generic[R]):  # type: ignore
     static_argnums: Set[int]
     static_kwargs: Mapping[str, Any]
 
-    # TODO: use positional-only arguments.
     def __new__(cls: Type[T],
                 func: Callable[..., R],
-                # /,
+                /,
                 *args: Any,
                 callable_is_static: bool = True,
                 static_argnums: Tuple[int, ...] = (),

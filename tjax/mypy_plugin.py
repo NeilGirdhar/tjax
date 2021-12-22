@@ -10,6 +10,5 @@ class CustomPlugin(Plugin):
 
 def plugin(version: str) -> Type[CustomPlugin]:
     mypy.plugins.dataclasses.dataclass_makers.add('tjax._src.dataclasses.dataclass.dataclass')
-    # TODO: When MyPy > 0.921, uncomment this line.
-    # mypy.plugins.dataclasses.field_makers.add('tjax._src.dataclasses.helpers.field')
+    mypy.plugins.dataclasses.field_makers.add('tjax._src.dataclasses.helpers.field')
     return CustomPlugin

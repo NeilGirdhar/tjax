@@ -25,13 +25,12 @@ def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
 
 
 @overload
-def dataclass(cls: Type[T], *, init: bool = True, repr_: bool = True, eq: bool = True,
+def dataclass(cls: Type[T], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Type[T]:
     ...
 
 
-# TODO: use positional-only arguments
-def dataclass(cls: Optional[Type[T]] = None, *, init: bool = True, repr_: bool = True,
+def dataclass(cls: Optional[Type[T]] = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
