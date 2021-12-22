@@ -118,7 +118,7 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, A
     true_sol = solve_ax_b(matrix, offset)
     sol = ax_plus_b.find_fixed_point((matrix, offset), x0).current_state
 
-    assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
+    assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)  # type: ignore[no-untyped-call]
 
 
 @hypothesis.settings(max_examples=100, deadline=5000.)
@@ -167,5 +167,7 @@ def test_gradient(generator: Generator,
 
     true_grad_matrix, true_grad_offset = solve_grad_ax_b(matrix, offset)
 
-    assert_allclose(grad_matrix, true_grad_matrix, rtol=1e-4, atol=1e-5)
-    assert_allclose(grad_offset, true_grad_offset, rtol=1e-4, atol=1e-5)
+    assert_allclose(grad_matrix, true_grad_matrix, rtol=1e-4,  # type: ignore[no-untyped-call]
+                    atol=1e-5)
+    assert_allclose(grad_offset, true_grad_offset, rtol=1e-4,  # type: ignore[no-untyped-call]
+                    atol=1e-5)

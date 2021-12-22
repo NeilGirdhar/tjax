@@ -4,7 +4,7 @@ from typing import Generic
 
 from ..dataclasses import dataclass
 from .augmented import State
-from .base import IteratedFunctionBase, Parameters, State, Trajectory
+from .base import IteratedFunctionBase, Parameters, Trajectory
 
 __all__ = ['SimpleScan']
 

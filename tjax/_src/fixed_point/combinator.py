@@ -10,9 +10,9 @@ from ..annotations import PyTree
 from ..dataclasses import dataclass
 from ..shims import custom_vjp
 from .augmented import State
+from .base import Parameters, Trajectory
 from .comparing import ComparingIteratedFunction, ComparingState
-from .iterated_function import (Comparand, IteratedFunction, Parameters, TheAugmentedState,
-                                Trajectory)
+from .iterated_function import Comparand, IteratedFunction, TheAugmentedState
 
 __all__ = ['IteratedFunctionWithCombinator', 'ComparingIteratedFunctionWithCombinator']
 
@@ -115,7 +115,8 @@ class IteratedFunctionWithCombinator(
     z_maximum_iterations: int
 
     # Overridden methods ---------------------------------------------------------------------------
-    def find_fixed_point(self,
+    @custom_vjp
+    def find_fixed_point(self,  # type: ignore[override]
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
         """
@@ -125,8 +126,6 @@ class IteratedFunctionWithCombinator(
         Returns: The augmented state at the fixed point.
         """
         return super().find_fixed_point(theta, initial_state)
-
-    find_fixed_point = custom_vjp(find_fixed_point)  # type: ignore
 
     # Abstract methods -----------------------------------------------------------------------------
     def extract_differentiand(self, theta: Parameters, state: State) -> Differentiand:
@@ -150,7 +149,7 @@ class IteratedFunctionWithCombinator(
         raise NotImplementedError
 
     # Apply vjp ------------------------------------------------------------------------------------
-    find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)  # type: ignore
+    find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)
 
 
 class ComparingIteratedFunctionWithCombinator(

@@ -10,7 +10,7 @@ from jax.lax import while_loop
 from ..annotations import BooleanNumeric, IntegralNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
 from .augmented import AugmentedState, State
-from .base import IteratedFunctionBase, Parameters, State, Trajectory
+from .base import IteratedFunctionBase, Parameters, Trajectory
 
 __all__ = ['IteratedFunction']
 

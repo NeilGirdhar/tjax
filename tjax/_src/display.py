@@ -59,7 +59,7 @@ def _(value: JVPTracer,
     return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
 
 
-@display_generic.register  # type: ignore
+@display_generic.register
 def _(value: JaxprTracer,
       show_values: bool = True,
       indent: int = 0,
@@ -67,7 +67,7 @@ def _(value: JaxprTracer,
     return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
 
 
-@display_generic.register  # type: ignore
+@display_generic.register
 def _(value: DynamicJaxprTracer,
       show_values: bool = True,
       indent: int = 0,
@@ -75,7 +75,7 @@ def _(value: DynamicJaxprTracer,
     return cf.magenta(f"DynamicJaxprTracer {value.shape} {value.dtype}") + "\n"
 
 
-@display_generic.register  # type: ignore
+@display_generic.register
 def _(value: BatchTracer,
       show_values: bool = True,
       indent: int = 0,
@@ -84,7 +84,7 @@ def _(value: BatchTracer,
                       f"batched over {value.val.shape[value.batch_dim]}") + "\n"
 
 
-@display_generic.register(np.ndarray)  # type: ignore
+@display_generic.register(np.ndarray)
 def _(value: Array,
       show_values: bool = True,
       indent: int = 0,
@@ -93,12 +93,13 @@ def _(value: Array,
     return retval + _show_array(indent + 1, value)
 
 
-@display_generic.register  # type: ignore
+@display_generic.register
 def _(value: DeviceArray,
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    base_string = cf.violet(f"Jax Array {value.shape} {value.dtype}") + "\n"
+    base_string = cf.violet(
+        f"Jax Array {value.shape} {value.dtype}") + "\n"  # type: ignore[attr-defined]
     try:
         np_value = np.asarray(value)
     except TracerArrayConversionError:
@@ -108,7 +109,7 @@ def _(value: DeviceArray,
     return base_string + array_string
 
 
-@display_generic.register(type(None))  # type: ignore
+@display_generic.register(type(None))
 @display_generic.register(Number)
 def _(value: Union[None, Number],
       show_values: bool = True,
@@ -117,7 +118,7 @@ def _(value: Union[None, Number],
     return cf.cyan(str(value)) + "\n"
 
 
-@display_generic.register(Mapping)  # type: ignore
+@display_generic.register(Mapping)
 def _(value: Mapping[Any, Any],
       show_values: bool = True,
       indent: int = 0,
@@ -127,7 +128,7 @@ def _(value: Mapping[Any, Any],
                       for key, sub_value in sorted(value.items())))
 
 
-@display_generic.register(tuple)  # type: ignore
+@display_generic.register(tuple)
 @display_generic.register(list)
 def _(value: Union[Tuple[Any, ...], List[Any]],
       show_values: bool = True,

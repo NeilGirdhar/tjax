@@ -10,5 +10,9 @@ dist/
 # hypothesis
 .hypothesis/
 
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
 # vim
 *.orig

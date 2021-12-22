@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from functools import partial
-from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Tuple, Type, TypeVar,
-                    cast)
+from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Set, Tuple, Type,
+                    TypeVar, cast)
 
 from jax.tree_util import register_pytree_node_class
 
@@ -31,7 +31,7 @@ class Partial(partial, Generic[R]):  # type: ignore
     T = TypeVar('T', bound='Partial[R]')
 
     callable_is_static: bool
-    static_argnums: Tuple[int, ...]
+    static_argnums: Set[int]
     static_kwargs: Mapping[str, Any]
 
     # TODO: use positional-only arguments.

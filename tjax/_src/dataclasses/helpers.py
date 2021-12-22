@@ -70,7 +70,7 @@ else:
         ...
 
     def field(*, static: bool = False, default: Any = MISSING,
-              default_factory: Callable[[], Any] = MISSING, init: bool = True,  # type: ignore
+              default_factory: Callable[[], Any] = MISSING, init: bool = True,
               repr: bool = True, hash: Optional[bool] = None, compare: bool = True,
               metadata: Optional[Mapping[str, Any]] = None) -> Any:
         """
@@ -82,4 +82,4 @@ else:
             metadata = {}
         return dataclasses.field(metadata={**metadata, 'static': static},
                                  default=default, default_factory=default_factory, init=init,
-                                 repr=repr, hash=hash, compare=compare)  # type: ignore
+                                 repr=repr, hash=hash, compare=compare)

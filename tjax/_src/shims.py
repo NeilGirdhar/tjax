@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Generic, Tuple, TypeVar, Union
+from typing import Any, Callable, Generic, Tuple, TypeVar
 
 import jax
 from jax.tree_util import Partial
@@ -10,12 +10,6 @@ __all__ = ['jit', 'custom_jvp', 'custom_vjp']
 
 R = TypeVar('R')
 F = TypeVar('F', bound=Callable[..., Any])
-
-
-def as_sorted_tuple(x: Union[int, Tuple[int, ...]]) -> Tuple[int, ...]:
-    if isinstance(x, int):
-        return (x,)
-    return tuple(sorted(x))
 
 
 def jit(func: F, **kwargs: Any) -> F:
@@ -39,21 +33,21 @@ class custom_vjp(Generic[R]):
 
     def __init__(self,
                  fun: Callable[..., R],
-                 static_argnums: Union[int, Tuple[int, ...]] = ()):
+                 static_argnums: Tuple[int, ...] = ()):
         """
         Args:
             fun: the function to decorate.
             static_argnums: The indices of the static arguments.
         """
         super().__init__()
-        static_argnums = as_sorted_tuple(static_argnums)
+        static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
 
     def defvjp(self, fwd: Callable[..., Tuple[R, Any]], bwd: Callable[..., Any]) -> None:
         self.vjp.defvjp(fwd, bwd)
 
-    def __call__(self, *args: Any) -> R:
-        return self.vjp(*args)
+    def __call__(self, *args: Any, **kwargs: Any) -> R:
+        return self.vjp(*args, **kwargs)
 
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R]:
         if instance is None:
@@ -71,13 +65,13 @@ class custom_jvp(Generic[R]):
     """
     def __init__(self,
                  fun: Callable[..., R],
-                 static_argnums: Union[int, Tuple[int, ...]] = ()):
+                 static_argnums: Tuple[int, ...] = ()):
         """
         Args:
             fun: the function to decorate.
             static_argnums: The indices of the static arguments.
         """
-        static_argnums = as_sorted_tuple(static_argnums)
+        static_argnums = tuple(sorted(static_argnums))
         self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
 
     def defjvp(self, jvp: Callable[..., R]) -> None:

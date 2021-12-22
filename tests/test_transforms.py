@@ -116,7 +116,7 @@ def test_apply_every() -> None:
 
     # optax SGD
     optax_sgd_params = init_params
-    sgd_transform = SGD(LR, 0.0)
+    sgd_transform = SGD(LR, 0.0)  # type: ignore[var-annotated]
     state_sgd = sgd_transform.init(optax_sgd_params)
 
     # optax SGD plus apply every
