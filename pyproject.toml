@@ -29,7 +29,6 @@ classifiers = [
 python = '>=3.8,<3.11'
 colorful = '^0.5.4'
 jax = '^0.2.21'
-matplotlib = '^3.3'
 networkx = '^2.4'
 numpy = '>=1.21'
 optax = '>=0.1'
@@ -112,5 +111,5 @@ warn_unused_ignores = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = ['colorful', 'matplotlib.axes', 'networkx', 'optax', 'yapf']
+module = ['colorful', 'networkx', 'optax', 'yapf']
 ignore_missing_imports = true
