@@ -65,4 +65,4 @@ def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tupl
     return (x_bar,)
 
 
-print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
+print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # pyright: ignore
