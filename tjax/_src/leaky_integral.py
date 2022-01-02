@@ -138,6 +138,16 @@ class _FilterCarry:
     value: ComplexArray
 
 
+@overload
+def leaky_integrate_time_series(time_series: RealArray, decay: RealNumeric) -> RealArray:
+    ...
+
+
+@overload
+def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
+    ...
+
+
 def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
 
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
@@ -159,6 +169,22 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
     _, filtered_time_series = scan(g, initial_carry, time_series)
     return filtered_time_series
+
+
+@overload
+def leaky_covariance(x_time_series: RealArray,
+                     y_time_series: RealArray,
+                     decay: RealNumeric,
+                     covariance_matrix: bool = False) -> RealArray:
+    ...
+
+
+@overload
+def leaky_covariance(x_time_series: ComplexArray,
+                     y_time_series: ComplexArray,
+                     decay: ComplexNumeric,
+                     covariance_matrix: bool = False) -> ComplexArray:
+    ...
 
 
 def leaky_covariance(x_time_series: ComplexArray,
