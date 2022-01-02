@@ -238,8 +238,8 @@ def _show_array(indent: int, array: Array) -> str:
     if np.prod(array.shape) == 0:
         return ""
     if 1 in array.shape:
-        return _show_array(indent, array[tuple(0 if s == 1 else slice(None)
-                                               for s in array.shape)])
+        return _show_array(indent, array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
+                                                                       for s in array.shape)])
     if any(x > 12 for x in array.shape):
         return ""
     if len(array.shape) == 1:

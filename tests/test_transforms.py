@@ -82,12 +82,10 @@ def test_ema() -> None:
 
     transform_fn = variant(ema.update)
     mean, state = transform_fn(values[0], state)
-    np.testing.assert_allclose(mean, (1 - d) * values[0], atol=1e-4)  # type: ignore
+    np.testing.assert_allclose(mean, (1 - d) * values[0], atol=1e-4)
 
     mean, state = transform_fn(values[1], state)
-    np.testing.assert_allclose(  # type: ignore
-        mean,
-        (1 - d) * (values[1] + d * values[0]), atol=1e-2)
+    np.testing.assert_allclose(mean, (1 - d) * (values[1] + d * values[0]), atol=1e-2)
 
 
 def test_ema_debias() -> None:
@@ -100,13 +98,10 @@ def test_ema_debias() -> None:
 
     transform_fn = variant(ema.update)
     mean, state = transform_fn(values[0], state)
-    np.testing.assert_allclose(mean, values[0], atol=1e-4)  # type: ignore
+    np.testing.assert_allclose(mean, values[0], atol=1e-4)
 
     mean, state = transform_fn(values[1], state)
-    np.testing.assert_allclose(  # type: ignore
-        mean,
-        ((1 - d) * values[1] + d * values[0]) / (1 - d**2),
-        atol=1e-2)
+    np.testing.assert_allclose(mean, ((1 - d) * values[1] + d * values[0]) / (1 - d**2), atol=1e-2)
 
 
 def test_apply_every() -> None:

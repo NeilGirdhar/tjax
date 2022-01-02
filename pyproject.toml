@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.18.0"
+version = "0.18.1"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -30,7 +30,7 @@ python = '>=3.8,<3.11'
 colorful = '^0.5.4'
 jax = '^0.2.21'
 networkx = '^2.4'
-numpy = '>=1.21'
+numpy = '>=1.22'
 optax = '>=0.1'
 yapf = '>=0.31'
 
@@ -40,7 +40,7 @@ hypothesis = '^6'
 isort = '>=5.8'
 jupyter = '>=1'
 jupyter-client = '<=6.1.12'
-mypy = '>=0.921'
+mypy = '>=0.930'
 pylint = '>=2.12.2'
 pyproject-flake8 = '>=0.0.1a2'
 pytest = '^6.2'

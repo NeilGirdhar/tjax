@@ -115,10 +115,5 @@ def test_use_classes(theta: float) -> None:
 
     encoding = EncodingElement(theta)
 
-    assert_allclose(theta,  # type: ignore[no-untyped-call]
-                    encoding.infer_state(eif).ec.x,
-                    rtol=1e-1,
-                    atol=1e-1)
-    assert_allclose(1.0,  # type: ignore[no-untyped-call]
-                    encoding.theta_bar(eif),
-                    atol=1e-2)
+    assert_allclose(theta, encoding.infer_state(eif).ec.x, rtol=1e-1, atol=1e-1)
+    assert_allclose(1.0, encoding.theta_bar(eif), atol=1e-2)

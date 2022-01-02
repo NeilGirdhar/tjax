@@ -121,12 +121,8 @@ def test_forward(fixed_point_using_while: C,
                  fixed_point_using_scan: C,
                  theta: Array,
                  x_init: Array) -> None:
-    assert_allclose(fixed_point_using_scan(theta, x_init),  # type: ignore[no-untyped-call]
-                    theta,
-                    rtol=1e-1)
-    assert_allclose(fixed_point_using_while(theta, x_init),  # type: ignore[no-untyped-call]
-                    theta,
-                    rtol=1e-1)
+    assert_allclose(fixed_point_using_scan(theta, x_init), theta, rtol=1e-1)
+    assert_allclose(fixed_point_using_while(theta, x_init), theta, rtol=1e-1)
 
 
 @pytest.mark.parametrize('theta', (-10.0, -1.0, 0.0, 1.0, 10.0))
@@ -135,8 +131,8 @@ def test_grad(fixed_point_using_while: C,
               theta: Array) -> None:
     g = grad(partial(fixed_point_using_while, x_init=8.0))
     h = grad(partial(fixed_point_using_scan, x_init=8.0))
-    assert_allclose(1.0, g(theta), rtol=1e-1)  # type: ignore[no-untyped-call]
-    assert_allclose(1.0, h(theta), rtol=1e-1)  # type: ignore[no-untyped-call]
+    assert_allclose(1.0, g(theta), rtol=1e-1)
+    assert_allclose(1.0, h(theta), rtol=1e-1)
 
 
 @pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
@@ -146,10 +142,10 @@ def test_noisy_grad(noisy_it_fun: NoisyNewtonsMethod, theta: float) -> None:
         state = (8.0, Generator.from_seed(123))
         x, _ = noisy_it_fun.find_fixed_point(theta, state).current_state
         return x
-    assert_allclose(theta,  # type: ignore[no-untyped-call]
+    assert_allclose(theta,
                     fixed_point_using_while_of_theta(theta),
                     rtol=1e-2,
                     atol=1e-2)
-    assert_allclose(1.0,  # type: ignore[no-untyped-call]
+    assert_allclose(1.0,
                     grad(fixed_point_using_while_of_theta)(theta),
                     rtol=1e-2)

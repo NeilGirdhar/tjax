@@ -32,7 +32,7 @@ def generate_stable_matrix(generator: Generator,
 
 
 def make_stable(matrix: RealArray, eps: float) -> RealArray:
-    u, s, vt = np.linalg.svd(matrix)  # type: ignore
+    u, s, vt = np.linalg.svd(matrix)
     s = np.clip(s, 0, 1 - eps)
     return u.dot(s[:, None] * vt)
 
@@ -49,7 +49,7 @@ def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
         A vector `x` such that x = Ax + b.
     """
     matrix = np.eye(amat.shape[0]) - amat
-    return np.linalg.solve(matrix, bvec)  # type: ignore
+    return np.linalg.solve(matrix, bvec)
 
 
 def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealArray]:
@@ -118,7 +118,7 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, A
     true_sol = solve_ax_b(matrix, offset)
     sol = ax_plus_b.find_fixed_point((matrix, offset), x0).current_state
 
-    assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)  # type: ignore[no-untyped-call]
+    assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
 
 
 @hypothesis.settings(max_examples=100, deadline=5000.)
@@ -167,7 +167,5 @@ def test_gradient(generator: Generator,
 
     true_grad_matrix, true_grad_offset = solve_grad_ax_b(matrix, offset)
 
-    assert_allclose(grad_matrix, true_grad_matrix, rtol=1e-4,  # type: ignore[no-untyped-call]
-                    atol=1e-5)
-    assert_allclose(grad_offset, true_grad_offset, rtol=1e-4,  # type: ignore[no-untyped-call]
-                    atol=1e-5)
+    assert_allclose(grad_matrix, true_grad_matrix, rtol=1e-4, atol=1e-5)
+    assert_allclose(grad_offset, true_grad_offset, rtol=1e-4, atol=1e-5)
