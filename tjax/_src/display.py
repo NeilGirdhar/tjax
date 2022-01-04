@@ -164,7 +164,7 @@ def id_display(x: _T, name: Optional[str] = None, *, no_jvp: bool = False) -> _T
             else:
                 final_name = name
             # https://github.com/python/mypy/issues/11583
-            print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore
+            print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore[arg-type]
     return id_tap(tap, x, result=x)  # type: ignore[no-untyped-call]
 
 
@@ -176,7 +176,7 @@ class BatchDimensionIterator:
     def advance(self, value: Any) -> Optional[Tuple[Optional[int], ...]]:
         if self.batch_dims is None:
             return None
-        n = len(tree_leaves(value))  # type: ignore
+        n = len(tree_leaves(value))  # type: ignore[no-untyped-call]
         old_i = self.i
         self.i += n
         return self.batch_dims[old_i: self.i]

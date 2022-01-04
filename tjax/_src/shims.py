@@ -18,7 +18,7 @@ def jit(func: F, **kwargs: Any) -> F:
     """
     retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
-        retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore
+        retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore[attr-defined]
     return retval
 
 
@@ -53,7 +53,7 @@ class custom_vjp(Generic[R]):
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)  # type: ignore
+        return Partial(self, instance)  # type: ignore[no-untyped-call]
 
 
 class custom_jvp(Generic[R]):
@@ -74,14 +74,14 @@ class custom_jvp(Generic[R]):
         static_argnums = tuple(sorted(static_argnums))
         self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
 
-    def defjvp(self, jvp: Callable[..., R]) -> None:
+    def defjvp(self, jvp: Callable[..., Tuple[R, R]]) -> None:
         """
         Implement the custom forward pass of the custom derivative.
 
         Args:
             fwd: The custom forward pass.
         """
-        self.jvp.defjvp(jvp)  # type: ignore
+        self.jvp.defjvp(jvp)
 
     def __call__(self, *args: Any) -> R:
         return self.jvp(*args)
@@ -90,4 +90,4 @@ class custom_jvp(Generic[R]):
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)  # type: ignore
+        return Partial(self, instance)  # type: ignore[no-untyped-call]

@@ -16,7 +16,7 @@ R = TypeVar('R')
 
 
 @register_pytree_node_class
-class Partial(partial, Generic[R]):  # type: ignore
+class Partial(partial[R], Generic[R]):
     """
     A version of functools.partial that returns a pytree.
 
@@ -54,7 +54,7 @@ class Partial(partial, Generic[R]):  # type: ignore
         """
         if callable_is_static and isinstance(func, Partial):
             raise TypeError
-        retval = super().__new__(cls, func, *args, **kwargs)  # type: ignore
+        retval = super().__new__(cls, func)  # type: ignore[call-arg]
         retval.callable_is_static = callable_is_static
         retval.static_argnums = set(static_argnums)
         retval.static_kwargs = {} if static_kwargs is None else static_kwargs

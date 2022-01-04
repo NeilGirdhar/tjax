@@ -1,5 +1,5 @@
 """Tests from optax._src.transform_test"""
-from typing import Any, Callable
+from typing import Any, Callable, Tuple
 
 import chex
 import jax
@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 from optax import apply_updates
 
+from tjax import RealArray
 from tjax.gradient import (SGD, AddDecayedWeights, ApplyEvery, Centralize,
                            ChainedGradientTransformation, Ema, GradientTransformation, Scale,
                            ScaleByAdam, ScaleByParamBlockNorm, ScaleByParamBlockRMS, ScaleByRms,
@@ -15,8 +16,8 @@ from tjax.gradient import (SGD, AddDecayedWeights, ApplyEvery, Centralize,
 
 STEPS = 50
 LR = 1e-2
-init_params = (jnp.array([1., 2.]), jnp.array([3., 4.]))
-per_step_updates = (jnp.array([500., 5.]), jnp.array([300., 3.]))
+init_params = (np.array([1., 2.]), np.array([3., 4.]))
+per_step_updates = (np.array([500., 5.]), np.array([300., 3.]))
 
 
 def variant(x: Any) -> Any:
@@ -111,7 +112,7 @@ def test_apply_every() -> None:
 
     # optax SGD
     optax_sgd_params = init_params
-    sgd_transform = SGD(LR, 0.0)  # type: ignore[var-annotated]
+    sgd_transform = SGD[Tuple[RealArray, RealArray]](LR, 0.0)
     state_sgd = sgd_transform.init(optax_sgd_params)
 
     # optax SGD plus apply every

@@ -10,7 +10,7 @@ import pytest
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
-from tjax import Array, RealArray, dataclass
+from tjax import RealArray, dataclass
 from tjax.fixed_point import ComparingIteratedFunction, ComparingIteratedFunctionWithCombinator
 
 
@@ -70,28 +70,32 @@ def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealAr
     return grad_matrix, grad_bvec
 
 
-TPair = Tuple[Array, Array]
+TPair = Tuple[RealArray, RealArray]
 
 
 @dataclass
-class Solver(ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array, Array]):
-    def sampled_state(self, theta: TPair, state: Array) -> Array:
+class Solver(ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray, RealArray,
+                                                     RealArray]):
+    def sampled_state(self, theta: TPair, state: RealArray) -> RealArray:
         matrix, offset = theta
         return jnp.tensordot(matrix, state, 1) + offset
 
-    def extract_comparand(self, state: Array) -> Array:
+    def extract_comparand(self, state: RealArray) -> RealArray:
         return state
 
-    def extract_differentiand(self, theta: TPair, state: Array) -> Array:
+    def extract_differentiand(self, theta: TPair, state: RealArray) -> RealArray:
         return state
 
-    def implant_differentiand(self, theta: TPair, state: Array, differentiand: Array) -> Array:
+    def implant_differentiand(self,
+                              theta: TPair,
+                              state: RealArray,
+                              differentiand: RealArray) -> RealArray:
         return differentiand
 
 
 @pytest.fixture(name='ax_plus_b', scope='session')
-def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array, Array, Array,
-                                                                   Array]:
+def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray,
+                                                                   RealArray, RealArray]:
     return Solver(minimum_iterations=11,
                   maximum_iterations=10000,
                   rtol=1e-10,
@@ -109,7 +113,8 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, Array,
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0, 1)))
-def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, Array, Array],
+def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray,
+                                                                 RealArray],
                             matrix: RealArray,
                             offset: RealArray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
@@ -127,24 +132,25 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, Array, A
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
     hypothesis.extra.numpy.arrays(
         np.float_, 5, elements=hypothesis.strategies.floats(0.1, 1)))
-def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, Array, Array, Array],
+def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, RealArray],
              matrix: RealArray,
              offset: RealArray) -> None:
     matrix = make_stable(matrix, eps=1e-1)
     x0 = jnp.zeros_like(offset)
 
-    def f(theta: TPair, x_init: Array) -> Array:
+    def f(theta: TPair, x_init: RealArray) -> RealArray:
         return ax_plus_b.find_fixed_point(theta, x_init).current_state
 
-    def f_vjp(theta: TPair, x_init: Array) -> Callable[[Array], TPair]:
-        return jax.vjp(f, theta, x_init)  # type: ignore
+    def f_vjp(theta: TPair, x_init: RealArray) -> Tuple[RealArray, Callable[[RealArray], TPair]]:
+        return jax.vjp(f, theta, x_init)
 
-    jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore
+    jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore[no-untyped-call]
                             rtol=1e-4, atol=1e-4)
 
 
 def test_gradient(generator: Generator,
-                  ax_plus_b: ComparingIteratedFunction[TPair, Array, Array, Array]) -> None:
+                  ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray,
+                                                       RealArray]) -> None:
     """
     Test gradient on the fixed point of Ax + b = x.
     """
@@ -153,10 +159,10 @@ def test_gradient(generator: Generator,
     offset = np.random.rand(mat_size)
     x0 = jnp.zeros_like(offset)
 
-    def loss(params: TPair, x: Array) -> Array:
+    def loss(params: TPair, x: RealArray) -> RealArray:
         return jnp.sum(ax_plus_b.find_fixed_point(params, x).current_state)
 
-    jax.test_util.check_grads(loss,  # type: ignore
+    jax.test_util.check_grads(loss,  # type: ignore[no-untyped-call]
                               ((matrix, offset), x0),
                               order=1,
                               modes=["rev"],

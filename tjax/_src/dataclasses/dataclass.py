@@ -94,8 +94,8 @@ def dataclass(cls: Optional[Type[T]] = None, /, *, init: bool = True, repr_: boo
     non_none_cls = cls
 
     # Apply dataclass function to cls.
-    data_clz: Type[T] = dataclasses.dataclass(cls, init=init, repr=repr_, eq=eq,
-                                              order=order, frozen=True)  # type: ignore
+    data_clz: Type[T] = dataclasses.dataclass(init=init, repr=repr_, eq=eq, order=order,
+                                              frozen=True)(cls)
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []
@@ -127,7 +127,7 @@ def dataclass(cls: Optional[Type[T]] = None, /, *, init: bool = True, repr_: boo
 
     # Assign methods to the class.
     if data_clz.__str__ is object.__str__:
-        data_clz.__str__ = __str__  # type: ignore
+        data_clz.__str__ = __str__  # type: ignore[assignment]
 
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
