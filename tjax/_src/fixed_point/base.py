@@ -3,11 +3,9 @@ from __future__ import annotations
 from functools import partial
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
-import jax.numpy as jnp
 from jax import jit
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan
-from jax.tree_util import tree_map
 
 from ..annotations import PyTree, TapFunctionTransforms
 from ..dataclasses import dataclass
@@ -60,30 +58,6 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
                                     None, result=trajectory)
             return new_augmented, trajectory
         return scan(f, self.initial_augmented(initial_state), None, maximum_iterations)
-
-    def debug_trajectory(self,
-                         theta: Parameters,
-                         initial_state: State,
-                         maximum_iterations: int,
-                         tap_function: Optional[TapFunction]) -> (
-                             Tuple[TheAugmentedState, Trajectory]):
-        """
-        This method is identical to sample_trajectory, but avoids using scan and its concomitant
-        jit.
-        """
-        augmented = self.initial_augmented(initial_state)
-        for i in range(maximum_iterations):
-            trajectory: Trajectory
-            concatenated_trajectory: Trajectory
-            new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
-            augmented = self.iterate_augmented(new_state, augmented)
-            concatenated_trajectory = (
-                trajectory
-                if i == 0
-                else tree_map(jnp.append, concatenated_trajectory, trajectory))  # noqa: F821
-            if tap_function is not None:
-                tap_function(None, ())
-        return augmented, concatenated_trajectory
 
     # Abstract methods -----------------------------------------------------------------------------
     def initial_augmented(self, initial_state: State) -> TheAugmentedState:

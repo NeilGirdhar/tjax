@@ -36,26 +36,6 @@ class _ZParameters(Generic[Parameters, State, Differentiand]):
     x_star_bar_differentiand: Differentiand
 
 
-def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State, Comparand,
-                                                                     Differentiand, Any,
-                                                                     TheAugmentedState],
-             theta: Parameters,
-             initial_state: State) -> Tuple[TheAugmentedState, _ZResiduals[Parameters, State,
-                                                                           Comparand, Differentiand,
-                                                                           TheAugmentedState]]:
-    """
-    Args:
-        theta: The parameters for which gradients can be calculated.
-        initial_state: An initial guess of the final state.
-    Returns:
-        x_star: the result of the minimization.
-        residuals: residuals used in _ffp_bwd.
-    """
-    augmented: TheAugmentedState = outer_iterated_function.find_fixed_point(
-        theta, initial_state)
-    return augmented, _ZResiduals(outer_iterated_function, theta, augmented.current_state)
-
-
 def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand, TheAugmentedState],
              augmented_star_bar: TheAugmentedState) -> Tuple[None, Parameters, None]:
     """
@@ -87,7 +67,7 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
     z_parameters = _ZParameters(residuals.outer_theta, x_star, x_star_differentiand,
                                 x_star_bar_differentiand)
     augmented = z_iterator.find_fixed_point(z_parameters, x_star_bar_differentiand)
-    z_star_differentiand: State = augmented.current_state
+    z_star_differentiand: Differentiand = augmented.current_state
 
     _, df_by_dtheta = vjp(f_of_theta, residuals.outer_theta)
     theta_bar, = df_by_dtheta(z_star_differentiand)
@@ -149,6 +129,26 @@ class IteratedFunctionWithCombinator(
         raise NotImplementedError
 
     # Apply vjp ------------------------------------------------------------------------------------
+    @staticmethod
+    def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State,
+                                                                         Comparand, Differentiand,
+                                                                         Any, TheAugmentedState],
+                 theta: Parameters,
+                 initial_state: State) -> Tuple[TheAugmentedState,
+                                                _ZResiduals[Parameters, State, Comparand,
+                                                            Differentiand, TheAugmentedState]]:
+        """
+        Args:
+            theta: The parameters for which gradients can be calculated.
+            initial_state: An initial guess of the final state.
+        Returns:
+            x_star: the result of the minimization.
+            residuals: residuals used in _ffp_bwd.
+        """
+        augmented: TheAugmentedState = outer_iterated_function.find_fixed_point(theta,
+                                                                                initial_state)
+        return augmented, _ZResiduals(outer_iterated_function, theta, augmented.current_state)
+
     find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)
 
 

@@ -2,10 +2,10 @@
 from typing import Any, Callable, Tuple
 
 import chex
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from jax.tree_util import tree_map
 from optax import apply_updates
 
 from tjax import RealArray
@@ -38,7 +38,7 @@ def test_scalers(constructor: Callable[[], GradientTransformation[Any, Any]]) ->
 
     updates, state = transform_fn(per_step_updates, state, params)
     chex.assert_tree_all_finite((params, updates, state))
-    jax.tree_multimap(lambda *args: chex.assert_equal_shape(args), params, updates)
+    tree_map(lambda *args: chex.assert_equal_shape(args), params, updates)
 
 
 def test_add_decayed_weights() -> None:
@@ -135,7 +135,7 @@ def test_apply_every() -> None:
         optax_sgd_apply_every_params, updates_sgd_apply_every)
 
     # Every k steps, check equivalence.
-    if i % k == k - 1:
+    if (STEPS - 1) % k == k - 1:
         chex.assert_tree_all_close(
             optax_sgd_apply_every_params, optax_sgd_params,
             atol=1e-6, rtol=1e-5)
@@ -157,7 +157,7 @@ def test_scale() -> None:
         # Manually scale updates.
         def rescale(t: Any) -> Any:
             return t * factor  # pylint:disable=cell-var-from-loop
-        manual_updates = jax.tree_map(rescale, updates)
+        manual_updates = tree_map(rescale, updates)
         # Check the rescaled updates match.
         chex.assert_tree_all_close(scaled_updates, manual_updates)
 

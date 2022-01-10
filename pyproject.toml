@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.18.1"
+version = "0.18.2"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -43,6 +43,7 @@ jupyter-client = '<=6.1.12'
 mypy = '>=0.930'
 pylint = '>=2.12.2'
 pyproject-flake8 = '>=0.0.1a2'
+pyright = '>=0.0.13'
 pytest = '^6.2'
 
 [tool.flake8]
@@ -98,6 +99,9 @@ output-format = 'colorized'
 [tool.pylint.similarities]
 min-similarity-lines = 10
 ignore-imports = 'yes'
+
+[tool.pyright]
+stubPath = ""
 
 [tool.mypy]
 plugins = 'tjax.mypy_plugin'

@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Tuple
+from typing import Callable, Protocol, Tuple
 
 import jax.numpy as jnp
 import pytest
@@ -11,7 +11,10 @@ from tjax.dataclasses import field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               StochasticIteratedFunctionWithCombinator)
 
-C = Callable[[Array, Array], Array]
+
+class C(Protocol):
+    def __call__(self, theta: Array, x_init: Array) -> Array:
+        ...
 
 
 State = Tuple[PyTree, Generator]

@@ -28,20 +28,18 @@ class Partial(partial[R], Generic[R]):
     the callable is static.
     """
 
-    T = TypeVar('T', bound='Partial[R]')
-
     callable_is_static: bool
     static_argnums: Set[int]
     static_kwargs: Mapping[str, Any]
 
-    def __new__(cls: Type[T],
+    def __new__(cls: Type[Partial[R]],
                 func: Callable[..., R],
                 /,
                 *args: Any,
                 callable_is_static: bool = True,
                 static_argnums: Tuple[int, ...] = (),
                 static_kwargs: Mapping[str, Any] = None,
-                **kwargs: Any) -> T:
+                **kwargs: Any) -> Partial[R]:
         """
         Args:
             func: The function being applied.

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Integral
-from typing import Optional, Tuple, overload
+from typing import Callable, Optional, Tuple, overload
 
 import jax.numpy as jnp
 import numpy as np
@@ -17,12 +17,32 @@ __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
 
 
 @overload
-def leaky_integrate(value: RealNumeric,
+def leaky_integrate(value: RealArray,
+                    time_step: RealNumeric,
+                    drift: Optional[RealNumeric] = None,
+                    decay: Optional[RealNumeric] = None,
+                    *,
+                    leaky_average: bool = False) -> RealArray:
+    ...
+
+
+@overload
+def leaky_integrate(value: RealNumeric,  # type: ignore[misc]
                     time_step: RealNumeric,
                     drift: Optional[RealNumeric] = None,
                     decay: Optional[RealNumeric] = None,
                     *,
                     leaky_average: bool = False) -> RealNumeric:
+    ...
+
+
+@overload
+def leaky_integrate(value: ComplexArray,
+                    time_step: RealNumeric,
+                    drift: Optional[ComplexNumeric] = None,
+                    decay: Optional[ComplexNumeric] = None,
+                    *,
+                    leaky_average: bool = False) -> ComplexArray:
     ...
 
 
@@ -153,9 +173,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
         data_weight = leaky_data_weight(new_iterations, decay.real)
-
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
-        assert isinstance(new_value, jnp.ndarray)
         new_carry = _FilterCarry(new_iterations, new_value)
         outputted_value = new_value / data_weight
         return new_carry, outputted_value
@@ -191,17 +209,20 @@ def leaky_covariance(x_time_series: ComplexArray,
                      y_time_series: ComplexArray,
                      decay: ComplexNumeric,
                      covariance_matrix: bool = False) -> ComplexArray:
+    times: Callable[[ComplexArray, ComplexArray], ComplexArray]
     if covariance_matrix:
         if x_time_series.shape[0] != y_time_series.shape[0]:
             raise ValueError
         s = (np.newaxis,)
 
-        def times(a: ComplexArray, b: ComplexArray) -> ComplexArray:
+        def times(a: ComplexArray, b: ComplexArray, /) -> ComplexArray:
             return a[(..., *(s * (b.ndim - 1)))] * b[(slice(None), *(s * (a.ndim - 1)))]
     else:
         if x_time_series.shape != y_time_series.shape:
             raise ValueError
-        times = jnp.multiply
+
+        def times(a: ComplexArray, b: ComplexArray, /) -> ComplexArray:
+            return a * b
     x = leaky_integrate_time_series(x_time_series, decay)
     y = leaky_integrate_time_series(y_time_series, decay)
     xy = leaky_integrate_time_series(times(x_time_series, y_time_series), decay)

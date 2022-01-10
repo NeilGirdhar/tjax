@@ -3,8 +3,8 @@ from __future__ import annotations
 import dataclasses
 from dataclasses import MISSING, FrozenInstanceError, InitVar
 from functools import partial
-from typing import (Any, Callable, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar, Union,
-                    overload)
+from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol, Sequence, Tuple,
+                    Type, TypeVar, Union, overload)
 
 from jax.tree_util import register_pytree_node
 
@@ -19,6 +19,11 @@ __all__ = ['dataclass', 'InitVar', 'MISSING', 'FrozenInstanceError']
 _T = TypeVar("_T")
 
 
+class _C(Protocol):
+    static_fields: ClassVar[List[str]]
+    dynamic_fields: ClassVar[List[str]]
+
+
 # This decorator is interpreted by static analysis tools as a hint
 # that a decorator or metaclass causes dataclass-like behavior.
 # See https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
@@ -30,16 +35,15 @@ def __dataclass_transform__(
     kw_only_default: bool = False,
     field_descriptors: Tuple[Union[type, Callable[..., Any]], ...] = (),
 ) -> Callable[[_T], _T]:
-  # If used within a stub file, the following implementation can be
-  # replaced with "...".
-  return lambda a: a
+    # If used within a stub file, the following implementation can be
+    # replaced with "...".
+    return lambda a: a
 
 
 @overload
 @__dataclass_transform__(field_descriptors=(field,))
 def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> Callable[
-                  [Type[_T]], Type[_T]]:
+              order: bool = False) -> Callable[[Type[_T]], Type[_T]]:
     ...
 
 
@@ -51,7 +55,7 @@ def dataclass(cls: Type[_T], /, *, init: bool = True, repr_: bool = True, eq: bo
 
 
 @__dataclass_transform__(field_descriptors=(field,))
-def dataclass(cls: Optional[Type[_T]] = None, /, *, init: bool = True, repr_: bool = True,
+def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
@@ -115,8 +119,8 @@ def dataclass(cls: Optional[Type[_T]] = None, /, *, init: bool = True, repr_: bo
     non_none_cls = cls
 
     # Apply dataclass function to cls.
-    data_clz: Type[_T] = dataclasses.dataclass(cls, init=init, repr=repr_, eq=eq,
-                                              order=order, frozen=True)  # type: ignore
+    data_clz: Type[_C] = dataclasses.dataclass(init=init, repr=repr_, eq=eq, order=order,
+                                               frozen=True)(cls)
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []
@@ -131,15 +135,15 @@ def dataclass(cls: Optional[Type[_T]] = None, /, *, init: bool = True, repr_: bo
             dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def __str__(self: _T) -> str:
+    def __str__(self: Any) -> str:
         return str(display_generic(self))
 
-    def tree_flatten(x: _T) -> Tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(x: Any) -> Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
         trees = tuple(getattr(x, name) for name in dynamic_fields)
         return trees, hashed
 
-    def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> _T:
+    def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> Any:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(static_fields, hashed))
@@ -164,7 +168,7 @@ def dataclass(cls: Optional[Type[_T]] = None, /, *, init: bool = True, repr_: bo
     return data_clz
 
 
-def display_dataclass(value: _T,
+def display_dataclass(value: Any,
                       show_values: bool = True,
                       indent: int = 0,
                       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -208,4 +212,3 @@ def get_relative_dataclass_test_string(actual: Any,
         if not tree_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
     retval += ")"
     return retval
-

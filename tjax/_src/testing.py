@@ -267,6 +267,7 @@ def _float_to_string(x: complex, rtol: float, atol: float) -> str:
         y = complex(x)
     else:
         raise TypeError
+    retval = ""
     for i in range(20):
         retval = _float_to_string_with_precision(y, i)
         if np.allclose(complex(retval), x, rtol=rtol, atol=atol):

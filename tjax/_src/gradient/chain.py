@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Generic, List, Optional, Tuple
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
@@ -17,8 +17,6 @@ class ChainedGradientState(GradientState):
 @dataclass
 class ChainedGradientTransformation(GradientTransformation[ChainedGradientState, Weights],
                                     Generic[Weights]):
-    U = TypeVar('U', bound='ChainedGradientTransformation[Weights]')
-
     transforms: List[GradientTransformation[Any, Weights]]
 
     def init(self, parameters: Weights) -> ChainedGradientState:

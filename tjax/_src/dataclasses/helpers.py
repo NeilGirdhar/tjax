@@ -30,14 +30,14 @@ if sys.version_info >= (3, 10):
     @overload
     def field(*, static: bool = False, init: bool = ..., repr: bool = ...,
               hash: Optional[bool] = ..., compare: bool = ...,
-              metadata: Optional[Mapping[str, Any]] = ..., kw_only: bool = ...) -> T:
+              metadata: Optional[Mapping[str, Any]] = ..., kw_only: bool = ...) -> Any:
         ...
 
     def field(*, static: bool = False, default: Any = MISSING,
               default_factory: Any = MISSING, init: bool = True,
               repr: bool = True, hash: Optional[bool] = None, compare: bool = True,
               metadata: Optional[Mapping[str, Any]] = None,
-              kw_only: Any = MISSING) -> T:
+              kw_only: Any = MISSING) -> Any:
         """
         Args:
             static: Indicates whether a field is a pytree or static.  Pytree fields are
@@ -54,12 +54,12 @@ if sys.version_info >= (3, 10):
                                      metadata=metadata_dict,
                                      kw_only=kw_only)
         return dataclasses.field(default=default,
-                                    init=init,
-                                    repr=repr,
-                                    hash=hash,
-                                    compare=compare,
-                                    metadata=metadata_dict,
-                                    kw_only=kw_only)
+                                 init=init,
+                                 repr=repr,
+                                 hash=hash,
+                                 compare=compare,
+                                 metadata=metadata_dict,
+                                 kw_only=kw_only)
 else:
     # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
     # to understand the magic that happens at runtime.
@@ -100,8 +100,8 @@ else:
                                      compare=compare,
                                      metadata=metadata_dict)
         return dataclasses.field(default=default,
-                                    init=init,
-                                    repr=repr,
-                                    hash=hash,
-                                    compare=compare,
-                                    metadata=metadata_dict)
+                                 init=init,
+                                 repr=repr,
+                                 hash=hash,
+                                 compare=compare,
+                                 metadata=metadata_dict)
