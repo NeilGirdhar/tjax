@@ -20,19 +20,19 @@ from ._src.plottable_trajectory import PlottableTrajectory
 from ._src.shims import custom_jvp, custom_vjp, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
-from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar
+from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar, zero_tangent
 
-__all__ = ['Array', 'BooleanArray', 'ComplexArray', 'Generator', 'IntegralArray', 'Partial',
-           'PlottableTrajectory', 'PyTree', 'RealArray', 'Shape', 'ShapeLike', 'SliceLike',
-           'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose', 'complex_dtype',
-           'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclass', 'dataclasses', 'default_atol',
-           'default_rtol', 'default_tols', 'diffused_leaky_integrate', 'display_generic',
-           'id_display', 'fixed_point', 'get_relative_test_string', 'get_test_string', 'gradient',
-           'int_dtype', 'is_scalar', 'tree_allclose', 'jit', 'leaky_covariance',
-           'leaky_data_weight', 'leaky_integrate', 'leaky_integrate_time_series', 'print_cotangent',
-           'print_generic', 'real_dtype', 'replace_cotangent', 'divide_nonnegative', 'divide_where',
-           'Integral', 'Real', 'Complex', 'BooleanNumeric', 'IntegralNumeric', 'RealNumeric',
-           'ComplexNumeric']
+__all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'ComplexNumeric',
+           'Generator', 'Integral', 'IntegralArray', 'IntegralNumeric', 'Partial',
+           'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
+           'ShapeLike', 'SliceLike', 'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose',
+           'complex_dtype', 'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclass',
+           'dataclasses', 'default_atol', 'default_rtol', 'default_tols',
+           'diffused_leaky_integrate', 'display_generic', 'divide_nonnegative', 'divide_where',
+           'fixed_point', 'get_relative_test_string', 'get_test_string', 'gradient', 'id_display',
+           'int_dtype', 'is_scalar', 'jit', 'leaky_covariance', 'leaky_data_weight',
+           'leaky_integrate', 'leaky_integrate_time_series', 'print_cotangent', 'print_generic',
+           'real_dtype', 'replace_cotangent', 'tree_allclose', 'zero_tangent']
 #
 # __pdoc__ = {}
 # __pdoc__['real_dtype'] = False

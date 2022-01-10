@@ -5,11 +5,12 @@ from typing import Any, Optional, Union, overload
 
 import jax.numpy as jnp
 import numpy as np
+from jax import float0
 
-from .annotations import (BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric, RealArray,
-                          RealNumeric)
+from .annotations import (Array, BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
+                          RealArray, RealNumeric)
 
-__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative']
+__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent']
 
 
 def is_scalar(x: Any) -> bool:
@@ -71,3 +72,9 @@ def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumer
         whenever the divisor equals zero.
     """
     return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)
+
+
+def zero_tangent(value: Array) -> Array:
+    if np.issubdtype(value.dtype, np.inexact):
+        return np.zeros_like(value)
+    return np.zeros_like(value, dtype=float0)
