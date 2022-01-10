@@ -228,20 +228,28 @@ def _indent_space(indent: int) -> str:
     return (indent * _indentation) * " "
 
 
-def _format_number(x: float) -> str:
+@singledispatch
+def _format_number(x: Any) -> str:
+    return f"{x:10}"
+
+
+@_format_number.register
+def _(x: np.inexact[Any]) -> str:
     return f"{x:10.4f}"
 
 
 def _show_array(indent: int, array: Array) -> str:
-    if len(array.shape) == 0:
-        return _indent_space(indent) + _format_number(array[()]) + "\n"
+    if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
+        return ""
     if np.prod(array.shape) == 0:
+        return ""
+    if any(x > 12 for x in array.shape):
         return ""
     if 1 in array.shape:
         return _show_array(indent, array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
                                                                        for s in array.shape)])
-    if any(x > 12 for x in array.shape):
-        return ""
+    if len(array.shape) == 0:
+        return _indent_space(indent) + _format_number(array[()]) + "\n"
     if len(array.shape) == 1:
         return _indent_space(indent) + "  ".join(_format_number(array[i])
                                                  for i in range(array.shape[0])) + "\n"
