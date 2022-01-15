@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Sequence, Tuple, Union
+from typing import Any, Dict, Sequence, Tuple, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -17,14 +17,9 @@ SliceLike = Union[_SliceLikeItem, Tuple[_SliceLikeItem, ...]]
 
 Array = npt.NDArray[Any]
 BooleanArray = npt.NDArray[np.bool_]
-if TYPE_CHECKING:
-    IntegralArray = npt.NDArray[np.integer[Any]]
-    RealArray = npt.NDArray[np.floating[Any]]
-    ComplexArray = npt.NDArray[Union[np.floating[Any], np.complexfloating[Any, Any]]]
-else:
-    IntegralArray = npt.NDArray[np.integer]
-    RealArray = npt.NDArray[np.floating]
-    ComplexArray = npt.NDArray[Union[np.floating, np.complexfloating]]
+IntegralArray = npt.NDArray[np.integer[Any]]
+RealArray = npt.NDArray[np.floating[Any]]
+ComplexArray = npt.NDArray[Union[np.floating[Any], np.complexfloating[Any, Any]]]
 
 
 Integral = int  # Use this until numbers.Integral works with MyPy.
