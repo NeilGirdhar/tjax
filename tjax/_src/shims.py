@@ -71,6 +71,7 @@ class custom_jvp(Generic[R]):
             fun: the function to decorate.
             static_argnums: The indices of the static arguments.
         """
+        super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
 

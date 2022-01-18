@@ -170,13 +170,14 @@ def id_display(x: _T, name: Optional[str] = None, *, no_jvp: bool = False) -> _T
 
 class BatchDimensionIterator:
     def __init__(self, batch_dims: Optional[Tuple[Optional[int], ...]] = None):
+        super().__init__()
         self.batch_dims = batch_dims
         self.i = 0
 
     def advance(self, value: Any) -> Optional[Tuple[Optional[int], ...]]:
         if self.batch_dims is None:
             return None
-        n = len(tree_leaves(value))  # type: ignore[no-untyped-call]
+        n = len(tree_leaves(value))
         old_i = self.i
         self.i += n
         return self.batch_dims[old_i: self.i]
