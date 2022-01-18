@@ -20,7 +20,7 @@ from ._src.plottable_trajectory import PlottableTrajectory
 from ._src.shims import custom_jvp, custom_vjp, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
-from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar, zero_tangent
+from ._src.tools import abs_square, divide_nonnegative, divide_where, is_scalar, zero_tangent_like
 
 __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'ComplexNumeric',
            'Generator', 'Integral', 'IntegralArray', 'IntegralNumeric', 'Partial',
@@ -32,7 +32,7 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'fixed_point', 'get_relative_test_string', 'get_test_string', 'gradient', 'id_display',
            'int_dtype', 'is_scalar', 'jit', 'leaky_covariance', 'leaky_data_weight',
            'leaky_integrate', 'leaky_integrate_time_series', 'print_cotangent', 'print_generic',
-           'real_dtype', 'replace_cotangent', 'tree_allclose', 'zero_tangent']
+           'real_dtype', 'replace_cotangent', 'tree_allclose', 'zero_tangent_like']
 #
 # __pdoc__ = {}
 # __pdoc__['real_dtype'] = False
