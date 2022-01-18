@@ -233,7 +233,7 @@ def _format_number(x: Any) -> str:
     return f"{x:10}"
 
 
-@_format_number.register
+@_format_number.register(np.inexact)
 def _(x: np.inexact[Any]) -> str:
     return f"{x:10.4f}"
 
