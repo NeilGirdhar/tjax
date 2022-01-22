@@ -99,7 +99,7 @@ def diffused_leaky_integrate(value: RealArray,
                              drift: Optional[RealNumeric] = None,
                              decay: Optional[RealNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> RealNumeric:
+                             leaky_average: bool = False) -> RealArray:
     ...
 
 
@@ -111,7 +111,7 @@ def diffused_leaky_integrate(value: ComplexArray,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> ComplexNumeric:
+                             leaky_average: bool = False) -> ComplexArray:
     ...
 
 
@@ -122,7 +122,7 @@ def diffused_leaky_integrate(value: ComplexArray,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
                              *,
-                             leaky_average: bool = False) -> ComplexNumeric:
+                             leaky_average: bool = False) -> ComplexArray:
     """
     Update an Ornstein-Uhlenbeck process.
 
