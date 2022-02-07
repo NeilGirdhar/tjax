@@ -7,7 +7,7 @@ import pytest
 from jax import grad, jit
 from numpy.testing import assert_allclose
 
-from tjax import Generator, RealNumeric, dataclass, default_rtol
+from tjax import Generator, RealNumeric, dataclass
 from tjax.dataclasses import field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
@@ -106,7 +106,7 @@ class EncodingElement:
 def test_use_classes(theta: float) -> None:
     eif = EncodingIteratedFunction(minimum_iterations=11,
                                    maximum_iterations=1000,
-                                   rtol=default_rtol(),
+                                   rtol=1e-4,
                                    atol=1e-2,
                                    z_minimum_iterations=11,
                                    z_maximum_iterations=1000,

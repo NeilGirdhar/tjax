@@ -6,7 +6,7 @@ import pytest
 from jax import grad
 from numpy.testing import assert_allclose
 
-from tjax import Array, Generator, PyTree, dataclass, default_atol, default_rtol
+from tjax import Array, Generator, PyTree, dataclass
 from tjax.dataclasses import field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               StochasticIteratedFunctionWithCombinator)
@@ -86,8 +86,8 @@ def squared_error(theta: Array, x: Array) -> Array:
 @pytest.fixture(scope='session', name='it_fun')
 def fixture_it_fun() -> NewtonsMethod:
     step_size = 0.01
-    return NewtonsMethod(minimum_iterations=11, maximum_iterations=2000, rtol=default_rtol(),
-                         atol=default_atol(), z_minimum_iterations=11, z_maximum_iterations=1000,
+    return NewtonsMethod(minimum_iterations=11, maximum_iterations=2000, rtol=1e-4,
+                         atol=1e-6, z_minimum_iterations=11, z_maximum_iterations=1000,
                          f=squared_error, step_size=step_size)
 
 
@@ -109,7 +109,7 @@ def fixture_fixed_point_using_scan(it_fun: NewtonsMethod) -> C:
 def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
     return NoisyNewtonsMethod(minimum_iterations=11,
                               maximum_iterations=1000,
-                              rtol=default_rtol(),
+                              rtol=1e-4,
                               atol=1e-4,
                               z_minimum_iterations=11,
                               z_maximum_iterations=1000,

@@ -9,7 +9,6 @@ from jax.lax import scan
 
 from .annotations import ComplexArray, ComplexNumeric, RealArray, RealNumeric
 from .dataclasses import dataclass
-from .dtypes import real_dtype
 from .generator import Generator
 
 __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
@@ -180,7 +179,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
     # Cast the dtype from integer to floating point to prevent integer rounding.
     initial_value = jnp.zeros(time_series[0].shape,
-                              dtype=(real_dtype()
+                              dtype=(jnp.float32
                                      if issubclass(time_series.dtype.type, Integral)
                                      else time_series.dtype))
     initial_carry = _FilterCarry(0.0, initial_value)

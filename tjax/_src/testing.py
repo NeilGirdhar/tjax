@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import partial, singledispatch
+from functools import singledispatch
 from numbers import Complex, Number, Real
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -10,8 +10,8 @@ import yapf
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_flatten, tree_map, tree_reduce
 
-from .annotations import Array, PyTree
-from .dtypes import default_atol, default_rtol
+from .annotations import Array, BooleanNumeric, PyTree
+from .dtypes import default_tols
 
 __all__ = ['assert_tree_allclose', 'tree_allclose', 'get_test_string', 'get_relative_test_string']
 
@@ -76,32 +76,29 @@ def assert_tree_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
     """
-    if rtol is None:
-        rtol = default_rtol()
-    if atol is None:
-        atol = default_atol()
-
     flattened_actual, structure_actual = tree_flatten(actual)
     flattened_desired, structure_desired = tree_flatten(desired)
     if structure_actual != structure_desired:
         raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
+        dtype = jnp.result_type(actual_, desired_)
+        tols = default_tols(dtype, rtol=rtol, atol=atol)
         try:
-            np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)
+            np.testing.assert_allclose(actual_, desired_, rtol=tols['rtol'], atol=tols['atol'])
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-            test_string = (get_relative_test_string(actual, original_name, original_value, rtol,
-                                                    atol)
+            test_string = (get_relative_test_string(actual, original_name, original_value, **tols)
                            if original_name is not None and original_value is not None
-                           else get_test_string(actual, rtol, atol))
+                           else get_test_string(actual, **tols))
             style_config = yapf.style.CreatePEP8Style()
             style_config['COLUMN_LIMIT'] = column_limit
             test_string = yapf.yapf_api.FormatCode("desired = " + test_string,
                                                    style_config=style_config)[0]
             message = (
-                f"\nTree leafs don't match at position {i} with rtol={rtol} and atol={atol}.\n"
+                f"\nTree leafs don't match at position {i} with rtol={tols['rtol']} and "
+                f"atol={tols['atol']}.\n"
                 f"{best_part_of_old_message}\n\n"
                 f"Actual: {actual}\nDesired: {desired}\n"
                 f"Test string:\n{test_string}")
@@ -119,14 +116,12 @@ def tree_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the comparison.
         atol: The absolute tolerance of the comparisons in the comparison.
     """
-    if rtol is None:
-        rtol = default_rtol()
-    if atol is None:
-        atol = default_atol()
+    def allclose(actual_array: Array, desired_array: Array) -> BooleanNumeric:
+        dtype = jnp.result_type(actual_array, desired_array)
+        tols = default_tols(dtype, rtol=rtol, atol=atol)
+        return np.allclose(actual_array, desired_array, rtol=tols['rtol'], atol=tols['atol'])
 
-    return tree_reduce(jnp.logical_and,
-                       tree_map(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
-                       True)
+    return tree_reduce(jnp.logical_and, tree_map(allclose, actual, desired), True)
 
 
 # get test string ----------------------------------------------------------------------------------
