@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.18.5"
+version = "0.18.6"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -44,7 +44,7 @@ mypy = '>=0.930'
 pylint = '>=2.12.2'
 pyproject-flake8 = '>=0.0.1a2'
 pyright = '>=0.0.13'
-pytest = '^6.2'
+pytest = '^7'
 
 [tool.flake8]
 max-line-length = 100

@@ -123,7 +123,7 @@ def test_apply_every() -> None:
     state_sgd_apply_every = sgd_apply_every.init(optax_sgd_apply_every_params)
     transform_fn = variant(sgd_apply_every.update)
 
-    for i in range(STEPS):
+    for _ in range(STEPS):
         # Apply a step of SGD
         updates_sgd, state_sgd = sgd_transform.update(per_step_updates, state_sgd, None)
         optax_sgd_params = apply_updates(optax_sgd_params, updates_sgd)
