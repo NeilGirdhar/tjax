@@ -28,6 +28,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = '>=3.8,<3.11'
 colorful = '^0.5.4'
+flax = '^0.4'
 jax = '^0.2.21'
 networkx = '^2.4'
 numpy = '>=1.22'

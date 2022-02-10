@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
+from collections import defaultdict
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
 
 import colorful as cf
 import networkx as nx
+from flax.serialization import from_state_dict, register_serialization_state, to_state_dict
 from jax.tree_util import register_pytree_node
 
 from .annotations import PyTree
@@ -30,14 +32,40 @@ def register_graph_as_jax_pytree(cls: Type[T]) -> None:
 
         return graph
 
-    def tree_flatten(self: T) -> Tuple[Sequence[PyTree], Hashable]:
-        return ((dict(self.nodes), dict(self.edges)), None)
+    def tree_flatten(graph: T) -> Tuple[Sequence[PyTree], Hashable]:
+        return ((dict(graph.nodes), dict(graph.edges)), None)
 
     register_pytree_node(cls, tree_flatten, tree_unflatten)
 
 
 register_graph_as_jax_pytree(nx.Graph)
 register_graph_as_jax_pytree(nx.DiGraph)
+
+
+def register_graph_as_flax_state_dict(cls: Type[T]) -> None:
+    def ty_to_state_dict(graph: T) -> Dict[str, Any]:
+        edge_dict_of_dicts = defaultdict[Any, Dict[Any, Any]](dict)
+        for (source, target), edge_dict in dict(graph.edges).items():
+            edge_dict_of_dicts[source][target] = edge_dict
+        return {'nodes': to_state_dict(dict(graph.nodes)),
+                'edges': to_state_dict(dict(edge_dict_of_dicts))}
+
+    def ty_from_state_dict(graph: T, state_dict: Dict[str, Any]) -> T:
+        retval = type(graph)()
+        for node_name, node_dict in state_dict['nodes'].items():
+            retval.add_node(node_name, **from_state_dict(graph.nodes[node_name], node_dict))
+        for source, target_and_edge_dict in state_dict['edges'].items():
+            for target, edge_dict in target_and_edge_dict.items():
+                retval.add_edge(source, target, **from_state_dict(graph.edges[source, target],
+                                                                  edge_dict))
+        return retval
+
+    register_serialization_state(cls, ty_to_state_dict,  # type: ignore[no-untyped-call]
+                                 ty_from_state_dict)
+
+
+register_graph_as_flax_state_dict(nx.Graph)
+register_graph_as_flax_state_dict(nx.DiGraph)
 
 
 @display_generic.register
