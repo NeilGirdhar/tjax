@@ -673,7 +673,7 @@ test = ["ipython", "ipykernel", "ipywidgets (<8.0.0)", "pytest (>=4.1)", "pytest
 
 [[package]]
 name = "nbconvert"
-version = "6.4.1"
+version = "6.4.2"
 description = "Converting Jupyter Notebooks"
 category = "dev"
 optional = false
@@ -695,11 +695,11 @@ testpath = "*"
 traitlets = ">=5.0"
 
 [package.extras]
-all = ["pytest", "pytest-cov", "pytest-dependency", "ipykernel", "ipywidgets (>=7)", "pyppeteer (==0.2.6)", "tornado (>=4.0)", "sphinx (>=1.5.1)", "sphinx-rtd-theme", "nbsphinx (>=0.2.12)", "ipython"]
+all = ["pytest", "pytest-cov", "pytest-dependency", "ipykernel", "ipywidgets (>=7)", "pyppeteer (>=1,<1.1)", "tornado (>=4.0)", "sphinx (>=1.5.1)", "sphinx-rtd-theme", "nbsphinx (>=0.2.12)", "ipython"]
 docs = ["sphinx (>=1.5.1)", "sphinx-rtd-theme", "nbsphinx (>=0.2.12)", "ipython"]
 serve = ["tornado (>=4.0)"]
-test = ["pytest", "pytest-cov", "pytest-dependency", "ipykernel", "ipywidgets (>=7)", "pyppeteer (==0.2.6)"]
-webpdf = ["pyppeteer (==0.2.6)"]
+test = ["pytest", "pytest-cov", "pytest-dependency", "ipykernel", "ipywidgets (>=7)", "pyppeteer (>=1,<1.1)"]
+webpdf = ["pyppeteer (>=1,<1.1)"]
 
 [[package]]
 name = "nbformat"
@@ -879,7 +879,7 @@ python-versions = "*"
 
 [[package]]
 name = "platformdirs"
-version = "2.4.1"
+version = "2.5.0"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
 optional = false
@@ -1234,7 +1234,7 @@ python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "tomli"
-version = "2.0.0"
+version = "2.0.1"
 description = "A lil' TOML parser"
 category = "dev"
 optional = false
@@ -1521,6 +1521,11 @@ defusedxml = [
 ]
 dm-tree = [
     {file = "dm-tree-0.1.6.tar.gz", hash = "sha256:6776404b23b4522c01012ffb314632aba092c9541577004ab153321e87da439a"},
+    {file = "dm_tree-0.1.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:c6185d750ae7078d299262d16f0b8f2ba699a498abc8fe0e213817763796dd5f"},
+    {file = "dm_tree-0.1.6-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:51d3584b6f5c1d2d6f1fbdf3286d92313ecef894294cda3bcf35e49366d135b6"},
+    {file = "dm_tree-0.1.6-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:d6780c9bf3f9d388706cf02efd0866c94c85b5330c92a0989bddfdd9878cd0e8"},
+    {file = "dm_tree-0.1.6-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:91b895194a1ffc5453d27137c10f03cf9422e43ecb5c1d533f7a24eb46c71143"},
+    {file = "dm_tree-0.1.6-cp310-cp310-win_amd64.whl", hash = "sha256:0f8a43ec475776a4e7091ef0ae01e8328f3817f723640a90d31c7acc07e830f7"},
     {file = "dm_tree-0.1.6-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:a8814a5c838f79e9db22a51369c74f4d92e7f1485ec55d7f665ae4d98478cb4f"},
     {file = "dm_tree-0.1.6-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:e28ba91d3d97230b831716db401ce116ae5c7dcd025161ac16ecb8bd5c870a85"},
     {file = "dm_tree-0.1.6-cp36-cp36m-manylinux_2_24_x86_64.whl", hash = "sha256:603392f1a7818a4f43a7033c2061ae7c2085a4a728171b0bbca76bd107fcdfb0"},
@@ -1530,10 +1535,14 @@ dm-tree = [
     {file = "dm_tree-0.1.6-cp37-cp37m-manylinux_2_24_x86_64.whl", hash = "sha256:c4e8d868fc9a75cbdb67e78069b33e62a4c69bc182c1d2adc29ab08e283912d8"},
     {file = "dm_tree-0.1.6-cp37-cp37m-win_amd64.whl", hash = "sha256:6d5f64d89f657b11f429e13b1378c8cfbe4baef50e7ab31f3689bfe0cf4a2508"},
     {file = "dm_tree-0.1.6-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:8d59c5098456667b28c607110537c86c25cbd0ee455f21d033c60ef2d7f48d81"},
+    {file = "dm_tree-0.1.6-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:ec003873d759635ba6cc5eabc6da886bc00f6b5ec23a6baffc4fd0218231adad"},
+    {file = "dm_tree-0.1.6-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:a69861be3f2e6d55a86c280e9625ddd9a77f0c9c9936075ad7773bfdfdca70a3"},
     {file = "dm_tree-0.1.6-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:f3bec40e658fe7546c3a56849c743ac9a498e620b3236e82e171801938a56679"},
     {file = "dm_tree-0.1.6-cp38-cp38-manylinux_2_24_x86_64.whl", hash = "sha256:e87d06478356a2d92c3940dedebcd92a14ad37fba10ebb1839c8140693b83c0a"},
     {file = "dm_tree-0.1.6-cp38-cp38-win_amd64.whl", hash = "sha256:02ffa673f20b1756dcf085ef2c354bc59416d843b384c7b71c421f873ffc36c0"},
     {file = "dm_tree-0.1.6-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:affc7a6d29442a143c60efb2f03bcb95424d4fe6168f3d31de892c1e601fa0e6"},
+    {file = "dm_tree-0.1.6-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:3d02ba486c8768dcb7c2164fa09af118526df9caf71833927d43da9efc1880f9"},
+    {file = "dm_tree-0.1.6-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:e86ae05b002e825680a5da0602376da95caed24ecc54569891cfd3b1503e6786"},
     {file = "dm_tree-0.1.6-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:bd347c74254ba320d57b0e102558c1189e3b4ae1bae952f9aef156b5914567c8"},
     {file = "dm_tree-0.1.6-cp39-cp39-manylinux_2_24_x86_64.whl", hash = "sha256:8425454192e954692d9a1e0f7b374b3b7030916b17b6055951dc17d58b6fe1b8"},
     {file = "dm_tree-0.1.6-cp39-cp39-win_amd64.whl", hash = "sha256:5269183f80f1ae37543a2a30a8f78e4b0460d5da74fb5ac42dc8a476ef8d707e"},
@@ -1791,8 +1800,8 @@ nbclient = [
     {file = "nbclient-0.5.10.tar.gz", hash = "sha256:b5fdea88d6fa52ca38de6c2361401cfe7aaa7cd24c74effc5e489cec04d79088"},
 ]
 nbconvert = [
-    {file = "nbconvert-6.4.1-py3-none-any.whl", hash = "sha256:fe93bc42485c54c5a49a2324c834aca1ff315f320a535bed3e3c4e085d3eebe3"},
-    {file = "nbconvert-6.4.1.tar.gz", hash = "sha256:7dce3f977c2f9651841a3c49b5b7314c742f24dd118b99e51b8eec13c504f555"},
+    {file = "nbconvert-6.4.2-py3-none-any.whl", hash = "sha256:7b006ae9979af56200e7fa3db39d9d12c99e811e8843b05dbe518e5b754bcb2e"},
+    {file = "nbconvert-6.4.2.tar.gz", hash = "sha256:eb2803db18f6facce6bf3b01b684fe47907994bd156d15eaccdf011e3d7f8164"},
 ]
 nbformat = [
     {file = "nbformat-5.1.3-py3-none-any.whl", hash = "sha256:eb8447edd7127d043361bc17f2f5a807626bc8e878c7709a1c647abda28a9171"},
@@ -1868,8 +1877,8 @@ pickleshare = [
     {file = "pickleshare-0.7.5.tar.gz", hash = "sha256:87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca"},
 ]
 platformdirs = [
-    {file = "platformdirs-2.4.1-py3-none-any.whl", hash = "sha256:1d7385c7db91728b83efd0ca99a5afb296cab9d0ed8313a45ed8ba17967ecfca"},
-    {file = "platformdirs-2.4.1.tar.gz", hash = "sha256:440633ddfebcc36264232365d7840a970e75e1018d15b4327d11f91909045fda"},
+    {file = "platformdirs-2.5.0-py3-none-any.whl", hash = "sha256:30671902352e97b1eafd74ade8e4a694782bd3471685e78c32d0fdfd3aa7e7bb"},
+    {file = "platformdirs-2.5.0.tar.gz", hash = "sha256:8ec11dfba28ecc0715eb5fb0147a87b1bf325f349f3da9aab2cd6b50b96b692b"},
 ]
 pluggy = [
     {file = "pluggy-1.0.0-py2.py3-none-any.whl", hash = "sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3"},
@@ -2090,8 +2099,8 @@ toml = [
     {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
 ]
 tomli = [
-    {file = "tomli-2.0.0-py3-none-any.whl", hash = "sha256:b5bde28da1fed24b9bd1d4d2b8cba62300bfb4ec9a6187a957e8ddb9434c5224"},
-    {file = "tomli-2.0.0.tar.gz", hash = "sha256:c292c34f58502a1eb2bbb9f5bbc9a5ebc37bee10ffb8c2d6bbdfa8eb13cc14e1"},
+    {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
+    {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 toolz = [
     {file = "toolz-0.11.2-py3-none-any.whl", hash = "sha256:a5700ce83414c64514d82d60bcda8aabfde092d1c1a8663f9200c07fdcc6da8f"},
