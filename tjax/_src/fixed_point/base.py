@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from functools import partial
 from typing import Callable, Generic, Optional, Tuple, TypeVar
 
-from jax import jit
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan
 
@@ -32,7 +30,6 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
         * TheAugmentedState, which is typically defined by one of the tjax subclasses.
     """
     # New methods ----------------------------------------------------------------------------------
-    @partial(jit, static_argnums=(3, 4))
     def sample_trajectory(self,
                           theta: Parameters,
                           initial_state: State,

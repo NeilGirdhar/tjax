@@ -4,7 +4,6 @@ from functools import partial
 from typing import Any, Generic, Tuple, TypeVar
 
 import jax.numpy as jnp
-from jax import jit
 from jax.lax import while_loop
 
 from ..annotations import BooleanNumeric, IntegralNumeric, PyTree, RealNumeric
@@ -52,7 +51,6 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
     atol: RealNumeric
 
     # New methods ----------------------------------------------------------------------------------
-    @jit
     def find_fixed_point(self,
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
@@ -73,8 +71,7 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
 
     def debug_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:
         """
-        This method is identical to find_fixed_point, but avoids using while_loop and its
-        concomitant jit.
+        This method is identical to find_fixed_point, but avoids using while_loop.
         """
         augmented = self.initial_augmented(initial_state)
         while self.state_needs_iteration(theta, augmented):
