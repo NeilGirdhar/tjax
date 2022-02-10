@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import dataclasses
-from dataclasses import MISSING, FrozenInstanceError, InitVar
 from functools import partial
 from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol, Sequence, Tuple,
                     Type, TypeVar, Union, overload)
@@ -13,7 +12,7 @@ from ..display import BatchDimensionIterator, display_class, display_generic, di
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
-__all__ = ['dataclass', 'InitVar', 'MISSING', 'FrozenInstanceError']
+__all__ = ['dataclass']
 
 
 _T = TypeVar("_T")
