@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Iterable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Union
 
 import colorful as cf
+import flax.linen as nn
 import numpy as np
 from jax.errors import TracerArrayConversionError
 from jax.experimental.host_callback import id_tap
@@ -31,12 +33,12 @@ def print_generic(*args: Any,
     found_nan = False
     for value in args:
         sub_batch_dims = bdi.advance(value)
-        s = display_generic(value, batch_dims=sub_batch_dims)
+        s = display_generic(value, set(), batch_dims=sub_batch_dims)
         print(s)
         found_nan = found_nan or raise_on_nan and 'nan' in str(s)
     for key, value in kwargs.items():
         sub_batch_dims = bdi.advance(value)
-        s = display_key_and_value(key, value, "=", batch_dims=sub_batch_dims)
+        s = display_key_and_value(key, value, "=", set(), batch_dims=sub_batch_dims)
         print(s)
         found_nan = found_nan or raise_on_nan and 'nan' in str(s)
     if found_nan:
@@ -45,14 +47,27 @@ def print_generic(*args: Any,
 
 @singledispatch
 def display_generic(value: Any,
+                    seen: Set[int],
                     show_values: bool = True,
                     indent: int = 0,
                     batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+    if is_dataclass(value) and not isinstance(value, type):
+        return display_dataclass(value, seen, show_values, indent, batch_dims)
     return cf.red(str(value)) + "\n"
+
+
+@display_generic.register(type)
+def _(value: Type[Any],
+      seen: Set[int],
+      show_values: bool = True,
+      indent: int = 0,
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+    return cf.red(f"type[{value.__name__}]") + "\n"
 
 
 @display_generic.register
 def _(value: JVPTracer,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -61,6 +76,7 @@ def _(value: JVPTracer,
 
 @display_generic.register
 def _(value: JaxprTracer,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -69,6 +85,7 @@ def _(value: JaxprTracer,
 
 @display_generic.register
 def _(value: DynamicJaxprTracer,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -77,6 +94,7 @@ def _(value: DynamicJaxprTracer,
 
 @display_generic.register
 def _(value: BatchTracer,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -86,6 +104,7 @@ def _(value: BatchTracer,
 
 @display_generic.register(np.ndarray)
 def _(value: Array,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -95,6 +114,7 @@ def _(value: Array,
 
 @display_generic.register
 def _(value: DeviceArray,
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -112,6 +132,7 @@ def _(value: DeviceArray,
 @display_generic.register(type(None))
 @display_generic.register(Number)
 def _(value: Union[None, Number],
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
@@ -120,23 +141,56 @@ def _(value: Union[None, Number],
 
 @display_generic.register(Mapping)
 def _(value: Mapping[Any, Any],
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     return (display_class(type(value))
-            + "".join(display_key_and_value(key, sub_value, "=", show_values, indent + 1)
+            + "".join(display_key_and_value(key, sub_value, "=", seen, show_values, indent + 1)
                       for key, sub_value in sorted(value.items())))
 
 
 @display_generic.register(tuple)
 @display_generic.register(list)
 def _(value: Union[Tuple[Any, ...], List[Any]],
+      seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     return display_class(type(value)) + "".join(
-        display_key_and_value("", sub_value, "", show_values, indent + 1, sub_batch_dims)
+        display_key_and_value("", sub_value, "", seen, show_values, indent + 1, sub_batch_dims)
         for sub_batch_dims, sub_value in zip(batch_dimension_iterator(value, batch_dims), value))
+
+
+def display_dataclass(value: Any,
+                      seen: Set[int],
+                      show_values: bool = True,
+                      indent: int = 0,
+                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+    is_module = isinstance(value, nn.Module)
+    retval = display_class(type(value), is_module)
+    bdi = BatchDimensionIterator(batch_dims)
+    for field_info in fields(value):
+        name = field_info.name
+        if is_module and name in {'parent', 'name'}:
+            continue
+        sub_value = getattr(value, name)
+        sub_batch_dims = bdi.advance(sub_value)
+        retval += display_key_and_value(name, sub_value, "=", seen, show_values, indent + 1,
+                                        sub_batch_dims)
+    if is_module:
+        retval += display_key_and_value('name', value.name, "=", seen, show_values, indent + 1,
+                                        None)
+        retval += display_key_and_value('has_parent', value.parent is not None, "=", seen,
+                                        show_values, indent + 1, None)
+        retval += display_key_and_value('bound', value.scope is not None, "=", seen, show_values,
+                                        indent + 1, None)
+        for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
+            if not isinstance(child_module, nn.Module):
+                continue
+            retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
+                                            None)
+    return retval
 
 
 _T = TypeVar('_T')
@@ -197,18 +251,24 @@ def batch_dimension_iterator(values: Iterable[Any],
 
 
 # Public unexported functions ----------------------------------------------------------------------
-def display_class(cls: Type[Any]) -> str:
-    return cf.orange(cls.__name__) + "\n"
+def display_class(cls: Type[Any], is_module: bool = False) -> str:
+    color_f = cf.green if is_module else cf.orange
+    return color_f(cls.__name__) + "\n"
 
 
 def display_key_and_value(key: str,
                           value: Any,
                           separator: str,
+                          seen: Set[int],
                           show_values: bool = True,
                           indent: int = 0,
                           batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+    if id(value) in seen:
+        value = "<seen>"
+    elif is_dataclass(value) and not isinstance(value, type):
+        seen.add(id(value))
     return (_indent_space(indent) + cf.blue(key) + cf.base00(separator)
-            + display_generic(value, show_values, indent, batch_dims))
+            + display_generic(value, seen, show_values, indent, batch_dims))
 
 
 # Private functions --------------------------------------------------------------------------------

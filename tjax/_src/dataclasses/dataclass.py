@@ -8,7 +8,7 @@ from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol,
 from jax.tree_util import register_pytree_node
 
 from ..annotations import PyTree
-from ..display import BatchDimensionIterator, display_class, display_generic, display_key_and_value
+from ..display import display_generic
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
@@ -135,7 +135,7 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
 
     # Generate additional methods.
     def __str__(self: Any) -> str:
-        return str(display_generic(self))
+        return str(display_generic(self, set()))
 
     def tree_flatten(x: Any) -> Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
@@ -161,24 +161,9 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
     register_pytree_node(data_clz, tree_flatten, tree_unflatten)
 
     # Register the dynamically-dispatched functions.
-    display_generic.register(data_clz, display_dataclass)
     get_test_string.register(data_clz, get_dataclass_test_string)
     get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)
     return data_clz
-
-
-def display_dataclass(value: Any,
-                      show_values: bool = True,
-                      indent: int = 0,
-                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    retval = display_class(type(value))
-    bdi = BatchDimensionIterator(batch_dims)
-    for field_info in dataclasses.fields(value):
-        sub_value = getattr(value, field_info.name)
-        sub_batch_dims = bdi.advance(sub_value)
-        retval += display_key_and_value(field_info.name, sub_value, "=", show_values, indent + 1,
-                                        sub_batch_dims)
-    return retval
 
 
 def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:

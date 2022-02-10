@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple, Type, TypeVar
 
 import colorful as cf
 import networkx as nx
@@ -70,7 +70,8 @@ register_graph_as_flax_state_dict(nx.DiGraph)
 
 @display_generic.register
 def _(value: nx.Graph,
-      show_values: bool,
+      seen: Set[int],
+      show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     directed = isinstance(value, nx.DiGraph)
@@ -79,9 +80,11 @@ def _(value: nx.Graph,
     bdi = BatchDimensionIterator(batch_dims)
     for name, node in value.nodes.items():
         sub_batch_dims = bdi.advance(node)
-        retval += display_key_and_value(name, node, ": ", show_values, indent + 1, sub_batch_dims)
+        retval += display_key_and_value(name, node, ": ", seen, show_values, indent + 1,
+                                        sub_batch_dims)
     for (source, target), edge in value.edges.items():
         key = f"{source}{arrow}{target}"
         sub_batch_dims = bdi.advance(edge)
-        retval += display_key_and_value(key, edge, ": ", show_values, indent, sub_batch_dims)
+        retval += display_key_and_value(key, edge, ": ", seen, show_values, indent + 1,
+                                        sub_batch_dims)
     return retval
