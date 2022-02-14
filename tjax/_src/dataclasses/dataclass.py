@@ -3,9 +3,10 @@ from __future__ import annotations
 import dataclasses
 from functools import partial
 from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol, Sequence, Tuple,
-                    Type, TypeVar, Union, overload)
+                    Type, TypeVar, overload)
 
 from jax.tree_util import register_pytree_node
+from typing_extensions import dataclass_transform
 
 from ..annotations import PyTree
 from ..display import display_generic
@@ -23,37 +24,21 @@ class _C(Protocol):
     dynamic_fields: ClassVar[List[str]]
 
 
-# This decorator is interpreted by static analysis tools as a hint
-# that a decorator or metaclass causes dataclass-like behavior.
-# See https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
-# for more information about the __dataclass_transform__ magic.
-def __dataclass_transform__(
-    *,
-    eq_default: bool = True,
-    order_default: bool = False,
-    kw_only_default: bool = False,
-    field_descriptors: Tuple[Union[type, Callable[..., Any]], ...] = (),
-) -> Callable[[_T], _T]:
-    # If used within a stub file, the following implementation can be
-    # replaced with "...".
-    return lambda a: a
-
-
 @overload
-@__dataclass_transform__(field_descriptors=(field,))
+@dataclass_transform(field_descriptors=(field,))
 def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Callable[[Type[_T]], Type[_T]]:
     ...
 
 
 @overload
-@__dataclass_transform__(field_descriptors=(field,))
+@dataclass_transform(field_descriptors=(field,))
 def dataclass(cls: Type[_T], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Type[_T]:
     ...
 
 
-@__dataclass_transform__(field_descriptors=(field,))
+@dataclass_transform(field_descriptors=(field,))
 def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """

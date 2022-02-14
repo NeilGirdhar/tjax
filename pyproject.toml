@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.18.7"
+version = "0.19.0"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -29,10 +29,11 @@ classifiers = [
 python = '>=3.8,<3.11'
 colorful = '^0.5.4'
 flax = '^0.4'
-jax = '^0.2.21'
+jax = '^0.3'
 networkx = '^2.4'
 numpy = '>=1.22'
 optax = '>=0.1'
+typing_extensions = '>=4.1.0'
 yapf = '>=0.31'
 
 [tool.poetry.dev-dependencies]
