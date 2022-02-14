@@ -83,9 +83,9 @@ def assert_tree_allclose(actual: PyTree,
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
         dtype = jnp.result_type(actual_, desired_)
-        tols = default_tols(dtype, rtol=rtol, atol=atol)
+        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         try:
-            np.testing.assert_allclose(actual_, desired_, rtol=tols['rtol'], atol=tols['atol'])
+            np.testing.assert_allclose(actual_, desired_, **tols)
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
@@ -118,8 +118,8 @@ def tree_allclose(actual: PyTree,
     """
     def allclose(actual_array: Array, desired_array: Array) -> BooleanNumeric:
         dtype = jnp.result_type(actual_array, desired_array)
-        tols = default_tols(dtype, rtol=rtol, atol=atol)
-        return np.allclose(actual_array, desired_array, rtol=tols['rtol'], atol=tols['atol'])
+        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
+        return bool(jnp.allclose(actual_array, desired_array, **tols))
 
     return tree_reduce(jnp.logical_and, tree_map(allclose, actual, desired), True)
 
