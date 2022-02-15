@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import singledispatch
+from functools import partial, singledispatch
 from numbers import Complex, Number, Real
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -142,11 +142,10 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
 @get_test_string.register(np.ndarray)
 @get_test_string.register(DeviceArray)
 def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
-    def fts(x: np.complexfloating[Any, Any]) -> str:
-        assert isinstance(x, complex)
-        return _float_to_string(x, rtol, atol)
-    with np.printoptions(formatter={'float_kind': fts,  # type: ignore[typeddict-item]
-                                    'complex_kind': fts}):
+    with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
+                                                          atol=atol),
+                                    'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
+                                                            atol=atol)}):
         return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
             '  ', ' ')
 
@@ -154,7 +153,7 @@ def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
 @get_test_string.register
 def _(actual: Complex, rtol: float, atol: float) -> str:
     x = float(actual) if isinstance(actual, Real) else complex(actual)
-    return _float_to_string(x, rtol, atol)
+    return _inexact_number_to_string(x, rtol, atol)
 
 
 @get_test_string.register
@@ -203,18 +202,17 @@ def get_relative_test_string(actual: Any,
 @get_relative_test_string.register(DeviceArray)
 def _(actual: Union[Array, DeviceArray], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
-    def fts(x: np.complexfloating[Any, Any]) -> str:
-        assert isinstance(x, complex)
-        return _float_to_string(x, rtol, atol)
-    with np.printoptions(formatter={'float_kind': fts,  # type: ignore[typeddict-item]
-                                    'complex_kind': fts}):
+    with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
+                                                          atol=atol),
+                                    'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
+                                                            atol=atol)}):
         return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
             '  ', ' ')
 
 
 @get_relative_test_string.register
 def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
-    return _float_to_string(actual, rtol, atol)  # type: ignore[arg-type]
+    return _inexact_number_to_string(actual, rtol, atol)  # type: ignore[arg-type]
 
 
 @get_relative_test_string.register
@@ -254,7 +252,7 @@ def _float_to_string_with_precision(x: Union[float, complex], precision: int) ->
         return repr(np.array(x))[6:-1]
 
 
-def _float_to_string(x: complex, rtol: float, atol: float) -> str:
+def _inexact_number_to_string(x: Union[complex, np.inexact[Any]], rtol: float, atol: float) -> str:
     y: Union[float, complex]
     if isinstance(x, Real):
         y = float(x)
