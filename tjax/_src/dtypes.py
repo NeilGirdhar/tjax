@@ -35,5 +35,5 @@ def default_tols(dtype: Type[jnp.number[Any]],
                  *,
                  rtol: Optional[float] = None,
                  atol: Optional[float] = None) -> Tols:
-    return dict(rtol=default_rtol(dtype) if rtol is None else rtol,
+    return Tols(rtol=default_rtol(dtype) if rtol is None else rtol,
                 atol=default_atol(dtype) if atol is None else atol)

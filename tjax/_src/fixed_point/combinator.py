@@ -129,10 +129,7 @@ class IteratedFunctionWithCombinator(
         raise NotImplementedError
 
     # Apply vjp ------------------------------------------------------------------------------------
-    @staticmethod
-    def _ffp_fwd(outer_iterated_function: IteratedFunctionWithCombinator[Parameters, State,
-                                                                         Comparand, Differentiand,
-                                                                         Any, TheAugmentedState],
+    def _ffp_fwd(self,
                  theta: Parameters,
                  initial_state: State) -> Tuple[TheAugmentedState,
                                                 _ZResiduals[Parameters, State, Comparand,
@@ -145,9 +142,8 @@ class IteratedFunctionWithCombinator(
             x_star: the result of the minimization.
             residuals: residuals used in _ffp_bwd.
         """
-        augmented: TheAugmentedState = outer_iterated_function.find_fixed_point(theta,
-                                                                                initial_state)
-        return augmented, _ZResiduals(outer_iterated_function, theta, augmented.current_state)
+        augmented: TheAugmentedState = self.find_fixed_point(theta, initial_state)
+        return augmented, _ZResiduals(self, theta, augmented.current_state)
 
     find_fixed_point.defvjp(_ffp_fwd, _ffp_bwd)
 
