@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-from functools import partial
-from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Set, Tuple, Type,
-                    TypeVar, cast)
+from reprlib import recursive_repr
+from typing import Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Tuple, TypeVar, cast
 
 from jax.tree_util import register_pytree_node_class
 
@@ -16,7 +14,7 @@ R = TypeVar('R')
 
 
 @register_pytree_node_class
-class Partial(partial[R], Generic[R]):
+class Partial(Generic[R]):
     """
     A version of functools.partial that returns a pytree.
 
@@ -27,92 +25,120 @@ class Partial(partial[R], Generic[R]):
     callable is static.  This version allows you to specify which parameters are static and whether
     the callable is static.
     """
-
-    callable_is_static: bool
-    static_argnums: Set[int]
-    static_kwargs: Mapping[str, Any]
-
-    def __new__(cls: Type[Partial[R]],
-                func: Callable[..., R],
-                /,
-                *args: Any,
-                callable_is_static: bool = True,
-                static_argnums: Tuple[int, ...] = (),
-                static_kwargs: Mapping[str, Any] = None,
-                **kwargs: Any) -> Partial[R]:
+    def __init__(self,
+                 function: Callable[..., R],
+                 /,
+                 *args: Any,
+                 callable_is_static: bool = True,
+                 static_argnums: Tuple[int, ...] = (),
+                 static_kwargs: Mapping[str, Any] = None,
+                 **dynamic_kwargs: Any) -> None:
         """
         Args:
-            func: The function being applied.
-            args: The applied positional arguments.
+            function: The function being applied.
+            args: The static and dynamic applied positional arguments.
             callable_is_static: Whether the function callable is static.
             static_argnums: The indices of the applied positional arguments that are static.
-            static_kwargs: The key-value pairs representing applied keyword arguments that are
-                static.
-            kwargs: The applied keyword arguments.
+            static_kwargs: The static applied keyword arguments.
+            dynamic_kwargs: The dynamic applied keyword arguments.
         """
-        if callable_is_static and isinstance(func, Partial):
-            raise TypeError
-        retval = super().__new__(cls, func)  # type: ignore[call-arg]
-        retval.callable_is_static = callable_is_static
-        retval.static_argnums = set(static_argnums)
-        retval.static_kwargs = {} if static_kwargs is None else static_kwargs
-        return retval
+        if isinstance(function, Partial):
+            if callable_is_static:
+                raise TypeError
+            # Could collapse the arguments here, but the benefit is small.
+        self.function = function
+        self.callable_is_static = callable_is_static
+        self.args = args
+        self.static_argnums = static_argnums
+        self.static_kwargs = {} if static_kwargs is None else static_kwargs
+        self.dynamic_kwargs = dynamic_kwargs
 
     def tree_flatten(self: Partial[R]) -> Tuple[Sequence[PyTree], Hashable]:
-        static_args = []
-        tree_args = []
-
-        def _append(is_static: bool, value: Any) -> None:
-            if is_static:
-                static_args.append(value)
-            else:
-                tree_args.append(value)
-
-        _append(self.callable_is_static, self.func)
-        for i, value in enumerate(self.args):
-            _append(i in self.static_argnums, value)
-
-        return ((list(reversed(tree_args)), self.keywords),
-                (self.callable_is_static, self.static_argnums, list(reversed(static_args)),
-                 self.static_kwargs))
+        static_args, dynamic_args = self._partition_args()
+        static_kwargs = tuple((key, self.static_kwargs[key]) for key in sorted(self.static_kwargs))
+        return ((dynamic_args, self.dynamic_kwargs),
+                (self.callable_is_static, self.static_argnums, static_args, static_kwargs))
 
     @classmethod
-    def tree_unflatten(cls: Type[R],
+    def tree_unflatten(cls,
                        static: Hashable,
                        trees: Sequence[PyTree]) -> Partial[R]:
-        if not isinstance(static, Iterable):
+        if not isinstance(static, tuple):
             raise RuntimeError
 
-        callable_is_static, static_argnums, static_args, static_kwargs = static
+        callable_is_static, static_argnums, static_args, static_kwarg_items = static
+        static_kwargs = dict(static_kwarg_items)
 
-        if not isinstance(static_args, list):
+        if not isinstance(static_args, tuple):
             raise RuntimeError
 
-        tree_args, tree_kwargs = trees
+        dynamic_args, dynamic_kwargs = trees
 
-        if not isinstance(tree_args, list):
+        if not isinstance(dynamic_args, tuple):
             raise RuntimeError
-        if not isinstance(tree_kwargs, dict):
+        if not isinstance(dynamic_kwargs, dict):
             raise RuntimeError
 
-        tree_kwargs = cast(Dict[str, Any], tree_kwargs)
-
-        args = []
-        for i in range(len(static_args) + len(tree_args)):
-            if i == 0:
-                is_static = callable_is_static
-            else:
-                is_static = i - 1 in static_argnums
-            if is_static:
-                args.append(static_args.pop())
-            else:
-                args.append(tree_args.pop())
+        dynamic_kwargs = cast(Dict[str, Any], dynamic_kwargs)
+        args = cls._unpartition_args(callable_is_static, static_argnums, static_args, dynamic_args)
 
         return Partial[R](*args,
                           callable_is_static=callable_is_static,
                           static_argnums=static_argnums,
                           static_kwargs=static_kwargs,
-                          **tree_kwargs)
+                          **dynamic_kwargs)
 
+    # Magic methods --------------------------------------------------------------------------------
     def __call__(self, *args: Any, **kwargs: Any) -> R:
-        return super().__call__(*args, **self.static_kwargs, **kwargs)
+        keywords = {**self.static_kwargs, **self.dynamic_kwargs, **kwargs}
+        return self.function(*self.args, *args, **keywords)
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        qualname = type(self).__qualname__
+        args = [repr(self.function)]
+        args.extend(repr(x) for x in self.args)
+        args.append(f"callable_is_static={self.callable_is_static}")
+        args.append(f"static_argnums={self.static_argnums}")
+        args.append(f"static_kwargs={self.static_kwargs}")
+        args.extend(f"{k}={v!r}" for (k, v) in self.dynamic_kwargs.items())
+        return f"{qualname}({', '.join(args)})"
+
+    # Private methods ------------------------------------------------------------------------------
+    def _partition_args(self) -> Tuple[Tuple[Any, ...], Tuple[Any, ...]]:
+        # Partition self.args into static and dynamic arguments.
+        static_args = []
+        dynamic_args = []
+
+        static_argnums = set(self.static_argnums)
+
+        def _append(is_static: bool, value: Any) -> None:
+            if is_static:
+                static_args.append(value)
+            else:
+                dynamic_args.append(value)
+
+        _append(self.callable_is_static, self.function)
+        for i, value in enumerate(self.args):
+            _append(i in static_argnums, value)
+
+        return tuple(reversed(static_args)), tuple(reversed(dynamic_args))
+
+    @classmethod
+    def _unpartition_args(cls,
+                          callable_is_static: bool,
+                          static_argnums: Tuple[int, ...],
+                          static_args: Tuple[Any, ...],
+                          dynamic_args: Tuple[Any, ...]) -> Tuple[Any, ...]:
+        static_arg_list = list(static_args)
+        dynamic_arg_list = list(dynamic_args)
+        args = []
+        for i in range(len(static_args) + len(dynamic_args)):
+            is_static = (callable_is_static
+                         if i == 0
+                         else i - 1 in static_argnums)
+            if is_static:
+                args.append(static_arg_list.pop())
+            else:
+                args.append(dynamic_arg_list.pop())
+        return tuple(args)
