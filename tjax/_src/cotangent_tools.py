@@ -14,17 +14,16 @@ X = TypeVar('X')
 
 # copy_cotangent -----------------------------------------------------------------------------------
 @custom_vjp
-def copy_cotangent(x: X, y: X) -> Tuple[X, X]:
-    return x, y
+def copy_cotangent(x: X, y: X) -> X:
+    return x
 
 
-def _copy_cotangent_fwd(x: X, y: X) -> Tuple[Tuple[X, X], None]:
-    return (x, y), None
+def _copy_cotangent_fwd(x: X, y: X) -> Tuple[X, None]:
+    return x, None
 
 
-def _copy_cotangent_bwd(residuals: None, xy_bar: Tuple[X, X]) -> Tuple[X, X]:
+def _copy_cotangent_bwd(residuals: None, x_bar: X) -> Tuple[X, X]:
     del residuals
-    x_bar, _ = xy_bar
     return x_bar, x_bar
 
 
