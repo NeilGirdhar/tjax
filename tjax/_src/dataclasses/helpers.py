@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import dataclasses
 import sys
-from dataclasses import MISSING
+from dataclasses import MISSING, fields
 from typing import Any, Callable, Dict, Mapping, Optional, TypeVar, overload
 
-__all__ = ['field']
+__all__ = ['field', 'as_shallow_dict']
 
 
 T = TypeVar('T', bound=Any)
@@ -105,3 +105,7 @@ else:
                                  hash=hash,
                                  compare=compare,
                                  metadata=metadata_dict)
+
+
+def as_shallow_dict(dcls: Any) -> Dict[str, Any]:
+    return {field.name: getattr(dcls, field.name) for field in fields(dcls)}
