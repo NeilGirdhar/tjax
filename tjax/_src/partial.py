@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from reprlib import recursive_repr
-from typing import Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, Tuple, TypeVar, cast
+from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Optional, Sequence, Tuple,
+                    TypeVar, cast)
 
 from jax.tree_util import register_pytree_node_class
 
@@ -31,7 +32,7 @@ class Partial(Generic[R]):
                  *args: Any,
                  callable_is_static: bool = True,
                  static_argnums: Tuple[int, ...] = (),
-                 static_kwargs: Mapping[str, Any] = None,
+                 static_kwargs: Optional[Mapping[str, Any]] = None,
                  **dynamic_kwargs: Any) -> None:
         """
         Args:
@@ -42,6 +43,7 @@ class Partial(Generic[R]):
             static_kwargs: The static applied keyword arguments.
             dynamic_kwargs: The dynamic applied keyword arguments.
         """
+        super().__init__()
         if isinstance(function, Partial):
             if callable_is_static:
                 raise TypeError
