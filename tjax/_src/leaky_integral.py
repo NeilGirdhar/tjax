@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from numbers import Integral
 from typing import Callable, Optional, Tuple, overload
 
 import jax.numpy as jnp
@@ -85,7 +84,7 @@ def leaky_integrate(value: ComplexNumeric,
     scaled_integrand = (drift / decay) * -jnp.expm1(-decay * time_step)
 
     if leaky_average:
-        scaled_integrand *= decay.real
+        scaled_integrand *= decay.real  # pyright: ignore
 
     return value * jnp.exp(-decay * time_step) + scaled_integrand
 
@@ -168,20 +167,19 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
 
 def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
+    if issubclass(time_series.dtype.type, np.integer):  # type: ignore[unreachable]
+        raise TypeError("Cast the time series to a floating type.")
 
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
-        data_weight = leaky_data_weight(new_iterations, decay.real)
+        data_weight = leaky_data_weight(new_iterations, decay.real)  # pyright: ignore
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
         new_carry = _FilterCarry(new_iterations, new_value)
         outputted_value = new_value / data_weight
         return new_carry, outputted_value
 
     # Cast the dtype from integer to floating point to prevent integer rounding.
-    initial_value = jnp.zeros(time_series[0].shape,
-                              dtype=(jnp.float32
-                                     if issubclass(time_series.dtype.type, Integral)
-                                     else time_series.dtype))
+    initial_value = jnp.zeros(time_series[0].shape, dtype=time_series.dtype)
     initial_carry = _FilterCarry(0.0, initial_value)
 
     _, filtered_time_series = scan(g, initial_carry, time_series)

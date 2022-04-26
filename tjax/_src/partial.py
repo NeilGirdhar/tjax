@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from reprlib import recursive_repr
 from typing import (Any, Callable, Dict, Generic, Hashable, Mapping, Optional, Sequence, Tuple,
-                    TypeVar, cast)
+                    TypeVar, Union, cast)
 
 from jax.tree_util import register_pytree_node_class
 
@@ -27,7 +27,7 @@ class Partial(Generic[R]):
     the callable is static.
     """
     def __init__(self,
-                 function: Callable[..., R],
+                 function: Union[Partial[R], Callable[..., R]],
                  /,
                  *args: Any,
                  callable_is_static: bool = True,
@@ -93,7 +93,7 @@ class Partial(Generic[R]):
     # Magic methods --------------------------------------------------------------------------------
     def __call__(self, *args: Any, **kwargs: Any) -> R:
         keywords = {**self.static_kwargs, **self.dynamic_kwargs, **kwargs}
-        return self.function(*self.args, *args, **keywords)
+        return self.function(*self.args, *args, **keywords)  # pyright: ignore
 
     @recursive_repr()
     def __repr__(self) -> str:

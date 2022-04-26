@@ -80,7 +80,7 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
 
 
 def squared_error(theta: Array, x: Array) -> Array:
-    return jnp.square(x - theta)
+    return jnp.square(x - theta)  # pyright: ignore
 
 
 @pytest.fixture(scope='session', name='it_fun')

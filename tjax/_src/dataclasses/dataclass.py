@@ -7,7 +7,7 @@ from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol,
 
 from jax._src.tree_util import AttributeKeyPathEntry, KeyPathEntry
 from jax.tree_util import register_keypaths, register_pytree_node
-from typing_extensions import dataclass_transform
+from typing_extensions import dataclass_transform  # type: ignore[attr-defined]
 
 from ..annotations import PyTree
 from ..display import display_generic
@@ -39,7 +39,7 @@ def dataclass(cls: Type[_T], /, *, init: bool = True, repr_: bool = True, eq: bo
     ...
 
 
-@dataclass_transform(field_descriptors=(field,))
+@dataclass_transform(field_descriptors=(field,))  # type: ignore[misc]
 def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """

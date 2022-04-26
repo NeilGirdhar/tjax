@@ -19,7 +19,8 @@ def jit(func: F, **kwargs: Any) -> F:
     retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
         retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore[attr-defined]
-    return retval
+    # Fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
+    return retval  # type: ignore[return-value]
 
 
 class custom_vjp(Generic[R]):

@@ -28,7 +28,7 @@ def abs_square(x: ComplexNumeric) -> RealNumeric:
 
 
 def abs_square(x: ComplexNumeric) -> RealNumeric:
-    return jnp.square(x.real) + jnp.square(x.imag)
+    return jnp.square(x.real) + jnp.square(x.imag)  # pyright: ignore
 
 
 @overload

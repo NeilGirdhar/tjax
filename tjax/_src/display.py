@@ -167,7 +167,7 @@ def display_dataclass(value: Any,
                       show_values: bool = True,
                       indent: int = 0,
                       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    is_module = isinstance(value, nn.Module)
+    is_module = isinstance(value, nn.Module)  # pyright: ignore
     retval = display_class(type(value), is_module)
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
@@ -186,7 +186,7 @@ def display_dataclass(value: Any,
         retval += display_key_and_value('bound', value.scope is not None, "=", seen, show_values,
                                         indent + 1, None)
         for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
-            if not isinstance(child_module, nn.Module):
+            if not isinstance(child_module, nn.Module):  # pyright: ignore
                 continue
             retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
                                             None)
