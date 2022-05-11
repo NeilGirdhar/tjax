@@ -185,6 +185,7 @@ def display_dataclass(value: Any,
                                         show_values, indent + 1, None)
         retval += display_key_and_value('bound', value.scope is not None, "=", seen, show_values,
                                         indent + 1, None)
+        # pylint: disable=protected-access
         for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
             if not isinstance(child_module, nn.Module):  # pyright: ignore
                 continue
