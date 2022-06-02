@@ -83,7 +83,6 @@ disable = [
     'invalid-unary-operand-type',
     'missing-docstring',
     'no-member',
-    'no-self-use',
     'too-few-public-methods',
     'too-many-arguments',
     'too-many-branches',
