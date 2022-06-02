@@ -95,8 +95,8 @@ class Solver(ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray
         return differentiand
 
 
-@pytest.fixture(name='ax_plus_b', scope='session')
-def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray,
+@pytest.fixture(scope='session')
+def ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray,
                                                                    RealArray, RealArray]:
     return Solver(minimum_iterations=11,
                   maximum_iterations=10000,
