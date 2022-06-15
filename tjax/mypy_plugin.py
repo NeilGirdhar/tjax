@@ -1,7 +1,7 @@
 from typing import Type
 
 import mypy.plugins.dataclasses
-from mypy.plugin import Plugin  # pylint: disable=no-name-in-module
+from mypy.plugin import Plugin
 
 
 class CustomPlugin(Plugin):
