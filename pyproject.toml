@@ -104,7 +104,8 @@ ignore-imports = 'yes'
 [tool.pyright]
 stubPath = ""
 reportMissingSuperCall = true
-# reportUnnecessaryTypeIgnoreComment = true
+reportPrivateImportUsage = false
+reportUnnecessaryTypeIgnoreComment = true
 
 [tool.mypy]
 plugins = 'tjax.mypy_plugin'
