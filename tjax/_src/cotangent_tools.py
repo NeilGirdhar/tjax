@@ -28,7 +28,7 @@ def _copy_cotangent_bwd(residuals: None, x_bar: X) -> Tuple[X, X]:
 
 
 # Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
-copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)  # pyright: ignore
+copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 
 
 # replace_cotangent --------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ def _replace_cotangent_bwd(residuals: X, x_bar: X) -> Tuple[X, X]:
 
 
 # Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
-replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)  # pyright: ignore
+replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)
 
 
 # print_cotangent ----------------------------------------------------------------------------------

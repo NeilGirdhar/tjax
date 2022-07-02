@@ -84,7 +84,7 @@ def leaky_integrate(value: ComplexNumeric,
     scaled_integrand = (drift / decay) * -jnp.expm1(-decay * time_step)
 
     if leaky_average:
-        scaled_integrand *= decay.real  # pyright: ignore
+        scaled_integrand *= decay.real
 
     return value * jnp.exp(-decay * time_step) + scaled_integrand
 
@@ -172,7 +172,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
-        data_weight = leaky_data_weight(new_iterations, decay.real)  # pyright: ignore
+        data_weight = leaky_data_weight(new_iterations, decay.real)
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
         new_carry = _FilterCarry(new_iterations, new_value)
         outputted_value = new_value / data_weight

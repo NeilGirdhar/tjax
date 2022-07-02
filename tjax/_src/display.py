@@ -167,7 +167,7 @@ def display_dataclass(value: Any,
                       show_values: bool = True,
                       indent: int = 0,
                       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    is_module = isinstance(value, nn.Module)  # pyright: ignore
+    is_module = isinstance(value, nn.Module)
     retval = display_class(type(value), is_module)
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
@@ -187,7 +187,7 @@ def display_dataclass(value: Any,
                                         indent + 1, None)
         # pylint: disable=protected-access
         for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
-            if not isinstance(child_module, nn.Module):  # pyright: ignore
+            if not isinstance(child_module, nn.Module):
                 continue
             retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
                                             None)

@@ -93,7 +93,7 @@ class Partial(Generic[R]):
     # Magic methods --------------------------------------------------------------------------------
     def __call__(self, *args: Any, **kwargs: Any) -> R:
         keywords = {**self.static_kwargs, **self.dynamic_kwargs, **kwargs}
-        return self.function(*self.args, *args, **keywords)  # pyright: ignore
+        return self.function(*self.args, *args, **keywords)
 
     @recursive_repr()
     def __repr__(self) -> str:
