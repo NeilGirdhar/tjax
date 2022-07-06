@@ -1,9 +1,7 @@
 from typing import Callable, Tuple
 
-import hypothesis
 import hypothesis.extra.numpy
 import hypothesis.strategies
-import jax
 import jax.numpy as jnp
 import jax.scipy
 import jax.test_util

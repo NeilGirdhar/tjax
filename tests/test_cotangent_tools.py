@@ -1,4 +1,3 @@
-
 from jax import vjp
 from numpy.testing import assert_equal
 

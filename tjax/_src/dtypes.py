@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, TypedDict
 
 import jax.numpy as jnp
-from typing_extensions import TypedDict
 
 __all__ = ['default_rtol',
            'default_atol',
