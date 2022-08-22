@@ -10,7 +10,8 @@ import pytest
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
-from tjax import RealArray, dataclass
+from tjax import RealArray
+from tjax.dataclasses import dataclass
 from tjax.fixed_point import ComparingIteratedFunction, ComparingIteratedFunctionWithCombinator
 
 

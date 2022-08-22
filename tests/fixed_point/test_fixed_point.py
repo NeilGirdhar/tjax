@@ -6,8 +6,8 @@ import pytest
 from jax import grad
 from numpy.testing import assert_allclose
 
-from tjax import Array, Generator, PyTree, dataclass
-from tjax.dataclasses import field
+from tjax import Array, Generator, PyTree
+from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               StochasticIteratedFunctionWithCombinator)
 

@@ -7,8 +7,8 @@ import pytest
 from jax import grad, jit
 from numpy.testing import assert_allclose
 
-from tjax import Generator, RealNumeric, dataclass
-from tjax.dataclasses import field
+from tjax import Generator, RealNumeric
+from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
 
