@@ -7,7 +7,6 @@ from numbers import Number
 from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Union
 
 import colorful as cf
-import flax.linen as nn
 import numpy as np
 from jax.errors import TracerArrayConversionError
 from jax.experimental.host_callback import id_tap
@@ -22,7 +21,16 @@ from .annotations import Array, TapFunctionTransforms
 __all__ = ['print_generic', 'display_generic', 'id_display']
 
 
-# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
+FlaxModule: Type[Any]
+try:
+    from flax.linen import Module as FlaxModule  # type: ignore[import]
+    flax_loaded = True
+except ImportError:
+    flax_loaded = False
+    FlaxModule = type(None)
+
+
+# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/11727.
 
 
 def print_generic(*args: Any,
@@ -167,7 +175,7 @@ def display_dataclass(value: Any,
                       show_values: bool = True,
                       indent: int = 0,
                       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    is_module = isinstance(value, nn.Module)
+    is_module = flax_loaded and isinstance(value, FlaxModule)
     retval = display_class(type(value), is_module)
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
@@ -187,7 +195,7 @@ def display_dataclass(value: Any,
                                         indent + 1, None)
         # pylint: disable=protected-access
         for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
-            if not isinstance(child_module, nn.Module):
+            if not isinstance(child_module, FlaxModule):
                 continue
             retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
                                             None)
