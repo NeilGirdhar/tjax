@@ -26,6 +26,5 @@ Maximum relative difference: .+
 Actual: {actual}
 Desired: 1000000\.0
 Test string:
-desired = {desired}
-"""
+desired = {desired}"""
     assert re.match(pattern, assertion_string)

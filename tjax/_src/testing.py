@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import jax.numpy as jnp
 import numpy as np
-import yapf
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_flatten, tree_map, tree_reduce
 
@@ -21,7 +20,6 @@ def assert_tree_allclose(actual: PyTree,
                          original_name: Optional[str] = None,
                          original_value: Optional[PyTree] = None,
                          *,
-                         column_limit: int = 100,
                          rtol: Optional[float] = None,
                          atol: Optional[float] = None) -> None:
     """
@@ -92,10 +90,10 @@ def assert_tree_allclose(actual: PyTree,
             test_string = (get_relative_test_string(actual, original_name, original_value, **tols)
                            if original_name is not None and original_value is not None
                            else get_test_string(actual, **tols))
-            style_config = yapf.style.CreatePEP8Style()
-            style_config['COLUMN_LIMIT'] = column_limit
-            test_string = yapf.yapf_api.FormatCode("desired = " + test_string,
-                                                   style_config=style_config)[0]
+            test_string = "desired = " + test_string
+            # style_config = yapf.style.CreatePEP8Style()
+            # style_config['COLUMN_LIMIT'] = column_limit
+            # test_string = yapf.yapf_api.FormatCode(test_string, style_config=style_config)[0]
             message = (
                 f"\nTree leafs don't match at position {i} with rtol={tols['rtol']} and "
                 f"atol={tols['atol']}.\n"
