@@ -10,7 +10,8 @@ from jax import float0
 from .annotations import (Array, BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
                           RealArray, RealNumeric)
 
-__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent_like']
+__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent_like',
+           'inverse_softplus']
 
 
 def is_scalar(x: Any) -> bool:
@@ -78,3 +79,9 @@ def zero_tangent_like(value: Array) -> Array:
     if np.issubdtype(value.dtype, np.inexact):
         return np.zeros_like(value)
     return np.zeros_like(value, dtype=float0)
+
+
+def inverse_softplus(y: RealArray) -> RealArray:
+    return jnp.where(y > 80.0,
+                     y,
+                     jnp.log(jnp.expm1(y)))
