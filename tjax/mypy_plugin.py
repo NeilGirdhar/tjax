@@ -3,9 +3,8 @@ from typing import Type
 import mypy.plugins.dataclasses
 from mypy.plugin import Plugin  # pylint: disable=no-name-in-module
 
-
 try:
-    import flax  # type: ignore[import]  # noqa: F401  # pylint: disable=unused-import
+    import flax  # noqa: F401  # pylint: disable=unused-import
 except ImportError:
     has_flax = True
 else:

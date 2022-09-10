@@ -23,7 +23,7 @@ __all__ = ['print_generic', 'display_generic', 'id_display']
 
 FlaxModule: Type[Any]
 try:
-    from flax.linen import Module as FlaxModule  # type: ignore[import]
+    from flax.linen import Module as FlaxModule
     flax_loaded = True
 except ImportError:
     flax_loaded = False

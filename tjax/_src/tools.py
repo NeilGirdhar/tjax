@@ -61,10 +61,10 @@ def divide_where(dividend: ComplexNumeric,
     """
     if where is None:
         return jnp.true_divide(dividend, divisor)
-    dividend = jnp.where(where, dividend, 1.0)
-    divisor = jnp.where(where, divisor, 1.0)
+    dividend = jnp.where(where, dividend, 1.0)  # type: ignore[no-untyped-call]
+    divisor = jnp.where(where, divisor, 1.0)  # type: ignore[no-untyped-call]
     quotient = jnp.true_divide(dividend, divisor)
-    return jnp.where(where, quotient, otherwise)
+    return jnp.where(where, quotient, otherwise)  # type: ignore[no-untyped-call]
 
 
 def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumeric:
@@ -82,6 +82,6 @@ def zero_tangent_like(value: Array) -> Array:
 
 
 def inverse_softplus(y: RealArray) -> RealArray:
-    return jnp.where(y > 80.0,
+    return jnp.where(y > 80.0,  # type: ignore[no-untyped-call]
                      y,
                      jnp.log(jnp.expm1(y)))

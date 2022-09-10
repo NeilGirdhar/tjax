@@ -44,9 +44,7 @@ else:
     register_graph_as_jax_pytree(nx.DiGraph)
 
     try:
-        from flax.serialization import (from_state_dict,  # type: ignore[import]
-                                        register_serialization_state,
-                                        to_state_dict)
+        from flax.serialization import from_state_dict, register_serialization_state, to_state_dict
     except ImportError:
         pass
     else:
