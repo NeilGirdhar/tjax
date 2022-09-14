@@ -314,7 +314,8 @@ def _show_array(indent: int, array: Array) -> str:
     if np.prod(array.shape) == 0:
         return ""
     if any(x > 12 for x in array.shape):
-        return ""
+        return (_indent_space(indent)
+                + f"mean {np.mean(array):10.4f}; deviation {np.std(array):10.4f}\n")
     if 1 in array.shape:
         return _show_array(indent, array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
                                                                        for s in array.shape)])
