@@ -5,9 +5,10 @@ from typing import Any, Optional, Tuple
 import jax.numpy as jnp
 import pytest
 from jax import grad, jit
+from jax.random import KeyArray, PRNGKey, normal, split
 from numpy.testing import assert_allclose
 
-from tjax import Generator, RealNumeric
+from tjax import RealNumeric
 from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
@@ -21,7 +22,7 @@ class EncodingConfiguration:
 @dataclass
 class EncodingState:
     ec: EncodingConfiguration
-    rng: Generator
+    rng: KeyArray
 
 
 @dataclass
@@ -70,21 +71,20 @@ class EncodingElement:
 
     def _initial_state(self) -> EncodingState:
         return EncodingState(EncodingConfiguration(8.0, 1),
-                             Generator.from_seed(123))
+                             PRNGKey(123))
 
     def iterate(self,
                 ec: EncodingConfiguration,
-                rng: Optional[Generator],
-                time_step: RealNumeric) -> Tuple[EncodingConfiguration,
-                                                 Optional[Generator]]:
+                rng: Optional[KeyArray],
+                time_step: RealNumeric) -> Tuple[EncodingConfiguration, Optional[KeyArray]]:
         decay = 1e-4
         noise: RealNumeric
         if rng is None:
             new_rng = None
             noise = 0.0
         else:
-            rng, new_rng = rng.split()
-            noise = jnp.sqrt(2.0 * self.diffusion * time_step) * rng.normal()
+            rng, new_rng = split(rng)
+            noise = jnp.sqrt(2.0 * self.diffusion * time_step) * normal(rng)
         x = (ec.x * jnp.exp(-decay * time_step)
              + 10. * (self.theta - ec.x) * time_step
              + noise)

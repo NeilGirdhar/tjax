@@ -4,9 +4,10 @@ from typing import Callable, Protocol, Tuple
 import jax.numpy as jnp
 import pytest
 from jax import grad
+from jax.random import KeyArray, PRNGKey, normal, split
 from numpy.testing import assert_allclose
 
-from tjax import Array, Generator, PyTree
+from tjax import Array, PyTree
 from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               StochasticIteratedFunctionWithCombinator)
@@ -17,7 +18,7 @@ class C(Protocol):
         ...
 
 
-State = Tuple[PyTree, Generator]
+State = Tuple[PyTree, KeyArray]
 
 
 @dataclass
@@ -62,8 +63,8 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
 
     def sampled_state(self, theta: PyTree, state: State) -> State:
         new_x, rng = self.expected_state(theta, state)
-        rng, new_rng = rng.split()
-        noise = 1e-4 * rng.normal()
+        rng, new_rng = split(rng)
+        noise = 1e-4 * normal(rng)
         return new_x + noise, new_rng
 
     def extract_comparand(self, state: State) -> PyTree:
@@ -142,7 +143,7 @@ def test_grad(fixed_point_using_while: C,
 def test_noisy_grad(noisy_it_fun: NoisyNewtonsMethod, theta: float) -> None:
 
     def fixed_point_using_while_of_theta(theta: float) -> float:
-        state = (8.0, Generator.from_seed(123))
+        state = (8.0, PRNGKey(123))
         x, _ = noisy_it_fun.find_fixed_point(theta, state).current_state
         return x
     assert_allclose(theta,

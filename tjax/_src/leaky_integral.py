@@ -5,10 +5,10 @@ from typing import Callable, Optional, Tuple, overload
 import jax.numpy as jnp
 import numpy as np
 from jax.lax import scan
+from jax.random import KeyArray, normal
 
 from .annotations import ComplexArray, ComplexNumeric, RealArray, RealNumeric
 from .dataclasses import dataclass
-from .generator import Generator
 
 __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
            'leaky_integrate_time_series', 'leaky_covariance']
@@ -92,7 +92,7 @@ def leaky_integrate(value: ComplexNumeric,
 @overload
 def diffused_leaky_integrate(value: RealArray,
                              time_step: RealNumeric,
-                             rng: Generator,
+                             rng: KeyArray,
                              diffusion: RealNumeric,
                              drift: Optional[RealNumeric] = None,
                              decay: Optional[RealNumeric] = None,
@@ -104,7 +104,7 @@ def diffused_leaky_integrate(value: RealArray,
 @overload
 def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
-                             rng: Generator,
+                             rng: KeyArray,
                              diffusion: RealNumeric,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
@@ -115,7 +115,7 @@ def diffused_leaky_integrate(value: ComplexArray,
 
 def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
-                             rng: Generator,
+                             rng: KeyArray,
                              diffusion: RealNumeric,
                              drift: Optional[ComplexNumeric] = None,
                              decay: Optional[ComplexNumeric] = None,
@@ -127,7 +127,7 @@ def diffused_leaky_integrate(value: ComplexArray,
     Args:
         value: The current value of the leaky integral or average.
         time_step: The number of seconds that have passed.
-        rng: The random number generator for the stochastic process.
+        rng: The key array for the stochastic process.
         diffusion: The diffusion for the stochastic process.
         decay: If provided, the value decays by exp(-decay) every second.
         drift: If provided, the value increases by this every second.
@@ -137,7 +137,7 @@ def diffused_leaky_integrate(value: ComplexArray,
     variance = (diffusion * time_step
                 if decay is None
                 else diffusion / decay * -jnp.expm1(-decay * time_step))
-    jump = jnp.sqrt(variance) * rng.normal(value.shape)
+    jump = jnp.sqrt(variance) * normal(rng, value.shape)
     return leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump
 
 

@@ -39,6 +39,5 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
 # __pdoc__['InitVar'] = False
 # __pdoc__['FrozenInstanceError'] = False
 #
-# document_dataclass(__pdoc__, 'Generator')
 # document_dataclass(__pdoc__, 'Partial')
 # del document_dataclass

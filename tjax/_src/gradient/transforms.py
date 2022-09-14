@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from typing import Any, Callable, Generic, Optional, Tuple, Union
 
+from jax.random import KeyArray
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
                    scale_by_adam, scale_by_belief, scale_by_param_block_norm,
                    scale_by_param_block_rms, scale_by_radam, scale_by_rms, scale_by_rss,
@@ -11,7 +12,6 @@ from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema,
 
 from ..annotations import IntegralNumeric, RealNumeric
 from ..dataclasses import dataclass, field
-from ..generator import Generator
 from .transform import GenericGradientState, GradientTransformation, Weights
 
 __all__ = ['Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleByAdam', 'Scale',
@@ -467,7 +467,7 @@ class AddNoise(GradientTransformation[GenericGradientState, Weights], Generic[We
     """
     eta: RealNumeric
     gamma: RealNumeric
-    rng: Generator
+    rng: KeyArray
 
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(add_noise(**asdict(self)).init(parameters))
