@@ -10,7 +10,7 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
 from ._src.cotangent_tools import copy_cotangent, print_cotangent, replace_cotangent
 from ._src.display import display_generic, id_display, print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
-from ._src.generator import Generator
+from ._src.generator import Generator, vmap_split
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.partial import Partial
@@ -31,7 +31,7 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'get_test_string', 'gradient', 'id_display', 'inverse_softplus', 'is_scalar', 'jit',
            'leaky_covariance', 'leaky_data_weight', 'leaky_integrate',
            'leaky_integrate_time_series', 'print_cotangent', 'print_generic', 'replace_cotangent',
-           'tree_allclose', 'zero_tangent_like']
+           'tree_allclose', 'vmap_split', 'zero_tangent_like']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False

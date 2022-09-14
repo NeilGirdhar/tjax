@@ -5,12 +5,27 @@ from typing import Any, List, Optional, Type, TypeVar, Union
 import jax.numpy as jnp
 import jax.random
 import numpy as np
-from jax.random import KeyArray, PRNGKey
+from jax.random import KeyArray, PRNGKey, split
 
 from .annotations import Array, BooleanArray, RealArray, RealNumeric, Shape, ShapeLike
 from .dataclasses import dataclass
 
-__all__ = ['Generator']
+__all__ = ['vmap_split', 'Generator']
+
+
+def vmap_split(rng: KeyArray, shape: ShapeLike) -> KeyArray:
+    """
+    Split a scalar key array into a key array that can be passed to a vmapped function.
+    """
+    if rng.shape != ():
+        raise ValueError("Cannot vmap-split a non-scalar key array.")
+    if isinstance(shape, int):
+        shape = (shape,)
+    else:
+        shape = tuple(shape)
+    prod_shape = int(np.prod(shape))
+    rngs = rng if prod_shape == 1 else split(rng, prod_shape)
+    return rngs.reshape(shape)
 
 
 T = TypeVar('T', bound='Generator')
@@ -26,6 +41,10 @@ class Generator:
     """
     key: KeyArray
 
+    def __post_init__(self) -> None:
+        from warnings import warn
+        warn("This is deprecated in favor of jax.PRNGKey, and KeyArray.")
+
     # Class methods --------------------------------------------------------------------------------
     @classmethod
     def from_seed(cls: Type[T], seed: int) -> T:
@@ -40,7 +59,7 @@ class Generator:
         Split a generator into a list of generators.
         """
         assert not self.is_vmapped()
-        keys = jax.random.split(self.key, n)
+        keys = split(self.key, n)
         return [Generator(key=key) for key in keys]
 
     def vmap_split(self, shape: ShapeLike) -> Generator:
@@ -55,8 +74,7 @@ class Generator:
         prod_shape = int(np.prod(shape))
         keys = (self.key
                 if prod_shape == 1
-                else jax.random.split(self.key, prod_shape))
-        # https://github.com/google/jax/issues/6473
+                else split(self.key, prod_shape))
         keys = keys.reshape(shape + (2,))
         return Generator(keys)
 
