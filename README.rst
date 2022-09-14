@@ -51,8 +51,6 @@ Tjax also includes:
 - Tools for working with cotangents.  (See
   `cotangent_tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/cotangent_tools.py>`_.)
 
-- A random number generator class :python:`Generator`.  (See `generator <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/generator.py>`_.)
-
 - JAX tree registration for `NetworkX <https://networkx.github.io/>`_ graph types.  (See
   `graph <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/graph.py>`_.)
 
