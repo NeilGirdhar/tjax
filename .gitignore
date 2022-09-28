@@ -7,6 +7,9 @@ dist/
 # Byte-compiled Python
 *.pyc
 
+# MyPy
+.mypy_cache/
+
 # hypothesis
 .hypothesis/
 

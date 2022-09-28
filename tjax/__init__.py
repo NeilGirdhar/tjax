@@ -4,9 +4,11 @@ This library implements a variety of tools for the differential programming libr
 """
 from . import dataclasses, fixed_point, gradient
 from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
-                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, PyTree,
-                               Real, RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
-                               TapFunctionTransforms)
+                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, NumpyArray,
+                               NumpyBooleanArray, NumpyBooleanNumeric, NumpyComplexArray,
+                               NumpyComplexNumeric, NumpyIntegralArray, NumpyIntegralNumeric,
+                               NumpyRealArray, NumpyRealNumeric, PyTree, Real, RealArray,
+                               RealNumeric, Shape, ShapeLike, SliceLike, TapFunctionTransforms)
 from ._src.cotangent_tools import copy_cotangent, print_cotangent, replace_cotangent
 from ._src.display import display_generic, id_display, print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
@@ -22,8 +24,10 @@ from ._src.tools import (abs_square, divide_nonnegative, divide_where, inverse_s
                          zero_tangent_like)
 
 __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'ComplexNumeric',
-           'Generator', 'Integral', 'IntegralArray', 'IntegralNumeric', 'Partial',
-           'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
+           'Generator', 'Integral', 'IntegralArray', 'IntegralNumeric', 'NumpyArray',
+           'NumpyBooleanArray', 'NumpyIntegralArray', 'NumpyRealArray', 'NumpyComplexArray',
+           'NumpyBooleanNumeric', 'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric',
+           'Partial', 'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
            'ShapeLike', 'SliceLike', 'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose',
            'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclasses', 'default_atol',
            'default_rtol', 'default_tols', 'diffused_leaky_integrate', 'display_generic',

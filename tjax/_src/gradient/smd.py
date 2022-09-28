@@ -58,9 +58,20 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
               p: RealNumeric,
               delta: ComplexNumeric,
               hv: ComplexNumeric) -> ComplexNumeric:
-            return v + p * delta - hv
+            return v + p * delta - hv  # type: ignore[return-value]
 
         new_v = tree_map(f, state.v, learning_rate, negative_gradient,
                          hessian_vector_product(state.v))
 
         return gradient, SMDState[Weights](new_log_learning_rate, new_v)
+
+# got
+# Union[ndarray[Any, dtype[complexfloating[Any, Any]]],
+#       ndarray[Any, dtype[floating[Any]]],
+#       ndarray[Any, dtype[signedinteger[Any]]],
+#       Array,
+#       complex]
+# , expected
+# Union[ndarray[Any, dtype[Union[floating[Any], complexfloating[Any, Any]]]],
+#       Array,
+#       complex, float, int]

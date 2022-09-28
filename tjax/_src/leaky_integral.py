@@ -167,7 +167,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
 
 def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
-    if issubclass(time_series.dtype.type, np.integer):  # type: ignore[unreachable]
+    if issubclass(time_series.dtype.type, np.integer):
         raise TypeError("Cast the time series to a floating type.")
 
     def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
@@ -179,7 +179,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
         return new_carry, outputted_value
 
     # Cast the dtype from integer to floating point to prevent integer rounding.
-    initial_value = jnp.zeros(time_series[0].shape, dtype=time_series.dtype)
+    initial_value = np.zeros(time_series[0].shape, dtype=time_series.dtype)
     initial_carry = _FilterCarry(0.0, initial_value)
 
     _, filtered_time_series = scan(g, initial_carry, time_series)

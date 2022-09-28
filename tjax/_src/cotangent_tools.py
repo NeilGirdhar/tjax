@@ -50,13 +50,13 @@ replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)
 
 
 # print_cotangent ----------------------------------------------------------------------------------
-@partial(custom_vjp, static_argnums=(1,))
-def print_cotangent(x: X, name: Optional[str] = None) -> X:
-    return x
+@partial(custom_vjp, static_argnums=(1,))  # type: ignore[arg-type]
+def print_cotangent(u: X, name: Optional[str] = None) -> X:
+    return u
 
 
-def _print_cotangent_fwd(x: X, name: Optional[str]) -> Tuple[X, None]:
-    return x, None
+def _print_cotangent_fwd(u: X, name: Optional[str]) -> Tuple[X, None]:
+    return u, None
 
 
 def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
@@ -65,4 +65,4 @@ def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tupl
     return (x_bar,)
 
 
-print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
+print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # type: ignore[arg-type]

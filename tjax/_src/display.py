@@ -16,7 +16,7 @@ from jax.interpreters.partial_eval import DynamicJaxprTracer, JaxprTracer
 from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_leaves
 
-from .annotations import Array, TapFunctionTransforms
+from .annotations import NumpyArray, TapFunctionTransforms
 
 __all__ = ['print_generic', 'display_generic', 'id_display']
 
@@ -111,7 +111,7 @@ def _(value: BatchTracer,
 
 
 @display_generic.register(np.ndarray)
-def _(value: Array,
+def _(value: NumpyArray,
       seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
@@ -308,7 +308,7 @@ def _(x: np.inexact[Any]) -> str:
     return f"{x:10.4f}"
 
 
-def _show_array(indent: int, array: Array) -> str:
+def _show_array(indent: int, array: NumpyArray) -> str:
     if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
         return ""
     if np.prod(array.shape) == 0:

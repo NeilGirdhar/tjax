@@ -79,20 +79,20 @@ class Generator:
         return Generator(keys)
 
     def bernoulli(self, p: RealNumeric, shape: Optional[Shape] = None) -> BooleanArray:
-        return jax.random.bernoulli(self.key, p, shape)  # type: ignore[return-value]
+        return jax.random.bernoulli(self.key, p, shape)
 
     def choice(self,
                a: Union[int, Array],
                shape: Shape = (),
                replace: bool = True,
                p: Optional[RealArray] = None) -> Union[int, Array]:
-        return jax.random.choice(self.key, a, shape, replace, p)  # type: ignore[return-value]
+        return jax.random.choice(self.key, a, shape, replace, p)
 
     def gamma(self,
               gamma_shape: RealNumeric,
               shape: Optional[Shape] = None,
               dtype: DTypeLikeFloat = np.float64) -> RealArray:
-        return jax.random.gamma(self.key, gamma_shape, shape)  # type: ignore[return-value]
+        return jax.random.gamma(self.key, gamma_shape, shape)
 
     def normal(self,
                shape: Shape = (),
@@ -104,5 +104,4 @@ class Generator:
                 dtype: DTypeLikeFloat = np.float64,
                 minval: RealNumeric = 0.,
                 maxval: RealNumeric = 1.) -> RealArray:
-        return jax.random.uniform(self.key,  # type: ignore[return-value]
-                                  shape, dtype, minval, maxval)
+        return jax.random.uniform(self.key, shape, dtype, minval, maxval)

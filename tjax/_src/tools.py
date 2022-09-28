@@ -8,7 +8,7 @@ import numpy as np
 from jax import float0
 
 from .annotations import (Array, BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
-                          RealArray, RealNumeric)
+                          NumpyRealArray, RealArray, RealNumeric)
 
 __all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent_like',
            'inverse_softplus']
@@ -75,7 +75,7 @@ def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumer
     return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)
 
 
-def zero_tangent_like(value: Array) -> Array:
+def zero_tangent_like(value: Array) -> NumpyRealArray:
     if np.issubdtype(value.dtype, np.inexact):
         return np.zeros_like(value)
     return np.zeros_like(value, dtype=float0)
