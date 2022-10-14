@@ -81,7 +81,7 @@ def zero_tangent_like(value: Array) -> NumpyRealArray:
     return np.zeros_like(value, dtype=float0)
 
 
-def inverse_softplus(y: RealArray) -> RealArray:
+def inverse_softplus(y: RealNumeric) -> RealArray:
     return jnp.where(y > 80.0,  # type: ignore[no-untyped-call]
                      y,
                      jnp.log(jnp.expm1(y)))
