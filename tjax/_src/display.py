@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Union
+from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Union, overload
 
 import colorful as cf
 import numpy as np
@@ -203,9 +203,32 @@ def display_dataclass(value: Any,
 
 
 _T = TypeVar('_T')
+_U = TypeVar('_U')
 
 
-def id_display(x: _T, name: Optional[str] = None, *, no_jvp: bool = False) -> _T:
+@overload
+def id_display(x: _T,
+               name: Optional[str] = None,
+               *,
+               no_jvp: bool = False,
+               result: None = None) -> _T:
+    ...
+
+
+@overload
+def id_display(x: _T,
+               name: Optional[str] = None,
+               *,
+               no_jvp: bool = False,
+               result: _U) -> _U:
+    ...
+
+
+def id_display(x: _T,
+               name: Optional[str] = None,
+               *,
+               no_jvp: bool = False,
+               result: Optional[_U] = None) -> Union[_T, _U]:
     def tap(x: _T, transforms: TapFunctionTransforms) -> None:
         nonlocal name
         batch_dims: Optional[Tuple[Optional[int], ...]] = None
@@ -228,7 +251,7 @@ def id_display(x: _T, name: Optional[str] = None, *, no_jvp: bool = False) -> _T
                 final_name = name
             # https://github.com/python/mypy/issues/11583
             print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore[arg-type]
-    return id_tap(tap, x, result=x)  # type: ignore[no-untyped-call]
+    return id_tap(tap, x, result=x if result is None else result)  # type: ignore[no-untyped-call]
 
 
 class BatchDimensionIterator:
