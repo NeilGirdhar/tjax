@@ -78,22 +78,19 @@ class custom_vjp(Generic[U, P, R_co]):
 
 class custom_jvp(Generic[U, P, R_co]):
     """
-    This is a shim class over jax.custom_jvp to:
-
-    - allow custom_vjp to be used on methods, and
-    - rename nondiff_argnums to static_argnums.
+    This is a shim class over jax.custom_jvp to allow custom_vjp to be used on methods.
     """
     def __init__(self,
                  fun: Callable[Concatenate[U, P], R_co],
-                 static_argnums: Tuple[int, ...] = ()):
+                 nondiff_argnums: Tuple[int, ...] = ()):
         """
         Args:
             fun: the function to decorate.
-            static_argnums: The indices of the static arguments.
+            nondiff_argnums: The indices of the non-differentiated arguments.
         """
         super().__init__()
-        static_argnums = tuple(sorted(static_argnums))
-        self.jvp = jax.custom_jvp(fun, nondiff_argnums=static_argnums)
+        nondiff_argnums = tuple(sorted(nondiff_argnums))
+        self.jvp = jax.custom_jvp(fun, nondiff_argnums=nondiff_argnums)
 
     def defjvp(self, jvp: Callable[Concatenate[U, P], Tuple[R_co, R_co]]) -> None:
         """
