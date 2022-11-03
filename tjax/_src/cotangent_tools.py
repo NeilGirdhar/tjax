@@ -1,15 +1,20 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Optional, Tuple, TypeVar
+from typing import Any, Callable, Optional, Tuple, TypeVar, cast
+
+import jax.numpy as jnp
+from jax import custom_vjp, vjp
+from jax.tree_util import tree_map
 
 from .display import id_display
-from .shims import custom_vjp
 
-__all__ = ['copy_cotangent', 'replace_cotangent', 'print_cotangent']
+__all__ = ['copy_cotangent', 'replace_cotangent', 'print_cotangent', 'cotangent_combinator']
 
 
 X = TypeVar('X')
+XT = TypeVar('XT', bound=Tuple[Any, ...])
+Y = TypeVar('Y')
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
@@ -50,7 +55,7 @@ replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)
 
 
 # print_cotangent ----------------------------------------------------------------------------------
-@partial(custom_vjp, static_argnums=(1,))  # type: ignore[arg-type]
+@partial(custom_vjp, nondiff_argnums=(1,))
 def print_cotangent(u: X, name: Optional[str] = None) -> X:
     return u
 
@@ -65,4 +70,50 @@ def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tupl
     return (x_bar,)
 
 
-print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # type: ignore[arg-type]
+print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
+
+
+# cotangent_combinator -----------------------------------------------------------------------------
+@partial(custom_vjp, nondiff_argnums=(0,))
+def cotangent_combinator(f: Callable[..., Tuple[XT, Y]],
+                         args_tuples: Tuple[Tuple[Any, ...], ...]) -> Tuple[XT, Y]:
+    """
+    Args:
+        f: A function that accepts positional arguments and returns xs, y where xs is a tuple of
+            length n.
+        args_tuples: n copies of the same tuple of positional arguments accepted by f.
+    Returns: The pair (xs, y).
+
+    The purpose of the cotangent combinator is to take cotangents of each of the elements of x, and
+    send them back through to each of the corresponding argument tuples.
+    """
+    return f(*args_tuples[0])
+
+
+def _cotangent_combinator_fwd(f: Callable[..., Tuple[XT, Y]],
+                              args_tuples: Tuple[Tuple[Any, ...], ...]
+                              ) -> Tuple[Tuple[XT, Y],
+                                         Callable[[Tuple[XT, Y]], Tuple[Any, ...]]]:
+    return vjp(f, *args_tuples[0])
+
+
+def _cotangent_combinator_bwd(f: Callable[..., Tuple[XT, Y]],
+                              f_vjp: Callable[[Tuple[XT, Y]], Tuple[Any, ...]],
+                              xy_bar: Tuple[XT, Y]
+                              ) -> Tuple[Any, ...]:
+    xs_bar, y_bar = xy_bar
+    xs_zero = tuple(tree_map(jnp.zeros_like, x_bar)
+                    for x_bar in xs_bar)
+    all_args_bar = []
+    for i, x_bar in enumerate(xs_bar):
+        this_xs_bar = cast(XT, (xs_zero[:i]
+                                + (x_bar,)
+                                + xs_zero[i + 1:]))
+        this_result_bar = (this_xs_bar, y_bar)
+        this_args_bar = f_vjp(this_result_bar)
+        all_args_bar.append(this_args_bar)
+    return (tuple(all_args_bar),)
+
+
+cotangent_combinator.defvjp(_cotangent_combinator_fwd,  # type: ignore[attr-defined]
+                            _cotangent_combinator_bwd)
