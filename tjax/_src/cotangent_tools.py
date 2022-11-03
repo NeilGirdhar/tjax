@@ -74,7 +74,6 @@ print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
 
 
 # cotangent_combinator -----------------------------------------------------------------------------
-@partial(custom_vjp, nondiff_argnums=(0,))
 def cotangent_combinator(f: Callable[..., Tuple[XT, Y]],
                          args_tuples: Tuple[Tuple[Any, ...], ...]) -> Tuple[XT, Y]:
     """
@@ -88,6 +87,9 @@ def cotangent_combinator(f: Callable[..., Tuple[XT, Y]],
     send them back through to each of the corresponding argument tuples.
     """
     return f(*args_tuples[0])
+
+
+cotangent_combinator = custom_vjp(cotangent_combinator, nondiff_argnums=(0,))
 
 
 def _cotangent_combinator_fwd(f: Callable[..., Tuple[XT, Y]],
