@@ -78,7 +78,7 @@ Contribution guidelines
 
 - How to clean the source:
 
-  - :bash:`isort tjax`
-  - :bash:`pylint tjax`
-  - :bash:`mypy tjax`
-  - :bash:`flake8 tjax`
+  - :bash:`isort .`
+  - :bash:`mypy .`
+  - :bash:`pylint tjax tests`
+  - :bash:`pflake8 .`
