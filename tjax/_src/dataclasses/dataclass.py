@@ -5,8 +5,7 @@ from functools import partial
 from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol, Sequence, Tuple,
                     Type, TypeVar, overload)
 
-from jax._src.tree_util import AttributeKeyPathEntry, KeyPathEntry
-from jax.tree_util import register_keypaths, register_pytree_node
+from jax.tree_util import AttributeKeyPathEntry, register_keypaths, register_pytree_node
 from typing_extensions import dataclass_transform
 
 from ..annotations import PyTree
@@ -135,7 +134,7 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
         tree_args = dict(zip(dynamic_fields, trees))
         return non_none_cls(**hashed_args, **tree_args)
 
-    def keypaths(_: Any) -> List[KeyPathEntry]:
+    def keypaths(_: Any) -> List[AttributeKeyPathEntry]:
         return [AttributeKeyPathEntry(name) for name in dynamic_fields]
 
     # Assign methods to the class.
