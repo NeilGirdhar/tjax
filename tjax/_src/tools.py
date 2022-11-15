@@ -60,11 +60,13 @@ def divide_where(dividend: ComplexNumeric,
         `dividend / divisor` when `where` is false.  This prevents some exceptions.
     """
     if where is None:
+        assert otherwise is None
         return jnp.true_divide(dividend, divisor)
-    dividend = jnp.where(where, dividend, 1.0)  # type: ignore[no-untyped-call]
-    divisor = jnp.where(where, divisor, 1.0)  # type: ignore[no-untyped-call]
+    assert otherwise is not None
+    dividend = jnp.where(where, dividend, 1.0)
+    divisor = jnp.where(where, divisor, 1.0)
     quotient = jnp.true_divide(dividend, divisor)
-    return jnp.where(where, quotient, otherwise)  # type: ignore[no-untyped-call]
+    return jnp.where(where, quotient, otherwise)
 
 
 def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumeric:
