@@ -89,8 +89,10 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
         enough_iterations = augmented.iterations >= self.minimum_iterations
         converged = self.converged(augmented)
         not_too_many_iterations = augmented.iterations < self.maximum_iterations
-        return jnp.logical_and(not_too_many_iterations,
-                               jnp.logical_not(jnp.logical_and(enough_iterations, converged)))
+        not_converged_or_done = jnp.logical_not(  # type: ignore[no-untyped-call]
+            jnp.logical_and(enough_iterations, converged))  # type: ignore[no-untyped-call]
+        return jnp.logical_and(not_too_many_iterations,  # type: ignore[no-untyped-call]
+                               not_converged_or_done)
 
     # Abstract methods -----------------------------------------------------------------------------
     def expected_state(self, theta: Parameters, state: State) -> State:

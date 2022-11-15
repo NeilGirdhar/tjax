@@ -61,6 +61,8 @@ class ComparingIteratedFunction(
         abs_last = tree_map(jnp.abs, augmented.last_state)
         delta = tree_map(jnp.abs, tree_map(jnp.subtract, comparand, augmented.last_state))
         delta_over_b = tree_map(divide_nonnegative, delta, abs_last)
-        minium_atol = tree_reduce(jnp.maximum, tree_map(jnp.amax, delta), 0.0)
-        minium_rtol = tree_reduce(jnp.maximum, tree_map(jnp.amax, delta_over_b), 0.0)
+        minium_atol = tree_reduce(jnp.maximum,  # type: ignore[arg-type]
+                                  tree_map(jnp.amax, delta), 0.0)
+        minium_rtol = tree_reduce(jnp.maximum,  # type: ignore[arg-type]
+                                  tree_map(jnp.amax, delta_over_b), 0.0)
         return minium_atol, minium_rtol

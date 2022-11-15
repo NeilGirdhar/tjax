@@ -15,19 +15,19 @@ class Tols(TypedDict):
 
 
 def default_rtol(dtype: Type[jnp.number[Any]]) -> float:
-    if not jnp.issubdtype(dtype, jnp.inexact):  # type: ignore[no-untyped-call]
+    if not jnp.issubdtype(dtype, jnp.inexact):
         return 0.0
     return {jnp.bfloat16: 1e-4,
             jnp.float16: 1e-3, jnp.float32: 1e-4, jnp.float64: 1e-5,
-            jnp.complex64: 1e-4, jnp.complex128: 1e-5}[dtype]  # pyright: ignore
+            jnp.complex64: 1e-4, jnp.complex128: 1e-5}[dtype]  # type: ignore[index]
 
 
 def default_atol(dtype: Type[jnp.number[Any]]) -> float:
-    if not jnp.issubdtype(dtype, jnp.inexact):  # type: ignore[no-untyped-call]
+    if not jnp.issubdtype(dtype, jnp.inexact):
         return 1.0
     return {jnp.bfloat16: 1e-2,
             jnp.float16: 1e-3, jnp.float32: 1e-6, jnp.float64: 1e-8,
-            jnp.complex64: 1e-6, jnp.complex128: 1e-8}[dtype]  # pyright: ignore
+            jnp.complex64: 1e-6, jnp.complex128: 1e-8}[dtype]  # type: ignore[index]
 
 
 def default_tols(dtype: Type[jnp.number[Any]],

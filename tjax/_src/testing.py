@@ -80,7 +80,7 @@ def assert_tree_allclose(actual: PyTree,
         raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
-        dtype = jnp.result_type(actual_, desired_)  # type: ignore[no-untyped-call]
+        dtype = jnp.result_type(actual_, desired_)
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)  # pyright: ignore
         try:
             np.testing.assert_allclose(actual_, desired_, **tols)
@@ -115,7 +115,7 @@ def tree_allclose(actual: PyTree,
         atol: The absolute tolerance of the comparisons in the comparison.
     """
     def allclose(actual_array: Array, desired_array: Array) -> BooleanNumeric:
-        dtype = jnp.result_type(actual_array, desired_array)  # type: ignore[no-untyped-call]
+        dtype = jnp.result_type(actual_array, desired_array)
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)  # pyright: ignore
         return bool(jnp.allclose(actual_array, desired_array, **tols))
 

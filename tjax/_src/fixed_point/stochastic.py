@@ -79,14 +79,13 @@ class StochasticIteratedFunction(
         variance = tree_map(jnp.subtract, augmented.second_moment_state, mean_squared)
         scaled_variance = tree_map(divide_nonnegative, variance, mean_squared)
 
-        minimum_atol = divide_nonnegative(tree_reduce(jnp.maximum, tree_map(jnp.amax, variance),
+        minimum_atol = divide_nonnegative(tree_reduce(jnp.maximum,  # type: ignore[arg-type]
+                                                      tree_map(jnp.amax, variance),
                                                       0.0),
                                           data_weight)
-        minimum_rtol = divide_nonnegative(tree_reduce(jnp.maximum,
+        minimum_rtol = divide_nonnegative(tree_reduce(jnp.maximum,  # type: ignore[arg-type]
                                                       tree_map(jnp.amax, scaled_variance), 0.0),
                                           data_weight)
-        assert not isinstance(minimum_atol, complex)
-        assert not isinstance(minimum_rtol, complex)
         return minimum_atol, minimum_rtol
 
     # Private methods ------------------------------------------------------------------------------
