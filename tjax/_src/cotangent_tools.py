@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional, Tuple, TypeVar, cast
 
 import jax.numpy as jnp
 from jax import custom_vjp, vjp
-from jax.tree_util import tree_map
+from jax.tree_util import tree_map, tree_structure
 
 from .display import id_display
 
@@ -20,10 +20,12 @@ Y = TypeVar('Y')
 # copy_cotangent -----------------------------------------------------------------------------------
 @custom_vjp
 def copy_cotangent(x: X, y: X) -> X:
+    assert tree_structure(x) == tree_structure(y)
     return x
 
 
 def _copy_cotangent_fwd(x: X, y: X) -> Tuple[X, None]:
+    assert tree_structure(x) == tree_structure(y)
     return x, None
 
 
@@ -39,14 +41,17 @@ copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 # replace_cotangent --------------------------------------------------------------------------------
 @custom_vjp
 def replace_cotangent(x: X, new_cotangent: X) -> X:
+    assert tree_structure(x) == tree_structure(new_cotangent)
     return x
 
 
 def _replace_cotangent_fwd(x: X, new_cotangent: X) -> Tuple[X, X]:
+    assert tree_structure(x) == tree_structure(new_cotangent)
     return x, new_cotangent
 
 
 def _replace_cotangent_bwd(residuals: X, x_bar: X) -> Tuple[X, X]:
+    assert tree_structure(residuals) == tree_structure(x_bar)
     return residuals, x_bar
 
 
