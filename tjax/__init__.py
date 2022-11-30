@@ -13,7 +13,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent)
 from ._src.display import display_generic, id_display, print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
-from ._src.generator import Generator, vmap_split
+from ._src.generator import vmap_split
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.partial import Partial
@@ -25,10 +25,10 @@ from ._src.tools import (abs_square, divide_nonnegative, divide_where, inverse_s
                          zero_tangent_like)
 
 __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'ComplexNumeric',
-           'Generator', 'Integral', 'IntegralArray', 'IntegralNumeric', 'NumpyArray',
-           'NumpyBooleanArray', 'NumpyIntegralArray', 'NumpyRealArray', 'NumpyComplexArray',
-           'NumpyBooleanNumeric', 'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric',
-           'Partial', 'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
+           'Integral', 'IntegralArray', 'IntegralNumeric', 'NumpyArray', 'NumpyBooleanArray',
+           'NumpyIntegralArray', 'NumpyRealArray', 'NumpyComplexArray', 'NumpyBooleanNumeric',
+           'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric', 'Partial',
+           'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
            'ShapeLike', 'SliceLike', 'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose',
            'copy_cotangent', 'custom_jvp', 'custom_vjp', 'dataclasses', 'default_atol',
            'default_rtol', 'default_tols', 'diffused_leaky_integrate', 'display_generic',
