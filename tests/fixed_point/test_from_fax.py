@@ -7,6 +7,8 @@ import jax.scipy
 import jax.test_util
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from jax import grad, vjp
 from numpy.random import Generator
 from numpy.testing import assert_allclose
 
@@ -108,8 +110,8 @@ def ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealArray, Rea
 # Tests --------------------------------------------------------------------------------------------
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)
-@hypothesis.given(
+@settings(max_examples=100, deadline=5000.)
+@given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
     hypothesis.extra.numpy.arrays(
@@ -127,8 +129,8 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, RealArra
     assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
 
 
-@hypothesis.settings(max_examples=100, deadline=5000.)
-@hypothesis.given(
+@settings(max_examples=100, deadline=5000.)
+@given(
     hypothesis.extra.numpy.arrays(
         np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
     hypothesis.extra.numpy.arrays(
@@ -143,7 +145,7 @@ def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, R
         return ax_plus_b.find_fixed_point(theta, x_init).current_state
 
     def f_vjp(theta: TPair, x_init: RealArray) -> Tuple[RealArray, Callable[[RealArray], TPair]]:
-        return jax.vjp(f, theta, x_init)
+        return vjp(f, theta, x_init)
 
     jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore[no-untyped-call]
                             rtol=1e-4, atol=1e-4)
@@ -170,7 +172,7 @@ def test_gradient(generator: Generator,
                               atol=1e-4,
                               rtol=1e-4)
 
-    grad_matrix, grad_offset = jax.grad(loss)((matrix, offset), x0)
+    grad_matrix, grad_offset = grad(loss)((matrix, offset), x0)
 
     true_grad_matrix, true_grad_offset = solve_grad_ax_b(matrix, offset)
 

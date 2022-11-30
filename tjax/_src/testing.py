@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import partial, singledispatch
 from numbers import Complex, Number, Real
+from operator import and_
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import jax.numpy as jnp
@@ -81,7 +82,7 @@ def assert_tree_allclose(actual: PyTree,
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
         dtype = jnp.result_type(actual_, desired_)
-        tols = default_tols(dtype.type, rtol=rtol, atol=atol)  # pyright: ignore
+        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         try:
             np.testing.assert_allclose(actual_, desired_, **tols)
         except AssertionError as exception:
@@ -116,10 +117,10 @@ def tree_allclose(actual: PyTree,
     """
     def allclose(actual_array: Array, desired_array: Array) -> BooleanNumeric:
         dtype = jnp.result_type(actual_array, desired_array)
-        tols = default_tols(dtype.type, rtol=rtol, atol=atol)  # pyright: ignore
+        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         return bool(jnp.allclose(actual_array, desired_array, **tols))
 
-    return tree_reduce(jnp.logical_and, tree_map(allclose, actual, desired), True)
+    return tree_reduce(and_, tree_map(allclose, actual, desired), True)
 
 
 # get test string ----------------------------------------------------------------------------------

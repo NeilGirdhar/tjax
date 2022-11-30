@@ -216,7 +216,7 @@ def id_display(x: _T,
 
 
 @overload
-def id_display(x: _T,
+def id_display(x: Any,
                name: Optional[str] = None,
                *,
                no_jvp: bool = False,

@@ -122,9 +122,10 @@ def test_apply_every() -> None:
 
     # optax SGD plus apply every
     optax_sgd_apply_every_params = init_params
-    sgd_apply_every = ChainedGradientTransformation([ApplyEvery[Any](k=k),
-                                                     Trace[Any](decay=0, nesterov=False),
-                                                     Scale[Any](-LR)])
+    sgd_apply_every = ChainedGradientTransformation[Tuple[RealArray, RealArray]](
+        [ApplyEvery[Any](k=k),
+         Trace[Any](decay=0, nesterov=False),
+         Scale[Any](-LR)])
     state_sgd_apply_every = sgd_apply_every.init(optax_sgd_apply_every_params)
     transform_fn = variant(sgd_apply_every.update)
 

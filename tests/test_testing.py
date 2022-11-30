@@ -1,9 +1,10 @@
 import re
+from typing import Any
 
 import pytest
 from pytest import CaptureFixture
 
-from tjax import assert_tree_allclose
+from tjax import assert_tree_allclose, tree_allclose
 
 
 @pytest.mark.parametrize("actual, desired",
@@ -28,3 +29,12 @@ Desired: 1000000\.0
 Test string:
 desired = {desired}"""
     assert re.match(pattern, assertion_string)
+
+
+@pytest.mark.parametrize("actual, desired, result",
+                         [((), (), True),
+                          ((1.2, 3.4), (1.2, 3.4), True),
+                          ({'a': 1.2}, {'a': 1.2}, True),
+                          (1.3, 1.4, False)])
+def test_tree_allclose(actual: Any, desired: Any, result: bool | None) -> None:
+    assert tree_allclose(actual, desired) == result
