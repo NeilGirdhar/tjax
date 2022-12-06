@@ -7,6 +7,7 @@ import jax.numpy as jnp
 from jax import custom_vjp, vjp
 from jax.tree_util import tree_map, tree_structure
 
+from .annotations import RealNumeric
 from .display import id_display
 
 __all__ = ['copy_cotangent', 'replace_cotangent', 'print_cotangent', 'cotangent_combinator']
@@ -94,10 +95,11 @@ def cotangent_combinator(f: Callable[..., Tuple[XT, Y]],
     return f(*args_tuples[0])
 
 
-cotangent_combinator = custom_vjp(cotangent_combinator, nondiff_argnums=(0,))
+cotangent_combinator = custom_vjp(cotangent_combinator, nondiff_argnums=(0, 2))
 
 
 def _cotangent_combinator_fwd(f: Callable[..., Tuple[XT, Y]],
+                              aux_cotangent_scales: Optional[Tuple[RealNumeric, ...]],
                               args_tuples: Tuple[Tuple[Any, ...], ...]
                               ) -> Tuple[Tuple[XT, Y],
                                          Callable[[Tuple[XT, Y]], Tuple[Any, ...]]]:
@@ -105,18 +107,23 @@ def _cotangent_combinator_fwd(f: Callable[..., Tuple[XT, Y]],
 
 
 def _cotangent_combinator_bwd(f: Callable[..., Tuple[XT, Y]],
+                              aux_cotangent_scales: Optional[Tuple[RealNumeric, ...]],
                               f_vjp: Callable[[Tuple[XT, Y]], Tuple[Any, ...]],
                               xy_bar: Tuple[XT, Y]
                               ) -> Tuple[Any, ...]:
     xs_bar, y_bar = xy_bar
+    if aux_cotangent_scales is None:
+        aux_cotangent_scales = tuple(1.0 for _ in xs_bar)
     xs_zero = tuple(tree_map(jnp.zeros_like, x_bar)
                     for x_bar in xs_bar)
     all_args_bar = []
-    for i, x_bar in enumerate(xs_bar):
+    for i, (x_bar, aux_cotangent_scale) in enumerate(zip(xs_bar, aux_cotangent_scales)):
+        scaled_y_bar = tree_map(lambda y_bar_i: y_bar_i * aux_cotangent_scale,
+                                y_bar)
         this_xs_bar = cast(XT, (xs_zero[:i]
                                 + (x_bar,)
                                 + xs_zero[i + 1:]))
-        this_result_bar = (this_xs_bar, y_bar)
+        this_result_bar = (this_xs_bar, scaled_y_bar)
         this_args_bar = f_vjp(this_result_bar)
         all_args_bar.append(this_args_bar)
     return (tuple(all_args_bar),)

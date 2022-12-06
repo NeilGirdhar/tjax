@@ -26,7 +26,7 @@ def test_combinator() -> None:
     o = jnp.ones(())
 
     args = ((-1.0,), (-1.0,))
-    _, f_vjp = vjp(partial(cotangent_combinator, f), args)
+    _, f_vjp = vjp(partial(cotangent_combinator, f, aux_cotangent_scales=None), args)
     result_bar = (2 * o, 3 * o), None
     actual_args_bar, = f_vjp(result_bar)
     desired_args_bar = ((-4.0,), (-6.0,))
