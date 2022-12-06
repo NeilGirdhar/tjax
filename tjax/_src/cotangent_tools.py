@@ -4,18 +4,36 @@ from functools import partial
 from typing import Any, Callable, Optional, Tuple, TypeVar, cast
 
 import jax.numpy as jnp
-from jax import custom_vjp, vjp
+from jax import custom_jvp, custom_vjp, vjp
 from jax.tree_util import tree_map, tree_structure
 
 from .annotations import RealNumeric
 from .display import id_display
 
-__all__ = ['copy_cotangent', 'replace_cotangent', 'print_cotangent', 'cotangent_combinator']
+__all__ = ['scale_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cotangent',
+           'cotangent_combinator']
 
 
 X = TypeVar('X')
 XT = TypeVar('XT', bound=Tuple[Any, ...])
 Y = TypeVar('Y')
+
+
+# scale_cotangent ----------------------------------------------------------------------------------
+def scale_cotangent(x: X, scale: RealNumeric) -> X:
+    return x
+
+
+def _scale_cotangent_jvp(scale: RealNumeric, primals: Tuple[X], tangents: Tuple[X]) -> Tuple[X, X]:
+    x, = primals
+    x_dot, = tangents
+    scaled_x_dot = tree_map(lambda x_dot_i: x_dot_i * scale, x_dot)
+    return x, scaled_x_dot
+
+
+# Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
+scale_cotangent = custom_jvp(scale_cotangent, nondiff_argnums=(1,))
+scale_cotangent.defjvp(_scale_cotangent_jvp)  # type: ignore[attr-defined]
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
@@ -81,7 +99,8 @@ print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
 
 # cotangent_combinator -----------------------------------------------------------------------------
 def cotangent_combinator(f: Callable[..., Tuple[XT, Y]],
-                         args_tuples: Tuple[Tuple[Any, ...], ...]) -> Tuple[XT, Y]:
+                         args_tuples: Tuple[Tuple[Any, ...], ...],
+                         aux_cotangent_scales: Optional[Tuple[RealNumeric, ...]]) -> Tuple[XT, Y]:
     """
     Args:
         f: A function that accepts positional arguments and returns xs, y where xs is a tuple of
@@ -99,8 +118,8 @@ cotangent_combinator = custom_vjp(cotangent_combinator, nondiff_argnums=(0, 2))
 
 
 def _cotangent_combinator_fwd(f: Callable[..., Tuple[XT, Y]],
-                              aux_cotangent_scales: Optional[Tuple[RealNumeric, ...]],
-                              args_tuples: Tuple[Tuple[Any, ...], ...]
+                              args_tuples: Tuple[Tuple[Any, ...], ...],
+                              aux_cotangent_scales: Optional[Tuple[RealNumeric, ...]]
                               ) -> Tuple[Tuple[XT, Y],
                                          Callable[[Tuple[XT, Y]], Tuple[Any, ...]]]:
     return vjp(f, *args_tuples[0])
