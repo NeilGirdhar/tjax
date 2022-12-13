@@ -8,12 +8,10 @@ from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Uni
 
 import colorful as cf
 import numpy as np
+from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.experimental.host_callback import id_tap
-from jax.interpreters.ad import JVPTracer
 from jax.interpreters.batching import BatchTracer
-from jax.interpreters.partial_eval import DynamicJaxprTracer, JaxprTracer
-from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_leaves
 
 from .annotations import NumpyArray, TapFunctionTransforms
@@ -74,33 +72,6 @@ def _(value: Type[Any],
 
 
 @display_generic.register
-def _(value: JVPTracer,
-      seen: Set[int],
-      show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.magenta(f"JVPTracer {value.shape} {value.dtype}") + "\n"
-
-
-@display_generic.register
-def _(value: JaxprTracer,
-      seen: Set[int],
-      show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.magenta(f"JaxprTracer {value.shape} {value.dtype}") + "\n"
-
-
-@display_generic.register
-def _(value: DynamicJaxprTracer,
-      seen: Set[int],
-      show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.magenta(f"DynamicJaxprTracer {value.shape} {value.dtype}") + "\n"
-
-
-@display_generic.register
 def _(value: BatchTracer,
       seen: Set[int],
       show_values: bool = True,
@@ -121,13 +92,13 @@ def _(value: NumpyArray,
 
 
 @display_generic.register
-def _(value: DeviceArray,
+def _(value: Array,
       seen: Set[int],
       show_values: bool = True,
       indent: int = 0,
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     base_string = cf.violet(
-        f"Jax Array {value.shape} {value.dtype}") + "\n"  # type: ignore[attr-defined]
+        f"Jax Array {value.shape} {value.dtype}") + "\n"
     try:
         np_value = np.asarray(value)
     except TracerArrayConversionError:
