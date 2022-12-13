@@ -16,22 +16,28 @@ from rich.tree import Tree
 
 from ..annotations import NumpyArray
 from .batch_dimensions import BatchDimensionIterator
+from .colors import solarized
 
 __all__ = ['display_generic', 'display_class']
 
 
 # Constants ----------------------------------------------------------------------------------------
-_unknown_color = 'red'
-_type_color = 'red'
-_batch_array_color = 'magenta'
-_numpy_array_color = 'yellow'
-_jax_array_color = 'violet'
-_number_color = 'cyan'
-_flax_module_color = 'green'
-_class_color = 'orange'
-_key_color = 'blue'
-_separator_color = 'base00'
-_seen_color = 'red'
+# Numeric (warm)
+_numpy_array_color = solarized['magenta']
+_jax_array_color = solarized['red']
+_batch_array_color = solarized['orange']
+_number_color = solarized['yellow']
+# Classes (cool)
+_class_color = solarized['violet']
+_module_color = solarized['cyan']
+_type_color = solarized['green']
+_string_color = solarized['base0']
+# Other
+_key_color = solarized['blue']
+_separator_color = solarized['base00']
+_table_color = solarized['base02']
+_unknown_color = f"{solarized['red']} bold"
+_seen_color = solarized['red']
 
 
 # Extra imports ------------------------------------------------------------------------------------
@@ -188,7 +194,7 @@ def display_dataclass(value: Any,
 
 # Public unexported functions ----------------------------------------------------------------------
 def display_class(key: str, cls: Type[Any], is_module: bool = False) -> Tree:
-    type_color = _flax_module_color if is_module else _class_color
+    type_color = _module_color if is_module else _class_color
     return _assemble(key, Text(cls.__name__, style=type_color))
 
 
@@ -259,7 +265,8 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
     if len(array.shape) > 2:
         return
     table = Table(show_header=False,
-                  show_edge=False)
+                  show_edge=False,
+                  style=_table_color)
     for _ in range(array.shape[-1]):
         table.add_column()
     if len(array.shape) == 1:
