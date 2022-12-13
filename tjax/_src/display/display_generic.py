@@ -4,19 +4,30 @@ from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Iterable, List, Optional, Set, Tuple, Type, TypeVar, Union, overload
+from typing import Any, Iterable, List, Optional, Set, Tuple, Type, Union
 
 import colorful as cf
 import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
-from jax.experimental.host_callback import id_tap
 from jax.interpreters.batching import BatchTracer
-from jax.tree_util import tree_leaves
 
-from .annotations import NumpyArray, TapFunctionTransforms
+from ..annotations import NumpyArray
+from .batch_dimensions import BatchDimensionIterator
 
-__all__ = ['print_generic', 'display_generic', 'id_display']
+__all__ = ['display_generic', 'display_class', 'display_key_and_value']
+
+
+_unknown_color = 'red'
+_type_color = 'red'
+_batch_array_color = 'magenta'
+_numpy_array_color = 'yellow'
+_jax_array_color = 'violet'
+_number_color = 'cyan'
+_flax_module_color = 'green'
+_class_color = 'orange'
+_key_color = 'blue'
+_separator_color = 'base00'
 
 
 FlaxModule: Type[Any]
@@ -26,29 +37,6 @@ try:
 except ImportError:
     flax_loaded = False
     FlaxModule = type(None)
-
-
-# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/11727.
-
-
-def print_generic(*args: Any,
-                  batch_dims: Optional[Tuple[Optional[int], ...]] = None,
-                  raise_on_nan: bool = True,
-                  **kwargs: Any) -> None:
-    bdi = BatchDimensionIterator(batch_dims)
-    found_nan = False
-    for value in args:
-        sub_batch_dims = bdi.advance(value)
-        s = display_generic(value, set(), batch_dims=sub_batch_dims)
-        print(s)
-        found_nan = found_nan or raise_on_nan and 'nan' in str(s)
-    for key, value in kwargs.items():
-        sub_batch_dims = bdi.advance(value)
-        s = display_key_and_value(key, value, "=", set(), batch_dims=sub_batch_dims)
-        print(s)
-        found_nan = found_nan or raise_on_nan and 'nan' in str(s)
-    if found_nan:
-        assert False
 
 
 @singledispatch
@@ -138,7 +126,7 @@ def _(value: Union[Tuple[Any, ...], List[Any]],
       batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
     return display_class(type(value)) + "".join(
         display_key_and_value("", sub_value, "", seen, show_values, indent + 1, sub_batch_dims)
-        for sub_batch_dims, sub_value in zip(batch_dimension_iterator(value, batch_dims), value))
+        for sub_batch_dims, sub_value in zip(_batch_dimension_iterator(value, batch_dims), value))
 
 
 def display_dataclass(value: Any,
@@ -171,86 +159,6 @@ def display_dataclass(value: Any,
             retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
                                             None)
     return retval
-
-
-_T = TypeVar('_T')
-_U = TypeVar('_U')
-
-
-@overload
-def id_display(x: _T,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: None = None) -> _T:
-    ...
-
-
-@overload
-def id_display(x: Any,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: _U) -> _U:
-    ...
-
-
-def id_display(x: _T,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: Optional[_U] = None) -> Union[_T, _U]:
-    def tap(x: _T, transforms: TapFunctionTransforms) -> None:
-        nonlocal name
-        batch_dims: Optional[Tuple[Optional[int], ...]] = None
-        flags = []
-        for transform_name, transform_dict in transforms:
-            if transform_name == 'batch':
-                batch_dims = transform_dict['batch_dims']
-                continue
-            if no_jvp and transform_name == 'jvp':
-                return
-            if transform_name in ['jvp', 'mask', 'transpose']:
-                flags.append(transform_name)
-                continue
-        if name is None:
-            print_generic(x, batch_dims=batch_dims)
-        else:
-            if flags:
-                final_name = name + f" [{', '.join(flags)}]"
-            else:
-                final_name = name
-            # https://github.com/python/mypy/issues/11583
-            print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore[arg-type]
-    return id_tap(tap, x, result=x if result is None else result)  # type: ignore[no-untyped-call]
-
-
-class BatchDimensionIterator:
-    def __init__(self, batch_dims: Optional[Tuple[Optional[int], ...]] = None):
-        super().__init__()
-        self.batch_dims = batch_dims
-        self.i = 0
-
-    def advance(self, value: Any) -> Optional[Tuple[Optional[int], ...]]:
-        if self.batch_dims is None:
-            return None
-        n = len(tree_leaves(value))
-        old_i = self.i
-        self.i += n
-        return self.batch_dims[old_i: self.i]
-
-    def check_done(self) -> None:
-        if self.batch_dims is not None:
-            assert self.i == len(self.batch_dims)
-
-
-def batch_dimension_iterator(values: Iterable[Any],
-                             batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Iterable[
-                                 Optional[Tuple[Optional[int], ...]]]:
-    bdi = BatchDimensionIterator(batch_dims)
-    for value in values:
-        yield bdi.advance(value)
-    bdi.check_done()
 
 
 # Public unexported functions ----------------------------------------------------------------------
@@ -322,3 +230,12 @@ def _show_array(indent: int, array: NumpyArray) -> str:
         return "".join(_show_array(indent, array_slice)
                        for array_slice in array)
     return ""
+
+
+def _batch_dimension_iterator(values: Iterable[Any],
+                              batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Iterable[
+                                  Optional[Tuple[Optional[int], ...]]]:
+    bdi = BatchDimensionIterator(batch_dims)
+    for value in values:
+        yield bdi.advance(value)
+    bdi.check_done()
