@@ -3,8 +3,12 @@ from __future__ import annotations
 from typing import Any, Optional, Tuple
 
 from jax.tree_util import tree_leaves
+from typing_extensions import TypeAlias
 
 __all__ = ['BatchDimensionIterator']
+
+
+BatchDimensions: TypeAlias = Optional[Tuple[Optional[int], ...]]
 
 
 class BatchDimensionIterator:
@@ -13,7 +17,7 @@ class BatchDimensionIterator:
     non-unity batch dimensions.  This class keeps track of these dimensions and provides
     iterator-like behavior for displaying the batch dimensions along corresponding elements.
     """
-    def __init__(self, batch_dims: Optional[Tuple[Optional[int], ...]] = None):
+    def __init__(self, batch_dims: BatchDimensions = None):
         """
         Args:
             batch_dims: A tuple of integers corresponding to the leaves of the PyTree.  This class

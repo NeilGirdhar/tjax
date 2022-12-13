@@ -15,7 +15,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from ..annotations import NumpyArray
-from .batch_dimensions import BatchDimensionIterator
+from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .colors import solarized
 
 __all__ = ['display_generic', 'display_class']
@@ -55,7 +55,7 @@ def display_generic(value: Any,
                     seen: MutableSet[int],
                     show_values: bool = True,
                     key: str = '',
-                    batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+                    batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
@@ -68,7 +68,7 @@ def _(value: Type[Any],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     return _assemble(key, Text(f"type[{value.__name__}]", style=_type_color))
@@ -79,7 +79,7 @@ def _(value: BatchTracer,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     return _assemble(key,
@@ -93,7 +93,7 @@ def _(value: NumpyArray,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = _assemble(key,
@@ -108,7 +108,7 @@ def _(value: Array,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = _assemble(key,
@@ -128,7 +128,7 @@ def _(value: Union[None, Number],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     return _assemble(key, Text(str(value), style=_number_color))
@@ -139,7 +139,7 @@ def _(value: Mapping[Any, Any],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
@@ -154,7 +154,7 @@ def _(value: Union[Tuple[Any, ...], List[Any]],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+      batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
@@ -167,7 +167,7 @@ def display_dataclass(value: Any,
                       seen: MutableSet[int],
                       show_values: bool = True,
                       key: str = '',
-                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+                      batch_dims: BatchDimensions = None) -> Tree:
     is_module = flax_loaded and isinstance(value, FlaxModule)
     retval = display_class(key, type(value), is_module)
     bdi = BatchDimensionIterator(batch_dims)
@@ -222,7 +222,7 @@ def _assemble(key: str,
 _indentation = 4
 
 
-def _batch_str(batch_dims: Optional[Tuple[Optional[int], ...]]) -> str:
+def _batch_str(batch_dims: BatchDimensions) -> str:
     if batch_dims is None:
         return ""
     assert len(batch_dims) == 1
@@ -280,8 +280,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
 
 
 def _batch_dimension_iterator(values: Iterable[Any],
-                              batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Iterable[
-                                  Optional[Tuple[Optional[int], ...]]]:
+                              batch_dims: BatchDimensions = None) -> Iterable[BatchDimensions]:
     bdi = BatchDimensionIterator(batch_dims)
     for value in values:
         yield bdi.advance(value)

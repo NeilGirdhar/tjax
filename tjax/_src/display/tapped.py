@@ -6,6 +6,7 @@ from jax.experimental.host_callback import id_tap
 from rich.console import Console
 
 from ..annotations import TapFunctionTransforms
+from .batch_dimensions import BatchDimensions
 from .print_generic import print_generic
 
 __all__ = ['tapped_print_generic']
@@ -50,7 +51,7 @@ def tapped_print_generic(*args: Any,
             transforms: TapFunctionTransforms
             ) -> None:
         args, kwargs = x
-        batch_dims: Optional[Tuple[Optional[int], ...]] = None
+        batch_dims: BatchDimensions = None
         flags = []
         for transform_name, transform_dict in transforms:
             if transform_name == 'batch':
