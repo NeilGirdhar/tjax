@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any, Dict, Hashable, List, Optional, Sequence, Set, Tuple, Type, TypeVar
+from collections.abc import MutableSet
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
 
-import colorful as cf
 from jax.tree_util import register_pytree_node
+from rich.tree import Tree
 
 from .annotations import PyTree
-from .display import BatchDimensionIterator, display_class, display_generic, display_key_and_value
+from .display import BatchDimensionIterator, display_class, display_generic
 
 __all__: List[str] = []
 
@@ -74,21 +75,19 @@ else:
 
     @display_generic.register
     def _(value: nx.Graph,
-          seen: Set[int],
+          seen: MutableSet[int],
           show_values: bool = True,
-          indent: int = 0,
-          batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+          key: str = '',
+          batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
         directed = isinstance(value, nx.DiGraph)
-        arrow = cf.base00('⟶  ' if directed else '🡘 ')
-        retval = display_class(type(value))
+        arrow = '⟶  ' if directed else '🡘 '
+        retval = display_class(key, type(value))
         bdi = BatchDimensionIterator(batch_dims)
         for name, node in value.nodes.items():
             sub_batch_dims = bdi.advance(node)
-            retval += display_key_and_value(name, node, ": ", seen, show_values, indent + 1,
-                                            sub_batch_dims)
+            retval.children.append(display_generic(node, seen, show_values, name, sub_batch_dims))
         for (source, target), edge in value.edges.items():
             key = f"{source}{arrow}{target}"
             sub_batch_dims = bdi.advance(edge)
-            retval += display_key_and_value(key, edge, ": ", seen, show_values, indent + 1,
-                                            sub_batch_dims)
+            retval.children.append(display_generic(edge, seen, show_values, key, sub_batch_dims))
         return retval

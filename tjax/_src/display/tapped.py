@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Tuple, TypeVar, overload
 
 from jax.experimental.host_callback import id_tap
+from rich.console import Console
 
 from ..annotations import TapFunctionTransforms
 from .print_generic import print_generic
@@ -16,6 +17,7 @@ _U = TypeVar('_U')
 @overload
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
+                         console: Optional[Console] = None,
                          no_jvp: bool = False,
                          result: None = None,
                          **kwargs: Any
@@ -26,6 +28,7 @@ def tapped_print_generic(*args: Any,
 @overload
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
+                         console: Optional[Console] = None,
                          no_jvp: bool = False,
                          result: _U,
                          **kwargs: Any
@@ -35,6 +38,7 @@ def tapped_print_generic(*args: Any,
 
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
+                         console: Optional[Console] = None,
                          no_jvp: bool = False,
                          result: Any = None,
                          **kwargs: Any
@@ -61,7 +65,8 @@ def tapped_print_generic(*args: Any,
                             for key, value in kwargs.items()}
                            if flags
                            else kwargs)
-        print_generic(*args, batch_dims=batch_dims, raise_on_nan=raise_on_nan, **modified_kwargs)
+        print_generic(*args, batch_dims=batch_dims, raise_on_nan=raise_on_nan, console=console,
+                      **modified_kwargs)
 
     if result is None:
         if args:

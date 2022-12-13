@@ -1,5 +1,4 @@
 from .annotations import *
-from .color_stub import *
 from .cotangent_tools import *
 from .dataclasses import *
 from .display import *

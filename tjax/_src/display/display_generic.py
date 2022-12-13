@@ -1,23 +1,26 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping, MutableSet
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import Any, List, Optional, Tuple, Type, Union
 
-import colorful as cf
 import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.interpreters.batching import BatchTracer
+from rich.table import Table
+from rich.text import Text
+from rich.tree import Tree
 
 from ..annotations import NumpyArray
 from .batch_dimensions import BatchDimensionIterator
 
-__all__ = ['display_generic', 'display_class', 'display_key_and_value']
+__all__ = ['display_generic', 'display_class']
 
 
+# Constants ----------------------------------------------------------------------------------------
 _unknown_color = 'red'
 _type_color = 'red'
 _batch_array_color = 'magenta'
@@ -28,8 +31,10 @@ _flax_module_color = 'green'
 _class_color = 'orange'
 _key_color = 'blue'
 _separator_color = 'base00'
+_seen_color = 'red'
 
 
+# Extra imports ------------------------------------------------------------------------------------
 FlaxModule: Type[Any]
 try:
     from flax.linen import Module as FlaxModule
@@ -41,101 +46,124 @@ except ImportError:
 
 @singledispatch
 def display_generic(value: Any,
-                    seen: Set[int],
+                    seen: MutableSet[int],
                     show_values: bool = True,
-                    indent: int = 0,
-                    batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+                    key: str = '',
+                    batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
     if is_dataclass(value) and not isinstance(value, type):
-        return display_dataclass(value, seen, show_values, indent, batch_dims)
-    return cf.red(str(value)) + "\n"
+        return display_dataclass(value, seen, show_values, key, batch_dims)
+    return _assemble(key, Text(str(value), style=_unknown_color))
 
 
 @display_generic.register(type)
 def _(value: Type[Any],
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.red(f"type[{value.__name__}]") + "\n"
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    return _assemble(key, Text(f"type[{value.__name__}]", style=_type_color))
 
 
 @display_generic.register
 def _(value: BatchTracer,
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.magenta(f"BatchTracer {value.shape} {value.dtype} "
-                      f"batched over {value.val.shape[value.batch_dim]}") + "\n"
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    return _assemble(key,
+                     Text(f"BatchTracer {value.shape} {value.dtype} "
+                          f"batched over {value.val.shape[value.batch_dim]}",
+                          style=_batch_array_color))
 
 
 @display_generic.register(np.ndarray)
 def _(value: NumpyArray,
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    retval = cf.yellow(f"NumPy Array {value.shape} {value.dtype}{_batch_str(batch_dims)}") + "\n"
-    return retval + _show_array(indent + 1, value)
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    retval = _assemble(key,
+                       Text(f"NumPy Array {value.shape} {value.dtype}{_batch_str(batch_dims)}",
+                            style=_numpy_array_color))
+    _show_array(retval, value)
+    return retval
 
 
 @display_generic.register
 def _(value: Array,
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    base_string = cf.violet(
-        f"Jax Array {value.shape} {value.dtype}") + "\n"
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    retval = _assemble(key,
+                       Text(f"Jax Array {value.shape} {value.dtype}", style=_jax_array_color))
     try:
         np_value = np.asarray(value)
     except TracerArrayConversionError:
-        array_string = ""
+        pass
     else:
-        array_string = _show_array(indent + 1, np_value)
-    return base_string + array_string
+        _show_array(retval, np_value)
+    return retval
 
 
 @display_generic.register(type(None))
 @display_generic.register(Number)
 def _(value: Union[None, Number],
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return cf.cyan(str(value)) + "\n"
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    return _assemble(key, Text(str(value), style=_number_color))
 
 
 @display_generic.register(Mapping)
 def _(value: Mapping[Any, Any],
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return (display_class(type(value))
-            + "".join(display_key_and_value(key, sub_value, "=", seen, show_values, indent + 1)
-                      for key, sub_value in sorted(value.items())))
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    retval = display_class(key, type(value))
+    for sub_key, sub_value in sorted(value.items()):
+        retval.children.append(display_generic(sub_value, seen, show_values, sub_key))
+    return retval
 
 
 @display_generic.register(tuple)
 @display_generic.register(list)
 def _(value: Union[Tuple[Any, ...], List[Any]],
-      seen: Set[int],
+      seen: MutableSet[int],
       show_values: bool = True,
-      indent: int = 0,
-      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
-    return display_class(type(value)) + "".join(
-        display_key_and_value("", sub_value, "", seen, show_values, indent + 1, sub_batch_dims)
-        for sub_batch_dims, sub_value in zip(_batch_dimension_iterator(value, batch_dims), value))
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    retval = display_class(key, type(value))
+    for sub_batch_dims, sub_value in zip(_batch_dimension_iterator(value, batch_dims), value):
+        retval.children.append(display_generic(sub_value, seen, show_values, "", sub_batch_dims))
+    return retval
 
 
 def display_dataclass(value: Any,
-                      seen: Set[int],
+                      seen: MutableSet[int],
                       show_values: bool = True,
-                      indent: int = 0,
-                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+                      key: str = '',
+                      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
     is_module = flax_loaded and isinstance(value, FlaxModule)
-    retval = display_class(type(value), is_module)
+    retval = display_class(key, type(value), is_module)
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
         name = field_info.name
@@ -143,46 +171,48 @@ def display_dataclass(value: Any,
             continue
         sub_value = getattr(value, name)
         sub_batch_dims = bdi.advance(sub_value)
-        retval += display_key_and_value(name, sub_value, "=", seen, show_values, indent + 1,
-                                        sub_batch_dims)
+        retval.children.append(display_generic(sub_value, seen, show_values, name, sub_batch_dims))
     if is_module:
-        retval += display_key_and_value('name', value.name, "=", seen, show_values, indent + 1,
-                                        None)
-        retval += display_key_and_value('has_parent', value.parent is not None, "=", seen,
-                                        show_values, indent + 1, None)
-        retval += display_key_and_value('bound', value.scope is not None, "=", seen, show_values,
-                                        indent + 1, None)
+        retval.children.append(display_generic(value.name, seen, show_values, 'name', None))
+        retval.children.append(display_generic(value.parent is not None, seen, show_values,
+                                               'has_parent', None))
+        retval.children.append(display_generic(value.scope is not None, seen, show_values, 'bound',
+                                               None))
         # pylint: disable=protected-access
         for name, child_module in value._state.children.items():  # pytype: disable=attribute-error
             if not isinstance(child_module, FlaxModule):
                 continue
-            retval += display_key_and_value(name, child_module, "=", seen, show_values, indent + 1,
-                                            None)
+            retval.children.append(display_generic(child_module, seen, show_values, name, None))
     return retval
 
 
 # Public unexported functions ----------------------------------------------------------------------
-def display_class(cls: Type[Any], is_module: bool = False) -> str:
-    color_f = cf.green if is_module else cf.orange
-    return color_f(cls.__name__) + "\n"
+def display_class(key: str, cls: Type[Any], is_module: bool = False) -> Tree:
+    type_color = _flax_module_color if is_module else _class_color
+    return _assemble(key, Text(cls.__name__, style=type_color))
 
 
-def display_key_and_value(key: str,
-                          value: Any,
-                          separator: str,
-                          seen: Set[int],
-                          show_values: bool = True,
-                          indent: int = 0,
-                          batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> str:
+def _verify(value: Any,
+            seen: MutableSet[int],
+            key: str) -> Optional[Tree]:
     if id(value) in seen:
-        value = "<seen>"
-    elif is_dataclass(value) and not isinstance(value, type):
+        return _assemble(key, Text('<seen>', style=_seen_color))
+    if is_dataclass(value) and not isinstance(value, type):
         seen.add(id(value))
-    return (_indent_space(indent) + cf.blue(key) + cf.base00(separator)
-            + display_generic(value, seen, show_values, indent, batch_dims))
+    return None
 
 
 # Private functions --------------------------------------------------------------------------------
+def _assemble(key: str,
+              type_text: Text,
+              separator: str = '=') -> Tree:
+    if key:
+        return Tree(Text.assemble(Text(key, style=_key_color),
+                                  Text(separator, style=_separator_color),
+                                  type_text))
+    return Tree(type_text)
+
+
 _indentation = 4
 
 
@@ -210,26 +240,36 @@ def _(x: np.inexact[Any]) -> str:
     return f"{x:10.4f}"
 
 
-def _show_array(indent: int, array: NumpyArray) -> str:
+def _show_array(tree: Tree, array: NumpyArray) -> None:
     if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
-        return ""
+        return
     if np.prod(array.shape) == 0:
-        return ""
+        return
     if any(x > 12 for x in array.shape):
-        return (_indent_space(indent)
-                + f"mean {np.mean(array):10.4f}; deviation {np.std(array):10.4f}\n")
+        tree.children.append(display_generic(np.mean(array), set(), key="mean"))
+        tree.children.append(display_generic(np.std(array), set(), key="deviation"))
+        return
     if 1 in array.shape:
-        return _show_array(indent, array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
-                                                                       for s in array.shape)])
+        _show_array(tree,
+                    array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
+                                                        for s in array.shape)])
     if len(array.shape) == 0:
-        return _indent_space(indent) + _format_number(array[()]) + "\n"
+        tree.add(_format_number(array[()]))
+        return
+    if len(array.shape) > 2:
+        return
+    table = Table(show_header=False,
+                  show_edge=False)
+    for _ in range(array.shape[-1]):
+        table.add_column()
     if len(array.shape) == 1:
-        return _indent_space(indent) + "  ".join(_format_number(array[i])
-                                                 for i in range(array.shape[0])) + "\n"
-    if len(array.shape) == 2:
-        return "".join(_show_array(indent, array_slice)
-                       for array_slice in array)
-    return ""
+        table.add_row(*(_format_number(array[i])
+                        for i in range(array.shape[0])))
+    elif len(array.shape) == 2:
+        for j in range(array.shape[0]):
+            table.add_row(*(_format_number(array[j, i])
+                            for i in range(array.shape[1])))
+    tree.add(table)
 
 
 def _batch_dimension_iterator(values: Iterable[Any],
