@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple, TypeVar, Union, overload
+from typing import Any, Dict, Optional, Tuple, TypeVar, overload
 
 from jax.experimental.host_callback import id_tap
 
@@ -14,33 +14,38 @@ _U = TypeVar('_U')
 
 
 @overload
-def tapped_print_generic(x: _T,
-                         name: Optional[str] = None,
-                         *,
+def tapped_print_generic(*args: Any,
+                         raise_on_nan: bool = True,
                          no_jvp: bool = False,
-                         result: None = None) -> _T:
+                         result: None = None,
+                         **kwargs: Any
+                         ) -> Any:
     ...
 
 
 @overload
-def tapped_print_generic(x: Any,
-                         name: Optional[str] = None,
-                         *,
+def tapped_print_generic(*args: Any,
+                         raise_on_nan: bool = True,
                          no_jvp: bool = False,
-                         result: _U) -> _U:
+                         result: _U,
+                         **kwargs: Any
+                         ) -> _U:
     ...
 
 
-def tapped_print_generic(x: _T,
-                         name: Optional[str] = None,
-                         *,
+def tapped_print_generic(*args: Any,
+                         raise_on_nan: bool = True,
                          no_jvp: bool = False,
-                         result: Optional[_U] = None) -> Union[_T, _U]:
+                         result: Any = None,
+                         **kwargs: Any
+                         ) -> Any:
     """
     Uses print_generic in a tapped function.
     """
-    def tap(x: _T, transforms: TapFunctionTransforms) -> None:
-        nonlocal name
+    def tap(x: Tuple[Tuple[Any, ...], Dict[str, Any]],
+            transforms: TapFunctionTransforms
+            ) -> None:
+        args, kwargs = x
         batch_dims: Optional[Tuple[Optional[int], ...]] = None
         flags = []
         for transform_name, transform_dict in transforms:
@@ -52,13 +57,19 @@ def tapped_print_generic(x: _T,
             if transform_name in ['jvp', 'mask', 'transpose']:
                 flags.append(transform_name)
                 continue
-        if name is None:
-            print_generic(x, batch_dims=batch_dims)
+        modified_kwargs = ({key + f" [{', '.join(flags)}]": value
+                            for key, value in kwargs.items()}
+                           if flags
+                           else kwargs)
+        print_generic(*args, batch_dims=batch_dims, raise_on_nan=raise_on_nan, **modified_kwargs)
+
+    if result is None:
+        if args:
+            assert len(args) == 1
+            result = args[0]
+        elif kwargs:
+            assert len(kwargs) == 1
+            result = next(iter(kwargs))
         else:
-            if flags:
-                final_name = name + f" [{', '.join(flags)}]"
-            else:
-                final_name = name
-            # https://github.com/python/mypy/issues/11583
-            print_generic(batch_dims=batch_dims, **{final_name: x})  # type: ignore[arg-type]
-    return id_tap(tap, x, result=x if result is None else result)  # type: ignore[no-untyped-call]
+            assert False
+    return id_tap(tap, (args, kwargs), result=result)  # type: ignore[no-untyped-call]

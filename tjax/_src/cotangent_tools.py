@@ -90,7 +90,9 @@ def _print_cotangent_fwd(u: X, name: Optional[str]) -> Tuple[X, None]:
 
 def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
     del residuals
-    x_bar = tapped_print_generic(x_bar, name)
+    x_bar = (tapped_print_generic(x_bar)
+             if name is None
+             else tapped_print_generic(**{name: x_bar}))  # type: ignore[call-overload]
     return (x_bar,)
 
 
