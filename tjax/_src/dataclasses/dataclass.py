@@ -9,7 +9,6 @@ from jax.tree_util import AttributeKeyPathEntry, register_keypaths, register_pyt
 from typing_extensions import dataclass_transform
 
 from ..annotations import PyTree
-from ..display import display_generic
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
@@ -119,9 +118,6 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
             dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def __str__(self: Any) -> str:
-        return str(display_generic(self, set()))
-
     def tree_flatten(x: Any) -> Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
         trees = tuple(getattr(x, name) for name in dynamic_fields)
@@ -136,10 +132,6 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
 
     def keypaths(_: Any) -> List[AttributeKeyPathEntry]:
         return [AttributeKeyPathEntry(name) for name in dynamic_fields]
-
-    # Assign methods to the class.
-    if data_clz.__str__ is object.__str__:
-        data_clz.__str__ = __str__  # type: ignore
 
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
