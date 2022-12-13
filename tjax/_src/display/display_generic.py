@@ -63,6 +63,17 @@ def display_generic(value: Any,
     return _assemble(key, Text(str(value), style=_unknown_color))
 
 
+@display_generic.register
+def _(value: str,
+      seen: MutableSet[int],
+      show_values: bool = True,
+      key: str = '',
+      batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    return _assemble(key, Text(f"\"{value}\"", style=_string_color))
+
+
 @display_generic.register(type)
 def _(value: Type[Any],
       seen: MutableSet[int],
