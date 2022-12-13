@@ -11,7 +11,7 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
                                RealNumeric, Shape, ShapeLike, SliceLike, TapFunctionTransforms)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
                                    replace_cotangent, scale_cotangent)
-from ._src.display import display_generic, id_display, print_generic
+from ._src.display import display_generic, print_generic, tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
 from ._src.generator import vmap_split
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
@@ -33,7 +33,7 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'copy_cotangent', 'scale_cotangent', 'custom_jvp', 'custom_vjp', 'dataclasses',
            'default_atol', 'default_rtol', 'default_tols', 'diffused_leaky_integrate',
            'display_generic', 'divide_nonnegative', 'divide_where', 'fixed_point',
-           'get_relative_test_string', 'get_test_string', 'gradient', 'id_display',
+           'get_relative_test_string', 'get_test_string', 'gradient', 'tapped_print_generic',
            'inverse_softplus', 'is_scalar', 'jit', 'leaky_covariance', 'leaky_data_weight',
            'leaky_integrate', 'leaky_integrate_time_series', 'cotangent_combinator',
            'print_cotangent', 'print_generic', 'replace_cotangent', 'tree_allclose', 'vmap_split',

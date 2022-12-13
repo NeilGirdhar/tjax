@@ -8,7 +8,7 @@ from jax import custom_jvp, custom_vjp, vjp
 from jax.tree_util import tree_map, tree_structure
 
 from .annotations import RealNumeric
-from .display import id_display
+from .display import tapped_print_generic
 
 __all__ = ['scale_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cotangent',
            'cotangent_combinator']
@@ -90,7 +90,7 @@ def _print_cotangent_fwd(u: X, name: Optional[str]) -> Tuple[X, None]:
 
 def _print_cotangent_bwd(name: Optional[str], residuals: None, x_bar: X) -> Tuple[X]:
     del residuals
-    x_bar = id_display(x_bar, name)
+    x_bar = tapped_print_generic(x_bar, name)
     return (x_bar,)
 
 

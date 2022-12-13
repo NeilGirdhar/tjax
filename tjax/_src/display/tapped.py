@@ -7,35 +7,35 @@ from jax.experimental.host_callback import id_tap
 from ..annotations import TapFunctionTransforms
 from .print_generic import print_generic
 
-__all__ = ['id_display']
+__all__ = ['tapped_print_generic']
 
 _T = TypeVar('_T')
 _U = TypeVar('_U')
 
 
 @overload
-def id_display(x: _T,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: None = None) -> _T:
+def tapped_print_generic(x: _T,
+                         name: Optional[str] = None,
+                         *,
+                         no_jvp: bool = False,
+                         result: None = None) -> _T:
     ...
 
 
 @overload
-def id_display(x: Any,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: _U) -> _U:
+def tapped_print_generic(x: Any,
+                         name: Optional[str] = None,
+                         *,
+                         no_jvp: bool = False,
+                         result: _U) -> _U:
     ...
 
 
-def id_display(x: _T,
-               name: Optional[str] = None,
-               *,
-               no_jvp: bool = False,
-               result: Optional[_U] = None) -> Union[_T, _U]:
+def tapped_print_generic(x: _T,
+                         name: Optional[str] = None,
+                         *,
+                         no_jvp: bool = False,
+                         result: Optional[_U] = None) -> Union[_T, _U]:
     """
     Uses print_generic in a tapped function.
     """
