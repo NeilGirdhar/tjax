@@ -273,6 +273,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         _show_array(tree,
                     array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
                                                         for s in array.shape)])
+        return
     if len(array.shape) == 0:
         tree.add(_format_number(array[()]))
         return
