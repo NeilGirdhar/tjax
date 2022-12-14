@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
@@ -7,7 +8,7 @@ from pytest import CaptureFixture
 from rich.console import Console
 
 from tjax import RealArray, print_generic, tapped_print_generic
-from tjax.dataclasses import dataclass
+from tjax.dataclasses import dataclass, field
 
 
 def verify(actual: str, desired: str) -> None:
@@ -22,9 +23,9 @@ def test_numpy_display(capsys: CaptureFixture[str],
     verify(captured.out,
            """
            numpy_array=NumPy Array (3, 2) float64
-           └──      0.0000 │     1.0000
-                    2.0000 │     3.0000
-                    4.0000 │     5.0000
+           └──  0.0000 │ 1.0000
+                2.0000 │ 3.0000
+                4.0000 │ 5.0000
            """)
 
 
@@ -47,7 +48,7 @@ def test_jax_numpy_display(capsys: CaptureFixture[str],
     verify(captured.out,
            """
            Jax Array (3,) float64
-           └──      1.0000 │     1.0000 │     1.0000
+           └──  1.0000 │ 1.0000 │ 1.0000
            """)
 
 
@@ -100,7 +101,7 @@ def test_tapped(capsys: CaptureFixture[str],
     verify(captured.out,
            """
            NumPy Array (3,) float64
-           └──      1.0000 │     1.0000 │     1.0000
+           └──  1.0000 │ 1.0000 │ 1.0000
            """)
 
 
@@ -146,3 +147,24 @@ def test_dataclass(capsys: CaptureFixture[str],
                ├── x=3
                └── y=4
            """)
+
+
+if __name__ == "__main__":
+    @dataclass
+    class C:
+        x: Any
+        y: Any
+        z: Any = field(static=True)
+
+    a = C(np.arange(6.0).reshape((3, 2)),
+          np.arange(30.0).reshape((15, 2)),
+          C)
+
+    @jit
+    def f(x: RealArray) -> None:
+        tapped_print_generic(C({'abc': C(a,
+                                         x,
+                                         2)},
+                               a,
+                               'blah'))
+    vmap(vmap(f))(jnp.ones((1, 1)))

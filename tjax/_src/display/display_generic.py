@@ -252,12 +252,12 @@ def _indent_space(indent: int) -> str:
 
 @singledispatch
 def _format_number(x: Any) -> str:
-    return f"{x:10}"
+    return str(x)
 
 
 @_format_number.register(np.inexact)
 def _(x: np.inexact[Any]) -> str:
-    return f"{x:10.4f}"
+    return f"{x:.4f}"
 
 
 def _show_array(tree: Tree, array: NumpyArray) -> None:
