@@ -73,6 +73,21 @@ def test_batch_display(capsys: CaptureFixture[str],
     verify(captured.out, "BatchTracer () float64 batched over 10")
 
 
+def test_batch_display_dict(capsys: CaptureFixture[str],
+                            console: Console) -> None:
+    @jit
+    def f(x: RealArray) -> RealArray:
+        print_generic({'abc': x}, console=console)
+        return x
+    vmap(f)(jnp.ones(10))
+    captured = capsys.readouterr()
+    verify(captured.out,
+           """
+           dict
+           └── abc=BatchTracer () float64 batched over 10
+           """)
+
+
 def test_tapped(capsys: CaptureFixture[str],
                 console: Console) -> None:
     "Like test_jit_display, but uses tapped_print_generic to get the array."

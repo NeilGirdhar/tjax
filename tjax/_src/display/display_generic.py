@@ -154,8 +154,11 @@ def _(value: Mapping[Any, Any],
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
-    for sub_key, sub_value in sorted(value.items()):
-        retval.children.append(display_generic(sub_value, seen, show_values, sub_key))
+    for sub_batch_dims, (sub_key, sub_value) in zip(_batch_dimension_iterator(value.values(),
+                                                                              batch_dims),
+                                                    value.items()):
+        retval.children.append(display_generic(sub_value, seen, show_values, sub_key,
+                                               sub_batch_dims))
     return retval
 
 
