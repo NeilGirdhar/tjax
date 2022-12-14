@@ -25,8 +25,8 @@ __all__ = ['display_generic', 'display_class']
 # Numeric (warm)
 _numpy_array_color = solarized['magenta']
 _jax_array_color = solarized['red']
-_batch_array_color = solarized['orange']
 _number_color = solarized['yellow']
+# solarized['orange']
 # Classes (cool)
 _class_color = solarized['violet']
 _module_color = solarized['cyan']
@@ -85,20 +85,6 @@ def _(value: Type[Any],
     return _assemble(key, Text(f"type[{value.__name__}]", style=_type_color))
 
 
-@display_generic.register
-def _(value: BatchTracer,
-      seen: MutableSet[int],
-      show_values: bool = True,
-      key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    return _assemble(key,
-                     Text(f"BatchTracer {value.shape} {value.dtype} "
-                          f"batched over {value.val.shape[value.batch_dim]}",
-                          style=_batch_array_color))
-
-
 @display_generic.register(np.ndarray)
 def _(value: NumpyArray,
       seen: MutableSet[int],
@@ -122,8 +108,13 @@ def _(value: Array,
       batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
+    extracted_batch_dimensions = _extract_batch_dimensions(value)
+    batch_str = (f" batched over axes of size {extracted_batch_dimensions}"
+                 if extracted_batch_dimensions
+                 else "")
     retval = _assemble(key,
-                       Text(f"Jax Array {value.shape} {value.dtype}", style=_jax_array_color))
+                       Text(f"Jax Array {value.shape} {value.dtype}{batch_str}",
+                            style=_jax_array_color))
     try:
         np_value = np.asarray(value)
     except TracerArrayConversionError:
@@ -300,3 +291,11 @@ def _batch_dimension_iterator(values: Iterable[Any],
     for value in values:
         yield bdi.advance(value)
     bdi.check_done()
+
+
+def _extract_batch_dimensions(value: Array) -> Tuple[int, ...]:
+    batch_dimensions = []
+    while isinstance(value, BatchTracer):
+        batch_dimensions.append(value.val.shape[value.batch_dim])
+        value = value.val
+    return tuple(reversed(batch_dimensions))

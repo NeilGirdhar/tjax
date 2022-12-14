@@ -69,9 +69,9 @@ def test_batch_display(capsys: CaptureFixture[str],
     def f(x: RealArray) -> RealArray:
         print_generic(x, console=console)
         return x
-    vmap(f)(jnp.ones(10))
+    vmap(vmap(f))(jnp.ones((3, 4)))
     captured = capsys.readouterr()
-    verify(captured.out, "BatchTracer () float64 batched over 10")
+    verify(captured.out, "Jax Array () float64 batched over axes of size (3, 4)")
 
 
 def test_batch_display_dict(capsys: CaptureFixture[str],
@@ -80,12 +80,12 @@ def test_batch_display_dict(capsys: CaptureFixture[str],
     def f(x: RealArray) -> RealArray:
         print_generic({'abc': x}, console=console)
         return x
-    vmap(f)(jnp.ones(10))
+    vmap(vmap(f))(jnp.ones((3, 4)))
     captured = capsys.readouterr()
     verify(captured.out,
            """
            dict
-           └── abc=BatchTracer () float64 batched over 10
+           └── abc=Jax Array () float64 batched over axes of size (3, 4)
            """)
 
 
@@ -162,9 +162,14 @@ if __name__ == "__main__":
 
     @jit
     def f(x: RealArray) -> None:
+        print_generic(C({'abc': C(a,
+                                  x,
+                                  2)},
+                        a,
+                        'blah'))
         tapped_print_generic(C({'abc': C(a,
                                          x,
                                          2)},
                                a,
                                'blah'))
-    vmap(vmap(f))(jnp.ones((1, 1)))
+    vmap(vmap(f))(jnp.ones((3, 4)))
