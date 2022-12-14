@@ -93,8 +93,10 @@ def _(value: NumpyArray,
       batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
+    extracted_batch_sizes, shape = _batched_axis_sizes_from_array_and_dims(value, batch_dims)
+    batch_str = _batch_str(extracted_batch_sizes)
     retval = _assemble(key,
-                       Text(f"NumPy Array {value.shape} {value.dtype}{_batch_str(batch_dims)}",
+                       Text(f"NumPy Array {shape} {value.dtype}{batch_str}",
                             style=_numpy_array_color))
     _show_array(retval, value)
     return retval
@@ -108,10 +110,8 @@ def _(value: Array,
       batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
-    extracted_batch_dimensions = _extract_batch_dimensions(value)
-    batch_str = (f" batched over axes of size {extracted_batch_dimensions}"
-                 if extracted_batch_dimensions
-                 else "")
+    extracted_batch_sizes = _batched_axis_sizes_from_jax_array(value)
+    batch_str = _batch_str(extracted_batch_sizes)
     retval = _assemble(key,
                        Text(f"Jax Array {value.shape} {value.dtype}{batch_str}",
                             style=_jax_array_color))
@@ -217,28 +217,14 @@ def _verify(value: Any,
 def _assemble(key: str,
               type_text: Text,
               separator: str = '=') -> Tree:
+    """
+    Returns: A Rich Tree for a given key-value pair.
+    """
     if key:
         return Tree(Text.assemble(Text(key, style=_key_color),
                                   Text(separator, style=_separator_color),
                                   type_text))
     return Tree(type_text)
-
-
-_indentation = 4
-
-
-def _batch_str(batch_dims: BatchDimensions) -> str:
-    if batch_dims is None:
-        return ""
-    assert len(batch_dims) == 1
-    batch_dim = batch_dims[0]
-    if batch_dim is None:
-        return ""
-    return f" batched over axis {batch_dim}"
-
-
-def _indent_space(indent: int) -> str:
-    return (indent * _indentation) * " "
 
 
 @singledispatch
@@ -252,23 +238,24 @@ def _(x: np.inexact[Any]) -> str:
 
 
 def _show_array(tree: Tree, array: NumpyArray) -> None:
+    """
+    Add a representation of array to the Rich tree.
+    """
     if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
         return
     if np.prod(array.shape) == 0:
-        return
-    if any(x > 12 for x in array.shape):
-        tree.children.append(display_generic(np.mean(array), set(), key="mean"))
-        tree.children.append(display_generic(np.std(array), set(), key="deviation"))
         return
     if 1 in array.shape:
         _show_array(tree,
                     array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
                                                         for s in array.shape)])
         return
+    if any(x > 12 for x in array.shape) or len(array.shape) > 2:
+        tree.children.append(display_generic(np.mean(array), set(), key="mean"))
+        tree.children.append(display_generic(np.std(array), set(), key="deviation"))
+        return
     if len(array.shape) == 0:
         tree.add(_format_number(array[()]))
-        return
-    if len(array.shape) > 2:
         return
     table = Table(show_header=False,
                   show_edge=False,
@@ -287,15 +274,59 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
 
 def _batch_dimension_iterator(values: Iterable[Any],
                               batch_dims: BatchDimensions = None) -> Iterable[BatchDimensions]:
+    """
+    Traverse values and batch_dims in parallel.
+    Returns: An iterable of BatchDimensions objects for sub-elements of value.
+    """
     bdi = BatchDimensionIterator(batch_dims)
     for value in values:
         yield bdi.advance(value)
     bdi.check_done()
 
 
-def _extract_batch_dimensions(value: Array) -> Tuple[int, ...]:
-    batch_dimensions = []
+def _batch_str(extracted_batch_sizes: Tuple[int, ...]) -> str:
+    return (f" batched over axes of size {extracted_batch_sizes}"
+            if extracted_batch_sizes
+            else "")
+
+
+def _batched_axis_sizes_from_array_and_dims(value: NumpyArray,
+                                            batch_dims: BatchDimensions
+                                            ) -> Tuple[Tuple[int, ...],
+                                                       Tuple[int, ...]]:
+    """
+    This function uses batch dimension information and a NumPy array, so it is only effective on
+    jax.Arrays in tapped display.
+
+    Returns: A tuple:
+        The size of the axes that are batched over for a given Numpy array.
+        The shape fo the Numpy array without the batched axes.
+    """
+    shape = value.shape
+    if batch_dims is None:
+        return (), shape
+    assert len(batch_dims) == 1
+    batch_dim_tuple = batch_dims[0]
+    if batch_dim_tuple is None:
+        return (), shape
+    assert isinstance(batch_dim_tuple, tuple)
+
+    batch_sizes = []
+    for batch_dim in reversed(batch_dim_tuple):
+        batch_sizes.append(shape[batch_dim])
+        shape = shape[: batch_dim] + shape[batch_dim + 1:]
+    return tuple(batch_sizes), shape
+
+
+def _batched_axis_sizes_from_jax_array(value: Array) -> Tuple[int, ...]:
+    """
+    This function works by looking for BatchTracer objects, so it is only effective on jax.Arrays in
+    non-tapped display.
+
+    Returns: The size of the axes that are batched over for a given Jax array.
+    """
+    batch_sizes = []
     while isinstance(value, BatchTracer):
-        batch_dimensions.append(value.val.shape[value.batch_dim])
+        batch_sizes.append(value.val.shape[value.batch_dim])
         value = value.val
-    return tuple(reversed(batch_dimensions))
+    return tuple(reversed(batch_sizes))

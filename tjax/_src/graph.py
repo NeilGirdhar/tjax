@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import MutableSet
-from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, TypeVar
+from typing import Any, Dict, Hashable, List, Sequence, Tuple, Type, TypeVar
 
 from jax.tree_util import register_pytree_node
 from rich.tree import Tree
 
 from .annotations import PyTree
-from .display import BatchDimensionIterator, display_class, display_generic
+from .display import BatchDimensionIterator, BatchDimensions, display_class, display_generic
 
 __all__: List[str] = []
 
@@ -78,7 +78,7 @@ else:
           seen: MutableSet[int],
           show_values: bool = True,
           key: str = '',
-          batch_dims: Optional[Tuple[Optional[int], ...]] = None) -> Tree:
+          batch_dims: BatchDimensions = None) -> Tree:
         directed = isinstance(value, nx.DiGraph)
         arrow = '⟶  ' if directed else '🡘 '
         retval = display_class(key, type(value))

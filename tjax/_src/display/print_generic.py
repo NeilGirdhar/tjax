@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from rich.console import Console
 from rich.tree import Tree
 
-from .batch_dimensions import BatchDimensionIterator
+from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .display_generic import display_generic
 
 __all__ = ['print_generic']
@@ -17,7 +17,7 @@ global_console = Console()
 
 # Functions ----------------------------------------------------------------------------------------
 def print_generic(*args: Any,
-                  batch_dims: Optional[Tuple[Optional[int], ...]] = None,
+                  batch_dims: BatchDimensions = None,
                   raise_on_nan: bool = True,
                   console: Optional[Console] = None,
                   **kwargs: Any) -> None:

@@ -5,10 +5,27 @@ from typing import Any, Optional, Tuple
 from jax.tree_util import tree_leaves
 from typing_extensions import TypeAlias
 
-__all__ = ['BatchDimensionIterator']
+__all__ = ['BatchDimensionIterator', 'BatchDimensions']
 
 
-BatchDimensions: TypeAlias = Optional[Tuple[Optional[int], ...]]
+_SimpleBatchDimensions: TypeAlias = Optional[Tuple[Optional[int], ...]]
+BatchDimensions: TypeAlias = Optional[Tuple[Optional[Tuple[int, ...]], ...]]
+
+
+def combine_batch_dimensions(x: BatchDimensions, y: _SimpleBatchDimensions) -> BatchDimensions:
+    if y is None:
+        return x
+    # Convert y to BatchDimensions.
+    y_bd = tuple(None if yi is None else (yi,)
+                 for yi in y)
+    if x is None:
+        return y_bd
+    # Merge x and y.
+    assert len(x) == len(y)
+    return tuple(yi if xi is None
+                 else xi if yi is None
+                 else xi + yi
+                 for xi, yi in zip(x, y_bd))
 
 
 class BatchDimensionIterator:
@@ -27,7 +44,7 @@ class BatchDimensionIterator:
         self.batch_dims = batch_dims
         self.i = 0
 
-    def advance(self, value: Any) -> Optional[Tuple[Optional[int], ...]]:
+    def advance(self, value: Any) -> BatchDimensions:
         """
         Args:
             value: The next sub-element of the PyTree.  It need not be a leaf.

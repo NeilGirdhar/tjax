@@ -69,9 +69,9 @@ def test_batch_display(capsys: CaptureFixture[str],
     def f(x: RealArray) -> RealArray:
         print_generic(x, console=console)
         return x
-    vmap(vmap(f))(jnp.ones((3, 4)))
+    vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
     captured = capsys.readouterr()
-    verify(captured.out, "Jax Array () float64 batched over axes of size (3, 4)")
+    verify(captured.out, "Jax Array (3, 5) float64 batched over axes of size (4, 6)")
 
 
 def test_batch_display_dict(capsys: CaptureFixture[str],
@@ -102,6 +102,23 @@ def test_tapped(capsys: CaptureFixture[str],
            """
            NumPy Array (3,) float64
            └──  1.0000 │ 1.0000 │ 1.0000
+           """)
+
+
+def test_tapped_batched(capsys: CaptureFixture[str],
+                        console: Console) -> None:
+    "Like test_batch_display, but uses tapped_print_generic to get the array."
+    @jit
+    def f(x: RealArray) -> RealArray:
+        tapped_print_generic(x, console=console)
+        return x
+    vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
+    captured = capsys.readouterr()
+    verify(captured.out,
+           """
+           NumPy Array (3, 5) float64 batched over axes of size (4, 6)
+           ├── mean=1.0
+           └── deviation=0.0
            """)
 
 
@@ -151,25 +168,25 @@ def test_dataclass(capsys: CaptureFixture[str],
 
 if __name__ == "__main__":
     @dataclass
-    class C:
+    class Triplet:
         x: Any
         y: Any
         z: Any = field(static=True)
 
-    a = C(np.arange(6.0).reshape((3, 2)),
-          np.arange(30.0).reshape((15, 2)),
-          C)
+    a = Triplet(np.arange(6.0).reshape((3, 2)),
+                np.arange(30.0).reshape((15, 2)),
+                Triplet)
 
     @jit
-    def f(x: RealArray) -> None:
-        print_generic(C({'abc': C(a,
-                                  x,
-                                  2)},
-                        a,
-                        'blah'))
-        tapped_print_generic(C({'abc': C(a,
-                                         x,
-                                         2)},
-                               a,
-                               'blah'))
-    vmap(vmap(f))(jnp.ones((3, 4)))
+    def g(x: RealArray) -> None:
+        print_generic(Triplet({'abc': Triplet(a,
+                                              x,
+                                              2)},
+                              a,
+                              'blah'))
+        tapped_print_generic(Triplet({'abc': Triplet(a,
+                                                     x,
+                                                     2)},
+                                     a,
+                                     'blah'))
+    vmap(vmap(g, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))

@@ -6,7 +6,7 @@ from jax.experimental.host_callback import id_tap
 from rich.console import Console
 
 from ..annotations import TapFunctionTransforms
-from .batch_dimensions import BatchDimensions
+from .batch_dimensions import BatchDimensions, combine_batch_dimensions
 from .print_generic import print_generic
 
 __all__ = ['tapped_print_generic']
@@ -46,6 +46,14 @@ def tapped_print_generic(*args: Any,
                          ) -> Any:
     """
     Uses print_generic in a tapped function.
+    Args:
+        raise_on_nan: Assert if NaN is found in the output.
+        console: The console that formats the output.
+        no_jvp: Stifle printout of JVP tangents.
+        result: A tracer to be returned to ensure sequencing.
+        args: Positional arguments to be printed.
+        kwargs: Keyword arguments to be printed.
+    Returns: The value of result, or else the lone element of args and kwargs.
     """
     def tap(x: Tuple[Tuple[Any, ...], Dict[str, Any]],
             transforms: TapFunctionTransforms
@@ -55,7 +63,7 @@ def tapped_print_generic(*args: Any,
         flags = []
         for transform_name, transform_dict in transforms:
             if transform_name == 'batch':
-                batch_dims = transform_dict['batch_dims']
+                batch_dims = combine_batch_dimensions(batch_dims, transform_dict['batch_dims'])
                 continue
             if no_jvp and transform_name == 'jvp':
                 return
