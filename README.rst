@@ -36,14 +36,19 @@ Tjax's major components are:
   - gradient transformation objects that can be passed *dynamically* to jitted functions, and
   - generic type annotations.
 
+- A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
+  `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/display>`_.)  It features:
+
+  - a version for printing traced values :python:`tapped_print_generic`,
+  - decoding size of the batched axes when printing ordinary and traced values,
+  - colorized tree output for aggregate structures, and
+  - formatted tabular output for arrays (or statistics when there's no room for tabular output).
+
 ----------------
 Minor components
 ----------------
 
 Tjax also includes:
-
-- A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
-  `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/display.py>`_.)
 
 - Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods.
   (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/shims.py>`_.)
@@ -59,14 +64,10 @@ Tjax also includes:
 
 - An improved version of :python:`jax.tree_util.Partial`.  (See `partial <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/partial.py>`_.)
 
-- A Matplotlib trajectory plotter :python:`PlottableTrajectory`.  (See `plottable_trajectory <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/plottable_trajectory.py>`_.)
-
 - A testing function :python:`assert_tree_allclose` that automatically produces testing code.  And, a related
   function :python:`tree_allclose`.  (See `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/testing.py>`_.)
 
 - Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/tools.py>`_.)
-
-Also, see the `documentation <https://neilgirdhar.github.io/tjax/tjax/index.html>`_.
 
 -----------------------
 Contribution guidelines
