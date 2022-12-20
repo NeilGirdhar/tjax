@@ -148,7 +148,7 @@ def _(value: Mapping[Any, Any],
     for sub_batch_dims, (sub_key, sub_value) in zip(_batch_dimension_iterator(value.values(),
                                                                               batch_dims),
                                                     value.items()):
-        retval.children.append(display_generic(sub_value, seen, show_values, sub_key,
+        retval.children.append(display_generic(sub_value, seen, show_values, str(sub_key),
                                                sub_batch_dims))
     return retval
 
