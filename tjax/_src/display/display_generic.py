@@ -242,7 +242,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
     """
     Add a representation of array to the Rich tree.
     """
-    if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
+    if not issubclass(array.dtype.type, (np.bool_, np.number)):
         return
     if math.prod(array.shape) == 0:
         return
@@ -252,8 +252,9 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
                                                         for s in array.shape)])
         return
     if any(x > 12 for x in array.shape) or len(array.shape) > 2:
-        tree.children.append(display_generic(np.mean(array), set(), key="mean"))
-        tree.children.append(display_generic(np.std(array), set(), key="deviation"))
+        xarray = np.asarray(array)
+        tree.children.append(display_generic(float(np.mean(xarray)), set(), key="mean"))
+        tree.children.append(display_generic(float(np.std(xarray)), set(), key="deviation"))
         return
     if len(array.shape) == 0:
         tree.add(_format_number(array[()]))

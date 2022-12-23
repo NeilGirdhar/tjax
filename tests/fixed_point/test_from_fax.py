@@ -113,9 +113,9 @@ def ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealArray, Rea
 @settings(max_examples=100, deadline=5000.)
 @given(
     hypothesis.extra.numpy.arrays(
-        np.float_, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
+        np.float64, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
     hypothesis.extra.numpy.arrays(
-        np.float_, 5, elements=hypothesis.strategies.floats(0, 1)))
+        np.float64, 5, elements=hypothesis.strategies.floats(0, 1)))
 def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray,
                                                                  RealArray],
                             matrix: RealArray,
@@ -132,9 +132,9 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, RealArra
 @settings(max_examples=100, deadline=5000.)
 @given(
     hypothesis.extra.numpy.arrays(
-        np.float_, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
+        np.float64, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
     hypothesis.extra.numpy.arrays(
-        np.float_, 5, elements=hypothesis.strategies.floats(0.1, 1)))
+        np.float64, 5, elements=hypothesis.strategies.floats(0.1, 1)))
 def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, RealArray],
              matrix: RealArray,
              offset: RealArray) -> None:

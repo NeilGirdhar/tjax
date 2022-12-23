@@ -15,7 +15,7 @@ __all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zer
 
 
 def is_scalar(x: Any) -> bool:
-    return isinstance(x, Number) or isinstance(x, (np.ndarray, jnp.ndarray)) and x.shape == ()
+    return isinstance(x, Number) or isinstance(x, (np.ndarray, jnp.Array)) and x.shape == ()
 
 
 @overload
@@ -78,7 +78,7 @@ def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumer
 
 
 def zero_tangent_like(value: Array) -> NumpyRealArray:
-    if np.issubdtype(value.dtype, np.inexact):
+    if issubclass(value.dtype.type, np.inexact):
         return np.zeros_like(value)
     return np.zeros_like(value, dtype=float0)
 

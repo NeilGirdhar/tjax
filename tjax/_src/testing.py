@@ -248,7 +248,7 @@ def _(actual: Dict[Any, Any], original_name: str, original: Any, rtol: float, at
 # Private functions --------------------------------------------------------------------------------
 def _float_to_string_with_precision(x: Union[float, complex], precision: int) -> str:
     with np.printoptions(precision=precision, floatmode='maxprec'):
-        return repr(np.array(x))[6:-1]
+        return repr(np.asarray(x))[6:-1]
 
 
 def _inexact_number_to_string(x: Union[complex, np.inexact[Any]], rtol: float, atol: float) -> str:
@@ -262,6 +262,6 @@ def _inexact_number_to_string(x: Union[complex, np.inexact[Any]], rtol: float, a
     retval = ""  # type: ignore[unreachable]
     for i in range(20):
         retval = _float_to_string_with_precision(y, i)
-        if np.allclose(complex(retval), x, rtol=rtol, atol=atol):
+        if np.isclose(complex(retval), x, rtol=rtol, atol=atol):
             break
     return retval

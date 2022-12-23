@@ -16,8 +16,8 @@ from tjax.gradient import (SGD, AddDecayedWeights, ApplyEvery, Centralize,
 
 STEPS = 50
 LR = 1e-2
-init_params = (np.array([1., 2.]), np.array([3., 4.]))
-per_step_updates = (np.array([500., 5.]), np.array([300., 3.]))
+init_params = (np.asarray([1., 2.]), np.asarray([3., 4.]))
+per_step_updates = (np.asarray([500., 5.]), np.asarray([300., 3.]))
 
 
 def variant(x: Any) -> Any:

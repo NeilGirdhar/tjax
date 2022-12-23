@@ -18,7 +18,7 @@ def verify(actual: str, desired: str) -> None:
 
 def test_numpy_display(capsys: CaptureFixture[str],
                        console: Console) -> None:
-    print_generic(numpy_array=np.arange(6.0).reshape((3, 2)), console=console)
+    print_generic(numpy_array=np.reshape(np.arange(6.0), (3, 2)), console=console)
     captured = capsys.readouterr()
     verify(captured.out,
            """
@@ -31,7 +31,7 @@ def test_numpy_display(capsys: CaptureFixture[str],
 
 def test_numpy_display_big(capsys: CaptureFixture[str],
                            console: Console) -> None:
-    print_generic(numpy_array=np.arange(30.0).reshape((15, 2)), console=console)
+    print_generic(numpy_array=np.reshape(np.arange(30.0), (15, 2)), console=console)
     captured = capsys.readouterr()
     verify(captured.out,
            """
@@ -173,8 +173,8 @@ if __name__ == "__main__":
         y: Any
         z: Any = field(static=True)
 
-    a = Triplet(np.arange(6.0).reshape((3, 2)),
-                np.arange(30.0).reshape((15, 2)),
+    a = Triplet(np.reshape(np.arange(6.0), (3, 2)),
+                np.reshape(np.arange(30.0), (15, 2)),
                 Triplet)
 
     @jit
