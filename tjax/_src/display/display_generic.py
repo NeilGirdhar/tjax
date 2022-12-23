@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Iterable, Mapping, MutableSet
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
@@ -243,7 +244,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
     """
     if not np.issubdtype(array.dtype, np.number) and not np.issubdtype(array.dtype, np.bool_):
         return
-    if np.prod(array.shape) == 0:
+    if math.prod(array.shape) == 0:
         return
     if 1 in array.shape:
         _show_array(tree,

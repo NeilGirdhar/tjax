@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import numpy as np
+import math
+
 from jax.random import KeyArray, split
 
 from .annotations import ShapeLike
@@ -18,6 +19,6 @@ def vmap_split(rng: KeyArray, shape: ShapeLike) -> KeyArray:
         shape = (shape,)
     else:
         shape = tuple(shape)
-    prod_shape = int(np.prod(shape))
+    prod_shape = math.prod(shape)
     rngs = rng if prod_shape == 1 else split(rng, prod_shape)
     return rngs.reshape(shape)
