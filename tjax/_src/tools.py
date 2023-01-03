@@ -8,14 +8,14 @@ import numpy as np
 from jax import float0
 
 from .annotations import (Array, BooleanNumeric, ComplexArray, ComplexNumeric, IntegralNumeric,
-                          NumpyRealArray, RealArray, RealNumeric)
+                          JaxArray, NumpyRealArray, RealArray, RealNumeric)
 
 __all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent_like',
            'inverse_softplus']
 
 
 def is_scalar(x: Any) -> bool:
-    return isinstance(x, Number) or isinstance(x, (np.ndarray, jnp.Array)) and x.shape == ()
+    return isinstance(x, Number) or isinstance(x, (np.ndarray, JaxArray)) and x.shape == ()
 
 
 @overload
@@ -65,7 +65,7 @@ def divide_where(dividend: ComplexNumeric,
     assert otherwise is not None
     dividend = jnp.where(where, dividend, 1.0)
     divisor = jnp.where(where, divisor, 1.0)
-    quotient = jnp.true_divide(dividend, divisor)
+    quotient: ComplexArray = jnp.true_divide(dividend, divisor)
     return jnp.where(where, quotient, otherwise)
 
 
