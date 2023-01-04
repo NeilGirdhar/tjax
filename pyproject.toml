@@ -44,7 +44,7 @@ mypy = '>=0.930'
 pylint = '>=2.12.2'
 pyproject-flake8 = '>=6'
 pyright = '>=0.0.13'
-pytest = '^7'
+pytest = '>=7'
 
 [tool.poetry.group.extra.dependencies]
 flax = '>= 0.6.3'
@@ -129,5 +129,5 @@ warn_unused_configs = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ['colorful', 'networkx', 'optax']
+module = ['networkx', 'optax', 'py']
 ignore_missing_imports = true
