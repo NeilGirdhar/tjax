@@ -46,6 +46,10 @@ pyproject-flake8 = '>=6'
 pyright = '>=0.0.13'
 pytest = '^7'
 
+[tool.poetry.group.extra.dependencies]
+flax = '>= 0.6.3'
+networkx = '>= 2.8.8'
+
 [tool.flake8]
 max-line-length = 100
 extend-ignore = "E741"
