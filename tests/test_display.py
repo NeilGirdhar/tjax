@@ -122,6 +122,23 @@ def test_tapped_batched(capsys: CaptureFixture[str],
            """)
 
 
+def test_tapped_dict(capsys: CaptureFixture[str],
+                     console: Console) -> None:
+    "Like test_batch_display, but uses tapped_print_generic to get the array."
+    @jit
+    def f(x: RealArray) -> RealArray:
+        tapped_print_generic(x=x, console=console)
+        return x
+    vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
+    captured = capsys.readouterr()
+    verify(captured.out,
+           """
+           x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
+           ├── mean=1.0
+           └── deviation=0.0
+           """)
+
+
 def test_dict(capsys: CaptureFixture[str],
               console: Console) -> None:
     print_generic({'cat': 5,

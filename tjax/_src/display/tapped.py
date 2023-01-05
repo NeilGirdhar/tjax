@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple, TypeVar, overload
+from typing import Any, List, Optional, TypeVar, overload
 
 from jax.experimental.host_callback import id_tap
+from jax.tree_util import tree_flatten, tree_unflatten
 from rich.console import Console
 
 from ..annotations import TapFunctionTransforms
@@ -51,14 +52,16 @@ def tapped_print_generic(*args: Any,
         console: The console that formats the output.
         no_jvp: Stifle printout of JVP tangents.
         result: A tracer to be returned to ensure sequencing.
-        args: Positional arguments to be printed.
-        kwargs: Keyword arguments to be printed.
+        args: Positional arguments to be printed.  Only dynamic arguments are allowed.
+        kwargs: Keyword arguments to be printed.  Only static keys and dynamic values are allowed.
     Returns: The value of result, or else the lone element of args and kwargs.
     """
-    def tap(x: Tuple[Tuple[Any, ...], Dict[str, Any]],
+    leaves, tree_def = tree_flatten((args, kwargs))
+
+    def tap(tap_leaves: List[Any],
             transforms: TapFunctionTransforms
             ) -> None:
-        args, kwargs = x
+        args, kwargs = tree_unflatten(tree_def, tap_leaves)
         batch_dims: BatchDimensions = None
         flags = []
         for transform_name, transform_dict in transforms:
@@ -83,7 +86,7 @@ def tapped_print_generic(*args: Any,
             result = args[0]
         elif kwargs:
             assert len(kwargs) == 1
-            result = next(iter(kwargs))
+            result = next(iter(kwargs.values()))
         else:
             assert False
-    return id_tap(tap, (args, kwargs), result=result)  # type: ignore[no-untyped-call]
+    return id_tap(tap, leaves, result=result)  # type: ignore[no-untyped-call]
