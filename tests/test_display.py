@@ -3,11 +3,13 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-from jax import vmap
+import pytest
+from jax import enable_custom_prng, jit, vmap
+from jax.random import KeyArray, PRNGKey
 from pytest import CaptureFixture
 from rich.console import Console
 
-from tjax import RealArray, jit, print_generic, tapped_print_generic
+from tjax import RealArray, print_generic, tapped_print_generic
 from tjax.dataclasses import dataclass, field
 
 
@@ -133,6 +135,26 @@ def test_tapped_dict(capsys: CaptureFixture[str],
         tapped_print_generic(x=x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
+    captured = capsys.readouterr()
+    verify(captured.out,
+           """
+           x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
+           ├── mean=1.0
+           └── deviation=0.0
+           """)
+
+
+# Unskip when https://github.com/google/jax/issues/13949 is resolved.
+@pytest.mark.skip()
+def test_tapped_key(capsys: CaptureFixture[str],
+                    console: Console) -> None:
+    with enable_custom_prng():
+        key = PRNGKey(123)
+        @jit
+        def f(x: KeyArray) -> KeyArray:
+            return tapped_print_generic(x)
+
+        f(key)
     captured = capsys.readouterr()
     verify(captured.out,
            """
