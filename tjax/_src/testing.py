@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from functools import partial, singledispatch
-from numbers import Complex, Number, Real
+from numbers import Complex, Integral, Real
 from operator import and_
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import jax
 import jax.numpy as jnp
 import numpy as np
-from jax.interpreters.xla import DeviceArray
 from jax.tree_util import tree_flatten, tree_map, tree_reduce
 
 from .annotations import Array, BooleanNumeric, PyTree
@@ -139,8 +139,8 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
 
 
 @get_test_string.register(np.ndarray)
-@get_test_string.register(DeviceArray)
-def _(actual: Union[Array, DeviceArray], rtol: float, atol: float) -> str:
+@get_test_string.register(jax.Array)
+def _(actual: Union[Array, jax.Array], rtol: float, atol: float) -> str:
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                           atol=atol),
                                     'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
@@ -156,7 +156,7 @@ def _(actual: Complex, rtol: float, atol: float) -> str:
 
 
 @get_test_string.register
-def _(actual: Number, rtol: float, atol: float) -> str:
+def _(actual: Integral, rtol: float, atol: float) -> str:
     return str(actual)
 
 
@@ -198,15 +198,15 @@ def get_relative_test_string(actual: Any,
 
 
 @get_relative_test_string.register(np.ndarray)
-@get_relative_test_string.register(DeviceArray)
-def _(actual: Union[Array, DeviceArray], original_name: str, original: Any, rtol: float,
+@get_relative_test_string.register(jax.Array)
+def _(actual: Union[Array, jax.Array], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                           atol=atol),
                                     'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                             atol=atol)}):
-        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
-            '  ', ' ')
+        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace('  ',
+                                                                                              ' ')
 
 
 @get_relative_test_string.register
@@ -215,7 +215,7 @@ def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: flo
 
 
 @get_relative_test_string.register
-def _(actual: Number, original_name: str, original: Any, rtol: float, atol: float) -> str:
+def _(actual: Integral, original_name: str, original: Any, rtol: float, atol: float) -> str:
     return str(actual)
 
 
