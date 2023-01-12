@@ -149,14 +149,9 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
 
 def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
     retval = f"{type(actual).__name__}("
-    retval += ",\n".join(
-        f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-        for fn in actual.dynamic_fields)
-    if actual.dynamic_fields and actual.static_fields:
-        retval += ',\n'
-    retval += ",\n".join(
-        f"{fn}=" + get_test_string(getattr(actual, fn), rtol, atol)
-        for fn in actual.static_fields)
+    retval += ",\n".join(((f"{fn.name}=" if fn.kw_only else "")
+                          + get_test_string(getattr(actual, fn.name), rtol, atol))
+                         for fn in dataclasses.fields(actual))
     retval += ")"
     return retval
 

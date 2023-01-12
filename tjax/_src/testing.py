@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import partial, singledispatch
+from math import prod
 from numbers import Complex, Integral, Real
 from operator import and_
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -135,18 +136,20 @@ def get_test_string(actual: Any, rtol: float, atol: float) -> str:
     Returns:
         A string of Python code that produces the desired value.
     """
-    return str(actual)
+    return repr(actual)
 
 
 @get_test_string.register(np.ndarray)
 @get_test_string.register(jax.Array)
 def _(actual: Union[Array, jax.Array], rtol: float, atol: float) -> str:
+    if prod(actual.shape) == 0:
+        return f"np.empty({actual.shape}, dtype=np.{actual.dtype})"
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                           atol=atol),
                                     'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                             atol=atol)}):
         return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
-            '  ', ' ')
+            '  ', ' ').replace('dtype=', 'dtype=np.')
 
 
 @get_test_string.register
@@ -167,6 +170,7 @@ def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
     return (("[" if is_list else "(")
             + ", ".join(get_test_string(sub_actual, rtol, atol)
                         for i, sub_actual in enumerate(actual))
+            + (',' if len(actual) == 1 else '')
             + ("]" if is_list else ")"))
 
 
