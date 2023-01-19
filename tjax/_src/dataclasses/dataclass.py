@@ -24,20 +24,20 @@ class _C(Protocol):
 
 
 @overload
-@dataclass_transform(frozen_default=True, field_descriptors=(field,))
+@dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Callable[[Type[_T]], Type[_T]]:
     ...
 
 
 @overload
-@dataclass_transform(frozen_default=True, field_descriptors=(field,))
+@dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(cls: Type[_T], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
               order: bool = False) -> Type[_T]:
     ...
 
 
-@dataclass_transform(frozen_default=True, field_descriptors=(field,))
+@dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False) -> Any:
     """
