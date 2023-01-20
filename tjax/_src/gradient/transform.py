@@ -9,8 +9,8 @@ from ..annotations import PyTree
 from ..dataclasses import dataclass
 from ..tools import abs_square
 
-__all__ = ['GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',
-           'ThirdOrderGradientTransformation']
+__all__ = ['GradientState', 'GenericGradientState', 'GradientTransformation',
+           'SecondOrderGradientTransformation', 'ThirdOrderGradientTransformation']
 
 
 # Gradient states ----------------------------------------------------------------------------------
