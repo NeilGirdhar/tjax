@@ -11,7 +11,7 @@ from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEve
                                            ScaleByRss, ScaleBySchedule, ScaleBySM3, ScaleByStddev,
                                            ScaleByTrustRatio, ScaleByYogi, Schedule, Trace)
 
-__all__ = ['ChainedGradientTransformation', 'SMDGradient', 'SMDState',
+__all__ = ['ChainedGradientTransformation', 'ChainedGradientState', 'SMDGradient', 'SMDState',
            # transform.py
            'GradientState', 'GradientTransformation', 'SecondOrderGradientTransformation',
            'ThirdOrderGradientTransformation',

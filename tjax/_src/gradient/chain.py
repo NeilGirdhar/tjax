@@ -6,7 +6,7 @@ from ..annotations import PyTree
 from ..dataclasses import dataclass
 from .transform import GradientState, GradientTransformation, Weights
 
-__all__ = ['ChainedGradientTransformation']
+__all__ = ['ChainedGradientTransformation', 'ChainedGradientState']
 
 
 @dataclass
