@@ -18,17 +18,7 @@ def is_scalar(x: Any) -> bool:
     return isinstance(x, Number) or isinstance(x, (np.ndarray, JaxArray)) and x.shape == ()
 
 
-@overload
-def abs_square(x: ComplexArray) -> RealArray:
-    ...
-
-
-@overload
-def abs_square(x: ComplexNumeric) -> RealNumeric:
-    ...
-
-
-def abs_square(x: ComplexNumeric) -> RealNumeric:
+def abs_square(x: ComplexNumeric) -> RealArray:
     return jnp.square(x.real) + jnp.square(x.imag)
 
 
@@ -37,7 +27,7 @@ def divide_where(dividend: RealNumeric,
                  divisor: Union[RealNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[RealNumeric] = None) -> RealNumeric:
+                 otherwise: Optional[RealNumeric] = None) -> RealArray:
     ...
 
 
@@ -46,7 +36,7 @@ def divide_where(dividend: ComplexNumeric,
                  divisor: Union[ComplexNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[ComplexNumeric] = None) -> ComplexNumeric:
+                 otherwise: Optional[ComplexNumeric] = None) -> ComplexArray:
     ...
 
 
@@ -54,7 +44,7 @@ def divide_where(dividend: ComplexNumeric,
                  divisor: Union[ComplexNumeric, IntegralNumeric],
                  *,
                  where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[ComplexNumeric] = None) -> ComplexNumeric:
+                 otherwise: Optional[ComplexNumeric] = None) -> ComplexArray:
     """
     Returns: `jnp.where(where, dividend / divisor, otherwise)`, but without evaluating
         `dividend / divisor` when `where` is false.  This prevents some exceptions.
@@ -69,7 +59,7 @@ def divide_where(dividend: ComplexNumeric,
     return jnp.where(where, quotient, otherwise)
 
 
-def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealNumeric:
+def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealArray:
     """
     Returns: The quotient assuming that the dividend and divisor are nonnegative, and infinite
         whenever the divisor equals zero.
