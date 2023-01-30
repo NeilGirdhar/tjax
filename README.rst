@@ -6,7 +6,7 @@ Tools for JAX
     :language: bash
 
 .. role:: python(code)
-   :language: python
+    :language: python
 
 This repository implements a variety of tools for the differential programming library
 `JAX <https://github.com/google/jax>`_.
