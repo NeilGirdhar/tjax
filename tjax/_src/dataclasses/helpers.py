@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, Mapping, Optional, TypeVar, overload
 __all__ = ['field', 'as_shallow_dict']
 
 
-T = TypeVar('T', bound=Any)
+T = TypeVar('T')
 
 
 if sys.version_info >= (3, 10):

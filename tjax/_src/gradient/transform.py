@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, Optional, Tuple, Type, TypeVar
+from typing import Callable, Generic, Optional, Tuple, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
+from typing_extensions import Self
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
@@ -14,7 +15,6 @@ __all__ = ['GradientState', 'GenericGradientState', 'GradientTransformation',
 
 
 # Gradient states ----------------------------------------------------------------------------------
-T = TypeVar('T', bound='GenericGradientState')
 U = TypeVar('U', bound=PyTree)
 
 
@@ -34,7 +34,7 @@ class GenericGradientState(GradientState):
     data: PyTree
 
     @classmethod
-    def wrap(cls: Type[T], weights: Weights, state: PyTree) -> Tuple[Weights, T]:
+    def wrap(cls, weights: Weights, state: PyTree) -> Tuple[Weights, Self]:
         return weights, cls(state)
 
 

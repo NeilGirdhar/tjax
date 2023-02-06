@@ -4,7 +4,7 @@ from typing import Any, Callable, Concatenate, Generic, Tuple, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
-from typing_extensions import ParamSpec
+from typing_extensions import ParamSpec, Self
 
 __all__ = ['jit', 'custom_jvp', 'custom_vjp']
 
@@ -12,8 +12,6 @@ __all__ = ['jit', 'custom_jvp', 'custom_vjp']
 R_co = TypeVar('R_co', covariant=True)
 F = TypeVar('F', bound=Callable[..., Any])
 P = ParamSpec('P')
-T = TypeVar("T", bound="custom_vjp[Any, Any, Any]")
-V = TypeVar("V", bound="custom_jvp[Any, Any, Any]")
 U = TypeVar("U")
 
 
@@ -62,7 +60,7 @@ class custom_vjp(Generic[U, P, R_co]):
         return self.vjp(u, *args, **kwargs)
 
     @overload
-    def __get__(self: T, instance: None, owner: Any = None) -> T:
+    def __get__(self, instance: None, owner: Any = None) -> Self:
         ...
 
     @overload
@@ -105,7 +103,7 @@ class custom_jvp(Generic[U, P, R_co]):
         return self.jvp(u, *args, **kwargs)
 
     @overload
-    def __get__(self: V, instance: None, owner: Any = None) -> V:
+    def __get__(self, instance: None, owner: Any = None) -> Self:
         ...
 
     @overload

@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.25.3"
+version = "0.26.0"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -40,7 +40,7 @@ flake8 = '>=3.9'
 hypothesis = '^6'
 isort = '>=5.8'
 jupyter = '>=1'
-mypy = '>=0.930'
+mypy = '>=1.0'
 pylint = '>=2.12.2'
 pyproject-flake8 = '>=6'
 pyright = '>=0.0.13'
