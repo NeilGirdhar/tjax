@@ -4,7 +4,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'tjax'
-version = "0.27.0"
+version = "0.28.0"
 description = "Tools for JAX."
 license = 'MIT'
 authors = ['Neil Girdhar <mistersheik@gmail.com>']
@@ -65,8 +65,6 @@ disable = 'ignored-abstractmethod'
 
 [tool.pylint.master]
 jobs = 0
-extension-pkg-whitelist = [
-    'mypy.plugins.dataclasses']
 
 [tool.pylint.messages_control]
 disable = [
@@ -127,7 +125,6 @@ reportUntypedFunctionDecorator = true
 reportUntypedNamedTuple = true
 
 [tool.mypy]
-plugins = 'tjax.mypy_plugin'
 files = ["tjax", "tests"]
 check_untyped_defs = true
 disallow_any_generics = true
