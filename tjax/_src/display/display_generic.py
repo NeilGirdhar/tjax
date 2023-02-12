@@ -16,6 +16,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from ..annotations import NumpyArray
+from ..dataclasses import DataclassInstance
 from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .colors import solarized
 
@@ -60,6 +61,7 @@ def display_generic(value: Any,
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
+        assert isinstance(value, DataclassInstance)  # TODO: remove this when typeshed fixes #9723.
         return display_dataclass(value, seen, show_values, key, batch_dims)
     return _assemble(key, Text(str(value), style=_unknown_color))
 
@@ -169,7 +171,7 @@ def _(value: Union[Tuple[Any, ...], List[Any]],
     return retval
 
 
-def display_dataclass(value: Any,
+def display_dataclass(value: DataclassInstance,
                       seen: MutableSet[int],
                       show_values: bool = True,
                       key: str = '',
@@ -185,6 +187,7 @@ def display_dataclass(value: Any,
         sub_batch_dims = bdi.advance(sub_value)
         retval.children.append(display_generic(sub_value, seen, show_values, name, sub_batch_dims))
     if is_module:
+        assert isinstance(value, FlaxModule)
         retval.children.append(display_generic(value.name, seen, show_values, 'name', None))
         retval.children.append(display_generic(value.parent is not None, seen, show_values,
                                                'has_parent', None))

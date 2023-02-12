@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-from functools import partial
-from typing import (Any, Callable, ClassVar, Hashable, List, Optional, Protocol, Sequence, Tuple,
-                    Type, TypeVar, overload)
+from typing import (Any, Callable, ClassVar, Dict, Hashable, List, Optional, Protocol, Sequence,
+                    Tuple, Type, Union, cast, overload, runtime_checkable)
 
 from jax.tree_util import AttributeKeyPathEntry, register_keypaths, register_pytree_node
 from typing_extensions import dataclass_transform
@@ -12,13 +11,16 @@ from ..annotations import PyTree
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
-__all__ = ['dataclass']
+__all__ = ['dataclass', 'DataclassInstance', 'TDataclassInstance']
 
 
-_T = TypeVar("_T")
+@runtime_checkable
+class DataclassInstance(Protocol):
+    __dataclass_fields__: ClassVar[Dict[str, dataclasses.Field[Any]]]
 
 
-class _C(Protocol):
+@runtime_checkable
+class TDataclassInstance(DataclassInstance, Protocol):
     static_fields: ClassVar[List[str]]
     dynamic_fields: ClassVar[List[str]]
 
@@ -26,20 +28,21 @@ class _C(Protocol):
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> Callable[[Type[_T]], Type[_T]]:
+              order: bool = False) -> Callable[[Type[Any]], Type[TDataclassInstance]]:
     ...
 
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: Type[_T], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> Type[_T]:
+def dataclass(cls: Type[Any], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
+              order: bool = False) -> Type[TDataclassInstance]:
     ...
 
 
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
-              eq: bool = True, order: bool = False) -> Any:
+              eq: bool = True, order: bool = False
+              ) -> Union[Type[TDataclassInstance], Callable[[Type[Any]], Type[TDataclassInstance]]]:
     """
     Returns the same class as was passed in, with dunder methods added based on the fields defined
     in the class.
@@ -98,12 +101,15 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
     ```
     """
     if cls is None:
-        return partial(dataclass, init=init, repr_=repr_, eq=eq, order=order)
+        def f(x: Type[Any], /) -> Type[TDataclassInstance]:
+            return dataclass(x, init=init, repr_=repr_, eq=eq, order=order)
+        return f  # Type checking support partial is poor.
     non_none_cls = cls
 
     # Apply dataclass function to cls.
-    data_clz: Type[_C] = dataclasses.dataclass(init=init, repr=repr_, eq=eq, order=order,
-                                               frozen=True)(cls)
+    data_clz: Type[TDataclassInstance] = cast(Type[TDataclassInstance],
+                                              dataclasses.dataclass(init=init, repr=repr_, eq=eq,
+                                                                    order=order, frozen=True)(cls))
 
     # Partition fields into hashed, tree, and uninitialized.
     static_fields: List[str] = []
