@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Optional, Tuple, overload
+from typing import Callable, overload
 
 import jax.numpy as jnp
 import numpy as np
@@ -17,8 +17,8 @@ __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',
 @overload
 def leaky_integrate(value: RealArray,
                     time_step: RealNumeric,
-                    drift: Optional[RealNumeric] = None,
-                    decay: Optional[RealNumeric] = None,
+                    drift: RealNumeric | None = None,
+                    decay: RealNumeric | None = None,
                     *,
                     leaky_average: bool = False) -> RealArray:
     ...
@@ -27,8 +27,8 @@ def leaky_integrate(value: RealArray,
 @overload
 def leaky_integrate(value: RealNumeric,  # type: ignore[misc]
                     time_step: RealNumeric,
-                    drift: Optional[RealNumeric] = None,
-                    decay: Optional[RealNumeric] = None,
+                    drift: RealNumeric | None = None,
+                    decay: RealNumeric | None = None,
                     *,
                     leaky_average: bool = False) -> RealNumeric:
     ...
@@ -37,8 +37,8 @@ def leaky_integrate(value: RealNumeric,  # type: ignore[misc]
 @overload
 def leaky_integrate(value: ComplexArray,
                     time_step: RealNumeric,
-                    drift: Optional[ComplexNumeric] = None,
-                    decay: Optional[ComplexNumeric] = None,
+                    drift: ComplexNumeric | None = None,
+                    decay: ComplexNumeric | None = None,
                     *,
                     leaky_average: bool = False) -> ComplexArray:
     ...
@@ -47,8 +47,8 @@ def leaky_integrate(value: ComplexArray,
 @overload
 def leaky_integrate(value: ComplexNumeric,
                     time_step: RealNumeric,
-                    drift: Optional[ComplexNumeric] = None,
-                    decay: Optional[ComplexNumeric] = None,
+                    drift: ComplexNumeric | None = None,
+                    decay: ComplexNumeric | None = None,
                     *,
                     leaky_average: bool = False) -> ComplexNumeric:
     ...
@@ -56,12 +56,12 @@ def leaky_integrate(value: ComplexNumeric,
 
 def leaky_integrate(value: ComplexNumeric,
                     time_step: RealNumeric,
-                    drift: Optional[ComplexNumeric] = None,
-                    decay: Optional[ComplexNumeric] = None,
+                    drift: ComplexNumeric | None = None,
+                    decay: ComplexNumeric | None = None,
                     *,
                     leaky_average: bool = False) -> ComplexNumeric:
-    """
-    Update the value so that it is the leaky integral (or leaky average).
+    """Update the value so that it is the leaky integral (or leaky average).
+
     Args:
         value: The current value of the leaky integral or average.
         time_step: The number of seconds that have passed.
@@ -94,8 +94,8 @@ def diffused_leaky_integrate(value: RealArray,
                              time_step: RealNumeric,
                              rng: KeyArray,
                              diffusion: RealNumeric,
-                             drift: Optional[RealNumeric] = None,
-                             decay: Optional[RealNumeric] = None,
+                             drift: RealNumeric | None = None,
+                             decay: RealNumeric | None = None,
                              *,
                              leaky_average: bool = False) -> RealArray:
     ...
@@ -106,8 +106,8 @@ def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
                              rng: KeyArray,
                              diffusion: RealNumeric,
-                             drift: Optional[ComplexNumeric] = None,
-                             decay: Optional[ComplexNumeric] = None,
+                             drift: ComplexNumeric | None = None,
+                             decay: ComplexNumeric | None = None,
                              *,
                              leaky_average: bool = False) -> ComplexArray:
     ...
@@ -117,12 +117,11 @@ def diffused_leaky_integrate(value: ComplexArray,
                              time_step: RealNumeric,
                              rng: KeyArray,
                              diffusion: RealNumeric,
-                             drift: Optional[ComplexNumeric] = None,
-                             decay: Optional[ComplexNumeric] = None,
+                             drift: ComplexNumeric | None = None,
+                             decay: ComplexNumeric | None = None,
                              *,
                              leaky_average: bool = False) -> ComplexArray:
-    """
-    Update an Ornstein-Uhlenbeck process.
+    """Update an Ornstein-Uhlenbeck process.
 
     Args:
         value: The current value of the leaky integral or average.
@@ -143,9 +142,9 @@ def diffused_leaky_integrate(value: ComplexArray,
 
 def leaky_data_weight(iterations_times_time_step: RealNumeric,
                       decay: RealNumeric) -> RealNumeric:
-    """
-    Returns: The amount of data that has been incorporated and has not been decayed.  That is,
-        leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True)
+    """The amount of data that has been incorporated and has not been decayed.
+
+    This equals leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True).
     """
     return -jnp.expm1(-iterations_times_time_step * decay)
 
@@ -168,9 +167,10 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 
 def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric) -> ComplexArray:
     if issubclass(time_series.dtype.type, np.integer):
-        raise TypeError("Cast the time series to a floating type.")
+        msg = "Cast the time series to a floating type."
+        raise TypeError(msg)
 
-    def g(carry: _FilterCarry, drift: ComplexNumeric) -> Tuple[_FilterCarry, ComplexArray]:
+    def g(carry: _FilterCarry, drift: ComplexNumeric) -> tuple[_FilterCarry, ComplexArray]:
         new_iterations = carry.iterations + 1.0
         data_weight = leaky_data_weight(new_iterations, decay.real)
         new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
@@ -190,6 +190,7 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
 def leaky_covariance(x_time_series: RealArray,
                      y_time_series: RealArray,
                      decay: RealNumeric,
+                     *,
                      covariance_matrix: bool = False) -> RealArray:
     ...
 
@@ -198,6 +199,7 @@ def leaky_covariance(x_time_series: RealArray,
 def leaky_covariance(x_time_series: ComplexArray,
                      y_time_series: ComplexArray,
                      decay: ComplexNumeric,
+                     *,
                      covariance_matrix: bool = False) -> ComplexArray:
     ...
 
@@ -205,6 +207,7 @@ def leaky_covariance(x_time_series: ComplexArray,
 def leaky_covariance(x_time_series: ComplexArray,
                      y_time_series: ComplexArray,
                      decay: ComplexNumeric,
+                     *,
                      covariance_matrix: bool = False) -> ComplexArray:
     times: Callable[[ComplexArray, ComplexArray], ComplexArray]
     if covariance_matrix:

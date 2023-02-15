@@ -36,26 +36,18 @@ typing_extensions = '>=4.2'
 
 [tool.poetry.group.dev.dependencies]
 chex = '>=0.1.3'
-flake8 = '>=3.9'
 hypothesis = '^6'
 isort = '>=5.8'
 jupyter = '>=1'
 mypy = '>=1.0'
 pylint = '>=2.12.2'
-pyproject-flake8 = '>=6'
 pyright = '>=0.0.13'
 pytest = '>=7'
+ruff = '>=0'
 
 [tool.poetry.group.extra.dependencies]
 flax = '>= 0.6.3'
 networkx = '>= 2.8.8'
-
-[tool.flake8]
-max-line-length = 100
-extend-ignore = "E741"
-per-file-ignores = """
-    __init__.py: F401, F403
-"""
 
 [tool.isort]
 line_length = 100
@@ -131,3 +123,30 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = ['networkx', 'optax', 'py']
 ignore_missing_imports = true
+
+[tool.ruff]
+select = ["F", "E", "W", "I", "N", "D", "UP", "YTT", "ANN", "S", "BLE", "FBT", "B", "A", "C4",
+    "EM", "EXE", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "RSE", "RET", "SLF", "SIM",
+    "TID", "PTH", "PD", "PGH", "PL", "TRY", "NPY", "RUF"]
+ignore = ["B008", "B011", "D100", "D101", "D102", "D107", "S101", "D103", "D105",
+    "SIM117", "ANN101", "ANN102", "ANN401", "TID252", "FBT003", "I001", "G004",
+    "PT015", "PGH003", "PT013"]
+line-length = 100
+target-version = "py38"
+extend-exclude = ["__init__.py"]
+
+[tool.ruff.flake8-annotations]
+mypy-init-return = true
+
+[tool.ruff.flake8-errmsg]
+max-string-length = 40
+
+[tool.ruff.isort]
+combine-as-imports = true
+
+[tool.ruff.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
+
+[tool.ruff.pylint]
+max-args = 8

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any, Callable, Generic, Optional, Tuple, Union
+from typing import Any, Callable, Generic, Optional, Union
 
 from jax.random import KeyArray
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
@@ -24,7 +24,8 @@ __all__ = ['Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleBy
 # New classes --------------------------------------------------------------------------------------
 @dataclass
 class Schedule:
-    """
+    """The schedule of step sizes.
+
     This class differs from optax.Schedule in that it's a pytree.  It can therefore be passed
     dynamically (since it marks the callable as static).  This allows it to participate in the union
     ScalarOrSchedule.
@@ -65,7 +66,7 @@ class Trace(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *trace(self.decay, self.nesterov, self.accumulator_dtype).update(gradient, state.data,
                                                                              parameters))
@@ -96,7 +97,7 @@ class Ema(GradientTransformation[GenericGradientState, Weights], Generic[Weights
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights] = None) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None = None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *ema(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -123,7 +124,7 @@ class ScaleByRss(GradientTransformation[GenericGradientState, Weights], Generic[
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights] = None) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None = None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_rss(self.initial_accumulator_value, self.eps).udpate(gradient, state.data,
                                                                            parameters))
@@ -152,7 +153,7 @@ class ScaleByRms(GradientTransformation[GenericGradientState, Weights], Generic[
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_rms(self.decay, self.eps, self.initial_scale).update(gradient, state.data,
                                                                            parameters))
@@ -181,7 +182,7 @@ class ScaleByStddev(GradientTransformation[GenericGradientState, Weights], Gener
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_stddev(self.decay, self.eps, self.initial_scale).update(gradient, state.data,
                                                                               parameters))
@@ -201,7 +202,7 @@ class ScaleByAdam(GradientTransformation[GenericGradientState, Weights], Generic
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_adam(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -221,7 +222,7 @@ class Scale(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -246,7 +247,7 @@ class ScaleByParamBlockNorm(GradientTransformation[GenericGradientState, Weights
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_param_block_norm(self.min_scale).update(gradient, state.data, parameters))
 
@@ -270,7 +271,7 @@ class ScaleByParamBlockRMS(GradientTransformation[GenericGradientState, Weights]
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_param_block_rms(self.min_scale).update(gradient, state.data, parameters))
 
@@ -301,7 +302,7 @@ class ScaleByBelief(GradientTransformation[GenericGradientState, Weights], Gener
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_belief(self.b1, self.b2, self.eps, self.eps_root).update(gradient, state.data,
                                                                                parameters))
@@ -312,7 +313,7 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
     """Rescale updates according to the Yogi algorithm.
 
     References:
-        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html) # noqa, pylint: disable=line-too-long
+        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html)
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -322,7 +323,8 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
             numerical stability when backpropagating gradients through the rescaling.
         initial_accumulator_value: The starting value for accumulators.
             Only positive values are allowed.
-    """
+    """  # noqa, pylint: disable=line-too-long
+    # https://github.com/PyCQA/pylint/issues/8301
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-3
@@ -336,7 +338,7 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root).update(gradient, state.data,
                                                                              parameters))
@@ -370,7 +372,7 @@ class ScaleByRAdam(GradientTransformation[GenericGradientState, Weights], Generi
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_radam(self.b1, self.b2, self.eps, self.eps_root).update(gradient, state.data,
                                                                               parameters))
@@ -398,7 +400,7 @@ class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], G
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *add_decayed_weights(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -420,7 +422,7 @@ class ScaleBySchedule(GradientTransformation[GenericGradientState, Weights], Gen
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_schedule(self.step_size_fn).update(gradient, state.data, parameters))
 
@@ -448,7 +450,7 @@ class ScaleByTrustRatio(GradientTransformation[GenericGradientState, Weights], G
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_trust_ratio(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -475,7 +477,7 @@ class AddNoise(GradientTransformation[GenericGradientState, Weights], Generic[We
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *add_noise(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -501,7 +503,7 @@ class ApplyEvery(GradientTransformation[GenericGradientState, Weights], Generic[
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *apply_every(self.k).update(gradient, state.data, parameters))
 
@@ -519,7 +521,7 @@ class Centralize(GradientTransformation[GenericGradientState, Weights], Generic[
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *centralize().update(gradient, state.data, parameters))
 
@@ -547,6 +549,6 @@ class ScaleBySM3(GradientTransformation[GenericGradientState, Weights], Generic[
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *scale_by_sm3(self.b1, self.b2, self.eps).update(gradient, state.data, parameters))

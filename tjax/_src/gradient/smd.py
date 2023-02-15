@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, Optional, Tuple, TypeVar
+from typing import Callable, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map
@@ -24,10 +24,11 @@ class SMDState(GradientState, Generic[Weights]):
 @dataclass
 class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
                   Generic[Weights]):
-    """
+    """Stochastic meta-descent.
+
     Schraudolph, N. N. (1999). Local gain adaptation in stochastic gradient descent. Artificial
     Neural Networks, 1999. ICANN 99. Ninth International Conference on (Conf. Publ. No. 470), 2,
-    569–574. https://doi.org/10.1049/cp:19991170
+    569-574. https://doi.org/10.1049/cp:19991170.
     """
     meta_learning_rate: RealNumeric = 1e-2
 
@@ -38,9 +39,9 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
     def second_order_update(self,
                             gradient: Weights,
                             state: SMDState[Weights],
-                            parameters: Optional[Weights],
+                            parameters: Weights | None,
                             hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                Tuple[Weights, SMDState[Weights]]):
+                                tuple[Weights, SMDState[Weights]]):
         negative_gradient = tree_map(jnp.negative, gradient)  # delta
 
         # Update log-learning rate.

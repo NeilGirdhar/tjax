@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from numbers import Number
-from typing import Any, Optional, Union, overload
+from typing import Any, overload
 
 import jax.numpy as jnp
 import numpy as np
@@ -24,30 +24,31 @@ def abs_square(x: ComplexNumeric) -> RealArray:
 
 @overload
 def divide_where(dividend: RealNumeric,
-                 divisor: Union[RealNumeric, IntegralNumeric],
+                 divisor: RealNumeric | IntegralNumeric,
                  *,
-                 where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[RealNumeric] = None) -> RealArray:
+                 where: BooleanNumeric | None = None,
+                 otherwise: RealNumeric | None = None) -> RealArray:
     ...
 
 
 @overload
 def divide_where(dividend: ComplexNumeric,
-                 divisor: Union[ComplexNumeric, IntegralNumeric],
+                 divisor: ComplexNumeric | IntegralNumeric,
                  *,
-                 where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[ComplexNumeric] = None) -> ComplexArray:
+                 where: BooleanNumeric | None = None,
+                 otherwise: ComplexNumeric | None = None) -> ComplexArray:
     ...
 
 
 def divide_where(dividend: ComplexNumeric,
-                 divisor: Union[ComplexNumeric, IntegralNumeric],
+                 divisor: ComplexNumeric | IntegralNumeric,
                  *,
-                 where: Optional[BooleanNumeric] = None,
-                 otherwise: Optional[ComplexNumeric] = None) -> ComplexArray:
-    """
+                 where: BooleanNumeric | None = None,
+                 otherwise: ComplexNumeric | None = None) -> ComplexArray:
+    """Return the quotient or a special value when a condition is false.
+
     Returns: `jnp.where(where, dividend / divisor, otherwise)`, but without evaluating
-        `dividend / divisor` when `where` is false.  This prevents some exceptions.
+    `dividend / divisor` when `where` is false.  This prevents some exceptions.
     """
     if where is None:
         assert otherwise is None
@@ -60,11 +61,12 @@ def divide_where(dividend: ComplexNumeric,
 
 
 def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> RealArray:
-    """
+    """Quotient for use with positive reals that never returns NaN.
+
     Returns: The quotient assuming that the dividend and divisor are nonnegative, and infinite
-        whenever the divisor equals zero.
+    whenever the divisor equals zero.
     """
-    return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)
+    return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)  # noqa: PLR2004
 
 
 def zero_tangent_like(value: Array) -> NumpyRealArray:
@@ -74,6 +76,6 @@ def zero_tangent_like(value: Array) -> NumpyRealArray:
 
 
 def inverse_softplus(y: RealNumeric) -> RealArray:
-    return jnp.where(y > 80.0,
+    return jnp.where(y > 80.0,  # noqa: PLR2004
                      y,
                      jnp.log(jnp.expm1(y)))

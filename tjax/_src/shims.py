@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Concatenate, Generic, Tuple, TypeVar, overload
+from typing import Any, Callable, Concatenate, Generic, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
@@ -16,9 +16,7 @@ U = TypeVar("U")
 
 
 def jit(func: F, **kwargs: Any) -> F:
-    """
-    This version of jit ensures that abstract methods stay abstract.
-    """
+    """This version of jit ensures that abstract methods stay abstract."""
     retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
         retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore[attr-defined]
@@ -26,29 +24,29 @@ def jit(func: F, **kwargs: Any) -> F:
     return retval  # type: ignore[return-value]
 
 
-class custom_vjp(Generic[U, P, R_co]):
-    """
-    This is a shim class over jax.custom_vjp to:
+class custom_vjp(Generic[U, P, R_co]):  # noqa: N801
+    """A shim class over jax.custom_vjp.
 
-    - allow custom_vjp to be used on methods, and
-    - rename nondiff_argnums to static_argnums.
+    It
+    - allows custom_vjp to be used on methods, and
+    - renames nondiff_argnums to static_argnums.
+
+    Args:
+        fun: the function to decorate.
+        static_argnums: The indices of the static arguments.
     """
+
     vjp: jax.custom_vjp[R_co]
 
     def __init__(self,
                  fun: Callable[Concatenate[U, P], R_co],
-                 static_argnums: Tuple[int, ...] = ()):
-        """
-        Args:
-            fun: the function to decorate.
-            static_argnums: The indices of the static arguments.
-        """
+                 static_argnums: tuple[int, ...] = ()):
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
 
     def defvjp(self,
-               fwd: Callable[Concatenate[U, P], Tuple[R_co, Any]],
+               fwd: Callable[Concatenate[U, P], tuple[R_co, Any]],
                bwd: Callable[..., Any]) -> None:
         self.vjp.defvjp(fwd, bwd)
 
@@ -74,28 +72,26 @@ class custom_vjp(Generic[U, P, R_co]):
         return Partial(self, instance)  # type: ignore[no-untyped-call]
 
 
-class custom_jvp(Generic[U, P, R_co]):
+class custom_jvp(Generic[U, P, R_co]):  # noqa: N801
+    """This is a shim class over jax.custom_jvp to allow custom_vjp to be used on methods.
+
+    Args:
+        fun: the function to decorate.
+        nondiff_argnums: The indices of the non-differentiated arguments.
     """
-    This is a shim class over jax.custom_jvp to allow custom_vjp to be used on methods.
-    """
+
     def __init__(self,
                  fun: Callable[Concatenate[U, P], R_co],
-                 nondiff_argnums: Tuple[int, ...] = ()):
-        """
-        Args:
-            fun: the function to decorate.
-            nondiff_argnums: The indices of the non-differentiated arguments.
-        """
+                 nondiff_argnums: tuple[int, ...] = ()):
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(fun, nondiff_argnums=nondiff_argnums)
 
-    def defjvp(self, jvp: Callable[Concatenate[U, P], Tuple[R_co, R_co]]) -> None:
-        """
-        Implement the custom forward pass of the custom derivative.
+    def defjvp(self, jvp: Callable[Concatenate[U, P], tuple[R_co, R_co]]) -> None:
+        """Implement the custom forward pass of the custom derivative.
 
         Args:
-            fwd: The custom forward pass.
+            jvp: The custom forward pass.
         """
         self.jvp.defjvp(jvp)
 

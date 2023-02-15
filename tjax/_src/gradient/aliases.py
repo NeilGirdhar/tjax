@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any, Callable, Generic, Optional, Tuple, Union
+from typing import Any, Callable, Generic, Union
 
 import jax.numpy as jnp
 from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, lamb, lars,
@@ -33,22 +33,22 @@ class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[W
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adabelief(**asdict(self)).update(gradient, state.data, parameters))
 
 
 @dataclass
 class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
-    learning_rate: Optional[ScalarOrSchedule] = None
+    learning_rate: ScalarOrSchedule | None = None
     min_dim_size_to_factor: IntegralNumeric = 128
     decay_rate: RealNumeric = 0.8
     decay_offset: IntegralNumeric = 0
     multiply_by_parameter_scale: RealNumeric = True
-    clipping_threshold: Optional[float] = 1.0
-    momentum: Optional[float] = None
+    clipping_threshold: float | None = 1.0
+    momentum: float | None = None
     dtype_momentum: Any = field(default=jnp.float32, static=True)
-    weight_decay_rate: Optional[float] = None
+    weight_decay_rate: float | None = None
     eps: RealNumeric = 1e-30
     factored: bool = field(default=True, static=True)
     weight_decay_mask: MaskOrFn[Weights] = None
@@ -59,7 +59,7 @@ class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[W
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adafactor(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -76,7 +76,7 @@ class AdaGrad(GradientTransformation[GenericGradientState, Weights], Generic[Wei
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adagrad(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -88,7 +88,7 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
-    mu_dtype: Optional[Any] = field(default=None, static=True)
+    mu_dtype: Any | None = field(default=None, static=True)
 
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(adam(**asdict(self)).init(parameters))
@@ -96,7 +96,7 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adam(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -108,9 +108,9 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
-    mu_dtype: Optional[Any] = field(default=None, static=True)
+    mu_dtype: Any | None = field(default=None, static=True)
     weight_decay: RealNumeric = 1e-4
-    mask: Optional[Union[Any, Callable[[Any], Any]]] = None
+    mask: Any | Callable[[Any], Any] | None = None
 
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(adamw(**asdict(self)).init(parameters))
@@ -118,7 +118,7 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *adamw(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -134,7 +134,7 @@ class Fromage(GradientTransformation[GenericGradientState, Weights], Generic[Wei
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *fromage(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -156,7 +156,7 @@ class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *lars(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -177,7 +177,7 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *lamb(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -195,7 +195,7 @@ class NoisySGD(GradientTransformation[GenericGradientState, Weights], Generic[We
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *noisy_sgd(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -215,7 +215,7 @@ class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *radam(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -223,11 +223,13 @@ class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 @dataclass
 class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
     """A flexible RMSProp optimiser.
+
     RMSProp is an SGD variant with learning rate adaptation. The `learning_rate`
     used for each weight is scaled by a suitable estimate of the magnitude of the
     gradients on previous steps. Several variants of RMSProp can be found
     in the literature. This alias provides an easy to configure RMSProp
     optimiser that can be used to switch between several of these variants.
+
     References:
         Tieleman and Hinton, 2012: http://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf
         Graves, 2013: https://arxiv.org/abs/1308.0850
@@ -249,7 +251,7 @@ class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Wei
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
     centered: bool = field(default=False, static=True)
-    momentum: Optional[float] = None
+    momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
 
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -258,7 +260,7 @@ class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Wei
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *rmsprop(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -286,9 +288,9 @@ class SGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights
         A `GradientTransformation`.
     """
     learning_rate: RealNumeric
-    momentum: Optional[float] = None
+    momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
-    accumulator_dtype: Optional[Any] = field(default=None, static=True)
+    accumulator_dtype: Any | None = field(default=None, static=True)
 
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(sgd(**asdict(self)).init(parameters))
@@ -296,7 +298,7 @@ class SGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *sgd(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -312,7 +314,7 @@ class SM3(GradientTransformation[GenericGradientState, Weights], Generic[Weights
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *sm3(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -330,7 +332,7 @@ class Yogi(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *yogi(**asdict(self)).update(gradient, state.data, parameters))
 
@@ -341,7 +343,7 @@ class DPSGD(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     l2_norm_clip: RealNumeric
     noise_multiplier: RealNumeric
     seed: IntegralNumeric
-    momentum: Optional[float] = None
+    momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
 
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -350,6 +352,6 @@ class DPSGD(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
-               parameters: Optional[Weights]) -> Tuple[Weights, GenericGradientState]:
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(
             *dpsgd(**asdict(self)).update(gradient, state.data, parameters))

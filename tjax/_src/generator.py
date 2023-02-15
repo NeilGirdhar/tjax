@@ -10,15 +10,11 @@ __all__ = ['vmap_split']
 
 
 def vmap_split(rng: KeyArray, shape: ShapeLike) -> KeyArray:
-    """
-    Split a scalar key array into a key array that can be passed to a vmapped function.
-    """
+    """Split a scalar key array into a key array that can be passed to a vmapped function."""
     if rng.shape != ():
-        raise ValueError("Cannot vmap-split a non-scalar key array.")
-    if isinstance(shape, int):
-        shape = (shape,)
-    else:
-        shape = tuple(shape)
+        msg = "Cannot vmap-split a non-scalar key array."
+        raise ValueError(msg)
+    shape = (shape,) if isinstance(shape, int) else tuple(shape)
     prod_shape = math.prod(shape)
     rngs = rng if prod_shape == 1 else split(rng, prod_shape)
     return rngs.reshape(shape)

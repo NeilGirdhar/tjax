@@ -4,7 +4,7 @@ from functools import partial, singledispatch
 from math import prod
 from numbers import Complex, Integral, Real
 from operator import and_
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -19,14 +19,14 @@ __all__ = ['assert_tree_allclose', 'tree_allclose', 'get_test_string', 'get_rela
 
 def assert_tree_allclose(actual: PyTree,
                          desired: PyTree,
-                         original_name: Optional[str] = None,
-                         original_value: Optional[PyTree] = None,
+                         original_name: str | None = None,
+                         original_value: PyTree | None = None,
                          *,
-                         rtol: Optional[float] = None,
-                         atol: Optional[float] = None) -> None:
-    """
-    Asserts that every tensor in an actual pytree matches the corresponding tensor in a desired
-    pytree.  If the assertion fails, a passing test string is printed::
+                         rtol: float | None = None,
+                         atol: float | None = None) -> None:
+    """Assert that an actual pytree matches a desired pytree.
+
+    If the assertion fails, a passing test string is printed::
 
     ```python
     from tjax import assert_tree_allclose, dataclass, RealNumeric
@@ -79,9 +79,10 @@ def assert_tree_allclose(actual: PyTree,
     flattened_actual, structure_actual = tree_flatten(actual)
     flattened_desired, structure_desired = tree_flatten(desired)
     if structure_actual != structure_desired:
-        raise AssertionError(f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n")
+        msg = f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n"
+        raise AssertionError(msg)
 
-    for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired)):
+    for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired, strict=True)):
         dtype = jnp.result_type(actual_, desired_)
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         try:
@@ -107,9 +108,10 @@ def assert_tree_allclose(actual: PyTree,
 
 def tree_allclose(actual: PyTree,
                   desired: PyTree,
-                  rtol: Optional[float] = None,
-                  atol: Optional[float] = None) -> bool:
-    """
+                  rtol: float | None = None,
+                  atol: float | None = None) -> bool:
+    """Return whether two pytrees are close.
+
     Args:
         actual: The actual value.
         desired: The desired value.
@@ -128,20 +130,19 @@ def tree_allclose(actual: PyTree,
 # Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
 @singledispatch
 def get_test_string(actual: Any, rtol: float, atol: float) -> str:
-    """
+    """Produce a short string of Python code that produces the actual value.
+
     Args:
-        actual: The actual value that was produced, and that should be the desired value.
+        actual: The actual value that was produced.
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
-    Returns:
-        A string of Python code that produces the desired value.
     """
     return repr(actual)
 
 
 @get_test_string.register(np.ndarray)
 @get_test_string.register(jax.Array)
-def _(actual: Union[Array, jax.Array], rtol: float, atol: float) -> str:
+def _(actual: Array | jax.Array, rtol: float, atol: float) -> str:
     if prod(actual.shape) == 0:
         return f"np.empty({actual.shape}, dtype=np.{actual.dtype})"
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
@@ -165,7 +166,7 @@ def _(actual: Integral, rtol: float, atol: float) -> str:
 
 @get_test_string.register(list)
 @get_test_string.register(tuple)
-def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
+def _(actual: list[Any] | tuple[Any], rtol: float, atol: float) -> str:
     is_list = isinstance(actual, list)
     is_named_tuple = not is_list and type(actual).__name__ != 'tuple'
     return ((type(actual).__name__ if is_named_tuple else "")
@@ -177,7 +178,7 @@ def _(actual: Union[List[Any], Tuple[Any]], rtol: float, atol: float) -> str:
 
 
 @get_test_string.register(dict)
-def _(actual: Dict[Any, Any], rtol: float, atol: float) -> str:
+def _(actual: dict[Any, Any], rtol: float, atol: float) -> str:
     return '{' + ",\n".join(repr(key) + ': ' + get_test_string(sub_actual, rtol, atol)
                             for key, sub_actual in actual.items()) + '}'
 
@@ -189,13 +190,15 @@ def get_relative_test_string(actual: Any,
                              original: Any,
                              rtol: float,
                              atol: float) -> str:
-    """
+    """Produce code for use in tests based on actual and produced values.
+
     Args:
         original_name: The name of the variable containing an original value.
         actual: The actual value that was produced, and that should be the desired value.
         original: The original value.
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
+
     Returns:
         A string of Python code that produces the desired value from an "original value" (could be
         zeroed-out, for example).
@@ -205,7 +208,7 @@ def get_relative_test_string(actual: Any,
 
 @get_relative_test_string.register(np.ndarray)
 @get_relative_test_string.register(jax.Array)
-def _(actual: Union[Array, jax.Array], original_name: str, original: Any, rtol: float,
+def _(actual: Array | jax.Array, original_name: str, original: Any, rtol: float,
       atol: float) -> str:
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                           atol=atol),
@@ -227,19 +230,20 @@ def _(actual: Integral, original_name: str, original: Any, rtol: float, atol: fl
 
 @get_relative_test_string.register(list)
 @get_relative_test_string.register(tuple)
-def _(actual: Union[List[Any], Tuple[Any]], original_name: str, original: Any, rtol: float,
+def _(actual: list[Any] | tuple[Any], original_name: str, original: Any, rtol: float,
       atol: float) -> str:
     is_list = isinstance(actual, list)
     return (("[" if is_list else "(")
             + ", ".join(get_relative_test_string(f"{original_name}[{i}]",
                                                  sub_actual, sub_original,
                                                  rtol, atol)
-                        for i, (sub_actual, sub_original) in enumerate(zip(actual, original)))
+                        for i, (sub_actual, sub_original) in enumerate(zip(actual, original,
+                                                                           strict=True)))
             + ("]" if is_list else ")"))
 
 
 @get_relative_test_string.register(dict)
-def _(actual: Dict[Any, Any], original_name: str, original: Any, rtol: float, atol: float) -> str:
+def _(actual: dict[Any, Any], original_name: str, original: Any, rtol: float, atol: float) -> str:
     if not isinstance(original, dict):
         raise TypeError
 
@@ -252,13 +256,13 @@ def _(actual: Dict[Any, Any], original_name: str, original: Any, rtol: float, at
 
 
 # Private functions --------------------------------------------------------------------------------
-def _float_to_string_with_precision(x: Union[float, complex], precision: int) -> str:
+def _float_to_string_with_precision(x: float | complex, precision: int) -> str:
     with np.printoptions(precision=precision, floatmode='maxprec'):
         return repr(np.asarray(x))[6:-1]
 
 
-def _inexact_number_to_string(x: Union[complex, np.inexact[Any]], rtol: float, atol: float) -> str:
-    y: Union[float, complex]
+def _inexact_number_to_string(x: complex | np.inexact[Any], rtol: float, atol: float) -> str:
+    y: float | complex
     if isinstance(x, Real):  # type: ignore[unreachable]
         y = float(x)  # type: ignore[unreachable]
     elif isinstance(x, Complex):  # type: ignore[unreachable]

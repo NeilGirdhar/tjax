@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Type, TypedDict
+from typing import Any, TypedDict
 
 import jax.numpy as jnp
 
@@ -14,7 +14,7 @@ class Tols(TypedDict):
     atol: float
 
 
-def default_rtol(dtype: Type[jnp.number[Any]]) -> float:
+def default_rtol(dtype: type[jnp.number[Any]]) -> float:
     if not jnp.issubdtype(dtype, jnp.inexact):
         return 0.0
     return {jnp.bfloat16: 1e-4,
@@ -22,7 +22,7 @@ def default_rtol(dtype: Type[jnp.number[Any]]) -> float:
             jnp.complex64: 1e-4, jnp.complex128: 1e-5}[dtype]  # type: ignore[index]
 
 
-def default_atol(dtype: Type[jnp.number[Any]]) -> float:
+def default_atol(dtype: type[jnp.number[Any]]) -> float:
     if not jnp.issubdtype(dtype, jnp.inexact):
         return 1.0
     return {jnp.bfloat16: 1e-2,
@@ -30,9 +30,9 @@ def default_atol(dtype: Type[jnp.number[Any]]) -> float:
             jnp.complex64: 1e-6, jnp.complex128: 1e-8}[dtype]  # type: ignore[index]
 
 
-def default_tols(dtype: Type[jnp.number[Any]],
+def default_tols(dtype: type[jnp.number[Any]],
                  *,
-                 rtol: Optional[float] = None,
-                 atol: Optional[float] = None) -> Tols:
+                 rtol: float | None = None,
+                 atol: float | None = None) -> Tols:
     return Tols(rtol=default_rtol(dtype) if rtol is None else rtol,
                 atol=default_atol(dtype) if atol is None else atol)

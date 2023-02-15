@@ -12,8 +12,7 @@ __all__ = ['SimpleScan']
 @dataclass
 class SimpleScan(IteratedFunctionBase[Parameters, State, Trajectory, State],
                  Generic[Parameters, State, Trajectory]):
-    """
-    A SimpleScan object models an iterated function that runs for a fixed number of steps.
+    """A SimpleScan object models an iterated function that runs for a fixed number of steps.
 
     It is a generic class in terms of three generic types, all of which are pytrees:
         * Parameters, which models the iteration parameters,

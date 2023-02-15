@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, Tuple
+from typing import Generic
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
@@ -50,9 +50,10 @@ class ComparingIteratedFunction(
                                     augmented.last_state),
                            True)
 
-    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> Tuple[RealNumeric,
+    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> tuple[RealNumeric,
                                                                                        RealNumeric]:
-        """
+        """The minimum tolerances.
+
         Returns:
             The minimum value of atol that would lead to convergence now.
             The minimum value of rtol that would lead to convergence now.

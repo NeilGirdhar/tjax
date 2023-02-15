@@ -20,10 +20,10 @@ from tjax.fixed_point import ComparingIteratedFunction, ComparingIteratedFunctio
 def generate_stable_matrix(generator: Generator,
                            size: int,
                            eps: float = 1e-2) -> RealArray:
-    """
-    Generate a random matrix who's singular values are less than 1 - `eps`.
+    """Generate a random matrix who's singular values are less than 1 - `eps`.
 
     Args:
+        generator: The random number generator.
         size: The size of the matrix. The dimensions of the matrix will be `size`x`size`.
         eps: A float between 0 and 1. The singular values will be no larger than 1 - `eps`.
 
@@ -41,8 +41,7 @@ def make_stable(matrix: RealArray, eps: float) -> RealArray:
 
 
 def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
-    """
-    Solve for the fixed point x = Ax + b.
+    """Solve for the fixed point x = Ax + b.
 
     Args:
         amat: A contractive matrix.
@@ -56,8 +55,7 @@ def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
 
 
 def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealArray]:
-    """
-    Solve for the gradient of the fixed point x = Ax + b.
+    """Solve for the gradient of the fixed point x = Ax + b.
 
     Args:
         amat: A contractive matrix.
@@ -154,12 +152,10 @@ def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, R
 def test_gradient(generator: Generator,
                   ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray,
                                                        RealArray]) -> None:
-    """
-    Test gradient on the fixed point of Ax + b = x.
-    """
+    """Test gradient on the fixed point of Ax + b = x."""
     mat_size = 10
     matrix = generate_stable_matrix(generator, mat_size, 1e-1)
-    offset = np.random.rand(mat_size)
+    offset = generator.uniform(size=mat_size)
     x0 = jnp.zeros_like(offset)
 
     def loss(params: TPair, x: RealArray) -> RealArray:

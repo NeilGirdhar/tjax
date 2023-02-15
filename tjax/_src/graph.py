@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import MutableSet
-from typing import Any, Dict, Hashable, List, Sequence, Tuple, Type, TypeVar
+from typing import Any, Dict, Hashable, Sequence, TypeVar
 
 from jax.tree_util import register_pytree_node
 from rich.tree import Tree
@@ -10,7 +10,7 @@ from rich.tree import Tree
 from .annotations import PyTree
 from .display import BatchDimensionIterator, BatchDimensions, display_class, display_generic
 
-__all__: List[str] = []
+__all__: list[str] = []
 
 
 try:
@@ -20,7 +20,7 @@ except ImportError:
 else:
     T = TypeVar('T', bound=nx.Graph)
 
-    def register_graph_as_jax_pytree(cls: Type[T]) -> None:
+    def register_graph_as_jax_pytree(cls: type[T]) -> None:
         def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> T:
             node_dicts, edge_dicts = trees
 
@@ -36,7 +36,7 @@ else:
 
             return graph
 
-        def tree_flatten(graph: T) -> Tuple[Sequence[PyTree], Hashable]:
+        def tree_flatten(graph: T) -> tuple[Sequence[PyTree], Hashable]:
             return ((dict(graph.nodes), dict(graph.edges)), None)
 
         register_pytree_node(cls, tree_flatten, tree_unflatten)
@@ -49,15 +49,15 @@ else:
     except ImportError:
         pass
     else:
-        def register_graph_as_flax_state_dict(cls: Type[T]) -> None:
-            def ty_to_state_dict(graph: T) -> Dict[str, Any]:
+        def register_graph_as_flax_state_dict(cls: type[T]) -> None:
+            def ty_to_state_dict(graph: T) -> dict[str, Any]:
                 edge_dict_of_dicts = defaultdict[Any, Dict[Any, Any]](dict)
                 for (source, target), edge_dict in dict(graph.edges).items():
                     edge_dict_of_dicts[source][target] = edge_dict
                 return {'nodes': to_state_dict(dict(graph.nodes)),
                         'edges': to_state_dict(dict(edge_dict_of_dicts))}
 
-            def ty_from_state_dict(graph: T, state_dict: Dict[str, Any]) -> T:
+            def ty_from_state_dict(graph: T, state_dict: dict[str, Any]) -> T:
                 retval = type(graph)()
                 for node_name, node_dict in state_dict['nodes'].items():
                     retval.add_node(node_name, **from_state_dict(graph.nodes[node_name], node_dict))
@@ -75,6 +75,7 @@ else:
 
     @display_generic.register
     def _(value: nx.Graph,
+          *,
           seen: MutableSet[int],
           show_values: bool = True,
           key: str = '',
@@ -85,9 +86,11 @@ else:
         bdi = BatchDimensionIterator(batch_dims)
         for name, node in value.nodes.items():
             sub_batch_dims = bdi.advance(node)
-            retval.children.append(display_generic(node, seen, show_values, name, sub_batch_dims))
+            retval.children.append(display_generic(node, seen=seen, show_values=show_values,
+                                                   key=name, batch_dims=sub_batch_dims))
         for (source, target), edge in value.edges.items():
             key = f"{source}{arrow}{target}"
             sub_batch_dims = bdi.advance(edge)
-            retval.children.append(display_generic(edge, seen, show_values, key, sub_batch_dims))
+            retval.children.append(display_generic(edge, seen=seen, show_values=show_values,
+                                                   key=key, batch_dims=sub_batch_dims))
         return retval

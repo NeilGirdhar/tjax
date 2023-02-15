@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Generic, Tuple, TypeVar
+from typing import Any, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.lax import while_loop
@@ -21,8 +21,7 @@ TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
 @dataclass
 class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAugmentedState],
                        Generic[Parameters, State, Comparand, Trajectory, TheAugmentedState]):
-    """
-    An IteratedFunction object models an iterated function.
+    """An IteratedFunction object models an iterated function.
 
     It is a generic class in terms of five generic types, all of which are pytrees:
         * Parameters, which models the iteration parameters,
@@ -54,10 +53,12 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
     def find_fixed_point(self,
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
-        """
+        """The fixed point finder.
+
         Args:
             theta: The parameters for which gradients can be calculated.
             initial_state: An initial guess of the final state.
+
         Returns:
             state: The augmented state at the fixed point.
         """
@@ -70,9 +71,7 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
                           self.initial_augmented(initial_state))
 
     def debug_fixed_point(self, theta: Parameters, initial_state: State) -> TheAugmentedState:
-        """
-        This method is identical to find_fixed_point, but avoids using while_loop.
-        """
+        """This method is identical to find_fixed_point, but avoids using while_loop."""
         augmented = self.initial_augmented(initial_state)
         while self.state_needs_iteration(theta, augmented):
             new_state = self.sampled_state(theta, augmented.current_state)
@@ -80,7 +79,8 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
         return augmented
 
     def state_needs_iteration(self, theta: Parameters, augmented: TheAugmentedState) -> bool:
-        """
+        """Whether the state needs to be iterated.
+
         Args:
             theta: The parameters.
             augmented: The state.
@@ -96,29 +96,29 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
 
     # Abstract methods -----------------------------------------------------------------------------
     def expected_state(self, theta: Parameters, state: State) -> State:
-        """
-        Returns: The expected value of the next state given the old one.  This is used by the
-            combinator.
+        """The expected value of the next state given the old one.
+
+        This is used by the combinator.
         """
         raise NotImplementedError
 
     def converged(self, augmented: TheAugmentedState) -> BooleanNumeric:
-        """
-        Returns: A Boolean Array of shape () indicating whether the pytrees are close.
-        """
+        """A Boolean Array of shape () indicating whether the pytrees are close."""
         raise NotImplementedError
 
     def extract_comparand(self, state: State) -> Comparand:
-        """
-        Returns: The "comparand", which is a subset of the values in the state that are compared by
-            subclasses to detect convergence.  In ComparingIteratedFunction, the comparand will be
-            compared in successive states to detect convergence.  In StochasticIteratedFunction, the
-            mean and variance of the comparand are used to detect convergence.
+        """Extracts the "comparand" from the state.
+
+        This is a subset of the values in the state that are compared by subclasses to detect
+        convergence.  In ComparingIteratedFunction, the comparand will be compared in successive
+        states to detect convergence.  In StochasticIteratedFunction, the mean and variance of the
+        comparand are used to detect convergence.
         """
         raise NotImplementedError
 
-    def minimum_tolerances(self, augmented: TheAugmentedState) -> Tuple[RealNumeric, RealNumeric]:
-        """
+    def minimum_tolerances(self, augmented: TheAugmentedState) -> tuple[RealNumeric, RealNumeric]:
+        """The minimum tolerances.
+
         Returns:
             The minimum value of atol that would lead to convergence now.
             The minimum value of rtol that would lead to convergence now.

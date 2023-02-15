@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, Optional, Tuple, TypeVar
+from typing import Callable, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
@@ -20,21 +20,19 @@ U = TypeVar('U', bound=PyTree)
 
 @dataclass
 class GradientState:
-    """
-    This base class allows instance checks, and strict type annotations.
-    """
+    """This base class allows instance checks, and strict type annotations."""
 
 
 @dataclass
 class GenericGradientState(GradientState):
-    """
-    This class serves as a simple container for gradient states because optax doesn't provide a
-    suitable base class.
+    """A simple container for gradient states.
+
+    Optax doesn't provide a suitable base class.
     """
     data: PyTree
 
     @classmethod
-    def wrap(cls, weights: Weights, state: PyTree) -> Tuple[Weights, Self]:
+    def wrap(cls, weights: Weights, state: PyTree) -> tuple[Weights, Self]:
         return weights, cls(state)
 
 
@@ -47,10 +45,10 @@ State = TypeVar('State', bound=GradientState)
 # Gradient transformation base classes -------------------------------------------------------------
 @dataclass
 class GradientTransformation(Generic[State, Weights]):
-    """
-    A gradient transformation transforms loss gradients (with respect to weights) into weight deltas
-    that are added to the weights.  The typical goal of a gradient transformation is for the weights
-    to converge quickly and stably.
+    """A class that transforms weight cotangents into into weight deltas.
+
+    The delta are added to the weights.  The typical goal of a gradient transformation is for the
+    weights to converge quickly and stably.
 
     The most basic gradient transformation is the scaled negative gradients, which can be
     interpreted as doing Newton's method with an assumed isotropic loss Hessian.  In general, all
@@ -62,12 +60,14 @@ class GradientTransformation(Generic[State, Weights]):
     def update(self,
                gradient: Weights,
                state: State,
-               parameters: Optional[Weights]) -> Tuple[Weights, State]:
-        """
+               parameters: Weights | None) -> tuple[Weights, State]:
+        """Transform the weight gradient and update the gradient state.
+
         Args:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
+
         Returns:
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
@@ -78,19 +78,22 @@ class GradientTransformation(Generic[State, Weights]):
 @dataclass
 class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
                                         Generic[State, Weights]):
-    """
-    A second order gradient transformation is a special case of a gradient transformation whose
-    update rule accepts a Hessian-vector-product function in its update.
+    """A second order gradient transformation.
+
+    This is a special case of a gradient transformation whose update rule accepts a
+    Hessian-vector-product function in its update.
     """
     def update(self,
                gradient: Weights,
                state: State,
-               parameters: Optional[Weights]) -> Tuple[Weights, State]:
-        """
+               parameters: Weights | None) -> tuple[Weights, State]:
+        """Transform the weight gradient and update the gradient state.
+
         Args:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
+
         Returns:
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
@@ -106,16 +109,18 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
     def second_order_update(self,
                             gradient: Weights,
                             state: State,
-                            parameters: Optional[Weights],
+                            parameters: Weights | None,
                             hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                Tuple[Weights, State]):
-        """
+                                tuple[Weights, State]):
+        """Transform the weight gradient and update the gradient state.
+
         Args:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
             hessian_vector_product: A function that maps v to the Hessian of the loss with respect
                 to the weights times v.
+
         Returns:
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
@@ -126,23 +131,26 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
 @dataclass
 class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, Weights],
                                        Generic[State, Weights]):
-    """
-    A third order gradient transformation is a special case of a second order gradient
-    transformation whose update rule accepts the diagonal entries of the Hessian.
+    """A third order gradient transformation.
+
+    This is a special case of a second order gradient transformation whose update rule accepts the
+    diagonal entries of the Hessian.
     """
     def second_order_update(self,
                             gradient: Weights,
                             state: State,
-                            parameters: Optional[Weights],
+                            parameters: Weights | None,
                             hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                Tuple[Weights, State]):
-        """
+                                tuple[Weights, State]):
+        """Transform the weight gradient and update the gradient state.
+
         Args:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
             hessian_vector_product: A function that maps v to the Hessian of the loss with respect
                 to the weights times v.
+
         Returns:
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
@@ -156,10 +164,11 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
     def third_order_update(self,
                            gradient: Weights,
                            state: State,
-                           parameters: Optional[Weights],
+                           parameters: Weights | None,
                            hessian_vector_product: Callable[[Weights], Weights],
-                           hessian_diagonal: Weights) -> Tuple[Weights, State]:
-        """
+                           hessian_diagonal: Weights) -> tuple[Weights, State]:
+        """Transform the weight gradient and update the gradient state.
+
         Args:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
@@ -168,6 +177,7 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
                 to the weights times v.
             hessian_diagonal: The diagonal entries of the Hessian of the loss with respect to the
                 weights.
+
         Returns:
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.

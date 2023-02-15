@@ -1,4 +1,4 @@
-"""Tests from optax._src.transform_test"""
+"""Tests from optax._src.transform_test."""
 from typing import Any, Callable, Tuple
 
 import chex
@@ -158,14 +158,14 @@ def test_scale() -> None:
         scaled_updates, _ = rescaler.update(updates, empty_state, updates)
 
         # Manually scale updates.
-        def rescale(t: Any) -> Any:
-            return t * factor  # pylint:disable=cell-var-from-loop
+        def rescale(t: Any, *, factor: float = factor) -> Any:
+            return t * factor
         manual_updates = tree_map(rescale, updates)
         # Check the rescaled updates match.
         chex.assert_tree_all_close(scaled_updates, manual_updates)
 
 
-@pytest.mark.parametrize("inputs, outputs", [
+@pytest.mark.parametrize(("inputs", "outputs"), [
     ([1.0, 2.0], [1.0, 2.0]),
     ([[1.0, 2.0], [3.0, 4.0]], [[-0.5, 0.5], [-0.5, 0.5]]),
     ([[[1., 2.], [3., 4.]],

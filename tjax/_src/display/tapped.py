@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, TypeVar, overload
+from typing import Any, TypeVar, overload
 
 from jax.experimental.host_callback import id_tap
 from jax.tree_util import tree_flatten, tree_unflatten
@@ -19,7 +19,7 @@ _U = TypeVar('_U')
 @overload
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
-                         console: Optional[Console] = None,
+                         console: Console | None = None,
                          no_jvp: bool = False,
                          result: None = None,
                          **kwargs: Any
@@ -30,7 +30,7 @@ def tapped_print_generic(*args: Any,
 @overload
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
-                         console: Optional[Console] = None,
+                         console: Console | None = None,
                          no_jvp: bool = False,
                          result: _U,
                          **kwargs: Any
@@ -40,13 +40,13 @@ def tapped_print_generic(*args: Any,
 
 def tapped_print_generic(*args: Any,
                          raise_on_nan: bool = True,
-                         console: Optional[Console] = None,
+                         console: Console | None = None,
                          no_jvp: bool = False,
                          result: Any = None,
                          **kwargs: Any
                          ) -> Any:
-    """
-    Uses print_generic in a tapped function.
+    """Uses print_generic in a tapped function.
+
     Args:
         raise_on_nan: Assert if NaN is found in the output.
         console: The console that formats the output.
@@ -58,7 +58,7 @@ def tapped_print_generic(*args: Any,
     """
     leaves, tree_def = tree_flatten((args, kwargs))
 
-    def tap(tap_leaves: List[Any],
+    def tap(tap_leaves: list[Any],
             transforms: TapFunctionTransforms
             ) -> None:
         args, kwargs = tree_unflatten(tree_def, tap_leaves)

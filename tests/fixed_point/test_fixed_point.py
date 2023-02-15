@@ -30,7 +30,7 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
     def sampled_state(self, theta: PyTree, state: Array) -> Array:
         g = grad(self.f, 1)(theta, state)
         ratio = self.f(theta, state) / g
-        return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
+        return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)  # noqa: PLR2004
 
     def sampled_state_trajectory(self,
                                  theta: PyTree,
@@ -58,7 +58,7 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
         x, rng = state
         g = grad(self.f, 1)(theta, x)
         ratio = self.f(theta, x) / g
-        new_x = x - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)
+        new_x = x - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)  # noqa: PLR2004
         return new_x, rng
 
     def sampled_state(self, theta: PyTree, state: State) -> State:
@@ -119,8 +119,8 @@ def noisy_it_fun() -> NoisyNewtonsMethod:
                               step_size=0.05)
 
 
-@pytest.mark.parametrize('theta', (3.4, 5.8, -9.2))
-@pytest.mark.parametrize('x_init', (3.4, 5.8, -9.2))
+@pytest.mark.parametrize('theta', [3.4, 5.8, -9.2])
+@pytest.mark.parametrize('x_init', [3.4, 5.8, -9.2])
 def test_forward(fixed_point_using_while: C,
                  fixed_point_using_scan: C,
                  theta: Array,
@@ -129,7 +129,7 @@ def test_forward(fixed_point_using_while: C,
     assert_allclose(fixed_point_using_while(theta, x_init), theta, rtol=1e-1)
 
 
-@pytest.mark.parametrize('theta', (-10.0, -1.0, 0.0, 1.0, 10.0))
+@pytest.mark.parametrize('theta', [-10.0, -1.0, 0.0, 1.0, 10.0])
 def test_grad(fixed_point_using_while: C,
               fixed_point_using_scan: C,
               theta: Array) -> None:
@@ -139,7 +139,7 @@ def test_grad(fixed_point_using_while: C,
     assert_allclose(1.0, h(theta), rtol=1e-1)
 
 
-@pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
+@pytest.mark.parametrize('theta', [-5.0, -1.0, 0.0, 1.0, 5.0])
 def test_noisy_grad(noisy_it_fun: NoisyNewtonsMethod, theta: float) -> None:
 
     def fixed_point_using_while_of_theta(theta: float) -> float:

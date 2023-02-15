@@ -91,11 +91,10 @@ def test_batch_display_dict(capsys: CaptureFixture[str],
 
 def test_tapped(capsys: CaptureFixture[str],
                 console: Console) -> None:
-    "Like test_jit_display, but uses tapped_print_generic to get the array."
+    """Like test_jit_display, but uses tapped_print_generic to get the array."""
     @jit
     def f(x: RealArray) -> RealArray:
-        x = tapped_print_generic(x, console=console)
-        return x
+        return tapped_print_generic(x, console=console)
     f(np.ones(3))
     captured = capsys.readouterr()
     verify(captured.out,
@@ -107,7 +106,7 @@ def test_tapped(capsys: CaptureFixture[str],
 
 def test_tapped_batched(capsys: CaptureFixture[str],
                         console: Console) -> None:
-    "Like test_batch_display, but uses tapped_print_generic to get the array."
+    """Like test_batch_display, but uses tapped_print_generic to get the array."""
     @jit
     def f(x: RealArray) -> RealArray:
         tapped_print_generic(x, console=console)
@@ -124,7 +123,7 @@ def test_tapped_batched(capsys: CaptureFixture[str],
 
 def test_tapped_dict(capsys: CaptureFixture[str],
                      console: Console) -> None:
-    "Like test_batch_display, but uses tapped_print_generic to get the array."
+    """Like test_batch_display, but uses tapped_print_generic to get the array."""
     @jit
     def f(x: RealArray) -> RealArray:
         tapped_print_generic(x=x, console=console)

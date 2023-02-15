@@ -25,27 +25,28 @@ def combine_batch_dimensions(x: BatchDimensions, y: _SimpleBatchDimensions) -> B
     return tuple(yi if xi is None
                  else xi if yi is None
                  else xi + yi
-                 for xi, yi in zip(x, y_bd))
+                 for xi, yi in zip(x, y_bd, strict=True))
 
 
 class BatchDimensionIterator:
-    """
+    """An iterator for batch dimensions.
+
     Batch dimensions is created by using jax.vmap on a function.  V-mapped dimensions can have
     non-unity batch dimensions.  This class keeps track of these dimensions and provides
     iterator-like behavior for displaying the batch dimensions along corresponding elements.
+
+    Args:
+        batch_dims: A tuple of integers corresponding to the leaves of the PyTree.  This class
+        keeps track of these dimensions.
     """
     def __init__(self, batch_dims: BatchDimensions = None):
-        """
-        Args:
-            batch_dims: A tuple of integers corresponding to the leaves of the PyTree.  This class
-                keeps track of these dimensions
-        """
         super().__init__()
         self.batch_dims = batch_dims
         self.i = 0
 
     def advance(self, value: Any) -> BatchDimensions:
-        """
+        """Advance the iterator.
+
         Args:
             value: The next sub-element of the PyTree.  It need not be a leaf.
         Returns: The batch dimensions of the leaves of value.
@@ -58,8 +59,6 @@ class BatchDimensionIterator:
         return self.batch_dims[old_i: self.i]
 
     def check_done(self) -> None:
-        """
-        Asserts that all of the batch dimensions are accounted for.
-        """
+        """Asserts that all of the batch dimensions are accounted for."""
         if self.batch_dims is not None:
             assert self.i == len(self.batch_dims)

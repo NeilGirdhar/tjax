@@ -79,7 +79,8 @@ Contribution guidelines
 
 - How to clean the source:
 
-  - :bash:`isort .`
+  - :bash:`ruff .`
+  - :bash:`pyright .`
   - :bash:`mypy .`
+  - :bash:`isort .`
   - :bash:`pylint tjax tests`
-  - :bash:`pflake8 .`

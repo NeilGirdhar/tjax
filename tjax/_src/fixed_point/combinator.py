@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Tuple, TypeVar
+from typing import Any, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax import vjp
@@ -37,8 +37,9 @@ class _ZParameters(Generic[Parameters, State, Differentiand]):
 
 
 def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand, TheAugmentedState],
-             augmented_star_bar: TheAugmentedState) -> Tuple[None, Parameters, None]:
-    """
+             augmented_star_bar: TheAugmentedState) -> tuple[None, Parameters, None]:
+    """The backward pass of the fixed point finder.
+
     Args:
         residuals: residuals produced by _ffp_fwd.
         augmented_star_bar: cotangents
@@ -78,10 +79,10 @@ def _ffp_bwd(residuals: _ZResiduals[Parameters, State, Comparand, Differentiand,
 class IteratedFunctionWithCombinator(
         IteratedFunction[Parameters, State, Comparand, Trajectory, TheAugmentedState],
         Generic[Parameters, State, Comparand, Differentiand, Trajectory, TheAugmentedState]):
-    """
-    An IteratedFunctionWithCombinator is an IteratedFunction that invokes a combinator so that
-    differentiation works through the fixed point.  Besides inheriting from this class, no other
-    action is necessary to get this capability.
+    """An IteratedFunctionWithCombinator is an IteratedFunction that invokes a combinator.
+
+    It allows differentiation works through the fixed point.  Besides inheriting from this class, no
+    other action is necessary to get this capability.
 
     It is a generic class with all of the parameters of IteratedFunction, and Differentiand, which
     is the type of the *portion of the state* with respect to which derivatives at the fixed point
@@ -99,7 +100,10 @@ class IteratedFunctionWithCombinator(
     def find_fixed_point(self,  # type: ignore[override]
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
-        """
+        """Find the fixed point.
+
+        This is a separate method because it has a bound custom VJP.
+
         Args:
             theta: The parameters for which gradients can be calculated.
             initial_state: An initial guess of the final state.
@@ -109,9 +113,11 @@ class IteratedFunctionWithCombinator(
 
     # Abstract methods -----------------------------------------------------------------------------
     def extract_differentiand(self, theta: Parameters, state: State) -> Differentiand:
-        """
-        Returns: The differentiable values in the state.  It is used by the combinator to find
-            cotangents.
+        """Extract the differentiable values in a state.
+
+        It is used by the combinator to find cotangents.
+
+        Returns: The differentiable values in the state.
         """
         raise NotImplementedError
 
@@ -119,8 +125,10 @@ class IteratedFunctionWithCombinator(
                               theta: Parameters,
                               state: State,
                               differentiand: Differentiand) -> State:
-        """
+        """Implant the differentiand into the state.
+
         Args:
+            theta: The parameters for which gradients can be calculated.
             state: A state that will provide nondifferentiable values.
             differentiand: A differentiand that will provide differentiable values.
         Returns: A state containing differentiable from the differentiand and nondifferentiable
@@ -131,13 +139,15 @@ class IteratedFunctionWithCombinator(
     # Apply vjp ------------------------------------------------------------------------------------
     def _ffp_fwd(self,
                  theta: Parameters,
-                 initial_state: State) -> Tuple[TheAugmentedState,
+                 initial_state: State) -> tuple[TheAugmentedState,
                                                 _ZResiduals[Parameters, State, Comparand,
                                                             Differentiand, TheAugmentedState]]:
-        """
+        """The forward pass of the fixed point finder.
+
         Args:
             theta: The parameters for which gradients can be calculated.
             initial_state: An initial guess of the final state.
+
         Returns:
             x_star: the result of the minimization.
             residuals: residuals used in _ffp_bwd.
@@ -164,9 +174,7 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
         Differentiand,
         None],
         Generic[Parameters, State, Comparand, TheAugmentedState, Differentiand]):
-    """
-    The state of _ZIterate is the differentiand of the outer iterated function.
-    """
+    """The state of _ZIterate is the differentiand of the outer iterated function."""
     iterated_function: IteratedFunctionWithCombinator[
         Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
 

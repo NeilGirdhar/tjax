@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import (Any, Callable, ClassVar, Dict, Hashable, List, Optional, Protocol, Sequence,
-                    Tuple, Type, Union, cast, overload, runtime_checkable)
+from typing import (Any, Callable, ClassVar, Hashable, Protocol, Sequence, Type, cast, overload,
+                    runtime_checkable)
 
 from jax.tree_util import AttributeKeyPathEntry, register_keypaths, register_pytree_node
 from typing_extensions import dataclass_transform
@@ -16,34 +16,35 @@ __all__ = ['dataclass', 'DataclassInstance', 'TDataclassInstance']
 
 @runtime_checkable
 class DataclassInstance(Protocol):
-    __dataclass_fields__: ClassVar[Dict[str, dataclasses.Field[Any]]]
+    __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
 
 
 @runtime_checkable
 class TDataclassInstance(DataclassInstance, Protocol):
-    static_fields: ClassVar[List[str]]
-    dynamic_fields: ClassVar[List[str]]
+    static_fields: ClassVar[list[str]]
+    dynamic_fields: ClassVar[list[str]]
 
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> Callable[[Type[Any]], Type[TDataclassInstance]]:
+              order: bool = False) -> Callable[[type[Any]], type[TDataclassInstance]]:
     ...
 
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: Type[Any], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> Type[TDataclassInstance]:
+def dataclass(cls: type[Any], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
+              order: bool = False) -> type[TDataclassInstance]:
     ...
 
 
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: bool = True,
+def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool = True,
               eq: bool = True, order: bool = False
-              ) -> Union[Type[TDataclassInstance], Callable[[Type[Any]], Type[TDataclassInstance]]]:
-    """
+              ) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
+    """A dataclass creator that creates a pytree.
+
     Returns the same class as was passed in, with dunder methods added based on the fields defined
     in the class.
 
@@ -101,19 +102,19 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
     ```
     """
     if cls is None:
-        def f(x: Type[Any], /) -> Type[TDataclassInstance]:
+        def f(x: type[Any], /) -> type[TDataclassInstance]:
             return dataclass(x, init=init, repr_=repr_, eq=eq, order=order)
         return f  # Type checking support partial is poor.
     non_none_cls = cls
 
     # Apply dataclass function to cls.
-    data_clz: Type[TDataclassInstance] = cast(Type[TDataclassInstance],
+    data_clz: type[TDataclassInstance] = cast(Type[TDataclassInstance],
                                               dataclasses.dataclass(init=init, repr=repr_, eq=eq,
                                                                     order=order, frozen=True)(cls))
 
     # Partition fields into hashed, tree, and uninitialized.
-    static_fields: List[str] = []
-    dynamic_fields: List[str] = []
+    static_fields: list[str] = []
+    dynamic_fields: list[str] = []
 
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
@@ -124,7 +125,7 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
             dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def tree_flatten(x: Any) -> Tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(x: Any) -> tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
         trees = tuple(getattr(x, name) for name in dynamic_fields)
         return trees, hashed
@@ -132,11 +133,11 @@ def dataclass(cls: Optional[Type[Any]] = None, /, *, init: bool = True, repr_: b
     def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> Any:
         if not isinstance(hashed, tuple):
             raise TypeError
-        hashed_args = dict(zip(static_fields, hashed))
-        tree_args = dict(zip(dynamic_fields, trees))
+        hashed_args = dict(zip(static_fields, hashed, strict=True))
+        tree_args = dict(zip(dynamic_fields, trees, strict=True))
         return non_none_cls(**hashed_args, **tree_args)
 
-    def keypaths(_: Any) -> List[AttributeKeyPathEntry]:
+    def keypaths(_: Any) -> list[AttributeKeyPathEntry]:
         return [AttributeKeyPathEntry(name) for name in dynamic_fields]
 
     # Assign field lists to the class.

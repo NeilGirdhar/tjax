@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import jax.numpy as jnp
 import pytest
@@ -75,8 +75,8 @@ class EncodingElement:
 
     def iterate(self,
                 ec: EncodingConfiguration,
-                rng: Optional[KeyArray],
-                time_step: RealNumeric) -> Tuple[EncodingConfiguration, Optional[KeyArray]]:
+                rng: KeyArray | None,
+                time_step: RealNumeric) -> tuple[EncodingConfiguration, KeyArray | None]:
         decay = 1e-4
         noise: RealNumeric
         if rng is None:
@@ -102,7 +102,7 @@ class EncodingElement:
         return grad(f)(self).theta
 
 
-@pytest.mark.parametrize('theta', (-5.0, -1.0, 0.0, 1.0, 5.0))
+@pytest.mark.parametrize('theta', [-5.0, -1.0, 0.0, 1.0, 5.0])
 def test_use_classes(theta: float) -> None:
     eif = EncodingIteratedFunction(minimum_iterations=11,
                                    maximum_iterations=1000,

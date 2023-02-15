@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Generic, Tuple
+from typing import Generic
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
@@ -67,9 +67,10 @@ class StochasticIteratedFunction(
                            True)
 
     def minimum_tolerances(self,
-                           augmented: StochasticState[State, Comparand]) -> Tuple[RealNumeric,
+                           augmented: StochasticState[State, Comparand]) -> tuple[RealNumeric,
                                                                                   RealNumeric]:
-        """
+        """The minimum tolerances.
+
         Returns:
             The minimum value of atol that would lead to convergence now.
             The minimum value of rtol that would lead to convergence now.
@@ -89,7 +90,7 @@ class StochasticIteratedFunction(
         return minimum_atol, minimum_rtol
 
     # Private methods ------------------------------------------------------------------------------
-    def _sufficient_statistics(self, state: State) -> Tuple[Comparand, Comparand]:
+    def _sufficient_statistics(self, state: State) -> tuple[Comparand, Comparand]:
         comparand = self.extract_comparand(state)
         squared_comparand = tree_map(abs_square, comparand)
         return comparand, squared_comparand
