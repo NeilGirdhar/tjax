@@ -71,7 +71,9 @@ def test_batch_display(capsys: CaptureFixture[str],
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
     captured = capsys.readouterr()
-    verify(captured.out, "Jax Array (3, 5) float64 batched over axes of size (4, 6)")
+    # Unfortunately, there's no way anymore to detect batch axes:
+    # batched over axes of size (4, 6)
+    verify(captured.out, "Jax Array (3, 5) float64")
 
 
 def test_batch_display_dict(capsys: CaptureFixture[str],
@@ -82,10 +84,12 @@ def test_batch_display_dict(capsys: CaptureFixture[str],
         return x
     vmap(vmap(f))(jnp.ones((3, 4)))
     captured = capsys.readouterr()
+    # Unfortunately, there's no way anymore to detect batch axes:
+    # batched over axes of size (3, 4)
     verify(captured.out,
            """
            dict
-           └── abc=Jax Array () float64 batched over axes of size (3, 4)
+           └── abc=Jax Array () float64
            """)
 
 

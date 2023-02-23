@@ -119,7 +119,8 @@ def _(value: Array,
       batch_dims: BatchDimensions = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
-    extracted_batch_sizes = _batched_axis_sizes_from_jax_array(value)
+    # extracted_batch_sizes = _batched_axis_sizes_from_jax_array(value)
+    extracted_batch_sizes = ()
     batch_str = _batch_str(extracted_batch_sizes)
     retval = _assemble(key,
                        Text(f"Jax Array {value.shape} {value.dtype}{batch_str}",
@@ -340,7 +341,7 @@ def _batched_axis_sizes_from_jax_array(value: Array) -> tuple[int, ...]:
     """Discover the shapes of the batched axes.
 
     This function works by looking for BatchTracer objects, so it is only effective on jax.Arrays in
-    non-tapped display.
+    non-tapped display.  This no longer works.
 
     Returns: The size of the axes that are batched over for a given Jax array.
     """
