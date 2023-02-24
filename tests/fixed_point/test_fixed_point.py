@@ -84,30 +84,30 @@ def squared_error(theta: Array, x: Array) -> Array:
     return jnp.square(x - theta)
 
 
-@pytest.fixture(scope='session')
-def it_fun() -> NewtonsMethod:
+@pytest.fixture(scope='session', name='it_fun')
+def fixture_it_fun() -> NewtonsMethod:
     step_size = 0.01
     return NewtonsMethod(minimum_iterations=11, maximum_iterations=2000, rtol=1e-4,
                          atol=1e-6, z_minimum_iterations=11, z_maximum_iterations=1000,
                          f=squared_error, step_size=step_size)
 
 
-@pytest.fixture(scope='session')
-def fixed_point_using_while(it_fun: NewtonsMethod) -> C:
+@pytest.fixture(scope='session', name='fixed_point_using_while')
+def fixture_fixed_point_using_while(it_fun: NewtonsMethod) -> C:
     def f(theta: Array, x_init: Array) -> Array:
         return it_fun.find_fixed_point(theta, x_init).current_state
     return f
 
 
-@pytest.fixture(scope='session')
-def fixed_point_using_scan(it_fun: NewtonsMethod) -> C:
+@pytest.fixture(scope='session', name='fixed_point_using_scan')
+def fixture_fixed_point_using_scan(it_fun: NewtonsMethod) -> C:
     def f(theta: Array, x_init: Array) -> Array:
         return it_fun.sample_trajectory(theta, x_init, 2000, None)[0].current_state
     return f
 
 
-@pytest.fixture(scope='session')
-def noisy_it_fun() -> NoisyNewtonsMethod:
+@pytest.fixture(scope='session', name='noisy_it_fun')
+def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
     return NoisyNewtonsMethod(minimum_iterations=11,
                               maximum_iterations=1000,
                               rtol=1e-4,
