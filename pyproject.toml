@@ -96,6 +96,7 @@ min-similarity-lines = 10
 ignore-imports = 'yes'
 
 [tool.pyright]
+include = ["tjax", "tests"]
 stubPath = ""
 reportMissingSuperCall = true
 reportPrivateImportUsage = false
@@ -103,6 +104,7 @@ reportUnnecessaryTypeIgnoreComment = true
 
 [tool.mypy]
 plugins = 'tjax.mypy_plugin'
+files = ["tjax", "tests"]
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true

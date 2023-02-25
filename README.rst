@@ -80,7 +80,7 @@ Contribution guidelines
 - How to clean the source:
 
   - :bash:`ruff .`
-  - :bash:`pyright .`
-  - :bash:`mypy .`
+  - :bash:`pyright`
+  - :bash:`mypy`
   - :bash:`isort .`
   - :bash:`pylint tjax tests`
