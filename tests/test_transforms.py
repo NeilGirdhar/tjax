@@ -126,26 +126,26 @@ def test_apply_every() -> None:
     state_sgd_apply_every = sgd_apply_every.init(optax_sgd_apply_every_params)
     transform_fn = variant(sgd_apply_every.update)
 
-    for _ in range(STEPS):
+    for i in range(STEPS):
         # Apply a step of SGD
         updates_sgd, state_sgd = sgd_transform.update(per_step_updates, state_sgd, None)
         optax_sgd_params = apply_updates(optax_sgd_params, updates_sgd)
 
-    # Apply a step of sgd_apply_every
-    updates_sgd_apply_every, state_sgd_apply_every = transform_fn(
-        per_step_updates, state_sgd_apply_every, None)
-    optax_sgd_apply_every_params = apply_updates(
-        optax_sgd_apply_every_params, updates_sgd_apply_every)
+        # Apply a step of sgd_apply_every
+        updates_sgd_apply_every, state_sgd_apply_every = transform_fn(
+            per_step_updates, state_sgd_apply_every, None)
+        optax_sgd_apply_every_params = apply_updates(
+            optax_sgd_apply_every_params, updates_sgd_apply_every)
 
-    # Every k steps, check equivalence.
-    if (STEPS - 1) % k == k - 1:
-        chex.assert_tree_all_close(
-            optax_sgd_apply_every_params, optax_sgd_params,
-            atol=1e-6, rtol=1e-5)
-    # Otherwise, check update is zero.
-    else:
-        chex.assert_tree_all_close(
-            updates_sgd_apply_every, zero_update, atol=0.0, rtol=0.0)
+        # Every k steps, check equivalence.
+        if i % k == k - 1:
+            chex.assert_tree_all_close(
+                optax_sgd_apply_every_params, optax_sgd_params,
+                atol=1e-6, rtol=1e-5)
+        # Otherwise, check update is zero.
+        else:
+            chex.assert_tree_all_close(
+                updates_sgd_apply_every, zero_update, atol=0.0, rtol=0.0)
 
 
 def test_scale() -> None:
