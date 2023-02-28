@@ -8,7 +8,7 @@ from jax.tree_util import tree_map
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
-from ..shims import custom_vjp
+from ..shims import custom_vjp_method
 from .augmented import State
 from .base import Parameters, Trajectory
 from .comparing import ComparingIteratedFunction, ComparingState
@@ -96,7 +96,7 @@ class IteratedFunctionWithCombinator(
     z_maximum_iterations: int
 
     # Overridden methods ---------------------------------------------------------------------------
-    @custom_vjp
+    @custom_vjp_method
     def find_fixed_point(self,  # type: ignore[override]
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:

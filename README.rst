@@ -50,7 +50,8 @@ Minor components
 
 Tjax also includes:
 
-- Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods.
+- Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods:
+  :python:`custom_vjp_method` and :python:`custom_vjp_method`
   (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/shims.py>`_.)
 
 - Tools for working with cotangents.  (See

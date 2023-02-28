@@ -18,7 +18,7 @@ from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, le
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.partial import Partial
 from ._src.plottable_trajectory import PlottableTrajectory
-from ._src.shims import custom_jvp, custom_vjp, jit
+from ._src.shims import custom_jvp_method, custom_vjp_method, custom_jvp, custom_vjp, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
 from ._src.tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus, is_scalar,
@@ -30,14 +30,14 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric', 'Partial',
            'PlottableTrajectory', 'PyTree', 'Real', 'RealArray', 'RealNumeric', 'Shape',
            'ShapeLike', 'SliceLike', 'TapFunctionTransforms', 'abs_square', 'assert_tree_allclose',
-           'copy_cotangent', 'scale_cotangent', 'custom_jvp', 'custom_vjp', 'dataclasses',
-           'default_atol', 'default_rtol', 'default_tols', 'diffused_leaky_integrate',
-           'display_generic', 'divide_nonnegative', 'divide_where', 'fixed_point',
-           'get_relative_test_string', 'get_test_string', 'gradient', 'tapped_print_generic',
-           'inverse_softplus', 'is_scalar', 'jit', 'leaky_covariance', 'leaky_data_weight',
-           'leaky_integrate', 'leaky_integrate_time_series', 'cotangent_combinator',
-           'print_cotangent', 'print_generic', 'replace_cotangent', 'tree_allclose', 'vmap_split',
-           'zero_tangent_like']
+           'copy_cotangent', 'scale_cotangent', 'custom_jvp', 'custom_jvp_method', 'custom_vjp',
+           'custom_vjp_method', 'dataclasses', 'default_atol', 'default_rtol', 'default_tols',
+           'diffused_leaky_integrate', 'display_generic', 'divide_nonnegative', 'divide_where',
+           'fixed_point', 'get_relative_test_string', 'get_test_string', 'gradient',
+           'tapped_print_generic', 'inverse_softplus', 'is_scalar', 'jit', 'leaky_covariance',
+           'leaky_data_weight', 'leaky_integrate', 'leaky_integrate_time_series',
+           'cotangent_combinator', 'print_cotangent', 'print_generic', 'replace_cotangent',
+           'tree_allclose', 'vmap_split', 'zero_tangent_like']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False

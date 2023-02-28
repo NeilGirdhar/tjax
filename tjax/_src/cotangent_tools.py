@@ -4,11 +4,12 @@ from functools import partial
 from typing import Any, Callable, Tuple, TypeVar, cast
 
 import jax.numpy as jnp
-from jax import custom_jvp, custom_vjp, vjp
+from jax import vjp
 from jax.tree_util import tree_map, tree_structure
 
 from .annotations import RealNumeric
 from .display import tapped_print_generic
+from .shims import custom_jvp, custom_vjp
 
 __all__ = ['scale_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cotangent',
            'cotangent_combinator']
@@ -31,9 +32,9 @@ def _scale_cotangent_jvp(scale: RealNumeric, primals: tuple[X], tangents: tuple[
     return x, scaled_x_dot
 
 
-# Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
 scale_cotangent = custom_jvp(scale_cotangent, nondiff_argnums=(1,))
-scale_cotangent.defjvp(_scale_cotangent_jvp)  # type: ignore[attr-defined]
+# The type variables don't match, so this type error needs to be ignored.
+scale_cotangent.defjvp(_scale_cotangent_jvp)  # pyright: ignore
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
@@ -54,7 +55,7 @@ def _copy_cotangent_bwd(residuals: None, x_bar: X) -> tuple[X, X]:
 
 
 # Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
-copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)  # pyright: ignore
+copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 
 
 # replace_cotangent --------------------------------------------------------------------------------
@@ -75,11 +76,11 @@ def _replace_cotangent_bwd(residuals: X, x_bar: X) -> tuple[X, X]:
 
 
 # Pyright can't infer types because custom_vjp doesn't yet depend on ParamSpec.
-replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)  # pyright: ignore
+replace_cotangent.defvjp(_replace_cotangent_fwd, _replace_cotangent_bwd)
 
 
 # print_cotangent ----------------------------------------------------------------------------------
-@partial(custom_vjp, nondiff_argnums=(1,))
+@partial(custom_vjp, static_argnums=(1,))  # type: ignore[arg-type]
 def print_cotangent(u: X, name: str | None = None) -> X:
     return u
 
@@ -96,7 +97,8 @@ def _print_cotangent_bwd(name: str | None, residuals: None, x_bar: X) -> tuple[X
     return (x_bar,)
 
 
-print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
+# https://github.com/python/mypy/issues/14802
+print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)  # type: ignore[arg-type]
 
 
 # cotangent_combinator -----------------------------------------------------------------------------
@@ -118,7 +120,7 @@ def cotangent_combinator(f: Callable[..., tuple[XT, Y]],
     return f(*args_tuples[0])
 
 
-cotangent_combinator = custom_vjp(cotangent_combinator, nondiff_argnums=(0, 2))
+cotangent_combinator = custom_vjp(cotangent_combinator, static_argnums=(0, 2))
 
 
 def _cotangent_combinator_fwd(f: Callable[..., tuple[XT, Y]],
@@ -153,5 +155,4 @@ def _cotangent_combinator_bwd(f: Callable[..., tuple[XT, Y]],
     return (tuple(all_args_bar),)
 
 
-cotangent_combinator.defvjp(_cotangent_combinator_fwd,  # type: ignore[attr-defined]
-                            _cotangent_combinator_bwd)
+cotangent_combinator.defvjp(_cotangent_combinator_fwd, _cotangent_combinator_bwd)
