@@ -3,11 +3,11 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-from jax import jit, vmap
+from jax import vmap
 from pytest import CaptureFixture
 from rich.console import Console
 
-from tjax import RealArray, print_generic, tapped_print_generic
+from tjax import RealArray, jit, print_generic, tapped_print_generic
 from tjax.dataclasses import dataclass, field
 
 
@@ -58,7 +58,7 @@ def test_jit_display(capsys: CaptureFixture[str],
     def f(x: RealArray) -> RealArray:
         print_generic(x, console=console)
         return x
-    f(1.0)
+    f(jnp.asarray(1.0))
     captured = capsys.readouterr()
     verify(captured.out, "Jax Array () float64")
 

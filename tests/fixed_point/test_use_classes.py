@@ -4,11 +4,11 @@ from typing import Any
 
 import jax.numpy as jnp
 import pytest
-from jax import grad, jit
+from jax import grad
 from jax.random import KeyArray, PRNGKey, normal, split
 from numpy.testing import assert_allclose
 
-from tjax import RealNumeric
+from tjax import RealNumeric, jit
 from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import StochasticIteratedFunctionWithCombinator
 
