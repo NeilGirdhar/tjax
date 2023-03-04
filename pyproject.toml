@@ -147,7 +147,7 @@ warn_unused_configs = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ['networkx', 'optax', 'py']
+module = ['networkx', 'optax']
 ignore_missing_imports = true
 
 [tool.ruff]
