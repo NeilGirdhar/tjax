@@ -6,7 +6,7 @@ from typing import Generic
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 
-from ..annotations import BooleanNumeric, ComplexNumeric, RealNumeric
+from ..annotations import BooleanNumeric, ComplexNumeric, RealArray, RealNumeric
 from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..tools import abs_square, divide_nonnegative
@@ -64,11 +64,11 @@ class StochasticIteratedFunction(
                                             atol=self.atol * data_weight),
                                     augmented.second_moment_state,
                                     mean_squared),
-                           True)
+                           jnp.asarray(True))
 
     def minimum_tolerances(self,
-                           augmented: StochasticState[State, Comparand]) -> tuple[RealNumeric,
-                                                                                  RealNumeric]:
+                           augmented: StochasticState[State, Comparand]
+                           ) -> tuple[RealArray, RealArray]:
         """The minimum tolerances.
 
         Returns:

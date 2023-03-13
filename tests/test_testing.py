@@ -15,10 +15,11 @@ def test_testing(capsys: pytest.CaptureFixture[str], actual: float, desired: str
     with pytest.raises(AssertionError) as exception:
         assert_tree_allclose(actual, 1e6, rtol=1e-5, atol=1e-8)
     captured = capsys.readouterr()
-    assert captured.out == captured.err == ""  # Nothing should be printed.
+    assert not captured.out  # Nothing should be printed.
+    assert not captured.err
     assertion_string = exception.value.args[0]
     pattern = rf"""
-Tree leafs don't match at position 0 with rtol=1e-05 and atol=1e-08\.
+Tree leaves don't match at position 0 with rtol=1e-05 and atol=1e-08\.
 Mismatched elements: 1 / 1 \(100%\)
 Maximum absolute difference: .+
 Maximum relative difference: .+

@@ -11,7 +11,7 @@ import jax.numpy as jnp
 import numpy as np
 from jax.tree_util import tree_flatten, tree_map, tree_reduce
 
-from .annotations import Array, BooleanNumeric, PyTree
+from .annotations import Array, PyTree
 from .dtypes import default_tols
 
 __all__ = ['assert_tree_allclose', 'tree_allclose', 'get_test_string', 'get_relative_test_string']
@@ -29,7 +29,8 @@ def assert_tree_allclose(actual: PyTree,
     If the assertion fails, a passing test string is printed::
 
     ```python
-    from tjax import assert_tree_allclose, dataclass, RealNumeric
+    from tjax import assert_tree_allclose, RealNumeric
+    from tjax.dataclasses import dataclass
 
     @dataclass
     class A:
@@ -48,22 +49,15 @@ def assert_tree_allclose(actual: PyTree,
     ```
     This prints::
     ```
-    JAX trees don't match with rtol=0.0001 and atol=1e-06.
-    Mismatched elements: 2 / 2 (100%)
+    Tree leaves don't match at position 0 with rtol=0.0001 and atol=1e-06.
+    Mismatched elements: 1 / 1 (100%)
     Maximum absolute difference: 1.8
     Maximum relative difference: 0.6
-    Actual: B
-        z=A
-            x=1.2
-            y=5.2
 
-    Desired: B
-        z=A
-            x=3.0
-            y=4.0
-
+    Actual: B(z=A(x=1.2, y=5.2))
+    Desired: B(z=A(x=3.0, y=4.0))
     Test string:
-    actual = B(z=A(x=1.2, y=5.2))
+    desired = B(A(1.2, 5.2))
     ```
     The test string can then be pasted.
 
@@ -98,7 +92,7 @@ def assert_tree_allclose(actual: PyTree,
             # style_config['COLUMN_LIMIT'] = column_limit
             # test_string = yapf.yapf_api.FormatCode(test_string, style_config=style_config)[0]
             message = (
-                f"\nTree leafs don't match at position {i} with rtol={tols['rtol']} and "
+                f"\nTree leaves don't match at position {i} with rtol={tols['rtol']} and "
                 f"atol={tols['atol']}.\n"
                 f"{best_part_of_old_message}\n\n"
                 f"Actual: {actual}\nDesired: {desired}\n"
@@ -118,7 +112,7 @@ def tree_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the comparison.
         atol: The absolute tolerance of the comparisons in the comparison.
     """
-    def allclose(actual_array: Array, desired_array: Array) -> BooleanNumeric:
+    def allclose(actual_array: Array, desired_array: Array) -> bool:
         dtype = jnp.result_type(actual_array, desired_array)
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         return bool(jnp.allclose(actual_array, desired_array, **tols))

@@ -62,7 +62,6 @@ def display_generic(value: Any,
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
-        assert isinstance(value, DataclassInstance)  # TODO: remove this when typeshed fixes #9723.
         return display_dataclass(value, seen=seen, show_values=show_values, key=key,
                                  batch_dims=batch_dims)
     return _assemble(key, Text(str(value), style=_unknown_color))

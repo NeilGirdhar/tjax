@@ -48,7 +48,7 @@ class ComparingIteratedFunction(
                            tree_map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                     self.extract_comparand(augmented.current_state),
                                     augmented.last_state),
-                           True)
+                           jnp.asarray(True))
 
     def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> tuple[RealNumeric,
                                                                                        RealNumeric]:

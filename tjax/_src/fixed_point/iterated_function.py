@@ -4,6 +4,7 @@ from functools import partial
 from typing import Any, Generic, TypeVar
 
 import jax.numpy as jnp
+from jax import Array
 from jax.lax import while_loop
 
 from ..annotations import BooleanNumeric, IntegralNumeric, PyTree, RealNumeric
@@ -78,7 +79,7 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
             augmented = self.iterate_augmented(new_state, augmented)
         return augmented
 
-    def state_needs_iteration(self, theta: Parameters, augmented: TheAugmentedState) -> bool:
+    def state_needs_iteration(self, theta: Parameters, augmented: TheAugmentedState) -> Array:
         """Whether the state needs to be iterated.
 
         Args:
@@ -89,9 +90,9 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
         enough_iterations = augmented.iterations >= self.minimum_iterations
         converged = self.converged(augmented)
         not_too_many_iterations = augmented.iterations < self.maximum_iterations
-        not_converged_or_done = jnp.logical_not(  # type: ignore[no-untyped-call]
-            jnp.logical_and(enough_iterations, converged))  # type: ignore[no-untyped-call]
-        return jnp.logical_and(not_too_many_iterations,  # type: ignore[no-untyped-call]
+        not_converged_or_done = jnp.logical_not(
+            jnp.logical_and(enough_iterations, converged))
+        return jnp.logical_and(not_too_many_iterations,
                                not_converged_or_done)
 
     # Abstract methods -----------------------------------------------------------------------------

@@ -137,8 +137,8 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
         tree_args = dict(zip(dynamic_fields, trees, strict=True))
         return non_none_cls(**hashed_args, **tree_args)
 
-    def keypaths(_: Any) -> list[AttributeKeyPathEntry]:
-        return [AttributeKeyPathEntry(name) for name in dynamic_fields]
+    def keypaths(_: Any) -> tuple[AttributeKeyPathEntry, ...]:
+        return tuple(AttributeKeyPathEntry(name) for name in dynamic_fields)
 
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
