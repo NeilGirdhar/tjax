@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import (Any, Callable, ClassVar, Hashable, Protocol, Sequence, Type, cast, overload,
+from collections.abc import Iterable
+from typing import (Any, Callable, ClassVar, Hashable, Protocol, Type, cast, overload,
                     runtime_checkable)
 
-from jax.tree_util import AttributeKeyPathEntry, register_keypaths, register_pytree_node
+from jax.tree_util import AttributeKeyPathEntry, register_pytree_with_keys
 from typing_extensions import dataclass_transform
 
 from ..annotations import PyTree
@@ -125,28 +126,24 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
             dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def tree_flatten(x: Any) -> tuple[Sequence[PyTree], Hashable]:
+    def tree_flatten(x: Any) -> tuple[Iterable[tuple[AttributeKeyPathEntry, PyTree]], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
-        trees = tuple(getattr(x, name) for name in dynamic_fields)
+        trees = tuple((AttributeKeyPathEntry(name), getattr(x, name)) for name in dynamic_fields)
         return trees, hashed
 
-    def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -> Any:
+    def tree_unflatten(hashed: Hashable, trees: Iterable[PyTree]) -> Any:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(static_fields, hashed, strict=True))
         tree_args = dict(zip(dynamic_fields, trees, strict=True))
         return non_none_cls(**hashed_args, **tree_args)
 
-    def keypaths(_: Any) -> tuple[AttributeKeyPathEntry, ...]:
-        return tuple(AttributeKeyPathEntry(name) for name in dynamic_fields)
-
     # Assign field lists to the class.
     data_clz.dynamic_fields = dynamic_fields
     data_clz.static_fields = static_fields
 
     # Register the class as a JAX PyTree.
-    register_pytree_node(data_clz, tree_flatten, tree_unflatten)
-    register_keypaths(data_clz, keypaths)
+    register_pytree_with_keys(data_clz, tree_flatten, tree_unflatten)
 
     # Register the dynamically-dispatched functions.
     get_test_string.register(data_clz, get_dataclass_test_string)
