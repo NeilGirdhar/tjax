@@ -3,12 +3,12 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from tjax import RealNumeric, leaky_integrate, leaky_integrate_time_series
+from tjax import JaxRealArray, leaky_integrate, leaky_integrate_time_series
 
 
 def test_time_step_invariance() -> None:
-    def f(n: int) -> RealNumeric:
-        x: RealNumeric = 0.0
+    def f(n: int) -> JaxRealArray:
+        x = jnp.asarray(0.0)
         for _ in range(n):
             x = leaky_integrate(x, time_step=1 / n, drift=3.0, decay=2.0)
         return x

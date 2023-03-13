@@ -10,12 +10,20 @@ __all__ = ['Shape', 'ShapeLike', 'SliceLike', 'Array', 'BooleanArray', 'Integral
            'ComplexArray', 'Integral', 'Real', 'Complex', 'BooleanNumeric', 'IntegralNumeric',
            'RealNumeric', 'ComplexNumeric', 'PyTree', 'TapFunctionTransforms', 'NumpyArray',
            'NumpyBooleanArray', 'NumpyIntegralArray', 'NumpyRealArray', 'NumpyComplexArray',
-           'NumpyBooleanNumeric', 'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric']
+           'NumpyBooleanNumeric', 'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric',
+           'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'JaxRealArray', 'JaxComplexArray',
+           ]
 
 Shape = Tuple[int, ...]
 ShapeLike = Union[int, Sequence[int]]
 _SliceLikeItem = Union[int, None, slice]
 SliceLike = Union[_SliceLikeItem, Tuple[_SliceLikeItem, ...]]
+
+
+JaxBooleanArray = JaxArray
+JaxIntegralArray = JaxArray
+JaxRealArray = JaxArray
+JaxComplexArray = JaxArray
 
 
 NumpyArray = npt.NDArray[Any]

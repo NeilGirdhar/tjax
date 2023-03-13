@@ -6,7 +6,7 @@ from typing import Generic
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 
-from ..annotations import BooleanNumeric, RealNumeric
+from ..annotations import JaxBooleanArray, JaxRealArray
 from ..dataclasses import dataclass
 from ..tools import divide_nonnegative
 from .augmented import AugmentedState, State
@@ -43,15 +43,15 @@ class ComparingIteratedFunction(
                               iterations=augmented.iterations + 1,
                               last_state=self.extract_comparand(augmented.current_state))
 
-    def converged(self, augmented: ComparingState[State, Comparand]) -> BooleanNumeric:
+    def converged(self, augmented: ComparingState[State, Comparand]) -> JaxBooleanArray:
         return tree_reduce(jnp.logical_and,
                            tree_map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                     self.extract_comparand(augmented.current_state),
                                     augmented.last_state),
                            jnp.asarray(True))
 
-    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]) -> tuple[RealNumeric,
-                                                                                       RealNumeric]:
+    def minimum_tolerances(self, augmented: ComparingState[State, Comparand]
+                           ) -> tuple[JaxRealArray, JaxRealArray]:
         """The minimum tolerances.
 
         Returns:
@@ -62,8 +62,8 @@ class ComparingIteratedFunction(
         abs_last = tree_map(jnp.abs, augmented.last_state)
         delta = tree_map(jnp.abs, tree_map(jnp.subtract, comparand, augmented.last_state))
         delta_over_b = tree_map(divide_nonnegative, delta, abs_last)
-        minium_atol = tree_reduce(jnp.maximum,  # type: ignore[arg-type]
-                                  tree_map(jnp.amax, delta), 0.0)
-        minium_rtol = tree_reduce(jnp.maximum,  # type: ignore[arg-type]
-                                  tree_map(jnp.amax, delta_over_b), 0.0)
+        minium_atol = tree_reduce(jnp.maximum,
+                                  tree_map(jnp.amax, delta), jnp.asarray(0.0))
+        minium_rtol = tree_reduce(jnp.maximum,
+                                  tree_map(jnp.amax, delta_over_b), jnp.asarray(0.0))
         return minium_atol, minium_rtol

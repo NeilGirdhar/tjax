@@ -4,11 +4,13 @@ This library implements a variety of tools for the differential programming libr
 """
 from . import dataclasses, fixed_point, gradient
 from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
-                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, NumpyArray,
-                               NumpyBooleanArray, NumpyBooleanNumeric, NumpyComplexArray,
-                               NumpyComplexNumeric, NumpyIntegralArray, NumpyIntegralNumeric,
-                               NumpyRealArray, NumpyRealNumeric, PyTree, Real, RealArray,
-                               RealNumeric, Shape, ShapeLike, SliceLike, TapFunctionTransforms)
+                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, JaxArray,
+                               JaxBooleanArray, JaxComplexArray, JaxIntegralArray, JaxRealArray,
+                               NumpyArray, NumpyBooleanArray, NumpyBooleanNumeric,
+                               NumpyComplexArray, NumpyComplexNumeric, NumpyIntegralArray,
+                               NumpyIntegralNumeric, NumpyRealArray, NumpyRealNumeric, PyTree, Real,
+                               RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
+                               TapFunctionTransforms)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
                                    replace_cotangent, scale_cotangent)
 from ._src.display import display_generic, print_generic, tapped_print_generic
@@ -37,7 +39,9 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'tapped_print_generic', 'inverse_softplus', 'is_scalar', 'jit', 'leaky_covariance',
            'leaky_data_weight', 'leaky_integrate', 'leaky_integrate_time_series',
            'cotangent_combinator', 'print_cotangent', 'print_generic', 'replace_cotangent',
-           'tree_allclose', 'vmap_split', 'zero_tangent_like']
+           'tree_allclose', 'vmap_split', 'zero_tangent_like', 'JaxArray', 'JaxBooleanArray',
+           'JaxIntegralArray', 'JaxRealArray', 'JaxComplexArray',
+           ]
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False
