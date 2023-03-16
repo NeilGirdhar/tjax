@@ -97,7 +97,7 @@ class IteratedFunctionWithCombinator(
 
     # Overridden methods ---------------------------------------------------------------------------
     @custom_vjp_method
-    def find_fixed_point(self,  # type: ignore[override]
+    def find_fixed_point(self,  # type: ignore[override] # pyright: ignore
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
         """Find the fixed point.

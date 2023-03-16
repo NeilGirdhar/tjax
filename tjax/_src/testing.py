@@ -214,7 +214,7 @@ def _(actual: Array | jax.Array, original_name: str, original: Any, rtol: float,
 
 @get_relative_test_string.register
 def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
-    return _inexact_number_to_string(actual, rtol, atol)  # type: ignore[arg-type]
+    return _inexact_number_to_string(actual, rtol, atol)  # type: ignore[arg-type] # pyright: ignore
 
 
 @get_relative_test_string.register

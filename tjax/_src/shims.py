@@ -23,9 +23,10 @@ def jit(func: F, **kwargs: Any) -> F:
     """
     retval = jax.jit(func, **kwargs)
     if hasattr(func, "__isabstractmethod__"):
-        retval.__isabstractmethod__ = func.__isabstractmethod__  # type: ignore[attr-defined]
+        retval.__isabstractmethod__ = (  # type: ignore[attr-defined] # pyright: ignore
+            func.__isabstractmethod__)
     # Fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
-    return retval  # type: ignore[return-value]
+    return retval  # type: ignore[return-value] # pyright: ignore
 
 
 class custom_vjp(Generic[P, R_co]):  # noqa: N801
