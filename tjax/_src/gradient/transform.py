@@ -4,7 +4,7 @@ from typing import Callable, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
-from typing_extensions import Self
+from typing_extensions import Self, override
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
@@ -83,6 +83,7 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
     This is a special case of a gradient transformation whose update rule accepts a
     Hessian-vector-product function in its update.
     """
+    @override
     def update(self,
                gradient: Weights,
                state: State,
@@ -136,6 +137,7 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
     This is a special case of a second order gradient transformation whose update rule accepts the
     diagonal entries of the Hessian.
     """
+    @override
     def second_order_update(self,
                             gradient: Weights,
                             state: State,

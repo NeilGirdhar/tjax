@@ -5,6 +5,7 @@ from typing import Any, Generic, TypeVar
 import jax.numpy as jnp
 from jax import vjp
 from jax.tree_util import tree_map
+from typing_extensions import override
 
 from ..annotations import PyTree
 from ..dataclasses import dataclass
@@ -97,6 +98,7 @@ class IteratedFunctionWithCombinator(
 
     # Overridden methods ---------------------------------------------------------------------------
     @custom_vjp_method
+    @override
     def find_fixed_point(self,  # type: ignore[override] # pyright: ignore
                          theta: Parameters,
                          initial_state: State) -> TheAugmentedState:
@@ -179,11 +181,13 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
         Parameters, State, Comparand, Differentiand, Any, TheAugmentedState]
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def expected_state(self,
                        theta: _ZParameters[Parameters, State, Differentiand],
                        state: Differentiand) -> Differentiand:
         return self.sampled_state(theta, state)
 
+    @override
     def sampled_state(self,
                       theta: _ZParameters[Parameters, State, Differentiand],
                       state: Differentiand) -> Differentiand:
@@ -202,14 +206,17 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
         df_by_dx_times_z, = df_by_dx(z)
         return tree_map(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
 
+    @override
     def extract_comparand(self, state: Differentiand) -> Differentiand:
         return state
 
+    @override
     def extract_differentiand(self,
                               theta: _ZParameters[Parameters, State, Differentiand],
                               state: Differentiand) -> Differentiand:
         return state
 
+    @override
     def implant_differentiand(self,
                               theta: _ZParameters[Parameters, State, Differentiand],
                               state: Differentiand,

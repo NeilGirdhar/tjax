@@ -11,6 +11,7 @@ from hypothesis import given, settings
 from jax import grad, vjp
 from numpy.random import Generator
 from numpy.testing import assert_allclose
+from typing_extensions import override
 
 from tjax import RealArray
 from tjax.dataclasses import dataclass
@@ -77,16 +78,20 @@ TPair = Tuple[RealArray, RealArray]
 @dataclass
 class Solver(ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray, RealArray,
                                                      RealArray]):
+    @override
     def sampled_state(self, theta: TPair, state: RealArray) -> RealArray:
         matrix, offset = theta
         return jnp.tensordot(matrix, state, 1) + offset  # type: ignore[no-untyped-call]
 
+    @override
     def extract_comparand(self, state: RealArray) -> RealArray:
         return state
 
+    @override
     def extract_differentiand(self, theta: TPair, state: RealArray) -> RealArray:
         return state
 
+    @override
     def implant_differentiand(self,
                               theta: TPair,
                               state: RealArray,

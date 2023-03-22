@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Generic
 
+from typing_extensions import override
+
 from ..annotations import PyTree
 from ..dataclasses import dataclass
 from .transform import GradientState, GradientTransformation, Weights
@@ -19,10 +21,12 @@ class ChainedGradientTransformation(GradientTransformation[ChainedGradientState,
                                     Generic[Weights]):
     transforms: list[GradientTransformation[Any, Weights]]
 
+    @override
     def init(self, parameters: Weights) -> ChainedGradientState:
         return ChainedGradientState([transform.init(parameters)
                                      for transform in self.transforms])
 
+    @override
     def update(self,
                gradient: Weights,
                state: ChainedGradientState,

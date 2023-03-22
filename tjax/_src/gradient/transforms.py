@@ -9,6 +9,7 @@ from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema,
                    scale_by_param_block_rms, scale_by_radam, scale_by_rms, scale_by_rss,
                    scale_by_schedule, scale_by_sm3, scale_by_stddev, scale_by_trust_ratio,
                    scale_by_yogi, trace)
+from typing_extensions import override
 
 from ..annotations import IntegralNumeric, RealNumeric
 from ..dataclasses import dataclass, field
@@ -59,10 +60,12 @@ class Trace(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     nesterov: bool = field(default=False, static=True)
     accumulator_dtype: Any = field(default=None, static=True)
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             trace(self.decay, self.nesterov, self.accumulator_dtype).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -90,10 +93,12 @@ class Ema(GradientTransformation[GenericGradientState, Weights], Generic[Weights
     debias: bool = field(default=True, static=True)
     accumulator_dtype: Any = field(default=None, static=True)
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             ema(self.decay, self.debias, self.accumulator_dtype).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -117,10 +122,12 @@ class ScaleByRss(GradientTransformation[GenericGradientState, Weights], Generic[
     initial_accumulator_value: RealNumeric = 0.1
     eps: RealNumeric = 1e-7
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_rss(self.initial_accumulator_value, self.eps).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -146,10 +153,12 @@ class ScaleByRms(GradientTransformation[GenericGradientState, Weights], Generic[
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_rms(self.decay, self.eps, self.initial_scale).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -175,10 +184,12 @@ class ScaleByStddev(GradientTransformation[GenericGradientState, Weights], Gener
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_stddev(self.decay, self.eps, self.initial_scale).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -196,9 +207,11 @@ class ScaleByAdam(GradientTransformation[GenericGradientState, Weights], Generic
     eps_root: RealNumeric = 0.0
     mu_dtype: Any = field(default=None, static=True)
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(scale_by_adam(**asdict(self)).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -216,9 +229,11 @@ class Scale(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     """
     step_size: RealNumeric
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(scale(**asdict(self)).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -240,10 +255,12 @@ class ScaleByParamBlockNorm(GradientTransformation[GenericGradientState, Weights
     """
     min_scale: RealNumeric = 1e-3
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_param_block_norm(self.min_scale).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -264,10 +281,12 @@ class ScaleByParamBlockRMS(GradientTransformation[GenericGradientState, Weights]
     """
     min_scale: RealNumeric = 1e-3
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_param_block_rms(self.min_scale).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -295,10 +314,12 @@ class ScaleByBelief(GradientTransformation[GenericGradientState, Weights], Gener
     eps: RealNumeric = 0.0
     eps_root: RealNumeric = 1e-16
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_belief(self.b1, self.b2, self.eps, self.eps_root).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -331,10 +352,12 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
     eps_root: RealNumeric = 0.0
     initial_accumulator_value: RealNumeric = 1e-6
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -365,10 +388,12 @@ class ScaleByRAdam(GradientTransformation[GenericGradientState, Weights], Generi
     eps_root: RealNumeric = 0.0
     threshold: RealNumeric = 5.0
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_radam(self.b1, self.b2, self.eps, self.eps_root).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -393,10 +418,12 @@ class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], G
     weight_decay: RealNumeric = 0.0
     mask: MaskOrFn[Weights] = field(default=None, static=True)
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             add_decayed_weights(**asdict(self)).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -415,10 +442,12 @@ class ScaleBySchedule(GradientTransformation[GenericGradientState, Weights], Gen
     """
     step_size_fn: Schedule
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_schedule(self.step_size_fn).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -443,10 +472,12 @@ class ScaleByTrustRatio(GradientTransformation[GenericGradientState, Weights], G
     trust_coefficient: RealNumeric = 1.0
     eps: RealNumeric = 0.0
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_trust_ratio(**asdict(self)).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -471,9 +502,11 @@ class AddNoise(GradientTransformation[GenericGradientState, Weights], Generic[We
     gamma: RealNumeric
     rng: KeyArray
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(add_noise(**asdict(self)).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -497,9 +530,11 @@ class ApplyEvery(GradientTransformation[GenericGradientState, Weights], Generic[
     """
     k: int = field(default=1, static=True)
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(apply_every(self.k).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -515,9 +550,11 @@ class Centralize(GradientTransformation[GenericGradientState, Weights], Generic[
     References:
         [Yong et al, 2020](https://arxiv.org/abs/2004.01461)
     """
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(centralize().init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,
@@ -542,10 +579,12 @@ class ScaleBySM3(GradientTransformation[GenericGradientState, Weights], Generic[
     b2: RealNumeric = 1.0
     eps: RealNumeric = 1e-8
 
+    @override
     def init(self, parameters: Weights) -> GenericGradientState:
         return GenericGradientState(
             scale_by_sm3(self.b1, self.b2, self.eps).init(parameters))
 
+    @override
     def update(self,
                gradient: Weights,
                state: GenericGradientState,

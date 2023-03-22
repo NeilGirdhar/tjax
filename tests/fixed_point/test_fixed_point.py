@@ -6,6 +6,7 @@ import pytest
 from jax import grad
 from jax.random import KeyArray, PRNGKey, normal, split
 from numpy.testing import assert_allclose
+from typing_extensions import override
 
 from tjax import Array, PyTree
 from tjax.dataclasses import dataclass, field
@@ -27,22 +28,27 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def sampled_state(self, theta: PyTree, state: Array) -> Array:
         g = grad(self.f, 1)(theta, state)
         ratio = self.f(theta, state) / g
         return state - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)  # noqa: PLR2004
 
+    @override
     def sampled_state_trajectory(self,
                                  theta: PyTree,
                                  augmented: ComparingState[Array, Array]) -> Tuple[Array, None]:
         return self.sampled_state(theta, augmented.current_state), None
 
+    @override
     def extract_comparand(self, state: Array) -> Array:
         return state
 
+    @override
     def extract_differentiand(self, theta: PyTree, state: Array) -> Array:
         return state
 
+    @override
     def implant_differentiand(self, theta: PyTree, state: Array, differentiand: Array) -> Array:
         return differentiand
 
@@ -54,6 +60,7 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
     step_size: float
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def expected_state(self, theta: PyTree, state: State) -> State:
         x, rng = state
         g = grad(self.f, 1)(theta, x)
@@ -61,20 +68,24 @@ class NoisyNewtonsMethod(StochasticIteratedFunctionWithCombinator[PyTree, State,
         new_x = x - jnp.where(ratio < 1e6, ratio * self.step_size, 0.0)  # noqa: PLR2004
         return new_x, rng
 
+    @override
     def sampled_state(self, theta: PyTree, state: State) -> State:
         new_x, rng = self.expected_state(theta, state)
         rng, new_rng = split(rng)
         noise = 1e-4 * normal(rng)
         return new_x + noise, new_rng
 
+    @override
     def extract_comparand(self, state: State) -> PyTree:
         x, _ = state
         return x
 
+    @override
     def extract_differentiand(self, theta: PyTree, state: State) -> PyTree:
         x, _ = state
         return x
 
+    @override
     def implant_differentiand(self, theta: PyTree, state: State, differentiand: Array) -> State:
         _, rng = state
         return differentiand, rng

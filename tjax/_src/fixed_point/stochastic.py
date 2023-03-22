@@ -5,6 +5,7 @@ from typing import Generic
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
+from typing_extensions import override
 
 from ..annotations import ComplexNumeric, JaxBooleanArray, JaxComplexArray, JaxRealArray
 from ..dataclasses import dataclass
@@ -32,6 +33,7 @@ class StochasticIteratedFunction(
     convergence_detection_decay: float | JaxRealArray
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def initial_augmented(self, initial_state: State) -> StochasticState[State, Comparand]:
         comparand = self.extract_comparand(initial_state)
         zero_comparand = tree_map(jnp.zeros_like, comparand)
@@ -40,6 +42,7 @@ class StochasticIteratedFunction(
                                mean_state=zero_comparand,
                                second_moment_state=zero_comparand)
 
+    @override
     def iterate_augmented(self,
                           new_state: State,
                           augmented: StochasticState[State, Comparand]) -> (
@@ -56,6 +59,7 @@ class StochasticIteratedFunction(
                                mean_state=new_mean_state,
                                second_moment_state=new_second_moment_state)
 
+    @override
     def converged(self, augmented: StochasticState[State, Comparand]) -> JaxBooleanArray:
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree_map(abs_square, augmented.mean_state)
@@ -66,6 +70,7 @@ class StochasticIteratedFunction(
                                     mean_squared),
                            jnp.asarray(True))
 
+    @override
     def minimum_tolerances(self,
                            augmented: StochasticState[State, Comparand]
                            ) -> tuple[JaxRealArray, JaxRealArray]:

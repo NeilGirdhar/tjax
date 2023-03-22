@@ -4,6 +4,7 @@ from reprlib import recursive_repr
 from typing import Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, TypeVar, cast
 
 from jax.tree_util import register_pytree_node_class
+from typing_extensions import override
 
 from .annotations import PyTree
 
@@ -32,6 +33,7 @@ class Partial(Generic[R]):
         static_kwargs: The static applied keyword arguments.
         dynamic_kwargs: The dynamic applied keyword arguments.
     """
+    @override
     def __init__(self,
                  function: Partial[R] | Callable[..., R],
                  /,

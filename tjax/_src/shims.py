@@ -5,7 +5,7 @@ from typing import Any, Concatenate, Generic, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
-from typing_extensions import ParamSpec, Self
+from typing_extensions import ParamSpec, Self, override
 
 __all__ = ['jit', 'custom_jvp', 'custom_jvp_method', 'custom_vjp', 'custom_vjp_method']
 
@@ -40,6 +40,7 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
 
     vjp: jax.custom_vjp[R_co]
 
+    @override
     def __init__(self,
                  fun: Callable[P, R_co],
                  *,
@@ -68,6 +69,7 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
 
     vjp: jax.custom_vjp[R_co]
 
+    @override
     def __init__(self,
                  fun: Callable[Concatenate[U, P], R_co],
                  *,
@@ -111,6 +113,7 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
+    @override
     def __init__(self,
                  fun: Callable[P, R_co],
                  *,
@@ -139,6 +142,7 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
+    @override
     def __init__(self,
                  fun: Callable[Concatenate[U, P], R_co],
                  *,

@@ -4,6 +4,7 @@ from typing import Callable, Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map
+from typing_extensions import override
 
 from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
@@ -32,10 +33,12 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
     """
     meta_learning_rate: RealNumeric = 1e-2
 
+    @override
     def init(self, parameters: Weights) -> SMDState[Weights]:
         z = tree_map(jnp.zeros_like, parameters)
         return SMDState[Weights](z, z)
 
+    @override
     def second_order_update(self,
                             gradient: Weights,
                             state: SMDState[Weights],

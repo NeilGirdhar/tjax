@@ -5,6 +5,7 @@ from typing import Generic
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
+from typing_extensions import override
 
 from ..annotations import JaxBooleanArray, JaxRealArray
 from ..dataclasses import dataclass
@@ -27,14 +28,17 @@ class ComparingIteratedFunction(
         Generic[Parameters, State, Comparand, Trajectory]):
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def initial_augmented(self, initial_state: State) -> ComparingState[State, Comparand]:
         return ComparingState(current_state=initial_state,
                               iterations=0,
                               last_state=self.extract_comparand(initial_state))
 
+    @override
     def expected_state(self, theta: Parameters, state: State) -> State:
         return self.sampled_state(theta, state)
 
+    @override
     def iterate_augmented(self,
                           new_state: State,
                           augmented: ComparingState[State, Comparand]) -> (
@@ -43,6 +47,7 @@ class ComparingIteratedFunction(
                               iterations=augmented.iterations + 1,
                               last_state=self.extract_comparand(augmented.current_state))
 
+    @override
     def converged(self, augmented: ComparingState[State, Comparand]) -> JaxBooleanArray:
         return tree_reduce(jnp.logical_and,
                            tree_map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
@@ -50,6 +55,7 @@ class ComparingIteratedFunction(
                                     augmented.last_state),
                            jnp.asarray(True))
 
+    @override
     def minimum_tolerances(self, augmented: ComparingState[State, Comparand]
                            ) -> tuple[JaxRealArray, JaxRealArray]:
         """The minimum tolerances.

@@ -7,6 +7,7 @@ import pytest
 from jax import grad
 from jax.random import KeyArray, PRNGKey, normal, split
 from numpy.testing import assert_allclose
+from typing_extensions import override
 
 from tjax import RealNumeric, jit
 from tjax.dataclasses import dataclass, field
@@ -34,27 +35,32 @@ class EncodingIteratedFunction(StochasticIteratedFunctionWithCombinator['Encodin
     time_step: RealNumeric
 
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def expected_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
         assert isinstance(state, EncodingState)
         new_ec, _ = theta.iterate(state.ec, None, self.time_step)
         return EncodingState(new_ec, state.rng)
 
+    @override
     def sampled_state(self, theta: EncodingElement, state: EncodingState) -> EncodingState:
         assert isinstance(state, EncodingState)
         new_ec, new_rng = theta.iterate(state.ec, state.rng, self.time_step)
         assert new_rng is not None
         return EncodingState(new_ec, new_rng)
 
+    @override
     def extract_comparand(self, state: EncodingState) -> EncodingConfiguration:
         assert isinstance(state, EncodingState)
         return state.ec
 
+    @override
     def extract_differentiand(self,
                               theta: EncodingElement,
                               state: EncodingState) -> EncodingConfiguration:
         assert isinstance(state, EncodingState)
         return state.ec
 
+    @override
     def implant_differentiand(self,
                               theta: EncodingElement,
                               state: EncodingState,

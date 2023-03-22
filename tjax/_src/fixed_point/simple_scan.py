@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Generic
 
+from typing_extensions import override
+
 from ..dataclasses import dataclass
 from .augmented import State
 from .base import IteratedFunctionBase, Parameters, Trajectory
@@ -23,9 +25,11 @@ class SimpleScan(IteratedFunctionBase[Parameters, State, Trajectory, State],
     iterations and returns a trajectory.
     """
     # Implemented methods --------------------------------------------------------------------------
+    @override
     def initial_augmented(self, initial_state: State) -> State:
         return initial_state
 
+    @override
     def iterate_augmented(self,
                           new_state: State,
                           augmented: State) -> State:
