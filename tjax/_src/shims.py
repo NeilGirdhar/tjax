@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import suppress
 from typing import Any, Concatenate, Generic, TypeVar, overload
 
 import jax
@@ -17,14 +18,15 @@ U = TypeVar("U")
 
 
 def jit(func: F, **kwargs: Any) -> F:
-    """This version of jit preserves the signature.
+    """A version of jax.jit that preserves flags.
 
-    It also ensures that abstract methods stay abstract.
+    This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
     retval = jax.jit(func, **kwargs)
-    if hasattr(func, "__isabstractmethod__"):
-        retval.__isabstractmethod__ = (  # type: ignore[attr-defined] # pyright: ignore
-            func.__isabstractmethod__)
+    for flag in ['__isabstractmethod__', '__override__']:
+        if hasattr(func, flag):
+            with suppress(AttributeError):
+                setattr(retval, flag, getattr(func, flag))
     # Fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval  # type: ignore[return-value] # pyright: ignore
 
