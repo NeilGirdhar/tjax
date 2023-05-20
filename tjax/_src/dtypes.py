@@ -6,7 +6,15 @@ import jax.numpy as jnp
 
 __all__ = ['default_rtol',
            'default_atol',
-           'default_tols']
+           'default_tols',
+           'int_dtype',
+           'float_dtype',
+           'complex_dtype']
+
+
+int_dtype = jnp.asarray(0).dtype
+float_dtype = jnp.empty(1).dtype
+complex_dtype = jnp.asarray(1j).dtype
 
 
 class Tols(TypedDict):
