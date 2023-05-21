@@ -39,7 +39,7 @@ if sys.version_info >= (3, 10):
               metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Any:
         ...
 
-    def field(*, static: bool = False, default: Any = MISSING,
+    def field(*, static: bool = False, default: Any = MISSING,  # noqa: PLR0913
               default_factory: Any = MISSING, init: bool = True,
               repr: bool = True,  # noqa: A002
               hash: bool | None = None,  # noqa: A002
