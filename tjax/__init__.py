@@ -3,6 +3,7 @@ This library implements a variety of tools for the differential programming libr
 [JAX](https://github.com/google/jax).
 """
 from . import dataclasses, fixed_point, gradient
+from ._src.abstract_method_decorators import JaxAbstractClass, abstract_custom_jvp, abstract_jit
 from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
                                ComplexNumeric, Integral, IntegralArray, IntegralNumeric, JaxArray,
                                JaxBooleanArray, JaxComplexArray, JaxIntegralArray, JaxRealArray,
@@ -42,7 +43,7 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'leaky_integrate', 'leaky_integrate_time_series', 'cotangent_combinator',
            'print_cotangent', 'print_generic', 'replace_cotangent', 'tree_allclose', 'vmap_split',
            'zero_tangent_like', 'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'JaxRealArray',
-           'JaxComplexArray']
+           'JaxComplexArray', 'JaxAbstractClass', 'abstract_jit', 'abstract_custom_jvp']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False

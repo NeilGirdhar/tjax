@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from contextlib import suppress
+from functools import WRAPPER_ASSIGNMENTS, cache, update_wrapper
 from typing import Any, Concatenate, Generic, TypeVar, overload
 
 import jax
@@ -17,17 +17,22 @@ P = ParamSpec('P')
 U = TypeVar("U")
 
 
+@cache
+def all_wrapper_assignments() -> tuple[str, ...]:
+    # pylint: disable=import-outside-toplevel
+    from .abstract_method_decorators import abstract_custom_jvp_marker, abstract_jit_marker
+    return (*WRAPPER_ASSIGNMENTS, '__isabstractmethod__', '__override__',
+            abstract_jit_marker, abstract_custom_jvp_marker)
+
+
 def jit(func: F, **kwargs: Any) -> F:
     """A version of jax.jit that preserves flags.
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
     retval = jax.jit(func, **kwargs)
-    for flag in ['__isabstractmethod__', '__override__']:
-        if hasattr(func, flag):
-            with suppress(AttributeError):
-                setattr(retval, flag, getattr(func, flag))
-    # Fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
+    update_wrapper(retval, func, all_wrapper_assignments())
+    # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval  # type: ignore[return-value] # pyright: ignore
 
 
@@ -35,7 +40,7 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
     """A shim class over jax.custom_vjp that uses ParamSpec.
 
     Args:
-        fun: The function to decorate.
+        func: The function to decorate.
         static_argnums: The indices of the **static** arguments -- nothing to do with
             differentiation.
     """
@@ -44,12 +49,13 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
 
     @override
     def __init__(self,
-                 fun: Callable[P, R_co],
+                 func: Callable[P, R_co],
                  *,
                  static_argnums: tuple[int, ...] = ()):
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
+        update_wrapper(self, func, all_wrapper_assignments())
 
     def defvjp(self,
                fwd: Callable[P, tuple[R_co, Any]],
@@ -64,7 +70,7 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
     """A shim class over jax.custom_vjp that uses ParamSpec and works with methods.
 
     Args:
-        fun: The method to decorate.
+        func: The method to decorate.
         static_argnums: The indices of the **static** arguments -- nothing to do with
             differentiation.
     """
@@ -73,12 +79,13 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
 
     @override
     def __init__(self,
-                 fun: Callable[Concatenate[U, P], R_co],
+                 func: Callable[Concatenate[U, P], R_co],
                  *,
                  static_argnums: tuple[int, ...] = ()):
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(fun, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
+        update_wrapper(self, func, all_wrapper_assignments())
 
     def defvjp(self,
                fwd: Callable[Concatenate[U, P], tuple[R_co, Any]],
@@ -111,18 +118,19 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
     """A shim class over jax.custom_jvp that uses ParamSpec.
 
     Args:
-        fun: The function to decorate.
+        func: The function to decorate.
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
     @override
     def __init__(self,
-                 fun: Callable[P, R_co],
+                 func: Callable[P, R_co],
                  *,
                  nondiff_argnums: tuple[int, ...] = ()):
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
-        self.jvp = jax.custom_jvp(fun, nondiff_argnums=nondiff_argnums)
+        self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
+        update_wrapper(self, func, all_wrapper_assignments())
 
     def defjvp(self, jvp: Callable[..., tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.
@@ -140,18 +148,19 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
     """A shim class over jax.custom_jvp that uses ParamSpec and works with methods.
 
     Args:
-        fun: The method to decorate.
+        func: The method to decorate.
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
     @override
     def __init__(self,
-                 fun: Callable[Concatenate[U, P], R_co],
+                 func: Callable[Concatenate[U, P], R_co],
                  *,
                  nondiff_argnums: tuple[int, ...] = ()):
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
-        self.jvp = jax.custom_jvp(fun, nondiff_argnums=nondiff_argnums)
+        self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
+        update_wrapper(self, func, all_wrapper_assignments())
 
     def defjvp(self, jvp: Callable[Concatenate[U, P], tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.
