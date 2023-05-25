@@ -1087,14 +1087,14 @@ test = ["click", "coverage", "pre-commit", "pytest (>=7.0)", "pytest-asyncio (>=
 
 [[package]]
 name = "jupyter-server"
-version = "2.5.0"
+version = "2.6.0"
 description = "The backend—i.e. core services, APIs, and REST endpoints—to Jupyter web applications."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server-2.5.0-py3-none-any.whl", hash = "sha256:e6bc1e9e96d7c55b9ce9699ff6cb9a910581fe7349e27c40389acb67632e24c0"},
-    {file = "jupyter_server-2.5.0.tar.gz", hash = "sha256:9fde612791f716fd34d610cd939704a9639643744751ba66e7ee8fdc9cead07e"},
+    {file = "jupyter_server-2.6.0-py3-none-any.whl", hash = "sha256:19525a1515b5999618a91b3e99ec9f6869aa8c5ba73e0b6279fcda918b54ba36"},
+    {file = "jupyter_server-2.6.0.tar.gz", hash = "sha256:ae4af349f030ed08dd78cb7ac1a03a92d886000380c9ea6283f3c542a81f4b06"},
 ]
 
 [package.dependencies]
@@ -1103,10 +1103,11 @@ argon2-cffi = "*"
 jinja2 = "*"
 jupyter-client = ">=7.4.4"
 jupyter-core = ">=4.12,<5.0.0 || >=5.1.0"
-jupyter-events = ">=0.4.0"
+jupyter-events = ">=0.6.0"
 jupyter-server-terminals = "*"
 nbconvert = ">=6.4.4"
 nbformat = ">=5.3.0"
+overrides = "*"
 packaging = "*"
 prometheus-client = "*"
 pywinpty = {version = "*", markers = "os_name == \"nt\""}
@@ -1118,7 +1119,7 @@ traitlets = ">=5.6.0"
 websocket-client = "*"
 
 [package.extras]
-docs = ["docutils (<0.20)", "ipykernel", "jinja2", "jupyter-client", "jupyter-server", "mistune (<1.0.0)", "myst-parser", "nbformat", "prometheus-client", "pydata-sphinx-theme", "send2trash", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-openapi", "sphinxcontrib-spelling", "sphinxemoji", "tornado", "typing-extensions"]
+docs = ["ipykernel", "jinja2", "jupyter-client", "jupyter-server", "myst-parser", "nbformat", "prometheus-client", "pydata-sphinx-theme", "send2trash", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-openapi (>=0.8.0)", "sphinxcontrib-spelling", "sphinxemoji", "tornado", "typing-extensions"]
 test = ["ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-scripts", "pytest-jupyter[server] (>=0.4)", "pytest-timeout", "requests"]
 
 [[package]]
@@ -1841,6 +1842,18 @@ typing_extensions = "*"
 dev = ["flax", "pytest", "pytest-xdist"]
 
 [[package]]
+name = "overrides"
+version = "7.3.1"
+description = "A decorator to automatically detect mismatch when overriding a method."
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "overrides-7.3.1-py3-none-any.whl", hash = "sha256:6187d8710a935d09b0bcef8238301d6ee2569d2ac1ae0ec39a8c7924e27f58ca"},
+    {file = "overrides-7.3.1.tar.gz", hash = "sha256:8b97c6c1e1681b78cbc9424b138d880f0803c2254c5ebaabdde57bb6c62093f2"},
+]
+
+[[package]]
 name = "packaging"
 version = "23.1"
 description = "Core utilities for Python packages"
@@ -1941,14 +1954,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "prometheus-client"
-version = "0.16.0"
+version = "0.17.0"
 description = "Python client for the Prometheus monitoring system."
 category = "dev"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "prometheus_client-0.16.0-py3-none-any.whl", hash = "sha256:0836af6eb2c8f4fed712b2f279f6c0a8bbab29f9f4aa15276b91c7cb0d1616ab"},
-    {file = "prometheus_client-0.16.0.tar.gz", hash = "sha256:a03e35b359f14dd1630898543e2120addfdeacd1a6069c1367ae90fd93ad3f48"},
+    {file = "prometheus_client-0.17.0-py3-none-any.whl", hash = "sha256:a77b708cf083f4d1a3fb3ce5c95b4afa32b9c521ae363354a4a910204ea095ce"},
+    {file = "prometheus_client-0.17.0.tar.gz", hash = "sha256:9c3b26f1535945e85b8934fb374678d263137b78ef85f305b1156c7c881cd11b"},
 ]
 
 [package.extras]
@@ -2082,14 +2095,14 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.309"
+version = "1.1.310"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.309-py3-none-any.whl", hash = "sha256:a8b052c1997f7334e80074998ea0f93bd149550e8cf27ccb5481d3b2e1aad161"},
-    {file = "pyright-1.1.309.tar.gz", hash = "sha256:1abcfa83814d792a5d70b38621cc6489acfade94ebb2279e55ba1f394d54296c"},
+    {file = "pyright-1.1.310-py3-none-any.whl", hash = "sha256:55995ac76bf56cb7a44193b7b1ffafc573abab1f1dbc9f62d327f2a1768b3bda"},
+    {file = "pyright-1.1.310.tar.gz", hash = "sha256:9e95335a678db2717eaa0c867d61f9399e916289f4a9f47d993e0df74e7d7391"},
 ]
 
 [package.dependencies]
@@ -2459,29 +2472,29 @@ jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "ruff"
-version = "0.0.269"
+version = "0.0.270"
 description = "An extremely fast Python linter, written in Rust."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ruff-0.0.269-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:3569bcdee679045c09c0161fabc057599759c49219a08d9a4aad2cc3982ccba3"},
-    {file = "ruff-0.0.269-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:56347da63757a56cbce7d4b3d6044ca4f1941cd1bbff3714f7554360c3361f83"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6da8ee25ef2f0cc6cc8e6e20942c1d44d25a36dce35070d7184655bc14f63f63"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:bd81b8e681b9eaa6cf15484f3985bd8bd97c3d114e95bff3e8ea283bf8865062"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1f19f59ca3c28742955241fb452f3346241ddbd34e72ac5cb3d84fadebcf6bc8"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:f062059b8289a4fab7f6064601b811d447c2f9d3d432a17f689efe4d68988450"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:3f5dc7aac52c58e82510217e3c7efd80765c134c097c2815d59e40face0d1fe6"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:e131b4dbe798c391090c6407641d6ab12c0fa1bb952379dde45e5000e208dabb"},
-    {file = "ruff-0.0.269-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a374434e588e06550df0f8dcb74777290f285678de991fda4e1063c367ab2eb2"},
-    {file = "ruff-0.0.269-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:cec2f4b84a14b87f1b121488649eb5b4eaa06467a2387373f750da74bdcb5679"},
-    {file = "ruff-0.0.269-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:374b161753a247904aec7a32d45e165302b76b6e83d22d099bf3ff7c232c888f"},
-    {file = "ruff-0.0.269-py3-none-musllinux_1_2_i686.whl", hash = "sha256:9ca0a1ddb1d835b5f742db9711c6cf59f213a1ad0088cb1e924a005fd399e7d8"},
-    {file = "ruff-0.0.269-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:5a20658f0b97d207c7841c13d528f36d666bf445b00b01139f28a8ccb80093bb"},
-    {file = "ruff-0.0.269-py3-none-win32.whl", hash = "sha256:03ff42bc91ceca58e0f0f072cb3f9286a9208f609812753474e799a997cdad1a"},
-    {file = "ruff-0.0.269-py3-none-win_amd64.whl", hash = "sha256:f3b59ccff57b21ef0967ea8021fd187ec14c528ec65507d8bcbe035912050776"},
-    {file = "ruff-0.0.269-py3-none-win_arm64.whl", hash = "sha256:bbeb857b1e508a4487bdb02ca1e6d41dd8d5ac5335a5246e25de8a3dff38c1ff"},
-    {file = "ruff-0.0.269.tar.gz", hash = "sha256:11ddcfbab32cf5c420ea9dd5531170ace5a3e59c16d9251c7bd2581f7b16f602"},
+    {file = "ruff-0.0.270-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:f74c4d550f7b8e808455ac77bbce38daafc458434815ba0bc21ae4bdb276509b"},
+    {file = "ruff-0.0.270-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:643de865fd35cb76c4f0739aea5afe7b8e4d40d623df7e9e6ea99054e5cead0a"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:eca02e709b3308eb7255b5f74e779be23b5980fca3862eae28bb23069cd61ae4"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:3ed3b198768d2b3a2300fb18f730cd39948a5cc36ba29ae9d4639a11040880be"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:739495d2dbde87cf4e3110c8d27bc20febf93112539a968a4e02c26f0deccd1d"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:08188f8351f4c0b6216e8463df0a76eb57894ca59a3da65e4ed205db980fd3ae"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:0827b074635d37984fc98d99316bfab5c8b1231bb83e60dacc83bd92883eedb4"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:0d61ae4841313f6eeb8292dc349bef27b4ce426e62c36e80ceedc3824e408734"},
+    {file = "ruff-0.0.270-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0eb412f20e77529a01fb94d578b19dcb8331b56f93632aa0cce4a2ea27b7aeba"},
+    {file = "ruff-0.0.270-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:b775e2c5fc869359daf8c8b8aa0fd67240201ab2e8d536d14a0edf279af18786"},
+    {file = "ruff-0.0.270-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:21f00e47ab2308617c44435c8dfd9e2e03897461c9e647ec942deb2a235b4cfd"},
+    {file = "ruff-0.0.270-py3-none-musllinux_1_2_i686.whl", hash = "sha256:0bbfbf6fd2436165566ca85f6e57be03ed2f0a994faf40180cfbb3604c9232ef"},
+    {file = "ruff-0.0.270-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:8af391ef81f7be960be10886a3c1aac0b298bde7cb9a86ec2b05faeb2081ce6b"},
+    {file = "ruff-0.0.270-py3-none-win32.whl", hash = "sha256:b4c037fe2f75bcd9aed0c89c7c507cb7fa59abae2bd4c8b6fc331a28178655a4"},
+    {file = "ruff-0.0.270-py3-none-win_amd64.whl", hash = "sha256:0012f9b7dc137ab7f1f0355e3c4ca49b562baf6c9fa1180948deeb6648c52957"},
+    {file = "ruff-0.0.270-py3-none-win_arm64.whl", hash = "sha256:9613456b0b375766244c25045e353bc8890c856431cd97893c97b10cc93bd28d"},
+    {file = "ruff-0.0.270.tar.gz", hash = "sha256:95db07b7850b30ebf32b27fe98bc39e0ab99db3985edbbf0754d399eb2f0e690"},
 ]
 
 [[package]]
@@ -2627,29 +2640,29 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "tensorstore"
-version = "0.1.36"
+version = "0.1.37"
 description = "Read and write large, multi-dimensional arrays"
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "tensorstore-0.1.36-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:b1e3038778fd47ca351442276ff419bd3fb2e1e7c5c6c9956b341de81f869df1"},
-    {file = "tensorstore-0.1.36-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:25cc8e2c865b7193d68524752d14a39bce39e6797eeda47ce02062dc97c9b865"},
-    {file = "tensorstore-0.1.36-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:33ad5669e5f3ee705718978f5519d96b25ff43f607730ac473947b0bac4c66d9"},
-    {file = "tensorstore-0.1.36-cp310-cp310-win_amd64.whl", hash = "sha256:e9bc007812ca44bc8156fb1a4511206f68763f350157befd0ce1e9c263af08d1"},
-    {file = "tensorstore-0.1.36-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:8a95aa206e8fb6b266744418dd859a19653e8e0d2e3d336f783a667ff1093678"},
-    {file = "tensorstore-0.1.36-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:90688379adbacb376ea8071e96c5a492db06beb45244a593f706525debeaf00f"},
-    {file = "tensorstore-0.1.36-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f4b2b3b828e4af23296dbe88c2c66d57bcc40d92c7437687347693c73095f11d"},
-    {file = "tensorstore-0.1.36-cp311-cp311-win_amd64.whl", hash = "sha256:296156ad263035b24273895ff222373dd58f0277c5cab6dc30b5d0d8a9abf3fb"},
-    {file = "tensorstore-0.1.36-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:2461a028fc6542b6342aa6a25119cdbbffe6194da359ecdd6e585b04d14fd269"},
-    {file = "tensorstore-0.1.36-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:de48cd37f266a9f1a1b10bba39d47f58e6d7fe04bb2a01329516c2daf0626c71"},
-    {file = "tensorstore-0.1.36-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c351605e18298541aef6662edc9acb6f567ab8b4e548e4d4788e075aceec7d5d"},
-    {file = "tensorstore-0.1.36-cp38-cp38-win_amd64.whl", hash = "sha256:798c6b66019647231fead25b39e95caa08fa270d22226117d6738b3f2d68372f"},
-    {file = "tensorstore-0.1.36-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:634e6fae8019c741199d512ce34077b24e84791e5f6b8e46a6e76aa5aef97c2f"},
-    {file = "tensorstore-0.1.36-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:96aa9e50f492ed848e73d5a24d187ec679ec4b4f5ebe360e1938c46ccc6a3ff6"},
-    {file = "tensorstore-0.1.36-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d50b27919cde623e3918fe6ba054f41e2da5d7dbf7817d46d43131b50bcc9df4"},
-    {file = "tensorstore-0.1.36-cp39-cp39-win_amd64.whl", hash = "sha256:acc46ed5e59faee6823ad39b807daeb40447fac2068163b7c558cc3a0d7a0b71"},
-    {file = "tensorstore-0.1.36.tar.gz", hash = "sha256:733b629a65f1d47cc1b19fb1df2de75111ae228081655746d335ed3c21902bbd"},
+    {file = "tensorstore-0.1.37-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:1f85080130df1afd25e24f11fc4fa58a6c5dbd36a45085e1292e347031304d8d"},
+    {file = "tensorstore-0.1.37-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:b3f4945295688213d01b0bd5cd21e053ff507d1c73ec8c58fa94ec8f32a51949"},
+    {file = "tensorstore-0.1.37-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9223aae59e56816c2550edb9acd2176005743ecf03e8a795a96513b90326c4e2"},
+    {file = "tensorstore-0.1.37-cp310-cp310-win_amd64.whl", hash = "sha256:2423757f2cc971e112e6304de6547b8ca3f3cb0097d45ae5ff2d801a3273315c"},
+    {file = "tensorstore-0.1.37-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:6d71331a2e2bf70dae4ed383deb6a829d9117574effdb3e7f234d534bf81aced"},
+    {file = "tensorstore-0.1.37-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1f7ca50a525348b40fc096fe4bdde05d0e0eff171481152717ea772da013eaa2"},
+    {file = "tensorstore-0.1.37-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:600bb9308879ea5a685f55000b4a94ed905d6b220e11b5c29e2677948d90f88c"},
+    {file = "tensorstore-0.1.37-cp311-cp311-win_amd64.whl", hash = "sha256:6c07ce5e35573fd48d3817d83d175ab2e86befcc5f362625248ef55439c46f7f"},
+    {file = "tensorstore-0.1.37-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:61ba1d74af0e7086f383217aaab3f4830efcf1351048d3211eb0498b920ae28e"},
+    {file = "tensorstore-0.1.37-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:f7aeabaf59ca16eb675a319c60ea9ca8afde6c5ab5021a99fe64bb1b7bc448cd"},
+    {file = "tensorstore-0.1.37-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e9039a6a63733c1a65d3f1b38e2fb39b37de9db4e4e1d4ef18caba36628f9639"},
+    {file = "tensorstore-0.1.37-cp38-cp38-win_amd64.whl", hash = "sha256:9528d151ce9ac36e44d412a12c8c20c636bc1e0509c69fbe6e3ae85e176f3a56"},
+    {file = "tensorstore-0.1.37-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:feb57378a907dab83730fa8ecc634b1d872a07f3c85ff1fb68f6ff5e885a1e4e"},
+    {file = "tensorstore-0.1.37-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:c0faabf46820f363f8d5087cb022fa66999cc6757ffe1b056d34ae6b1aba7d72"},
+    {file = "tensorstore-0.1.37-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:88fff1e82bbd59d1061b770b58ed7e00f100e6c89ff3ee5d63ecb12fa8d59d04"},
+    {file = "tensorstore-0.1.37-cp39-cp39-win_amd64.whl", hash = "sha256:4d24c017fd30e00f470e88c59a57feb8488adb8fb153d94072e2a5a55d6b1bdc"},
+    {file = "tensorstore-0.1.37.tar.gz", hash = "sha256:70e8ba35da96cf45c1298140881df3d1532fe7ec01091bb64eb944085d0406ee"},
 ]
 
 [package.dependencies]
@@ -2770,14 +2783,14 @@ test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
 name = "typing-extensions"
-version = "4.6.0"
+version = "4.6.2"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "typing_extensions-4.6.0-py3-none-any.whl", hash = "sha256:6ad00b63f849b7dcc313b70b6b304ed67b2b2963b3098a33efe18056b1a9a223"},
-    {file = "typing_extensions-4.6.0.tar.gz", hash = "sha256:ff6b238610c747e44c268aa4bb23c8c735d665a63726df3f9431ce707f2aa768"},
+    {file = "typing_extensions-4.6.2-py3-none-any.whl", hash = "sha256:3a8b36f13dd5fdc5d1b16fe317f5668545de77fa0b8e02006381fd49d731ab98"},
+    {file = "typing_extensions-4.6.2.tar.gz", hash = "sha256:06006244c70ac8ee83fa8282cb188f697b8db25bc8b4df07be1873c43897060c"},
 ]
 
 [[package]]
