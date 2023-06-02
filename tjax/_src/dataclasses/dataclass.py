@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from typing import (Any, Callable, ClassVar, Hashable, Protocol, Type, cast, overload,
                     runtime_checkable)
 
-from jax.tree_util import AttributeKeyPathEntry, register_pytree_with_keys
+from jax.tree_util import register_pytree_with_keys
 from typing_extensions import dataclass_transform
 
 from ..annotations import PyTree
@@ -126,9 +126,9 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
             dynamic_fields.append(field_info.name)
 
     # Generate additional methods.
-    def tree_flatten(x: Any) -> tuple[Iterable[tuple[AttributeKeyPathEntry, PyTree]], Hashable]:
+    def tree_flatten(x: Any) -> tuple[Iterable[tuple[str, PyTree]], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
-        trees = tuple((AttributeKeyPathEntry(name), getattr(x, name)) for name in dynamic_fields)
+        trees = tuple((name, getattr(x, name)) for name in dynamic_fields)
         return trees, hashed
 
     def tree_unflatten(hashed: Hashable, trees: Iterable[PyTree]) -> Any:

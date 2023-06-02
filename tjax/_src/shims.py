@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from functools import WRAPPER_ASSIGNMENTS, cache, update_wrapper
+from functools import update_wrapper
 from typing import Any, Concatenate, Generic, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
 from typing_extensions import ParamSpec, Self, override
+
+from .function_markers import all_wrapper_assignments
 
 __all__ = ['jit', 'custom_jvp', 'custom_jvp_method', 'custom_vjp', 'custom_vjp_method']
 
@@ -17,21 +19,13 @@ P = ParamSpec('P')
 U = TypeVar("U")
 
 
-@cache
-def all_wrapper_assignments() -> tuple[str, ...]:
-    # pylint: disable=import-outside-toplevel
-    from .abstract_method_decorators import abstract_custom_jvp_marker, abstract_jit_marker
-    return (*WRAPPER_ASSIGNMENTS, '__isabstractmethod__', '__override__',
-            abstract_jit_marker, abstract_custom_jvp_marker)
-
-
 def jit(func: F, **kwargs: Any) -> F:
     """A version of jax.jit that preserves flags.
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
     retval = jax.jit(func, **kwargs)
-    update_wrapper(retval, func, all_wrapper_assignments())
+    update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval  # type: ignore[return-value] # pyright: ignore
 
@@ -55,7 +49,7 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
-        update_wrapper(self, func, all_wrapper_assignments())
+        update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(self,
                fwd: Callable[P, tuple[R_co, Any]],
@@ -85,7 +79,7 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
-        update_wrapper(self, func, all_wrapper_assignments())
+        update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(self,
                fwd: Callable[Concatenate[U, P], tuple[R_co, Any]],
@@ -130,7 +124,7 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
-        update_wrapper(self, func, all_wrapper_assignments())
+        update_wrapper(self, func, all_wrapper_assignments)
 
     def defjvp(self, jvp: Callable[..., tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.
@@ -160,7 +154,7 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
-        update_wrapper(self, func, all_wrapper_assignments())
+        update_wrapper(self, func, all_wrapper_assignments)
 
     def defjvp(self, jvp: Callable[Concatenate[U, P], tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.

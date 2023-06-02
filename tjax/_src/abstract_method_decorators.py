@@ -5,6 +5,7 @@ from typing import Any, TypeVar
 
 from typing_extensions import ParamSpec, override
 
+from .function_markers import abstract_custom_jvp_marker, abstract_jit_marker
 from .shims import custom_jvp_method, jit
 
 __all__ = ['JaxAbstractClass', 'abstract_jit', 'abstract_custom_jvp']
@@ -14,8 +15,6 @@ R_co = TypeVar('R_co', covariant=True)
 F = TypeVar('F', bound=Callable[..., Any])
 P = ParamSpec('P')
 U = TypeVar("U")
-abstract_jit_marker = '_abstract_jit'
-abstract_custom_jvp_marker = '_abstract_custom_jvp'
 
 
 class JaxAbstractClass:
@@ -50,9 +49,8 @@ def abstract_jit(fun: F) -> F:
     return fun
 
 
-def abstract_custom_jvp(
-        jvp: Callable[[tuple[Any, ...], tuple[Any, ...]], tuple[R_co, R_co]],
-        nondiff_argnums: tuple[int, ...] = ()
+def abstract_custom_jvp(jvp: Callable[..., tuple[R_co, R_co]],
+                        nondiff_argnums: tuple[int, ...] = ()
     ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
     """An abstract method whose override need to be decorated with custom_jvp_method."""
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
