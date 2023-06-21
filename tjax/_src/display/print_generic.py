@@ -17,7 +17,7 @@ global_console = Console()
 
 # Functions ----------------------------------------------------------------------------------------
 def print_generic(*args: Any,
-                  batch_dims: BatchDimensions = None,
+                  batch_dims: BatchDimensions | None = None,
                   raise_on_nan: bool = True,
                   console: Console | None = None,
                   **kwargs: Any) -> None:

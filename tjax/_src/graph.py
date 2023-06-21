@@ -79,7 +79,7 @@ else:
           seen: MutableSet[int],
           show_values: bool = True,
           key: str = '',
-          batch_dims: BatchDimensions = None) -> Tree:
+          batch_dims: BatchDimensions | None = None) -> Tree:
         directed = isinstance(value, nx.DiGraph)
         arrow = '⟶  ' if directed else '🡘 '
         retval = display_class(key, type(value))

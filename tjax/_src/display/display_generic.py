@@ -58,7 +58,7 @@ def display_generic(value: Any,
                     seen: MutableSet[int],
                     show_values: bool = True,
                     key: str = '',
-                    batch_dims: BatchDimensions = None) -> Tree:
+                    batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
@@ -85,7 +85,7 @@ def _(value: type[Any],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     return _assemble(key, Text(f"type[{value.__name__}]", style=_type_color))
@@ -97,7 +97,7 @@ def _(value: NumpyArray,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     extracted_batch_sizes, shape = _batched_axis_sizes_from_array_and_dims(value, batch_dims)
@@ -115,7 +115,7 @@ def _(value: Array,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     # extracted_batch_sizes = _batched_axis_sizes_from_jax_array(value)
@@ -140,7 +140,7 @@ def _(value: None | Number,
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     return _assemble(key, Text(str(value), style=_number_color))
@@ -152,7 +152,7 @@ def _(value: Mapping[Any, Any],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
@@ -172,7 +172,7 @@ def _(value: tuple[Any, ...] | list[Any],
       seen: MutableSet[int],
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions = None) -> Tree:
+      batch_dims: BatchDimensions | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
@@ -188,7 +188,7 @@ def display_dataclass(value: DataclassInstance,
                       seen: MutableSet[int],
                       show_values: bool = True,
                       key: str = '',
-                      batch_dims: BatchDimensions = None) -> Tree:
+                      batch_dims: BatchDimensions | None = None) -> Tree:
     is_module = flax_loaded and isinstance(value, FlaxModule)
     retval = display_class(key, type(value), is_module=is_module)
     bdi = BatchDimensionIterator(batch_dims)
@@ -290,7 +290,8 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
 
 
 def _batch_dimension_iterator(values: Iterable[Any],
-                              batch_dims: BatchDimensions = None) -> Iterable[BatchDimensions]:
+                              batch_dims: BatchDimensions | None = None
+                              ) -> Iterable[BatchDimensions]:
     """Traverse values and batch_dims in parallel.
 
     Returns: An iterable of BatchDimensions objects for sub-elements of value.

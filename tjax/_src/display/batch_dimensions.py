@@ -40,7 +40,7 @@ class BatchDimensionIterator:
         keeps track of these dimensions.
     """
     @override
-    def __init__(self, batch_dims: BatchDimensions = None):
+    def __init__(self, batch_dims: BatchDimensions | None = None):
         super().__init__()
         self.batch_dims = batch_dims
         self.i = 0
