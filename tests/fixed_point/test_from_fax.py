@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Callable, Tuple
 
 import hypothesis.extra.numpy
@@ -55,7 +57,7 @@ def solve_ax_b(amat: RealArray, bvec: RealArray) -> RealArray:
     return np.linalg.solve(matrix, bvec)
 
 
-def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> Tuple[RealArray, RealArray]:
+def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> tuple[RealArray, RealArray]:
     """Solve for the gradient of the fixed point x = Ax + b.
 
     Args:
@@ -147,7 +149,7 @@ def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, R
     def f(theta: TPair, x_init: RealArray) -> RealArray:
         return ax_plus_b.find_fixed_point(theta, x_init).current_state
 
-    def f_vjp(theta: TPair, x_init: RealArray) -> Tuple[RealArray, Callable[[RealArray], TPair]]:
+    def f_vjp(theta: TPair, x_init: RealArray) -> tuple[RealArray, Callable[[RealArray], TPair]]:
         return vjp(f, theta, x_init)
 
     jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore[no-untyped-call]

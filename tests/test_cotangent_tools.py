@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from functools import partial
-from typing import Any, Tuple
+from typing import Any
 
 import jax.numpy as jnp
 from jax import vjp
@@ -21,7 +23,7 @@ def test_replace_cotangent() -> None:
 
 
 def test_combinator() -> None:
-    def f(x: Any) -> Tuple[Any, None]:
+    def f(x: Any) -> tuple[Any, None]:
         return (x ** 2, x ** 2), None
     o = jnp.ones(())
 

@@ -51,17 +51,17 @@ def test_add_decayed_weights() -> None:
     updates = (
         jnp.zeros((2,), dtype=jnp.float32),
         {'a': jnp.zeros((2,), dtype=jnp.float32),
-         'b': jnp.zeros((2,), dtype=jnp.float32),})
+         'b': jnp.zeros((2,), dtype=jnp.float32)})
     weights = (
         jnp.ones((2,), dtype=jnp.float32),
         {'a': jnp.ones((2,), dtype=jnp.float32),
-         'b': jnp.ones((2,), dtype=jnp.float32),})
+         'b': jnp.ones((2,), dtype=jnp.float32)})
     # This mask means that we will add decayed weights to the first two
     # terms in the input updates, but not to the last element.
     expected_tx_updates = (
         0.1 * jnp.ones((2,), dtype=jnp.float32),
         {'a': 0.1 * jnp.ones((2,), dtype=jnp.float32),
-         'b': jnp.zeros((2,), dtype=jnp.float32),})
+         'b': jnp.zeros((2,), dtype=jnp.float32)})
     # Apply transform
     state = tx.init(weights)
     transform_fn = variant(tx.update)

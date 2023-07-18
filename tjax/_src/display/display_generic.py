@@ -76,7 +76,7 @@ def _(value: str,
       batch_dims: tuple[int | None, ...] | None = None) -> Tree:
     if (x := _verify(value, seen, key)) is not None:
         return x
-    return _assemble(key, Text(f"\"{value}\"", style=_string_color))
+    return _assemble(key, Text(f'"{value}"', style=_string_color))
 
 
 @display_generic.register(type)

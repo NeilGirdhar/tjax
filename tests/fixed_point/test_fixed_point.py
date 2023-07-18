@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import partial
 from typing import Callable, Protocol, Tuple
 
@@ -37,7 +39,7 @@ class NewtonsMethod(ComparingIteratedFunctionWithCombinator[PyTree, Array, Array
     @override
     def sampled_state_trajectory(self,
                                  theta: PyTree,
-                                 augmented: ComparingState[Array, Array]) -> Tuple[Array, None]:
+                                 augmented: ComparingState[Array, Array]) -> tuple[Array, None]:
         return self.sampled_state(theta, augmented.current_state), None
 
     @override

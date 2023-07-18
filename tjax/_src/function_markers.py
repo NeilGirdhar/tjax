@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from functools import WRAPPER_ASSIGNMENTS
 
 __all__: list[str] = []

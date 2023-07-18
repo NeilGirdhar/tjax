@@ -1,6 +1,6 @@
-from typing import List
+from __future__ import annotations
 
-__all__: List[str] = []
+__all__: list[str] = []
 
 
 solarized = {'base03': '#002b36',
