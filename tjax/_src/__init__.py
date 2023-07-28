@@ -4,7 +4,6 @@ from .cotangent_tools import *
 from .dataclasses import *
 from .display import *
 from .dtypes import *
-from .generator import *
 from .graph import *
 from .leaky_integral import *
 from .partial import *

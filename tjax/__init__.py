@@ -16,7 +16,6 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent, scale_cotangent)
 from ._src.display import display_generic, print_generic, tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
-from ._src.generator import vmap_split
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.partial import Partial
@@ -40,9 +39,9 @@ __all__ = ['Array', 'BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray',
            'tapped_print_generic', 'inverse_softplus', 'is_scalar', 'jit', 'leaky_covariance',
            'leaky_data_weight', 'leaky_integrate', 'leaky_integrate_time_series',
            'cotangent_combinator', 'print_cotangent', 'print_generic', 'replace_cotangent',
-           'tree_allclose', 'vmap_split', 'zero_tangent_like', 'JaxArray', 'JaxBooleanArray',
-           'JaxIntegralArray', 'JaxRealArray', 'JaxComplexArray', 'JaxAbstractClass',
-           'abstract_jit', 'abstract_custom_jvp']
+           'tree_allclose', 'zero_tangent_like', 'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray',
+           'JaxRealArray', 'JaxComplexArray', 'JaxAbstractClass', 'abstract_jit',
+           'abstract_custom_jvp']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False
