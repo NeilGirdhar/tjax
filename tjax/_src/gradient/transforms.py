@@ -344,7 +344,7 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
             numerical stability when backpropagating gradients through the rescaling.
         initial_accumulator_value: The starting value for accumulators.
             Only positive values are allowed.
-    """  # pylint: disable=line-too-long
+    """
     # https://github.com/PyCQA/pylint/issues/8301
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
