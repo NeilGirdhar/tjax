@@ -13,7 +13,8 @@ def test_time_step_invariance() -> None:
             x = leaky_integrate(x, time_step=1 / n, drift=3.0, decay=2.0)
         return x
 
-    a = np.asarray([f(n) for n in [1, 5, 20, 100]])
+    a = np.asarray([f(n) for n in [1, 5, 20, 100]],
+                   dtype=np.float64)
     assert_allclose(a, a[0])
 
 

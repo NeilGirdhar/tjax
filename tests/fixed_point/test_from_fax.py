@@ -83,7 +83,7 @@ class Solver(ComparingIteratedFunctionWithCombinator[TPair, RealArray, RealArray
     @override
     def sampled_state(self, theta: TPair, state: RealArray) -> RealArray:
         matrix, offset = theta
-        return jnp.tensordot(matrix, state, 1) + offset  # type: ignore[no-untyped-call]
+        return jnp.tensordot(matrix, state, 1) + offset
 
     @override
     def extract_comparand(self, state: RealArray) -> RealArray:
