@@ -12,7 +12,6 @@ from .print_generic import print_generic
 
 __all__ = ['tapped_print_generic']
 
-_T = TypeVar('_T')
 _U = TypeVar('_U')
 
 

@@ -250,7 +250,7 @@ def _(actual: dict[Any, Any], original_name: str, original: Any, rtol: float, at
 
 
 # Private functions --------------------------------------------------------------------------------
-def _float_to_string_with_precision(x: float | complex, precision: int) -> str:
+def _float_to_string_with_precision(x: complex, precision: int) -> str:
     with np.printoptions(precision=precision, floatmode='maxprec'):
         return repr(np.asarray(x))[6:-1]
 
