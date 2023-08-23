@@ -30,6 +30,11 @@ class StochasticIteratedFunction(
         IteratedFunction[Parameters, State, Comparand, Trajectory,
                          StochasticState[State, Comparand]],
         Generic[Parameters, State, Comparand, Trajectory]):
+    """An iterated function that generates a stochastic next state.
+
+    It converges when an exponentially decaying window has nearly zero variance.
+    """
+
     convergence_detection_decay: float | JaxRealArray
 
     # Implemented methods --------------------------------------------------------------------------
@@ -74,7 +79,7 @@ class StochasticIteratedFunction(
     def minimum_tolerances(self,
                            augmented: StochasticState[State, Comparand]
                            ) -> tuple[JaxRealArray, JaxRealArray]:
-        """The minimum tolerances.
+        """The minimum tolerances that would lead to convergence now.
 
         Returns:
             The minimum value of atol that would lead to convergence now.

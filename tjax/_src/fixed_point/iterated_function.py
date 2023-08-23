@@ -111,14 +111,15 @@ class IteratedFunction(IteratedFunctionBase[Parameters, State, Trajectory, TheAu
         """Extracts the "comparand" from the state.
 
         This is a subset of the values in the state that are compared by subclasses to detect
-        convergence.  In ComparingIteratedFunction, the comparand will be compared in successive
-        states to detect convergence.  In StochasticIteratedFunction, the mean and variance of the
-        comparand are used to detect convergence.
+        convergence:
+        * In ZeroIteratedFunction, the comparand is compared with zero.
+        * In ComparingIteratedFunction, the comparand is compared in successive states.
+        * In StochasticIteratedFunction, the mean and variance of the comparand are compared.
         """
         raise NotImplementedError
 
     def minimum_tolerances(self, augmented: TheAugmentedState) -> tuple[RealNumeric, RealNumeric]:
-        """The minimum tolerances.
+        """The minimum tolerances that would lead to convergence now.
 
         Returns:
             The minimum value of atol that would lead to convergence now.
