@@ -26,6 +26,7 @@ class ComparingIteratedFunction(
         IteratedFunction[Parameters, State, Comparand, Trajectory,
                          ComparingState[State, Comparand]],
         Generic[Parameters, State, Comparand, Trajectory]):
+    """An iterated function that converges when part of two successive states are nearly equal."""
 
     # Implemented methods --------------------------------------------------------------------------
     @override
@@ -58,7 +59,7 @@ class ComparingIteratedFunction(
     @override
     def minimum_tolerances(self, augmented: ComparingState[State, Comparand]
                            ) -> tuple[JaxRealArray, JaxRealArray]:
-        """The minimum tolerances.
+        """The minimum tolerances that would lead to convergence now.
 
         Returns:
             The minimum value of atol that would lead to convergence now.

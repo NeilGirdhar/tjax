@@ -8,8 +8,10 @@ from tjax._src.fixed_point.simple_scan import SimpleScan
 from tjax._src.fixed_point.stochastic import (StochasticIteratedFunction,
                                               StochasticIteratedFunctionWithCombinator,
                                               StochasticState)
+from tjax._src.fixed_point.zero import ZeroIteratedFunction, ZeroIteratedFunctionWithCombinator
 
 __all__ = ['AugmentedState', 'ComparingIteratedFunction', 'ComparingIteratedFunctionWithCombinator',
            'ComparingState', 'IteratedFunction', 'IteratedFunctionBase',
            'IteratedFunctionWithCombinator', 'SimpleScan', 'StochasticIteratedFunction',
-           'StochasticIteratedFunctionWithCombinator', 'StochasticState']
+           'StochasticIteratedFunctionWithCombinator', 'StochasticState', 'ZeroIteratedFunction',
+           'ZeroIteratedFunctionWithCombinator']
