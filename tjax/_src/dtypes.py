@@ -25,13 +25,13 @@ atol_dict = {jnp.bfloat16: 1e-2,
 def default_rtol(dtype: type[jnp.number[Any]]) -> float:
     if not jnp.issubdtype(dtype, jnp.inexact):
         return 0.0
-    return rtol_dict[dtype]  # type: ignore[index] # pyright: ignore
+    return rtol_dict[dtype]
 
 
 def default_atol(dtype: type[jnp.number[Any]]) -> float:
     if not jnp.issubdtype(dtype, jnp.inexact):
         return 1.0
-    return atol_dict[dtype]  # type: ignore[index] # pyright: ignore
+    return atol_dict[dtype]
 
 
 def default_tols(dtype: type[jnp.number[Any]],
