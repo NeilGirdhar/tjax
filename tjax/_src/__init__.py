@@ -7,7 +7,6 @@ from .dtypes import *
 from .graph import *
 from .leaky_integral import *
 from .partial import *
-from .plottable_trajectory import *
 from .shims import *
 from .testing import *
 from .tools import *
