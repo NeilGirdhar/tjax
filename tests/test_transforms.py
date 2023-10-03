@@ -67,7 +67,7 @@ def test_add_decayed_weights() -> None:
     transform_fn = variant(tx.update)
     new_updates, _ = transform_fn(updates, state, weights)
     # Assert output as expected.
-    chex.assert_tree_all_close(new_updates, expected_tx_updates)
+    chex.assert_trees_all_close(new_updates, expected_tx_updates)
 
 
 def test_ema() -> None:
@@ -139,12 +139,12 @@ def test_apply_every() -> None:
 
         # Every k steps, check equivalence.
         if i % k == k - 1:
-            chex.assert_tree_all_close(
+            chex.assert_trees_all_close(
                 optax_sgd_apply_every_params, optax_sgd_params,
                 atol=1e-6, rtol=1e-5)
         # Otherwise, check update is zero.
         else:
-            chex.assert_tree_all_close(
+            chex.assert_trees_all_close(
                 updates_sgd_apply_every, zero_update, atol=0.0, rtol=0.0)
 
 
@@ -162,7 +162,7 @@ def test_scale() -> None:
             return t * factor
         manual_updates = tree_map(rescale, updates)
         # Check the rescaled updates match.
-        chex.assert_tree_all_close(scaled_updates, manual_updates)
+        chex.assert_trees_all_close(scaled_updates, manual_updates)
 
 
 @pytest.mark.parametrize(("inputs", "outputs"), [
@@ -177,4 +177,4 @@ def test_centralize(inputs: Any, outputs: Any) -> None:
     centralizer = Centralize[Any]()
     empty_state = centralizer.init(inputs)
     centralized_inputs, _ = centralizer.update(inputs, empty_state, None)
-    chex.assert_tree_all_close(centralized_inputs, outputs)
+    chex.assert_trees_all_close(centralized_inputs, outputs)

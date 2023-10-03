@@ -12,7 +12,7 @@ __all__ = ['Shape', 'ShapeLike', 'SliceLike', 'Array', 'BooleanArray', 'Integral
            'NumpyBooleanArray', 'NumpyIntegralArray', 'NumpyRealArray', 'NumpyComplexArray',
            'NumpyBooleanNumeric', 'NumpyIntegralNumeric', 'NumpyRealNumeric', 'NumpyComplexNumeric',
            'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'JaxRealArray', 'JaxComplexArray',
-           ]
+           'KeyArray']
 
 Shape = Tuple[int, ...]
 ShapeLike = Union[int, Sequence[int]]
@@ -24,6 +24,7 @@ JaxBooleanArray = JaxArray
 JaxIntegralArray = JaxArray
 JaxRealArray = JaxArray
 JaxComplexArray = JaxArray
+KeyArray = JaxArray
 
 
 NumpyArray = npt.NDArray[Any]

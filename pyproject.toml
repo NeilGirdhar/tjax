@@ -16,10 +16,10 @@ classifiers = [
     'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: Scientific/Engineering :: Artificial Intelligence',
     'Topic :: Software Development :: Libraries :: Python Modules',
     'Topic :: Utilities',
@@ -27,9 +27,9 @@ classifiers = [
     'License :: OSI Approved :: MIT License']
 
 [tool.poetry.dependencies]
-python = '>=3.9,<3.12'
+python = '>=3.9,<3.13'
 rich = '>=12.6'
-jax = '>=0.4.6'
+jax = '>=0.4.18'
 numpy = '>=1.22'
 optax = '>=0.1'
 typing_extensions = '>=4.2'
