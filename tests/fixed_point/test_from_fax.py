@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Tuple
+from typing import Callable
 
 import hypothesis.extra.numpy
 import hypothesis.strategies
@@ -74,7 +74,7 @@ def solve_grad_ax_b(amat: RealArray, bvec: RealArray) -> tuple[RealArray, RealAr
     return grad_matrix, grad_bvec
 
 
-TPair = Tuple[RealArray, RealArray]
+TPair = tuple[RealArray, RealArray]
 
 
 @dataclass

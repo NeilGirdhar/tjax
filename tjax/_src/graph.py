@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import MutableSet
-from typing import Any, Dict, Hashable, Sequence, TypeVar
+from collections.abc import Hashable, MutableSet, Sequence
+from typing import Any, TypeVar
 
 from jax.tree_util import register_pytree_node
 from rich.tree import Tree
@@ -51,7 +51,7 @@ else:
     else:
         def register_graph_as_flax_state_dict(cls: type[T]) -> None:
             def ty_to_state_dict(graph: T) -> dict[str, Any]:
-                edge_dict_of_dicts = defaultdict[Any, Dict[Any, Any]](dict)
+                edge_dict_of_dicts = defaultdict[Any, dict[Any, Any]](dict)
                 for (source, target), edge_dict in dict(graph.edges).items():
                     edge_dict_of_dicts[source][target] = edge_dict
                 return {'nodes': to_state_dict(dict(graph.nodes)),

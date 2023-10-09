@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -14,10 +15,10 @@ __all__ = ['Shape', 'ShapeLike', 'SliceLike', 'Array', 'BooleanArray', 'Integral
            'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'JaxRealArray', 'JaxComplexArray',
            'KeyArray']
 
-Shape = Tuple[int, ...]
+Shape = tuple[int, ...]
 ShapeLike = Union[int, Sequence[int]]
 _SliceLikeItem = Union[int, None, slice]
-SliceLike = Union[_SliceLikeItem, Tuple[_SliceLikeItem, ...]]
+SliceLike = Union[_SliceLikeItem, tuple[_SliceLikeItem, ...]]
 
 
 JaxBooleanArray = JaxArray
@@ -53,4 +54,4 @@ ComplexNumeric = Union[ComplexArray, Complex]
 
 
 PyTree = Any
-TapFunctionTransforms = Sequence[Tuple[str, Dict[str, Any]]]
+TapFunctionTransforms = Sequence[tuple[str, dict[str, Any]]]

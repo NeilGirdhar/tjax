@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Hashable, Mapping, Sequence
 from reprlib import recursive_repr
-from typing import Any, Callable, Dict, Generic, Hashable, Mapping, Sequence, TypeVar, cast
+from typing import Any, Callable, Generic, TypeVar, cast
 
 from jax.tree_util import register_pytree_node_class
 from typing_extensions import override
@@ -79,7 +80,7 @@ class Partial(Generic[R]):
         if not isinstance(dynamic_kwargs, dict):
             raise RuntimeError  # noqa: TRY004
 
-        dynamic_kwargs = cast(Dict[str, Any], dynamic_kwargs)
+        dynamic_kwargs = cast(dict[str, Any], dynamic_kwargs)
         args = cls._unpartition_args(static_argnums, static_args, dynamic_args,
                                      callable_is_static=callable_is_static)
 

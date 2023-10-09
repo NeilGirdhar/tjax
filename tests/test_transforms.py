@@ -1,5 +1,5 @@
 """Tests from optax._src.transform_test."""
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 import chex
 import jax.numpy as jnp
@@ -114,12 +114,12 @@ def test_apply_every() -> None:
 
     # optax SGD
     optax_sgd_params = init_params
-    sgd_transform = SGD[Tuple[RealArray, RealArray]](LR, 0.0)
+    sgd_transform = SGD[tuple[RealArray, RealArray]](LR, 0.0)
     state_sgd = sgd_transform.init(optax_sgd_params)
 
     # optax SGD plus apply every
     optax_sgd_apply_every_params = init_params
-    sgd_apply_every = ChainedGradientTransformation[Tuple[RealArray, RealArray]](
+    sgd_apply_every = ChainedGradientTransformation[tuple[RealArray, RealArray]](
         [ApplyEvery[Any](k=k),
          Trace[Any](decay=0, nesterov=False),
          Scale[Any](-LR)])

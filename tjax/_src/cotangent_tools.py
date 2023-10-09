@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any, Callable, Tuple, TypeVar, cast
+from typing import Any, Callable, TypeVar, cast
 
 import jax.numpy as jnp
 from jax import vjp
@@ -16,7 +16,7 @@ __all__ = ['scale_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cota
 
 
 X = TypeVar('X')
-XT = TypeVar('XT', bound=Tuple[Any, ...])
+XT = TypeVar('XT', bound=tuple[Any, ...])
 Y = TypeVar('Y')
 
 

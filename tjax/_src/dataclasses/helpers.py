@@ -1,10 +1,11 @@
-# pylint: disable=redefined-builtin
+# pylint: disable=redefined-builtin, invalid-field-call
 from __future__ import annotations
 
 import dataclasses
 import sys
+from collections.abc import Mapping
 from dataclasses import MISSING, fields
-from typing import Any, Callable, Mapping, TypeVar, overload
+from typing import Any, Callable, TypeVar, overload
 
 __all__ = ['field', 'as_shallow_dict']
 

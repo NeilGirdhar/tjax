@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Callable, Protocol, Tuple
+from typing import Callable, Protocol
 
 import jax.numpy as jnp
 import pytest
@@ -21,7 +21,7 @@ class C(Protocol):
         ...
 
 
-State = Tuple[PyTree, KeyArray]
+State = tuple[PyTree, KeyArray]
 
 
 @dataclass

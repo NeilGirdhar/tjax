@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 from jax.tree_util import tree_leaves
 from typing_extensions import TypeAlias, override
@@ -8,8 +8,8 @@ from typing_extensions import TypeAlias, override
 __all__ = ['BatchDimensionIterator', 'BatchDimensions']
 
 
-_SimpleBatchDimensions: TypeAlias = Optional[Tuple[Optional[int], ...]]
-BatchDimensions: TypeAlias = Optional[Tuple[Optional[Tuple[int, ...]], ...]]
+_SimpleBatchDimensions: TypeAlias = Optional[tuple[Optional[int], ...]]
+BatchDimensions: TypeAlias = Optional[tuple[Optional[tuple[int, ...]], ...]]
 
 
 def combine_batch_dimensions(x: BatchDimensions, y: _SimpleBatchDimensions) -> BatchDimensions:

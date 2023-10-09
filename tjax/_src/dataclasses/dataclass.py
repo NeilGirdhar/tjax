@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable
-from typing import (Any, Callable, ClassVar, Hashable, Protocol, Type, cast, overload,
-                    runtime_checkable)
+from collections.abc import Hashable, Iterable
+from typing import Any, Callable, ClassVar, Protocol, cast, overload, runtime_checkable
 
 from jax.tree_util import register_pytree_with_keys
 from typing_extensions import dataclass_transform
@@ -109,7 +108,7 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
     non_none_cls = cls
 
     # Apply dataclass function to cls.
-    data_clz: type[TDataclassInstance] = cast(Type[TDataclassInstance],
+    data_clz: type[TDataclassInstance] = cast(type[TDataclassInstance],
                                               dataclasses.dataclass(init=init, repr=repr_, eq=eq,
                                                                     order=order, frozen=True)(cls))
 
