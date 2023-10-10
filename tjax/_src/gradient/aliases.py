@@ -12,7 +12,7 @@ from typing_extensions import override
 from ..annotations import IntegralNumeric, RealNumeric
 from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
-from .transforms import MaskOrFn, Schedule
+from .transforms import Schedule
 
 __all__ = ['AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LARS', 'Lamb',
            'NoisySGD', 'RAdam', 'RMSProp', 'SGD', 'SM3', 'Yogi', 'DPSGD']
@@ -55,7 +55,8 @@ class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[W
     weight_decay_rate: float | None = None
     eps: RealNumeric = 1e-30
     factored: bool = field(default=True, static=True)
-    weight_decay_mask: MaskOrFn[Weights] = None
+    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None,
+                                                                                static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -157,10 +158,12 @@ class Fromage(GradientTransformation[GenericGradientState, Weights], Generic[Wei
 class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
     learning_rate: ScalarOrSchedule
     weight_decay: RealNumeric = 0.0
-    weight_decay_mask: MaskOrFn[Weights] = True
+    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=True,
+                                                                                static=True)
     trust_coefficient: RealNumeric = 0.001
     eps: RealNumeric = 0.0
-    trust_ratio_mask: MaskOrFn[Weights] = True
+    trust_ratio_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=True,
+                                                                               static=True)
     momentum: RealNumeric = 0.9
     nesterov: bool = field(default=False, static=True)
 
@@ -185,7 +188,7 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     eps: RealNumeric = 1e-6
     eps_root: RealNumeric = 0.0
     weight_decay: RealNumeric = 0.0
-    mask: MaskOrFn[Weights] = None
+    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:

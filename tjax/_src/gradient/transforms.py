@@ -38,10 +38,6 @@ class Schedule:
         return self.step_size_fn(count)
 
 
-# Types --------------------------------------------------------------------------------------------
-MaskOrFn = None | bool | Weights | Callable[[Weights], Any]
-
-
 # Transforms from optax._src.transform.py ----------------------------------------------------------
 @dataclass
 class Trace(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
@@ -422,7 +418,7 @@ class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], G
         weight_decay: RealNumeric = 0.0
     """
     weight_decay: RealNumeric = 0.0
-    mask: MaskOrFn[Weights] = field(default=None, static=True)
+    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
