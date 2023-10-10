@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import dataclasses
 import sys
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import MISSING, fields
-from typing import Any, Callable, TypeVar, overload
+from typing import Any, TypeVar, overload
 
 __all__ = ['field', 'as_shallow_dict']
 

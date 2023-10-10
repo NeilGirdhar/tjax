@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, TypeVar
+from collections.abc import Callable
+from typing import Generic, TypeVar
 
 import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce

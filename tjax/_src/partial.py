@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Hashable, Mapping, Sequence
+from collections.abc import Callable, Hashable, Mapping, Sequence
 from reprlib import recursive_repr
-from typing import Any, Callable, Generic, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 
 from jax.tree_util import register_pytree_node_class
 from typing_extensions import override

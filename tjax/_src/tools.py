@@ -15,7 +15,7 @@ __all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zer
 
 
 def is_scalar(x: Any) -> bool:
-    return isinstance(x, Number) or isinstance(x, (np.ndarray, JaxArray)) and x.shape == ()
+    return isinstance(x, Number) or isinstance(x, np.ndarray | JaxArray) and x.shape == ()
 
 
 def abs_square(x: ComplexNumeric) -> JaxRealArray:

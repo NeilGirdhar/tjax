@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Generic, TypeVar
+from collections.abc import Callable
+from typing import Generic, TypeVar
 
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Hashable, Iterable
-from typing import Any, Callable, ClassVar, Protocol, cast, overload, runtime_checkable
+from collections.abc import Callable, Hashable, Iterable
+from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
 
 from jax.tree_util import register_pytree_with_keys
 from typing_extensions import dataclass_transform

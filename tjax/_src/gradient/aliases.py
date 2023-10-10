@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict
-from typing import Any, Callable, Generic, Union
+from typing import Any, Generic
 
 import jax.numpy as jnp
 from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, lamb, lars,
@@ -17,7 +18,7 @@ __all__ = ['AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LAR
            'NoisySGD', 'RAdam', 'RMSProp', 'SGD', 'SM3', 'Yogi', 'DPSGD']
 
 # Types --------------------------------------------------------------------------------------------
-ScalarOrSchedule = Union[float, Schedule]
+ScalarOrSchedule = float | Schedule
 
 
 # Transforms from optax._src.alias.py --------------------------------------------------------------

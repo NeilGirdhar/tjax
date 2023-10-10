@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict
-from typing import Any, Callable, Generic, Optional, Union
+from typing import Any, Generic
 
 from jax.random import KeyArray
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
@@ -38,7 +39,7 @@ class Schedule:
 
 
 # Types --------------------------------------------------------------------------------------------
-MaskOrFn = Optional[Union[bool, Weights, Callable[[Weights], Any]]]
+MaskOrFn = None | bool | Weights | Callable[[Weights], Any]
 
 
 # Transforms from optax._src.transform.py ----------------------------------------------------------

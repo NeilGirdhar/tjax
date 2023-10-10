@@ -5,7 +5,7 @@ from collections.abc import Iterable, Mapping, MutableSet
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 from jax import Array
@@ -257,13 +257,13 @@ def _(x: np.inexact[Any]) -> str:
 
 def _show_array(tree: Tree, array: NumpyArray) -> None:
     """Add a representation of array to the Rich tree."""
-    if not issubclass(array.dtype.type, (np.bool_, np.number)):
+    if not issubclass(array.dtype.type, np.bool_ | np.number):
         return
     if math.prod(array.shape) == 0:
         return
     if 1 in array.shape:
         _show_array(tree,
-                    array[tuple[Union[int, slice], ...](0 if s == 1 else slice(None)
+                    array[tuple[int | slice, ...](0 if s == 1 else slice(None)
                                                         for s in array.shape)])
         return
     if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # noqa: PLR2004

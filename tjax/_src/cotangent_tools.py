@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import jax.numpy as jnp
 from jax import vjp

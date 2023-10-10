@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -16,9 +16,9 @@ __all__ = ['Shape', 'ShapeLike', 'SliceLike', 'Array', 'BooleanArray', 'Integral
            'KeyArray']
 
 Shape = tuple[int, ...]
-ShapeLike = Union[int, Sequence[int]]
-_SliceLikeItem = Union[int, None, slice]
-SliceLike = Union[_SliceLikeItem, tuple[_SliceLikeItem, ...]]
+ShapeLike = int | Sequence[int]
+_SliceLikeItem = int | None | slice
+SliceLike = _SliceLikeItem | tuple[_SliceLikeItem, ...]
 
 
 JaxBooleanArray = JaxArray
@@ -32,25 +32,25 @@ NumpyArray = npt.NDArray[Any]
 NumpyBooleanArray = npt.NDArray[np.bool_]
 NumpyIntegralArray = npt.NDArray[np.integer[Any]]
 NumpyRealArray = npt.NDArray[np.floating[Any]]
-NumpyComplexArray = npt.NDArray[Union[np.floating[Any], np.complexfloating[Any, Any]]]
-Array = Union[NumpyArray, JaxArray]
-BooleanArray = Union[NumpyBooleanArray, JaxArray]
-IntegralArray = Union[NumpyIntegralArray, JaxArray]
-RealArray = Union[NumpyRealArray, JaxArray]
-ComplexArray = Union[NumpyComplexArray, JaxArray]
+NumpyComplexArray = npt.NDArray[np.floating[Any] | np.complexfloating[Any, Any]]
+Array = NumpyArray | JaxArray
+BooleanArray = NumpyBooleanArray | JaxArray
+IntegralArray = NumpyIntegralArray | JaxArray
+RealArray = NumpyRealArray | JaxArray
+ComplexArray = NumpyComplexArray | JaxArray
 
 
-Integral = int  # Use this until numbers.Integral works with MyPy.
-Real = Union[float, int]  # Use this until numbers.Real works with MyPy.
-Complex = Union[complex, float, int]  # Use this until numbers.Complex works with MyPy.
-NumpyBooleanNumeric = Union[NumpyBooleanArray, bool]
-NumpyIntegralNumeric = Union[NumpyIntegralArray, Integral]
-NumpyRealNumeric = Union[NumpyRealArray, Real]
-NumpyComplexNumeric = Union[NumpyComplexArray, Complex]
-BooleanNumeric = Union[BooleanArray, bool]
-IntegralNumeric = Union[IntegralArray, Integral]
-RealNumeric = Union[RealArray, Real]
-ComplexNumeric = Union[ComplexArray, Complex]
+Integral = int
+Real = float | int
+Complex = complex | float | int
+NumpyBooleanNumeric = NumpyBooleanArray | bool
+NumpyIntegralNumeric = NumpyIntegralArray | Integral
+NumpyRealNumeric = NumpyRealArray | Real
+NumpyComplexNumeric = NumpyComplexArray | Complex
+BooleanNumeric = BooleanArray | bool
+IntegralNumeric = IntegralArray | Integral
+RealNumeric = RealArray | Real
+ComplexNumeric = ComplexArray | Complex
 
 
 PyTree = Any

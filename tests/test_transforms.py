@@ -1,5 +1,6 @@
 """Tests from optax._src.transform_test."""
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import chex
 import jax.numpy as jnp
