@@ -5,10 +5,10 @@ Tools for JAX
 |pypi| |py_versions|
 
 .. |pypi| image:: https://img.shields.io/pypi/v/tjax
-   :   alt: PyPI - Version
+   :alt: PyPI - Version
 
 .. |py_versions| image:: https://img.shields.io/pypi/pyversions/tjax
-   :   alt: PyPI - Python Version
+   :alt: PyPI - Python Version
 
 .. role:: bash(code)
     :language: bash
