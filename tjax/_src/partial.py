@@ -100,9 +100,9 @@ class Partial(Generic[R]):
         qualname = type(self).__qualname__
         args = [repr(self.function)]
         args.extend(repr(x) for x in self.args)
-        args.append(f"callable_is_static={self.callable_is_static}")
-        args.append(f"static_argnums={self.static_argnums}")
-        args.append(f"static_kwargs={self.static_kwargs}")
+        args.extend([f"callable_is_static={self.callable_is_static}",
+                     f"static_argnums={self.static_argnums}",
+                     f"static_kwargs={self.static_kwargs}"])
         args.extend(f"{k}={v!r}" for (k, v) in self.dynamic_kwargs.items())
         return f"{qualname}({', '.join(args)})"
 

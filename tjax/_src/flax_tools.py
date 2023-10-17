@@ -7,4 +7,4 @@ __all__ = ['flax_field']
 
 
 def flax_field() -> Any:
-    return field(init=False, default=None, kw_only=True)
+    return field(init=False, default=None, kw_only=True)  # pylint: disable=invalid-field-call
