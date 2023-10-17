@@ -16,14 +16,16 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent, scale_cotangent)
 from ._src.display import display_generic, print_generic, tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
+from ._src.flax_tools import flax_field
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
+from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
+                              is_scalar, zero_tangent_like)
 from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
-from ._src.tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus, is_scalar,
-                         zero_tangent_like)
+from ._src.tree_tools import tree_map_with_path
 
 __all__ = ['BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'ComplexNumeric', 'Array',
            'KeyArray', 'Integral', 'IntegralArray', 'IntegralNumeric', 'NumpyArray',
@@ -40,7 +42,7 @@ __all__ = ['BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'Complex
            'cotangent_combinator', 'print_cotangent', 'print_generic', 'replace_cotangent',
            'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'tree_allclose', 'zero_tangent_like',
            'JaxAbstractClass', 'JaxComplexArray', 'JaxRealArray', 'abstract_jit',
-           'abstract_custom_jvp']
+           'abstract_custom_jvp', 'tree_map_with_path', 'flax_field']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False

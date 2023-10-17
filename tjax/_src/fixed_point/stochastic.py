@@ -10,7 +10,7 @@ from typing_extensions import override
 from ..annotations import ComplexNumeric, JaxBooleanArray, JaxComplexArray, JaxRealArray
 from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
-from ..tools import abs_square, divide_nonnegative
+from ..math_tools import abs_square, divide_nonnegative
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory

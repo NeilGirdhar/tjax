@@ -6,7 +6,7 @@ from .display import *
 from .dtypes import *
 from .graph import *
 from .leaky_integral import *
+from .math_tools import *
 from .partial import *
 from .shims import *
 from .testing import *
-from .tools import *

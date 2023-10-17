@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from ..annotations import JaxBooleanArray, JaxRealArray
 from ..dataclasses import dataclass
-from ..tools import divide_nonnegative
+from ..math_tools import divide_nonnegative
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
 
