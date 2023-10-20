@@ -69,7 +69,7 @@ def tapped_print_generic(*args: Any,
                 continue
             if no_jvp and transform_name == 'jvp':
                 return
-            if transform_name in ['jvp', 'mask', 'transpose']:
+            if transform_name in {'jvp', 'mask', 'transpose'}:
                 flags.append(transform_name)
                 continue
         modified_kwargs = ({key + f" [{', '.join(flags)}]": value
