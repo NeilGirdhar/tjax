@@ -5,7 +5,7 @@ from typing import Any
 import jax.numpy as jnp
 import pytest
 from jax import grad
-from jax.random import KeyArray, PRNGKey, normal, split
+from jax.random import KeyArray, key, normal, split
 from numpy.testing import assert_allclose
 from typing_extensions import override
 
@@ -76,8 +76,7 @@ class EncodingElement:
     diffusion: float = 0.01
 
     def _initial_state(self) -> EncodingState:
-        return EncodingState(EncodingConfiguration(8.0, 1),
-                             PRNGKey(123))
+        return EncodingState(EncodingConfiguration(8.0, 1), key(123))
 
     def iterate(self,
                 ec: EncodingConfiguration,

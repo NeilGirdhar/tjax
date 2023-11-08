@@ -7,7 +7,7 @@ from typing import Protocol
 import jax.numpy as jnp
 import pytest
 from jax import grad
-from jax.random import KeyArray, PRNGKey, normal, split
+from jax.random import KeyArray, key, normal, split
 from numpy.testing import assert_allclose
 from typing_extensions import override
 
@@ -157,7 +157,7 @@ def test_grad(fixed_point_using_while: C,
 def test_noisy_grad(noisy_it_fun: NoisyNewtonsMethod, theta: float) -> None:
 
     def fixed_point_using_while_of_theta(theta: float) -> float:
-        state = (8.0, PRNGKey(123))
+        state = (8.0, key(123))
         x, _ = noisy_it_fun.find_fixed_point(theta, state).current_state
         return x
     assert_allclose(theta,

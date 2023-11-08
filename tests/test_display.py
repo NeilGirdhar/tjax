@@ -5,7 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from jax import enable_custom_prng, jit, vmap
-from jax.random import KeyArray, PRNGKey
+from jax.random import KeyArray, key
 from pytest import CaptureFixture
 from rich.console import Console
 
@@ -149,12 +149,12 @@ def test_tapped_dict(capsys: CaptureFixture[str],
 def test_tapped_key(capsys: CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
-        key = PRNGKey(123)
+        k = key(123)
         @jit
         def f(x: KeyArray) -> KeyArray:
             return tapped_print_generic(x)
 
-        f(key)
+        f(k)
     captured = capsys.readouterr()
     verify(captured.out,
            """
