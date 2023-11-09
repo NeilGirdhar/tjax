@@ -5,11 +5,11 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from jax import enable_custom_prng, jit, vmap
-from jax.random import KeyArray, key
+from jax.random import key
 from pytest import CaptureFixture
 from rich.console import Console
 
-from tjax import RealArray, print_generic, tapped_print_generic
+from tjax import KeyArray, RealArray, print_generic, tapped_print_generic
 from tjax.dataclasses import dataclass, field
 
 

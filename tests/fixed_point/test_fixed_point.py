@@ -7,11 +7,11 @@ from typing import Protocol
 import jax.numpy as jnp
 import pytest
 from jax import grad
-from jax.random import KeyArray, key, normal, split
+from jax.random import key, normal, split
 from numpy.testing import assert_allclose
 from typing_extensions import override
 
-from tjax import Array, PyTree
+from tjax import Array, KeyArray, PyTree
 from tjax.dataclasses import dataclass, field
 from tjax.fixed_point import (ComparingIteratedFunctionWithCombinator, ComparingState,
                               StochasticIteratedFunctionWithCombinator)

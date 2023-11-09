@@ -6,10 +6,10 @@ from typing import overload
 import jax.numpy as jnp
 import numpy as np
 from jax.lax import scan
-from jax.random import KeyArray, normal
+from jax.random import normal
 
-from .annotations import (ComplexArray, ComplexNumeric, JaxComplexArray, JaxRealArray, RealArray,
-                          RealNumeric)
+from .annotations import (ComplexArray, ComplexNumeric, JaxComplexArray, JaxRealArray, KeyArray,
+                          RealArray, RealNumeric)
 from .dataclasses import dataclass
 
 __all__ = ['leaky_integrate', 'diffused_leaky_integrate', 'leaky_data_weight',

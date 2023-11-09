@@ -4,7 +4,6 @@ from collections.abc import Callable
 from dataclasses import asdict
 from typing import Any, Generic
 
-from jax.random import KeyArray
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
                    scale_by_adam, scale_by_belief, scale_by_param_block_norm,
                    scale_by_param_block_rms, scale_by_radam, scale_by_rms, scale_by_rss,
@@ -12,7 +11,7 @@ from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema,
                    scale_by_yogi, trace)
 from typing_extensions import override
 
-from ..annotations import IntegralNumeric, RealNumeric
+from ..annotations import IntegralNumeric, KeyArray, RealNumeric
 from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 
