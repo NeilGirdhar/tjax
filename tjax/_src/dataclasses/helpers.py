@@ -38,7 +38,7 @@ def field(*, static: bool = False, init: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Any:
     ...
 
-def field(*, static: bool = False, default: Any = MISSING,  # noqa: PLR0913
+def field(*, static: bool = False, default: Any = MISSING,
           default_factory: Any = MISSING, init: bool = True,
           repr: bool = True,  # noqa: A002
           hash: bool | None = None,  # noqa: A002
