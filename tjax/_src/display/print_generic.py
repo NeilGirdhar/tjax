@@ -36,4 +36,4 @@ def print_generic(*args: Any,
         found_nan = found_nan or raise_on_nan and 'nan' in str(root)
     console.print(root)
     if found_nan:
-        assert False
+        assert False  # noqa: PT015

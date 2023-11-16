@@ -87,5 +87,5 @@ def tapped_print_generic(*args: Any,
             assert len(kwargs) == 1
             result = next(iter(kwargs.values()))
         else:
-            assert False
+            assert False  # noqa: PT015
     return id_tap(tap, leaves, result=result)  # type: ignore[no-untyped-call]
