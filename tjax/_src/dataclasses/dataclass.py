@@ -119,10 +119,10 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
             continue
-        if field_info.metadata.get('static', False):
-            static_fields.append(field_info.name)
-        else:
+        if field_info.metadata.get('pytree_node', True):
             dynamic_fields.append(field_info.name)
+        else:
+            static_fields.append(field_info.name)
 
     # Generate additional methods.
     def tree_flatten(x: Any) -> tuple[Iterable[tuple[str, PyTree]], Hashable]:

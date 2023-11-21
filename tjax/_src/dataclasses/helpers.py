@@ -51,7 +51,7 @@ def field(*, static: bool = False, default: Any = MISSING,
     differentiated and traced.  Static fields are hashed and compared.
     """
     metadata_dict: dict[str, Any] = {} if metadata is None else dict(metadata)
-    metadata_dict['static'] = static
+    metadata_dict['pytree_node'] = not static
     if default is MISSING:
         return dataclasses.field(default_factory=default_factory,
                                  init=init,
