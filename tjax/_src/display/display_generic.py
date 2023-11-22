@@ -208,7 +208,7 @@ def display_dataclass(value: DataclassInstance,
                                                show_values=show_values, key='has_parent'))
         retval.children.append(display_generic(value.scope is not None, seen=seen,
                                                show_values=show_values, key='bound'))
-        value_state = value._state  # pylint: disable=protected-access # noqa: SLF001
+        value_state = value._state  # noqa: SLF001
         for name, child_module in value_state.children.items():  # pytype: disable=attribute-error
             if not isinstance(child_module, FlaxModule):
                 continue
