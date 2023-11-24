@@ -45,7 +45,7 @@ _seen_color = solarized['red']
 # Extra imports ------------------------------------------------------------------------------------
 FlaxModule: type[Any]
 try:
-    from flax.linen import Module as FlaxModule
+    from flax.experimental.nnx import Module as FlaxModule
     flax_loaded = True
 except ImportError:
     flax_loaded = False
@@ -202,17 +202,9 @@ def display_dataclass(value: DataclassInstance,
                                                key=name, batch_dims=sub_batch_dims))
     if is_module:
         assert isinstance(value, FlaxModule)
-        retval.children.append(display_generic(value.name, seen=seen, show_values=show_values,
-                                               key='name'))
-        retval.children.append(display_generic(value.parent is not None, seen=seen,
-                                               show_values=show_values, key='has_parent'))
-        retval.children.append(display_generic(value.scope is not None, seen=seen,
-                                               show_values=show_values, key='bound'))
-        value_state = value._state  # noqa: SLF001
-        for name, child_module in value_state.children.items():  # pytype: disable=attribute-error
-            if not isinstance(child_module, FlaxModule):
-                continue
-            retval.children.append(display_generic(child_module, seen=seen, show_values=show_values,
+        state, graph_def = value.split()
+        for name, child in [('state', state), ('graph', graph_def)]:
+            retval.children.append(display_generic(child, seen=seen, show_values=show_values,
                                                    key=name))
     return retval
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections import defaultdict
-from collections.abc import Hashable, MutableSet, Sequence
+from collections.abc import Callable, Hashable, MutableSet, Sequence
 from typing import Any, TypeVar
 
 from jax.tree_util import register_pytree_node
@@ -45,33 +44,49 @@ else:
     register_graph_as_jax_pytree(nx.DiGraph)
 
     try:
-        from flax.serialization import from_state_dict, register_serialization_state, to_state_dict
+        from flax.experimental.nnx.nnx.graph_utils import register_node_type
     except ImportError:
         pass
     else:
-        def register_graph_as_flax_state_dict(cls: type[T]) -> None:
-            def ty_to_state_dict(graph: T) -> dict[str, Any]:
-                edge_dict_of_dicts = defaultdict[Any, dict[Any, Any]](dict)
-                for (source, target), edge_dict in dict(graph.edges).items():
-                    edge_dict_of_dicts[source][target] = edge_dict
-                return {'nodes': to_state_dict(dict(graph.nodes)),
-                        'edges': to_state_dict(dict(edge_dict_of_dicts))}
+        def _flatten_graph(node: nx.Graph
+                           ) -> tuple[
+                                   tuple[tuple[str, Any], ...],
+                                   None]:
+            return ((('nodes', tuple(node.nodes.data())), ('edges', tuple(node.edges.data()))),
+                    None)
 
-            def ty_from_state_dict(graph: T, state_dict: dict[str, Any]) -> T:
-                retval = type(graph)()
-                for node_name, node_dict in state_dict['nodes'].items():
-                    retval.add_node(node_name, **from_state_dict(graph.nodes[node_name], node_dict))
-                for source, target_and_edge_dict in state_dict['edges'].items():
-                    for target, edge_dict in target_and_edge_dict.items():
-                        retval.add_edge(source, target,
-                                        **from_state_dict(graph.edges[source, target], edge_dict))
-                return retval
+        def _get_key_graph(node: nx.Graph, key: str) -> Any:
+            return node[key]
 
-            register_serialization_state(cls, ty_to_state_dict,  # type: ignore[no-untyped-call]
-                                         ty_from_state_dict)
+        def _set_key_graph(node: nx.Graph, key: str, value: Any) -> nx.Graph:
+            msg = f"'{type(node).__name__}' object is immutable; it does not support assignment."
+            raise ValueError(msg)
 
-        register_graph_as_flax_state_dict(nx.Graph)
-        register_graph_as_flax_state_dict(nx.DiGraph)
+        def _has_key_graph(node: nx.Graph, key: str) -> bool:
+            return key in {'nodes', 'edges'}
+
+        def _all_keys_graph(node: nx.Graph) -> tuple[str, ...]:
+            return ('nodes', 'edges')
+
+        def closure_create_empty(node_type: type[T]) -> Callable[[None], T]:
+            def _create_empty_graph(metadata: None) -> T:
+                return node_type()
+            return _create_empty_graph
+
+        def _init_graph(node: nx.Graph,
+                        items: tuple[tuple[str, Any], ...]
+                        ) -> None:
+            node.update(**dict(items))
+
+        for node_type in [nx.Graph, nx.DiGraph]:
+            register_node_type(node_type,
+                               _flatten_graph,
+                               _get_key_graph,
+                               _set_key_graph,
+                               _has_key_graph,
+                               _all_keys_graph,
+                               create_empty=closure_create_empty(node_type),
+                               init=_init_graph)
 
     @display_generic.register
     def _(value: nx.Graph,
