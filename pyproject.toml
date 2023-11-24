@@ -45,7 +45,7 @@ pytest = '>=7'
 ruff = '>=0'
 
 [tool.poetry.group.extra.dependencies]
-flax = '>= 0.6.3'
+flax = { git = "https://github.com/google/flax.git", rev = "93d3eb78" }
 networkx = '>= 2.8.8'
 
 [tool.isort]
