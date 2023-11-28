@@ -27,20 +27,20 @@ class TDataclassInstance(DataclassInstance, Protocol):
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(*, init: bool = True, repr_: bool = True, eq: bool = True,
+def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,  # noqa: A002
               order: bool = False) -> Callable[[type[Any]], type[TDataclassInstance]]:
     ...
 
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: type[Any], /, *, init: bool = True, repr_: bool = True, eq: bool = True,
-              order: bool = False) -> type[TDataclassInstance]:
+def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,  # noqa: A002
+              eq: bool = True, order: bool = False) -> type[TDataclassInstance]:
     ...
 
 
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool = True,
+def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool = True,  # noqa: A002
               eq: bool = True, order: bool = False
               ) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
     """A dataclass creator that creates a pytree.
@@ -103,13 +103,13 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr_: bool
     """
     if cls is None:
         def f(x: type[Any], /) -> type[TDataclassInstance]:
-            return dataclass(x, init=init, repr_=repr_, eq=eq, order=order)
+            return dataclass(x, init=init, repr=repr, eq=eq, order=order)
         return f  # Type checking support partial is poor.
     non_none_cls = cls
 
     # Apply dataclass function to cls.
     data_clz: type[TDataclassInstance] = cast(type[TDataclassInstance],
-                                              dataclasses.dataclass(init=init, repr=repr_, eq=eq,
+                                              dataclasses.dataclass(init=init, repr=repr, eq=eq,
                                                                     order=order, frozen=True)(cls))
 
     # Partition fields into hashed, tree, and uninitialized.
