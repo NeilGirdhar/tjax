@@ -96,7 +96,7 @@ else:
           key: str = '',
           batch_dims: BatchDimensions | None = None) -> Tree:
         directed = isinstance(value, nx.DiGraph)
-        arrow = '⟶  ' if directed else '🡘 '
+        arrow = '⟶' if directed else '↔'
         retval = display_class(key, type(value))
         bdi = BatchDimensionIterator(batch_dims)
         for name, node in value.nodes.items():
