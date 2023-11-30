@@ -194,18 +194,13 @@ def display_dataclass(value: DataclassInstance,
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
         name = field_info.name
-        if is_module and name in {'parent', 'name'}:
-            continue
-        sub_value = getattr(value, name)
+        display_name = name
+        if not field_info.init:
+            display_name += ' (module)'
+        sub_value = getattr(value, name, None)
         sub_batch_dims = bdi.advance(sub_value)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name, batch_dims=sub_batch_dims))
-    if is_module:
-        assert isinstance(value, FlaxModule)
-        state, graph_def = value.split()
-        for name, child in [('state', state), ('graph', graph_def)]:
-            retval.children.append(display_generic(child, seen=seen, show_values=show_values,
-                                                   key=name))
+                                               key=display_name, batch_dims=sub_batch_dims))
     return retval
 
 
