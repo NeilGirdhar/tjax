@@ -198,11 +198,11 @@ def test_dataclass(capsys: CaptureFixture[str],
     captured = capsys.readouterr()
     verify(captured.out,
            """
-           d=D
-           ├── c=C
+           d=D[dataclass]
+           ├── c=C[dataclass]
            │   ├── x=1
            │   └── y=2
-           └── d=C
+           └── d=C[dataclass]
                ├── x=3
                └── y=4
            """)
