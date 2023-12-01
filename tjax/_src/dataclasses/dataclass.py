@@ -112,12 +112,10 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
                                               dataclasses.dataclass(init=init, repr=repr, eq=eq,
                                                                     order=order, frozen=True)(cls))
 
-    # Partition fields into static, dynamic, and uninitialized; and assign these to the class.
+    # Partition fields into static, and dynamic; and assign these to the class.
     static_fields: list[str] = []
     dynamic_fields: list[str] = []
     for field_info in dataclasses.fields(data_clz):
-        if not field_info.init:
-            continue
         if field_info.metadata.get('pytree_node', True):
             dynamic_fields.append(field_info.name)
         else:
