@@ -64,7 +64,8 @@ def display_generic(value: Any,
     if is_dataclass(value) and not isinstance(value, type):
         return display_dataclass(value, seen=seen, show_values=show_values, key=key,
                                  batch_dims=batch_dims)
-    return _assemble(key, Text(str(value), style=_unknown_color))
+    return display_object(value, seen=seen, show_values=show_values, key=key, batch_dims=batch_dims)
+    # _assemble(key, Text(str(value), style=_unknown_color))
 
 
 @display_generic.register
@@ -201,6 +202,25 @@ def display_dataclass(value: DataclassInstance,
         sub_batch_dims = bdi.advance(sub_value)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
                                                key=display_name, batch_dims=sub_batch_dims))
+    return retval
+
+
+def display_object(value: Any,
+                   *,
+                   seen: MutableSet[int],
+                   show_values: bool = True,
+                   key: str = '',
+                   batch_dims: BatchDimensions | None = None) -> Tree:
+    t = type(value)
+    variables = ({name: getattr(value, name) for name in t.__slots__}
+                 if hasattr(t, '__slots__')
+                 else vars(value))
+    retval = display_class(key, t, is_module=False)
+    bdi = BatchDimensionIterator(batch_dims)
+    for name, sub_value in variables.items():
+        sub_batch_dims = bdi.advance(sub_value)
+        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
+                                               key=name, batch_dims=sub_batch_dims))
     return retval
 
 
