@@ -26,12 +26,12 @@ __all__ = ['display_generic', 'display_class']
 # Constants ----------------------------------------------------------------------------------------
 # Numeric (warm)
 _numpy_array_color = solarized['magenta']
-_jax_array_color = solarized['red']
+_jax_array_color = solarized['orange']
 _number_color = solarized['yellow']
-# solarized['orange']
+# solarized['red']
 # Classes (cool)
 _class_color = solarized['violet']
-_module_color = solarized['cyan']
+# solarized['cyan']
 _type_color = solarized['green']
 _string_color = solarized['base0']
 # Other
@@ -45,11 +45,16 @@ _seen_color = solarized['red']
 # Extra imports ------------------------------------------------------------------------------------
 FlaxModule: type[Any]
 try:
-    from flax.experimental.nnx import Module as FlaxModule
-    flax_loaded = True
+    from flax.experimental import nnx
 except ImportError:
     flax_loaded = False
+    def is_node_type(x: type[Any]) -> bool:
+        return False
     FlaxModule = type(None)
+else:
+    flax_loaded = True
+    FlaxModule = nnx.Module
+    is_node_type = nnx.graph_utils.is_node_type  # pyright: ignore
 
 
 @singledispatch
@@ -190,8 +195,7 @@ def display_dataclass(value: DataclassInstance,
                       show_values: bool = True,
                       key: str = '',
                       batch_dims: BatchDimensions | None = None) -> Tree:
-    is_module = flax_loaded and isinstance(value, FlaxModule)
-    retval = display_class(key, type(value), is_module=is_module)
+    retval = display_class(key, type(value))
     bdi = BatchDimensionIterator(batch_dims)
     for field_info in fields(value):
         name = field_info.name
@@ -215,7 +219,7 @@ def display_object(value: Any,
     variables = ({name: getattr(value, name) for name in t.__slots__}
                  if hasattr(t, '__slots__')
                  else vars(value))
-    retval = display_class(key, t, is_module=False)
+    retval = display_class(key, t)
     bdi = BatchDimensionIterator(batch_dims)
     for name, sub_value in variables.items():
         sub_batch_dims = bdi.advance(sub_value)
@@ -225,9 +229,19 @@ def display_object(value: Any,
 
 
 # Public unexported functions ----------------------------------------------------------------------
-def display_class(key: str, cls: type[Any], *, is_module: bool = False) -> Tree:
-    type_color = _module_color if is_module else _class_color
-    return _assemble(key, Text(cls.__name__, style=type_color))
+def display_class(key: str, cls: type[Any]) -> Tree:
+    name = cls.__name__
+    tags = []
+    if is_dataclass(cls):
+        tags.append('dataclass')
+    if flax_loaded and cls not in {int, float, tuple, list, set, dict}:
+        if issubclass(cls, FlaxModule):
+            tags.append('flax-module')
+        elif is_node_type(cls):
+            tags.append('flax-node')
+    if tags:
+        name += f"[{','.join(tags)}]"
+    return _assemble(key, Text(name, style=_class_color))
 
 
 def _verify(value: Any,
