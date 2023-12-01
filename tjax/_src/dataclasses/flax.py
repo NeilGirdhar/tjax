@@ -16,6 +16,7 @@ def module_field(*, init: bool = False) -> Any:
     return field(init=init, default=None, kw_only=True)  # pylint: disable=invalid-field-call
 
 
+NamedChildren: TypeAlias = tuple[tuple[str, nnx.State], tuple[str, nnx.GraphDef[Any]]]
 Children: TypeAlias = tuple[nnx.State, nnx.GraphDef[Any]]
 
 
