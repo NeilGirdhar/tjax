@@ -112,10 +112,9 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
                                               dataclasses.dataclass(init=init, repr=repr, eq=eq,
                                                                     order=order, frozen=True)(cls))
 
-    # Partition fields into hashed, tree, and uninitialized.
+    # Partition fields into static, dynamic, and uninitialized; and assign these to the class.
     static_fields: list[str] = []
     dynamic_fields: list[str] = []
-
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
             continue
@@ -123,26 +122,28 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
             dynamic_fields.append(field_info.name)
         else:
             static_fields.append(field_info.name)
+    data_clz.static_fields = static_fields
+    data_clz.dynamic_fields = dynamic_fields
 
-    # Generate additional methods.
-    def tree_flatten(x: Any) -> tuple[Iterable[tuple[str, PyTree]], Hashable]:
+    # Register the class as a Jax PyTree.
+    def flatten_with_keys(x: Any, /) -> tuple[Iterable[tuple[str, PyTree]], Hashable]:
         hashed = tuple(getattr(x, name) for name in static_fields)
         trees = tuple((name, getattr(x, name)) for name in dynamic_fields)
         return trees, hashed
 
-    def tree_unflatten(hashed: Hashable, trees: Iterable[PyTree]) -> Any:
+    def unflatten(hashed: Hashable, trees: Iterable[PyTree], /) -> Any:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(static_fields, hashed, strict=True))
         tree_args = dict(zip(dynamic_fields, trees, strict=True))
         return non_none_cls(**hashed_args, **tree_args)
 
-    # Assign field lists to the class.
-    data_clz.dynamic_fields = dynamic_fields
-    data_clz.static_fields = static_fields
+    def flatten(x: Any, /) -> tuple[Iterable[PyTree], Hashable]:
+        hashed = tuple(getattr(x, name) for name in static_fields)
+        trees = tuple(getattr(x, name) for name in dynamic_fields)
+        return trees, hashed
 
-    # Register the class as a JAX PyTree.
-    register_pytree_with_keys(data_clz, tree_flatten, tree_unflatten)
+    register_pytree_with_keys(data_clz, flatten_with_keys, unflatten, flatten)
 
     # Register the dynamically-dispatched functions.
     get_test_string.register(data_clz, get_dataclass_test_string)
