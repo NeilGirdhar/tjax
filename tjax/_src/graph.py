@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Hashable, MutableSet, Sequence
+from collections.abc import Callable, Generator, Hashable, MutableSet, Sequence
 from typing import Any, TypeVar
 
 from jax.tree_util import register_pytree_node
@@ -48,45 +48,92 @@ else:
     except ImportError:
         pass
     else:
-        def _flatten_graph(node: nx.Graph
-                           ) -> tuple[
-                                   tuple[tuple[str, Any], ...],
-                                   None]:
-            return ((('nodes', tuple(node.nodes.data())), ('edges', tuple(node.edges.data()))),
-                    None)
+        arrow = '⟶' if True else '↔'
+        def validate(name: Any) -> None:
+            if not isinstance(name, str):
+                raise TypeError
+            if arrow in name:
+                raise ValueError
 
-        def _get_key_graph(node: nx.Graph, key: str) -> Any:
-            return node[key]
+        def flatten_helper(node: nx.Graph
+                           ) -> Generator[tuple[str, Any], None, None]:
+            for name, data in node.nodes.data():
+                validate(name)
+                yield name, data
+            for source, target, data in node.edges.data():  # pyright: ignore
+                validate(source)
+                validate(target)
+                yield f"{source}{arrow}{target}", data
 
-        def _set_key_graph(node: nx.Graph, key: str, value: Any) -> nx.Graph:
-            msg = f"'{type(node).__name__}' object is immutable; it does not support assignment."
-            raise ValueError(msg)
+        def flatten_graph(node: nx.Graph
+                          ) -> tuple[tuple[tuple[str, Any], ...], None]:
+            t = tuple(flatten_helper(node))
+            return t, None
 
-        def _has_key_graph(node: nx.Graph, key: str) -> bool:
-            return key in {'nodes', 'edges'}
+        def get_key_graph(node: nx.Graph, key: str) -> Any:
+            if arrow in key:
+                source, target = key.split(arrow, 2)
+                return node.edges[source, target]
+            return node.nodes[key]
 
-        def _all_keys_graph(node: nx.Graph) -> tuple[str, ...]:
-            return ('nodes', 'edges')
+        def set_key_graph(node: nx.Graph, key: str, value: Any) -> nx.Graph:
+            if not isinstance(value, dict):
+                raise TypeError
+            if arrow in key:
+                source, target = key.split(arrow, 2)
+                d = node.edges[source, target]
+            else:
+                d = node.nodes[key]
+            d.clear()
+            d.update(value)
+            return d
+
+        def has_key_graph(node: nx.Graph, key: str) -> bool:
+            if arrow in key:
+                source, target = key.split(arrow, 2)
+                # Care here to return true for only ordered edges.
+                return (source, target) in list(node.edges)
+            return key in node
+
+        def all_keys_helper(node: nx.Graph
+                            ) -> Generator[str, None, None]:
+            for name in node.nodes:
+                validate(name)
+                yield name
+            for source, target in node.edges:
+                validate(source)
+                validate(target)
+                yield f"{source}{arrow}{target}"
+
+        def all_keys_graph(node: nx.Graph) -> tuple[str, ...]:
+            return tuple(all_keys_helper(node))
 
         def closure_create_empty(node_type: type[T]) -> Callable[[None], T]:
-            def _create_empty_graph(metadata: None) -> T:
+            def create_empty_graph(metadata: None) -> T:
                 return node_type()
-            return _create_empty_graph
+            return create_empty_graph
 
-        def _init_graph(node: nx.Graph,
-                        items: tuple[tuple[str, Any], ...]
-                        ) -> None:
-            node.update(**dict(items))
+        def init_graph(node: nx.Graph,
+                       items: tuple[tuple[str, Any], ...]
+                       ) -> None:
+            for key, value in items:
+                if not isinstance(value, dict):
+                    raise TypeError
+                if arrow in key:
+                    source, target = key.split(arrow, 2)
+                    node.add_edge(source, target, **value)
+                else:
+                    node.add_node(key, **value)
 
         for node_type in [nx.Graph, nx.DiGraph]:
             register_node_type(node_type,
-                               _flatten_graph,
-                               _get_key_graph,
-                               _set_key_graph,
-                               _has_key_graph,
-                               _all_keys_graph,
+                               flatten_graph,
+                               get_key_graph,
+                               set_key_graph,
+                               has_key_graph,
+                               all_keys_graph,
                                create_empty=closure_create_empty(node_type),
-                               init=_init_graph)
+                               init=init_graph)
 
     @display_generic.register
     def _(value: nx.Graph,
