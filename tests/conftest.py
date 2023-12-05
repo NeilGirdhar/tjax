@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from io import StringIO
 
 import numpy as np
 import pytest
@@ -19,7 +20,4 @@ def generator() -> np.random.Generator:
 
 @pytest.fixture()
 def console() -> Console:
-    return Console(no_color=True,
-                   width=80,
-                   height=60,
-                   force_terminal=True)
+    return Console(file=StringIO(), width=80)
