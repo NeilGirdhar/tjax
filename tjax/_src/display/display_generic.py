@@ -11,6 +11,7 @@ import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.interpreters.batching import BatchTracer
+from jax.tree_util import PyTreeDef
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -186,6 +187,21 @@ def _(value: tuple[Any, ...] | list[Any],
                                          strict=True):
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
                                                key="", batch_dims=sub_batch_dims))
+    return retval
+
+
+@display_generic.register(PyTreeDef)
+def _(value: PyTreeDef,
+      *,
+      seen: MutableSet[int],
+      show_values: bool = True,
+      key: str = '',
+      batch_dims: BatchDimensions | None = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    retval = display_class(key, type(value))
+    retval.children.append(display_generic(hash(value), seen=seen, show_values=show_values,
+                                           key="hash"))
     return retval
 
 

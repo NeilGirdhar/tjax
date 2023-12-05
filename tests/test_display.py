@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 from jax import enable_custom_prng, jit, vmap
 from jax.random import key
+from jax.tree_util import tree_flatten
 from pytest import CaptureFixture
 from rich.console import Console
 
@@ -205,6 +206,24 @@ def test_dataclass(capsys: CaptureFixture[str],
            └── d=C[dataclass]
                ├── x=3
                └── y=4
+           """)
+
+
+def test_pytreedef(capsys: CaptureFixture[str],
+                   console: Console) -> None:
+    @dataclass
+    class C:
+        x: int
+        y: int
+
+    _, tree_def = tree_flatten(C(1, 2))
+
+    print_generic(tree_def, console=console)
+    captured = capsys.readouterr()
+    verify(captured.out,
+           f"""
+           PyTreeDef
+           └── hash={hash(tree_def)}
            """)
 
 
