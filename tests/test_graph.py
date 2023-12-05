@@ -1,32 +1,36 @@
 import pytest
-from jax.tree_util import tree_flatten_with_path
+from jax.tree_util import tree_flatten, tree_flatten_with_path, tree_unflatten
 
-import tjax  # noqa: F401
+from tjax import register_graph_as_jax_pytree
 
 try:
     import networkx as nx
 except ImportError:
-    pytest.skip("Skipping nnx graph test", allow_module_level=True)
+    pytest.skip("Skipping graph test", allow_module_level=True)
+else:
+    register_graph_as_jax_pytree(nx.DiGraph)
 
 
-def test_graph_for_jax() -> None:
+@pytest.fixture(scope='session', name='graph')
+def graph() -> nx.DiGraph:
     g = nx.DiGraph()
-    g.add_edge('a', 'b', x=1.0)
-    # tuple[list[tuple[KeyPath, Any]], PyTreeDef]
-    ((keypaths, value),), _ = tree_flatten_with_path(g)
-    assert value == 1.0  # noqa: PLR2004
-    assert len(keypaths) == 3  # noqa: PLR2004
-    keys = [keypath.key for keypath in keypaths]
-    assert keys == [1, ('a', 'b'), 'x']
+    g.add_node('a', y=2.0)
+    g.add_node('b', z=3.0)
+    g.add_edge('a', 'b', x=4.0)
+    return g
 
 
-def test_graph_for_flax() -> None:
-    try:
-        from flax.experimental import nnx  # noqa: PLC0415
-    except ImportError:
-        pytest.skip("Skipping nnx graph test")
-    g = nx.DiGraph()
-    v = nnx.Variable(1.0)
-    g.add_edge('a', 'b', x=v)
-    state, _ = nnx.graph_utils.graph_flatten(g)  # pyright: ignore
-    assert state['a⟶b']['x'] == 1.0  # noqa: PLR2004
+def test_rebuild(graph: nx.DiGraph) -> None:
+    values, tree_def = tree_flatten(graph)
+    rebuilt_graph = tree_unflatten(tree_def, values)
+    assert nx.utils.graphs_equal(graph, rebuilt_graph)
+
+
+def test_flatten_flavors(graph: nx.DiGraph) -> None:
+    values_a, tree_def_a = tree_flatten(graph)
+    keys_and_values, tree_def_b = tree_flatten_with_path(graph)
+    key_paths, values_b = zip(*keys_and_values, strict=True)
+    assert hash(tree_def_a) == hash(tree_def_b)
+    assert values_a == list(values_b)
+    assert [2.0, 3.0, 4.0] == values_a
+    assert key_paths[2][0] == 'a⟶b'
