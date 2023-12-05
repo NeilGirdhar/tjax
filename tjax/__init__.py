@@ -16,6 +16,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent, scale_cotangent)
 from ._src.display import display_generic, print_generic, tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
+from ._src.graph import register_graph_as_jax_pytree, register_graph_as_nnx_node
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
@@ -41,7 +42,8 @@ __all__ = ['BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'Complex
            'cotangent_combinator', 'print_cotangent', 'print_generic', 'replace_cotangent',
            'JaxArray', 'JaxBooleanArray', 'JaxIntegralArray', 'tree_allclose', 'zero_tangent_like',
            'JaxAbstractClass', 'JaxComplexArray', 'JaxRealArray', 'abstract_jit',
-           'abstract_custom_jvp', 'tree_map_with_path']
+           'abstract_custom_jvp', 'tree_map_with_path', 'register_graph_as_jax_pytree',
+           'register_graph_as_nnx_node']
 #
 # __pdoc__ = {}
 # __pdoc__['PyTreeLike'] = False
