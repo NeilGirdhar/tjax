@@ -42,11 +42,21 @@ else:
         for name, data in sorted(graph.nodes.data()):
             validate_node_name(name, arrow)
             yield name, data
-        # TODO: Deal arbitrary ordering a->b vs b->a in undirected graphs.
-        for source, target, data in sorted(graph.edges.data()):  # pyright: ignore
+
+        def undirected_edge_key(source_target_data: tuple[str, str, Any]) -> tuple[str, ...]:
+            source, target, _ = source_target_data
+            return tuple(sorted([source, target]))
+        edge_data: Iterable[tuple[str, str, Any]] = graph.edges.data()  # pyright: ignore
+        directed = isinstance(graph, nx.DiGraph)
+        if not directed:
+            edge_data = sorted(edge_data, key=undirected_edge_key)
+        for source, target, data in edge_data:
             validate_node_name(source, arrow)
             validate_node_name(target, arrow)
-            yield f"{source}{arrow}{target}", data
+            new_source, new_target = ((source, target)
+                                      if directed
+                                      else sorted([source, target]))
+            yield f"{new_source}{arrow}{new_target}", data
 
     def flatten_graph(graph: nx.Graph,
                       arrow: str

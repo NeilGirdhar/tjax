@@ -20,6 +20,7 @@ def graph() -> nx.DiGraph:
     g.add_node('a', y=v)
     g.add_node('b', z=w)
     g.add_edge('a', 'b', x=x)
+    g.add_edge('c', 'b', x=x)
     return g
 
 
@@ -27,6 +28,18 @@ def test_rebuild(graph: nx.DiGraph) -> None:
     state, graph_def = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore
     rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)  # pyright: ignore
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
+
+
+def test_clone(graph: nx.DiGraph) -> None:
+    class Model(nnx.Module):
+        def __init__(self) -> None:
+            super().__init__()
+            self.graph = graph
+
+    m = Model()
+    n = m.clone()
+    assert nx.utils.graphs_equal(m.graph, n.graph)
+
 
 def test_flatten(graph: nx.DiGraph) -> None:
     state, _ = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore

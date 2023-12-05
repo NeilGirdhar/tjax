@@ -1,4 +1,5 @@
 import pytest
+from jax import jit
 from jax.tree_util import tree_flatten, tree_flatten_with_path, tree_unflatten
 
 from tjax import register_graph_as_jax_pytree
@@ -16,13 +17,25 @@ def graph() -> nx.DiGraph:
     g = nx.DiGraph()
     g.add_node('a', y=2.0)
     g.add_node('b', z=3.0)
-    g.add_edge('a', 'b', x=4.0)
+    g.add_node('c', w=4.0)
+    g.add_edge('a', 'b', x=5.0)
+    g.add_edge('c', 'b', x=7.0)
     return g
+
+
+@jit
+def f(x: nx.DiGraph) -> nx.DiGraph:
+    return x
 
 
 def test_rebuild(graph: nx.DiGraph) -> None:
     values, tree_def = tree_flatten(graph)
     rebuilt_graph = tree_unflatten(tree_def, values)
+    assert nx.utils.graphs_equal(graph, rebuilt_graph)
+
+
+def test_rebuild_jit(graph: nx.DiGraph) -> None:
+    rebuilt_graph = f(graph)
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
 
@@ -32,5 +45,5 @@ def test_flatten_flavors(graph: nx.DiGraph) -> None:
     key_paths, values_b = zip(*keys_and_values, strict=True)
     assert hash(tree_def_a) == hash(tree_def_b)
     assert values_a == list(values_b)
-    assert [2.0, 3.0, 4.0] == values_a
-    assert key_paths[2][0] == 'a⟶b'
+    assert [2.0, 3.0, 4.0, 5.0, 7.0] == values_a
+    assert key_paths[3][0] == 'a⟶b'
