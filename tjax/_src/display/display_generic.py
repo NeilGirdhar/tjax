@@ -216,9 +216,17 @@ def display_object(value: Any,
                    key: str = '',
                    batch_dims: BatchDimensions | None = None) -> Tree:
     t = type(value)
-    variables = ({name: getattr(value, name) for name in t.__slots__}
-                 if hasattr(t, '__slots__')
-                 else vars(value))
+    try:
+        variables = ({name: getattr(value, name) for name in t.__slots__}
+                     if hasattr(t, '__slots__')
+                     else vars(value))
+    except TypeError:
+        # This deals with insane cases that don't have __dict__ or __slots__ like PyTreeDef.
+        variables = {name: sub_value
+                     for name in dir(t)
+                     if not name.startswith('__')
+                     for sub_value in [getattr(value, name)]
+                     if not callable(sub_value)}
     retval = display_class(key, t)
     bdi = BatchDimensionIterator(batch_dims)
     for name, sub_value in variables.items():
