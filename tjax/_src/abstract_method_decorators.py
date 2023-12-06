@@ -44,7 +44,7 @@ class JaxAbstractClass:
 
 def abstract_jit(fun: F) -> F:
     """An abstract method whose override need to be jitted."""
-    fun._abstract_jit = True  # type: ignore # noqa: SLF001
+    fun._abstract_jit = True  # type: ignore # noqa: SLF001 # pyright: ignore
     return fun
 
 
@@ -53,6 +53,7 @@ def abstract_custom_jvp(jvp: Callable[..., tuple[R_co, R_co]],
     ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
     """An abstract method whose override need to be decorated with custom_jvp_method."""
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
-        fun._abstract_custom_jvp = (jvp, nondiff_argnums)  # type: ignore # noqa: SLF001
+        fun._abstract_custom_jvp = (jvp,  # type: ignore # noqa: SLF001 # pyright: ignore
+                                    nondiff_argnums)
         return fun
     return decorator
