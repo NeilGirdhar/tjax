@@ -68,9 +68,10 @@ def display_generic(value: Any,
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
-        return display_dataclass(value, seen=seen, show_values=show_values, key=key,
-                                 batch_dims=batch_dims)
-    return display_object(value, seen=seen, show_values=show_values, key=key, batch_dims=batch_dims)
+        return _display_dataclass(value, seen=seen, show_values=show_values, key=key,
+                                  batch_dims=batch_dims)
+    return _display_object(value, seen=seen, show_values=show_values, key=key,
+                           batch_dims=batch_dims)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -205,55 +206,6 @@ def _(value: PyTreeDef,
     return retval
 
 
-def display_dataclass(value: DataclassInstance,
-                      *,
-                      seen: MutableSet[int],
-                      show_values: bool = True,
-                      key: str = '',
-                      batch_dims: BatchDimensions | None = None) -> Tree:
-    retval = display_class(key, type(value))
-    bdi = BatchDimensionIterator(batch_dims)
-    for field_info in fields(value):
-        name = field_info.name
-        display_name = name
-        if not field_info.init:
-            display_name += ' (module)'
-        sub_value = getattr(value, name, None)
-        sub_batch_dims = (bdi.advance(sub_value)
-                          if field_info.metadata.get('pytree_node', True)
-                          else None)
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=display_name, batch_dims=sub_batch_dims))
-    return retval
-
-
-def display_object(value: Any,
-                   *,
-                   seen: MutableSet[int],
-                   show_values: bool = True,
-                   key: str = '',
-                   batch_dims: BatchDimensions | None = None) -> Tree:
-    t = type(value)
-    try:
-        variables = ({name: getattr(value, name) for name in t.__slots__}
-                     if hasattr(t, '__slots__')
-                     else vars(value))
-    except TypeError:
-        # This deals with insane cases that don't have __dict__ or __slots__ like PyTreeDef.
-        variables = {name: sub_value
-                     for name in dir(t)
-                     if not name.startswith('__')
-                     for sub_value in [getattr(value, name)]
-                     if not callable(sub_value)}
-    retval = display_class(key, t)
-    for name, sub_value in variables.items():
-        if name.startswith('__'):
-            continue
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name, batch_dims=None))
-    return retval
-
-
 # Public unexported functions ----------------------------------------------------------------------
 def display_class(key: str, cls: type[Any]) -> Tree:
     name = cls.__name__
@@ -270,6 +222,54 @@ def display_class(key: str, cls: type[Any]) -> Tree:
     return _assemble(key, Text(name, style=_class_color))
 
 
+# Private functions --------------------------------------------------------------------------------
+def _display_dataclass(value: DataclassInstance,
+                       *,
+                       seen: MutableSet[int],
+                       show_values: bool = True,
+                       key: str = '',
+                       batch_dims: BatchDimensions | None = None) -> Tree:
+    retval = display_class(key, type(value))
+    bdi = BatchDimensionIterator(batch_dims)
+    for field_info in fields(value):
+        name = field_info.name
+        display_name = name
+        if not field_info.init:
+            display_name += ' (module)'
+        sub_value = getattr(value, name, None)
+        sub_batch_dims = (bdi.advance(sub_value)
+                          if field_info.metadata.get('pytree_node', True)
+                          else None)
+        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
+                                               key=display_name, batch_dims=sub_batch_dims))
+    return retval
+
+
+def _display_object(value: Any,
+                    *,
+                    seen: MutableSet[int],
+                    show_values: bool = True,
+                    key: str = '',
+                    batch_dims: BatchDimensions | None = None) -> Tree:
+    t = type(value)
+    try:
+        variables = ({name: getattr(value, name) for name in t.__slots__}
+                     if hasattr(t, '__slots__')
+                     else vars(value))
+    except TypeError:
+        # This deals with insane cases that don't have __dict__ or __slots__ like PyTreeDef.
+        variables = {name: sub_value
+                     for name in dir(t)
+                     if not name.startswith('__')
+                     for sub_value in [getattr(value, name)]
+                     if not callable(sub_value)}
+    retval = display_class(key, t)
+    for name, sub_value in variables.items():
+        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
+                                               key=name, batch_dims=None))
+    return retval
+
+
 def _verify(value: Any,
             seen: MutableSet[int],
             key: str) -> Tree | None:
@@ -280,7 +280,6 @@ def _verify(value: Any,
     return None
 
 
-# Private functions --------------------------------------------------------------------------------
 def _assemble(key: str,
               type_text: Text,
               separator: str = '=') -> Tree:
