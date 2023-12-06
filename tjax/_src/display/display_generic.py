@@ -219,7 +219,9 @@ def display_dataclass(value: DataclassInstance,
         if not field_info.init:
             display_name += ' (module)'
         sub_value = getattr(value, name, None)
-        sub_batch_dims = bdi.advance(sub_value)
+        sub_batch_dims = (bdi.advance(sub_value)
+                          if field_info.metadata.get('pytree_node', True)
+                          else None)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
                                                key=display_name, batch_dims=sub_batch_dims))
     return retval
