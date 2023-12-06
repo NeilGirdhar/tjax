@@ -246,13 +246,11 @@ def display_object(value: Any,
                      for sub_value in [getattr(value, name)]
                      if not callable(sub_value)}
     retval = display_class(key, t)
-    bdi = BatchDimensionIterator(batch_dims)
     for name, sub_value in variables.items():
         if name.startswith('__'):
             continue
-        sub_batch_dims = bdi.advance(sub_value)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name, batch_dims=sub_batch_dims))
+                                               key=name, batch_dims=None))
     return retval
 
 
