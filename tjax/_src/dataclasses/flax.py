@@ -13,7 +13,7 @@ __all__ = ['module_field', 'DataClassModule']
 
 def module_field(*, init: bool = False) -> Any:
     """A field that contains submodules."""
-    return field(init=init, default=None, kw_only=True)  # pylint: disable=invalid-field-call
+    return field(init=init, default=None, kw_only=True)
 
 
 NamedChildren: TypeAlias = tuple[tuple[str, nnx.State], tuple[str, nnx.GraphDef[Any]]]
