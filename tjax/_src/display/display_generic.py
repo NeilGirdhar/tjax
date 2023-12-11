@@ -5,6 +5,7 @@ from collections.abc import Iterable, Mapping, MutableSet
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
+from types import FunctionType
 from typing import Any
 
 import numpy as np
@@ -12,6 +13,7 @@ from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.interpreters.batching import BatchTracer
 from jax.tree_util import PyTreeDef
+from jaxlib.xla_extension import PjitFunction
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -45,6 +47,7 @@ _seen_color = solarized['red']
 
 # Extra imports ------------------------------------------------------------------------------------
 FlaxModule: type[Any]
+FlaxVariable: type[Any]
 try:
     from flax.experimental import nnx
 except ImportError:
@@ -52,9 +55,11 @@ except ImportError:
     def is_node_type(x: type[Any]) -> bool:
         return False
     FlaxModule = type(None)
+    FlaxVariable = type(None)
 else:
     flax_loaded = True
     FlaxModule = nnx.Module
+    FlaxVariable = nnx.Variable
     is_node_type = nnx.graph_utils.is_node_type  # pyright: ignore
 
 
@@ -206,6 +211,43 @@ def _(value: PyTreeDef,
     return retval
 
 
+@display_generic.register(FunctionType)
+@display_generic.register(PjitFunction)
+def _(value: PyTreeDef,
+      *,
+      seen: MutableSet[int],
+      show_values: bool = True,
+      key: str = '',
+      batch_dims: BatchDimensions | None = None) -> Tree:
+    if (x := _verify(value, seen, key)) is not None:
+        return x
+    name = getattr(value, '__qualname__', "")
+    retval = display_class(key, type(value))
+    retval.children.append(display_generic(name, seen=seen, show_values=show_values, key="name"))
+    return retval
+
+
+if flax_loaded:
+    @display_generic.register(FlaxVariable)
+    def _(value: nnx.Variable[Any],
+          *,
+          seen: MutableSet[int],
+          show_values: bool = True,
+          key: str = '',
+          batch_dims: BatchDimensions | None = None) -> Tree:
+        if (x := _verify(value, seen, key)) is not None:
+            return x
+        retval = display_class(key, type(value))
+        variables = _variables(value)
+        variables = {key: sub_value
+                     for key, sub_value in variables.items()
+                     if not (key.endswith('_hooks') and value)}
+        for name, sub_value in variables.items():
+            retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
+                                                   key=name, batch_dims=None))
+        return retval
+
+
 # Public unexported functions ----------------------------------------------------------------------
 def display_class(key: str, cls: type[Any]) -> Tree:
     name = cls.__name__
@@ -231,8 +273,10 @@ def _display_dataclass(value: DataclassInstance,
                        batch_dims: BatchDimensions | None = None) -> Tree:
     retval = display_class(key, type(value))
     bdi = BatchDimensionIterator(batch_dims)
+    names = set()
     for field_info in fields(value):
         name = field_info.name
+        names.add(name)
         display_name = name
         if not field_info.init:
             display_name += ' (module)'
@@ -242,6 +286,12 @@ def _display_dataclass(value: DataclassInstance,
                           else None)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
                                                key=display_name, batch_dims=sub_batch_dims))
+    variables = _variables(value)
+    for name, sub_value in variables.items():
+        if name in names:
+            continue
+        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
+                                               key=name + '*', batch_dims=None))
     return retval
 
 
@@ -251,23 +301,25 @@ def _display_object(value: Any,
                     show_values: bool = True,
                     key: str = '',
                     batch_dims: BatchDimensions | None = None) -> Tree:
-    t = type(value)
-    try:
-        variables = ({name: getattr(value, name) for name in t.__slots__}
-                     if hasattr(t, '__slots__')
-                     else vars(value))
-    except TypeError:
-        # This deals with insane cases that don't have __dict__ or __slots__ like PyTreeDef.
-        variables = {name: sub_value
-                     for name in dir(t)
-                     if not name.startswith('__')
-                     for sub_value in [getattr(value, name)]
-                     if not callable(sub_value)}
-    retval = display_class(key, t)
+    retval = display_class(key, type(value))
+    variables = _variables(value)
     for name, sub_value in variables.items():
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
                                                key=name, batch_dims=None))
     return retval
+
+
+def _variables(value: Any) -> dict[str, Any]:
+    try:
+        variables = vars(value)
+    except TypeError:
+        variables = ({name: getattr(value, name) for name in value.__slots__}
+                     if hasattr(value, '__slots__')
+                     else {})
+    return {key: value
+            for key, value in variables.items()
+            if key != '_module__state'
+            if not key.startswith('__')}
 
 
 def _verify(value: Any,
