@@ -43,6 +43,7 @@ _separator_color = solarized['base00']
 _table_color = solarized['base02']
 _unknown_color = f"{solarized['red']} bold"
 _seen_color = solarized['red']
+_empty_set = set()
 
 
 # Extra imports ------------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ else:
 @singledispatch
 def display_generic(value: Any,
                     *,
-                    seen: MutableSet[int],
+                    seen: MutableSet[int] = _empty_set,
                     show_values: bool = True,
                     key: str = '',
                     batch_dims: BatchDimensions | None = None) -> Tree:
@@ -83,7 +84,7 @@ def display_generic(value: Any,
 @display_generic.register
 def _(value: str,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: tuple[int | None, ...] | None = None) -> Tree:
@@ -95,7 +96,7 @@ def _(value: str,
 @display_generic.register(type)
 def _(value: type[Any],
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -107,7 +108,7 @@ def _(value: type[Any],
 @display_generic.register(np.ndarray)
 def _(value: NumpyArray,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -125,7 +126,7 @@ def _(value: NumpyArray,
 @display_generic.register
 def _(value: Array,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -150,7 +151,7 @@ def _(value: Array,
 @display_generic.register(Number)
 def _(value: None | Number,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -162,7 +163,7 @@ def _(value: None | Number,
 @display_generic.register(Mapping)
 def _(value: Mapping[Any, Any],
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -182,7 +183,7 @@ def _(value: Mapping[Any, Any],
 @display_generic.register(list)
 def _(value: tuple[Any, ...] | list[Any],
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -199,7 +200,7 @@ def _(value: tuple[Any, ...] | list[Any],
 @display_generic.register(PyTreeDef)
 def _(value: PyTreeDef,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -215,7 +216,7 @@ def _(value: PyTreeDef,
 @display_generic.register(PjitFunction)
 def _(value: PyTreeDef,
       *,
-      seen: MutableSet[int],
+      seen: MutableSet[int] = _empty_set,
       show_values: bool = True,
       key: str = '',
       batch_dims: BatchDimensions | None = None) -> Tree:
@@ -231,7 +232,7 @@ if flax_loaded:
     @display_generic.register(FlaxVariable)
     def _(value: nnx.Variable[Any],
           *,
-          seen: MutableSet[int],
+          seen: MutableSet[int] = _empty_set,
           show_values: bool = True,
           key: str = '',
           batch_dims: BatchDimensions | None = None) -> Tree:
@@ -267,7 +268,7 @@ def display_class(key: str, cls: type[Any]) -> Tree:
 # Private functions --------------------------------------------------------------------------------
 def _display_dataclass(value: DataclassInstance,
                        *,
-                       seen: MutableSet[int],
+                       seen: MutableSet[int] = _empty_set,
                        show_values: bool = True,
                        key: str = '',
                        batch_dims: BatchDimensions | None = None) -> Tree:
