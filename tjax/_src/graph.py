@@ -26,7 +26,7 @@ except ImportError:
     def register_graph_as_nnx_node(graph_type: type[Any]) -> NoReturn:
         raise RuntimeError(msg)
 else:
-    T = TypeVar('T', bound=nx.Graph)
+    T = TypeVar('T', bound="nx.Graph[Any]")
 
     def validate_node_name(name: Any,
                            arrow: str
@@ -36,7 +36,7 @@ else:
         if arrow in name:
             raise ValueError
 
-    def flatten_helper(graph: nx.Graph,
+    def flatten_helper(graph: nx.Graph[Any],
                        arrow: str
                        ) -> Generator[tuple[str, Any], None, None]:
         for name, data in sorted(graph.nodes.data()):
@@ -46,7 +46,7 @@ else:
         def undirected_edge_key(source_target_data: tuple[str, str, Any]) -> tuple[str, ...]:
             source, target, _ = source_target_data
             return tuple(sorted([source, target]))
-        edge_data: Iterable[tuple[str, str, Any]] = graph.edges.data()  # pyright: ignore
+        edge_data = graph.edges.data()
         directed = isinstance(graph, nx.DiGraph)
         if not directed:
             edge_data = sorted(edge_data, key=undirected_edge_key)
@@ -58,13 +58,13 @@ else:
                                       else sorted([source, target]))
             yield f"{new_source}{arrow}{new_target}", data
 
-    def flatten_graph(graph: nx.Graph,
+    def flatten_graph(graph: nx.Graph[Any],
                       arrow: str
                       ) -> tuple[tuple[tuple[str, Any], ...], None]:
         t = tuple(flatten_helper(graph, arrow))
         return t, None
 
-    def init_graph(graph: nx.Graph,
+    def init_graph(graph: nx.Graph[Any],
                    items: Iterable[tuple[str, Any]],
                    arrow: str
                    ) -> None:
@@ -77,29 +77,29 @@ else:
             else:
                 graph.add_node(key, **value)
 
-    def register_graph_as_jax_pytree(graph_type: type[nx.Graph]) -> None:  # pyright: ignore
+    def register_graph_as_jax_pytree(graph_type: type[nx.Graph[Any]]) -> None:  # pyright: ignore
         arrow = graph_arrow(issubclass(graph_type, nx.DiGraph))
 
-        def unflatten_tree(names: Iterable[str], values: Iterable[Any], /) -> nx.Graph:
+        def unflatten_tree(names: Iterable[str], values: Iterable[Any], /) -> nx.Graph[Any]:
             graph = graph_type()
             init_graph(graph, zip(names, values, strict=True), arrow)
             return graph
 
-        def flatten_with_keys(graph: nx.Graph, /
+        def flatten_with_keys(graph: nx.Graph[Any], /
                               ) -> tuple[Iterable[tuple[str, Any]], Iterable[str]]:
             names_and_values = tuple(flatten_helper(graph, arrow))
             names = tuple(name for name, _ in names_and_values)
             return (names_and_values, names)
 
-        def flatten_tree(graph: nx.Graph, /) -> tuple[Iterable[PyTree], Iterable[str]]:
+        def flatten_tree(graph: nx.Graph[Any], /) -> tuple[Iterable[PyTree], Iterable[str]]:
             names_and_values = tuple(flatten_helper(graph, arrow))
             names, values = zip(*names_and_values, strict=True)
             return values, names
 
         register_pytree_with_keys(graph_type, flatten_with_keys, unflatten_tree, flatten_tree)
 
-    @display_generic.register
-    def _(value: nx.Graph,
+    @display_generic.register(nx.Graph)
+    def _(value: nx.Graph[Any],
           *,
           seen: MutableSet[int],
           show_values: bool = True,
@@ -129,15 +129,16 @@ else:
         def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore
             arrow = graph_arrow(issubclass(graph_type, nx.DiGraph))
 
-            def get_key_graph(graph: nx.Graph, key: str) -> Any:
+            def get_key_graph(graph: nx.Graph[Any], key: str) -> Any:
                 if arrow in key:
                     source, target = key.split(arrow, 2)
                     return graph.edges[source, target]
                 return graph.nodes[key]
 
-            def set_key_graph(graph: nx.Graph, key: str, value: Any) -> nx.Graph:
+            def set_key_graph(graph: nx.Graph[Any], key: str, value: Any) -> nx.Graph[Any]:
                 if not isinstance(value, dict):
                     raise TypeError
+                d: dict[str, Any]
                 if arrow in key:
                     source, target = key.split(arrow, 2)
                     d = graph.edges[source, target]
@@ -145,16 +146,16 @@ else:
                     d = graph.nodes[key]
                 d.clear()
                 d.update(value)
-                return d
+                return graph
 
-            def has_key_graph(graph: nx.Graph, key: str) -> bool:
+            def has_key_graph(graph: nx.Graph[Any], key: str) -> bool:
                 if arrow in key:
                     source, target = key.split(arrow, 2)
                     # Care here to return true for only ordered edges.
                     return (source, target) in list(graph.edges)
                 return key in graph
 
-            def all_keys_helper(graph: nx.Graph
+            def all_keys_helper(graph: nx.Graph[Any]
                                 ) -> Generator[str, None, None]:
                 for name in graph.nodes:
                     validate_node_name(name, arrow)
@@ -164,7 +165,7 @@ else:
                     validate_node_name(target, arrow)
                     yield f"{source}{arrow}{target}"
 
-            def all_keys_graph(graph: nx.Graph) -> tuple[str, ...]:
+            def all_keys_graph(graph: nx.Graph[Any]) -> tuple[str, ...]:
                 return tuple(all_keys_helper(graph))
 
             def create_empty_graph(metadata: None) -> T:

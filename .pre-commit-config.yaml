@@ -19,12 +19,12 @@ repos:
   - id: trailing-whitespace
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.1.7
+  rev: v0.1.8
   hooks:
   - id: ruff
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.12.0
+  rev: 5.13.2
   hooks:
   - id: isort
 
@@ -38,7 +38,7 @@ repos:
     types: [python]
     stages: [pre-commit, pre-merge-commit, pre-push, manual]
     additional_dependencies: &pyright_dependencies
-    - pyright@1.1.339
+    - pyright@1.1.341
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: 'v1.7.1'

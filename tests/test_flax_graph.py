@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 
 from tjax import register_graph_as_nnx_node
@@ -12,7 +16,7 @@ else:
 
 
 @pytest.fixture(scope='session', name='graph')
-def graph() -> nx.DiGraph:
+def graph() -> nx.DiGraph[Any]:
     v = nnx.Variable(2.0)
     w = nnx.Variable(3.0)
     x = nnx.Variable(4.0)
@@ -24,13 +28,13 @@ def graph() -> nx.DiGraph:
     return g
 
 
-def test_rebuild(graph: nx.DiGraph) -> None:
+def test_rebuild(graph: nx.DiGraph[Any]) -> None:
     state, graph_def = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore
     rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)  # pyright: ignore
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
 
-def test_clone(graph: nx.DiGraph) -> None:
+def test_clone(graph: nx.DiGraph[Any]) -> None:
     class Model(nnx.Module):
         def __init__(self) -> None:
             super().__init__()
@@ -41,6 +45,6 @@ def test_clone(graph: nx.DiGraph) -> None:
     assert nx.utils.graphs_equal(m.graph, n.graph)
 
 
-def test_flatten(graph: nx.DiGraph) -> None:
+def test_flatten(graph: nx.DiGraph[Any]) -> None:
     state, _ = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore
     assert state['a⟶b']['x'] == 4.0  # noqa: PLR2004
