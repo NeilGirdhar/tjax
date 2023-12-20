@@ -101,10 +101,12 @@ else:
     @display_generic.register(nx.Graph)
     def _(value: nx.Graph[Any],
           *,
-          seen: MutableSet[int],
+          seen: MutableSet[int] | None = None,
           show_values: bool = True,
           key: str = '',
           batch_dims: BatchDimensions | None = None) -> Tree:
+        if seen is None:
+            seen = set()
         arrow = graph_arrow(isinstance(value, nx.DiGraph))
         retval = display_class(key, type(value))
         bdi = BatchDimensionIterator(batch_dims)
