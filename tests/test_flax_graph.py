@@ -15,7 +15,7 @@ else:
     register_graph_as_nnx_node(nx.DiGraph)
 
 
-@pytest.fixture(scope='session', name='graph')
+@pytest.fixture(scope='session')
 def graph() -> nx.DiGraph[Any]:
     v = nnx.Variable(2.0)
     w = nnx.Variable(3.0)

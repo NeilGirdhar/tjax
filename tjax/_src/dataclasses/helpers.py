@@ -1,4 +1,4 @@
-# pylint: disable=redefined-builtin, invalid-field-call
+# pylint: disable=invalid-field-call
 from __future__ import annotations
 
 import dataclasses

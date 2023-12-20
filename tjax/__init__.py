@@ -1,5 +1,4 @@
-"""
-This library implements a variety of tools for the differential programming library
+"""This library implements a variety of tools for the differential programming library
 [JAX](https://github.com/google/jax).
 """
 from . import dataclasses, fixed_point, gradient
@@ -44,12 +43,3 @@ __all__ = ['BooleanArray', 'BooleanNumeric', 'Complex', 'ComplexArray', 'Complex
            'JaxAbstractClass', 'JaxComplexArray', 'JaxRealArray', 'abstract_jit',
            'abstract_custom_jvp', 'tree_map_with_path', 'register_graph_as_jax_pytree',
            'register_graph_as_nnx_node']
-#
-# __pdoc__ = {}
-# __pdoc__['PyTreeLike'] = False
-# __pdoc__['Field'] = False
-# __pdoc__['InitVar'] = False
-# __pdoc__['FrozenInstanceError'] = False
-#
-# document_dataclass(__pdoc__, 'Partial')
-# del document_dataclass
