@@ -16,7 +16,7 @@ else:
     register_graph_as_jax_pytree(nx.DiGraph)
 
 
-@pytest.fixture(scope='session', name='graph')
+@pytest.fixture(scope='session')
 def graph() -> nx.DiGraph[Any]:
     g = nx.DiGraph()
     g.add_node('a', y=2.0)
