@@ -1,3 +1,4 @@
+from io import StringIO
 from textwrap import dedent
 from typing import Any
 
@@ -22,7 +23,8 @@ def verify(actual: str, desired: str) -> None:
 def test_numpy_display(capsys: CaptureFixture[str],
                        console: Console) -> None:
     print_generic(numpy_array=np.reshape(np.arange(6.0), (3, 2)), console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            numpy_array=NumPy Array (3, 2) float64
@@ -35,7 +37,8 @@ def test_numpy_display(capsys: CaptureFixture[str],
 def test_numpy_display_big(capsys: CaptureFixture[str],
                            console: Console) -> None:
     print_generic(numpy_array=np.reshape(np.arange(30.0), (15, 2)), console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            numpy_array=NumPy Array (15, 2) float64
@@ -47,7 +50,8 @@ def test_numpy_display_big(capsys: CaptureFixture[str],
 def test_jax_numpy_display(capsys: CaptureFixture[str],
                            console: Console) -> None:
     print_generic(jnp.ones(3), console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            Jax Array (3,) float64
@@ -62,7 +66,8 @@ def test_jit_display(capsys: CaptureFixture[str],
         print_generic(x, console=console)
         return x
     f(jnp.asarray(1.0))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured, "Jax Array () float64")
 
 
@@ -73,7 +78,8 @@ def test_batch_display(capsys: CaptureFixture[str],
         print_generic(x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     # Unfortunately, there's no way anymore to detect batch axes:
     # batched over axes of size (4, 6)
     verify(captured, "Jax Array (3, 5) float64")
@@ -86,7 +92,8 @@ def test_batch_display_dict(capsys: CaptureFixture[str],
         print_generic({'abc': x}, console=console)
         return x
     vmap(vmap(f))(jnp.ones((3, 4)))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     # Unfortunately, there's no way anymore to detect batch axes:
     # batched over axes of size (3, 4)
     verify(captured,
@@ -103,7 +110,8 @@ def test_tapped(capsys: CaptureFixture[str],
     def f(x: RealArray) -> RealArray:
         return tapped_print_generic(x, console=console)
     f(np.ones(3))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            NumPy Array (3,) float64
@@ -119,7 +127,8 @@ def test_tapped_batched(capsys: CaptureFixture[str],
         tapped_print_generic(x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            NumPy Array (3, 5) float64 batched over axes of size (4, 6)
@@ -136,7 +145,8 @@ def test_tapped_dict(capsys: CaptureFixture[str],
         tapped_print_generic(x=x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
@@ -156,7 +166,8 @@ def test_tapped_key(capsys: CaptureFixture[str],
             return tapped_print_generic(x)
 
         f(k)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
@@ -171,7 +182,8 @@ def test_dict(capsys: CaptureFixture[str],
                    'mouse': {'dog': 3,
                              'sheep': 4}},
                   console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            dict
@@ -196,7 +208,8 @@ def test_dataclass(capsys: CaptureFixture[str],
 
     print_generic(d=D(C(1, 2), C(3, 4)),
                   console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            """
            d=D[dataclass]
@@ -219,7 +232,8 @@ def test_pytreedef(capsys: CaptureFixture[str],
     _, tree_def = tree_flatten(C(1, 2))
 
     print_generic(tree_def, console=console)
-    captured = console.file.getvalue()  # pyright: ignore
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
     verify(captured,
            f"""
            PyTreeDef
