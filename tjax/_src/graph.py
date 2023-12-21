@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Generator, Iterable, MutableSet
 from functools import partial
-from typing import Any, NoReturn, TypeVar
+from typing import Any, TypeVar
 
 from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
@@ -21,9 +21,9 @@ try:
     import networkx as nx
 except ImportError:
     msg = "NetworkX not available"
-    def register_graph_as_jax_pytree(graph_type: type[Any]) -> NoReturn:
+    def register_graph_as_jax_pytree(graph_type: type[Any]) -> None:
         raise RuntimeError(msg)
-    def register_graph_as_nnx_node(graph_type: type[Any]) -> NoReturn:
+    def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
         raise RuntimeError(msg)
 else:
     T = TypeVar('T', bound="nx.Graph[Any]")
@@ -80,18 +80,18 @@ else:
     def register_graph_as_jax_pytree(graph_type: type[nx.Graph[Any]]) -> None:  # pyright: ignore
         arrow = graph_arrow(issubclass(graph_type, nx.DiGraph))
 
-        def unflatten_tree(names: Iterable[str], values: Iterable[Any], /) -> nx.Graph[Any]:
+        def unflatten_tree(names: tuple[str, ...], values: Iterable[Any], /) -> nx.Graph[Any]:
             graph = graph_type()
             init_graph(graph, zip(names, values, strict=True), arrow)
             return graph
 
         def flatten_with_keys(graph: nx.Graph[Any], /
-                              ) -> tuple[Iterable[tuple[str, Any]], Iterable[str]]:
+                              ) -> tuple[Iterable[tuple[str, Any]], tuple[str, ...]]:
             names_and_values = tuple(flatten_helper(graph, arrow))
             names = tuple(name for name, _ in names_and_values)
             return (names_and_values, names)
 
-        def flatten_tree(graph: nx.Graph[Any], /) -> tuple[Iterable[PyTree], Iterable[str]]:
+        def flatten_tree(graph: nx.Graph[Any], /) -> tuple[Iterable[PyTree], tuple[str, ...]]:
             names_and_values = tuple(flatten_helper(graph, arrow))
             names, values = zip(*names_and_values, strict=True)
             return values, names
@@ -125,7 +125,7 @@ else:
         from flax.experimental.nnx.nnx.graph_utils import register_node_type
     except ImportError:
         msg = "NNX not available"
-        def register_graph_as_nnx_node(graph_type: type[Any]) -> NoReturn:
+        def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
             raise RuntimeError(msg)
     else:
         def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore

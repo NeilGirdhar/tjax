@@ -49,5 +49,5 @@ def test_flatten_flavors(graph: nx.DiGraph[Any]) -> None:
     key_paths, values_b = zip(*keys_and_values, strict=True)
     assert hash(tree_def_a) == hash(tree_def_b)
     assert values_a == list(values_b)
-    assert [2.0, 3.0, 4.0, 5.0, 7.0] == values_a
+    assert values_a == [2.0, 3.0, 4.0, 5.0, 7.0]
     assert key_paths[3][0] == 'a⟶b'
