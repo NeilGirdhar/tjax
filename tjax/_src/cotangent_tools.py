@@ -8,7 +8,7 @@ import jax.numpy as jnp
 from jax import vjp
 from jax.tree_util import tree_map, tree_structure
 
-from .annotations import RealNumeric
+from .annotations import JaxRealArray, RealNumeric
 from .display import tapped_print_generic
 from .shims import custom_jvp, custom_vjp
 
@@ -158,3 +158,33 @@ def _cotangent_combinator_bwd(f: Callable[..., tuple[XT, Y]],
 
 
 cotangent_combinator.defvjp(_cotangent_combinator_fwd, _cotangent_combinator_bwd)
+
+
+# augment_cotangent --------------------------------------------------------------------------------
+@custom_vjp
+def augment_cotangent(loss: JaxRealArray,
+                      x: X,
+                      cotangent_addend: X
+                      ) -> JaxRealArray:
+    """Create a cotangent for x equal to the cotangent_addend times the loss cotangent."""
+    assert tree_structure(x) == tree_structure(cotangent_addend)
+    return loss
+
+
+# Private functions --------------------------------------------------------------------------------
+def _augment_cotangent_fwd(loss: JaxRealArray,
+                           x: X,
+                           cotangent_addend: X
+                           ) -> tuple[JaxRealArray, X]:
+    assert tree_structure(x) == tree_structure(cotangent_addend)
+    return loss, cotangent_addend
+
+
+def _augment_cotangent_bwd(cotangent_addend: X,
+                           loss_bar: JaxRealArray
+                           ) -> tuple[None, X, None]:
+    x_bar = tree_map(lambda x: x * loss_bar, cotangent_addend)
+    return (None, x_bar, None)
+
+
+augment_cotangent.defvjp(_augment_cotangent_fwd, _augment_cotangent_bwd)
