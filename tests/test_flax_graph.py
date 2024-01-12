@@ -29,8 +29,8 @@ def graph() -> nx.DiGraph[Any]:
 
 
 def test_rebuild(graph: nx.DiGraph[Any]) -> None:
-    state, graph_def = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore
-    rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)  # pyright: ignore
+    state, graph_def = nnx.graph_utils.graph_flatten(graph)
+    rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
 
@@ -46,5 +46,5 @@ def test_clone(graph: nx.DiGraph[Any]) -> None:
 
 
 def test_flatten(graph: nx.DiGraph[Any]) -> None:
-    state, _ = nnx.graph_utils.graph_flatten(graph)  # pyright: ignore
+    state, _ = nnx.graph_utils.graph_flatten(graph)
     assert state['a⟶b']['x'] == 4.0  # noqa: PLR2004
