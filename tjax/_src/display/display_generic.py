@@ -60,7 +60,7 @@ else:
     flax_loaded = True
     FlaxModule = nnx.Module
     FlaxVariable = nnx.Variable
-    is_node_type = nnx.graph_utils.is_node_type  # pyright: ignore
+    is_node_type = nnx.graph_utils.is_node_type
 
 
 @singledispatch
