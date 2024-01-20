@@ -20,6 +20,7 @@ from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, le
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
                               is_scalar, zero_tangent_like)
+from ._src.numpy_tools import create_diagonal_array, np_abs_square
 from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
@@ -67,6 +68,7 @@ __all__ = [
     'assert_tree_allclose',
     'copy_cotangent',
     'cotangent_combinator',
+    'create_diagonal_array',
     'custom_jvp',
     'custom_jvp_method',
     'custom_vjp',
@@ -90,6 +92,7 @@ __all__ = [
     'leaky_data_weight',
     'leaky_integrate',
     'leaky_integrate_time_series',
+    'np_abs_square',
     'print_cotangent',
     'print_generic',
     'register_graph_as_jax_pytree',
