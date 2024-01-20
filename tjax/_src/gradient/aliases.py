@@ -9,8 +9,9 @@ from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, l
                    noisy_sgd, radam, rmsprop, sgd, sm3, yogi)
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass, field
+
 from ..annotations import IntegralNumeric, RealNumeric
-from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 

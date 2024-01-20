@@ -7,8 +7,9 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import ComplexNumeric, JaxBooleanArray, JaxComplexArray, JaxRealArray
-from ..dataclasses import dataclass
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..math_tools import abs_square, divide_nonnegative
 from .augmented import AugmentedState, State

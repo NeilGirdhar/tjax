@@ -7,8 +7,9 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import ComplexNumeric, PyTree, RealNumeric
-from ..dataclasses import dataclass
 from .transform import GradientState, SecondOrderGradientTransformation
 
 __all__ = ['SMDGradient', 'SMDState']

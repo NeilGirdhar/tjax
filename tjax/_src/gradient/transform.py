@@ -7,8 +7,9 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 from typing_extensions import Self, override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import PyTree
-from ..dataclasses import dataclass
 from ..math_tools import abs_square
 
 __all__ = [

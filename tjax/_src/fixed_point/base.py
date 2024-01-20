@@ -6,8 +6,9 @@ from typing import Generic, TypeVar
 from jax.experimental.host_callback import id_tap
 from jax.lax import scan
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import PyTree, TapFunctionTransforms
-from ..dataclasses import dataclass
 from .augmented import State
 
 __all__ = ['IteratedFunctionBase']

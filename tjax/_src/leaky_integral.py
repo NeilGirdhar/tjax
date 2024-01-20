@@ -10,7 +10,7 @@ from jax.random import normal
 
 from .annotations import (ComplexArray, ComplexNumeric, JaxComplexArray, JaxRealArray, KeyArray,
                           RealArray, RealNumeric)
-from .dataclasses import dataclass
+from .dataclasses.dataclass import dataclass
 
 __all__ = [
     'diffused_leaky_integrate',

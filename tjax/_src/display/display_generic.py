@@ -18,8 +18,9 @@ from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
+from tjax.dataclasses import DataclassInstance
+
 from ..annotations import NumpyArray
-from ..dataclasses import DataclassInstance
 from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .colors import solarized
 

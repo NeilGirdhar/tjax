@@ -4,7 +4,8 @@ from typing import Generic
 
 from typing_extensions import override
 
-from ..dataclasses import dataclass
+from tjax.dataclasses import dataclass
+
 from .augmented import State
 from .base import IteratedFunctionBase, Parameters, Trajectory
 

@@ -8,7 +8,8 @@ from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
 
 from .annotations import PyTree
-from .display import BatchDimensionIterator, BatchDimensions, display_class, display_generic
+from .display.batch_dimensions import BatchDimensionIterator, BatchDimensions
+from .display.display_generic import display_class, display_generic
 
 __all__ = ['register_graph_as_jax_pytree', 'register_graph_as_nnx_node']
 

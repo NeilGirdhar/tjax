@@ -7,8 +7,9 @@ import jax.numpy as jnp
 from jax import Array
 from jax.lax import while_loop
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import BooleanNumeric, IntegralNumeric, PyTree, RealNumeric
-from ..dataclasses import dataclass
 from .augmented import AugmentedState, State
 from .base import IteratedFunctionBase, Parameters, Trajectory
 

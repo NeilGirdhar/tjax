@@ -6,8 +6,9 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import JaxBooleanArray, JaxRealArray
-from ..dataclasses import dataclass
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory

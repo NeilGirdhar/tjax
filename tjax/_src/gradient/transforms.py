@@ -11,8 +11,9 @@ from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema,
                    scale_by_yogi, trace)
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass, field
+
 from ..annotations import IntegralNumeric, KeyArray, RealNumeric
-from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 
 __all__ = [

@@ -4,8 +4,9 @@ from typing import Any, Generic
 
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import PyTree
-from ..dataclasses import dataclass
 from .transform import GradientState, GradientTransformation, Weights
 
 __all__ = ['ChainedGradientState', 'ChainedGradientTransformation']

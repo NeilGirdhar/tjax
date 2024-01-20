@@ -7,8 +7,9 @@ from jax import vjp
 from jax.tree_util import tree_map
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import PyTree
-from ..dataclasses import dataclass
 from ..shims import custom_vjp_method
 from .augmented import State
 from .base import Parameters, Trajectory

@@ -7,8 +7,9 @@ import jax.numpy as jnp
 from jax.tree_util import tree_map, tree_reduce
 from typing_extensions import override
 
+from tjax.dataclasses import dataclass
+
 from ..annotations import JaxBooleanArray, JaxRealArray
-from ..dataclasses import dataclass
 from ..math_tools import divide_nonnegative
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory

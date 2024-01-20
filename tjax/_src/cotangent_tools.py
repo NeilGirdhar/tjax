@@ -9,7 +9,7 @@ from jax import vjp
 from jax.tree_util import tree_map, tree_structure
 
 from .annotations import JaxRealArray, RealNumeric
-from .display import tapped_print_generic
+from .display.tapped import tapped_print_generic
 from .shims import custom_jvp, custom_vjp
 
 __all__ = [
