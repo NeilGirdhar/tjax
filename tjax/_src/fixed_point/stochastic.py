@@ -15,8 +15,10 @@ from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
 
-__all__ = ['StochasticState', 'StochasticIteratedFunction',
-           'StochasticIteratedFunctionWithCombinator']
+__all__ = [
+    'StochasticIteratedFunction',
+    'StochasticIteratedFunctionWithCombinator',
+    'StochasticState']
 
 
 @dataclass

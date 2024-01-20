@@ -15,11 +15,27 @@ from ..annotations import IntegralNumeric, KeyArray, RealNumeric
 from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 
-__all__ = ['Trace', 'Ema', 'ScaleByRss', 'ScaleByRms', 'ScaleByStddev', 'ScaleByAdam', 'Scale',
-           'ScaleByParamBlockNorm', 'ScaleByParamBlockRMS', 'ScaleByBelief', 'ScaleByYogi',
-           'ScaleByRAdam', 'AddDecayedWeights', 'ScaleBySchedule', 'ScaleByTrustRatio', 'AddNoise',
-           'ApplyEvery', 'Centralize', 'ScaleBySM3',
-           'Schedule']
+__all__ = [
+    'AddDecayedWeights',
+    'AddNoise',
+    'ApplyEvery',
+    'Centralize',
+    'Ema',
+    'Scale',
+    'ScaleByAdam',
+    'ScaleByBelief',
+    'ScaleByParamBlockNorm',
+    'ScaleByParamBlockRMS',
+    'ScaleByRAdam',
+    'ScaleByRms',
+    'ScaleByRss',
+    'ScaleBySM3',
+    'ScaleBySchedule',
+    'ScaleByStddev',
+    'ScaleByTrustRatio',
+    'ScaleByYogi',
+    'Schedule',
+    'Trace']
 
 
 # New classes --------------------------------------------------------------------------------------

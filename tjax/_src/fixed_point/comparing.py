@@ -13,7 +13,7 @@ from ..math_tools import divide_nonnegative
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
 
-__all__ = ['ComparingState', 'ComparingIteratedFunction']
+__all__ = ['ComparingIteratedFunction', 'ComparingState']
 
 
 @dataclass

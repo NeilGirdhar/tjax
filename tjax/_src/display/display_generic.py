@@ -23,7 +23,7 @@ from ..dataclasses import DataclassInstance
 from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .colors import solarized
 
-__all__ = ['display_generic', 'display_class']
+__all__ = ['display_class', 'display_generic']
 
 
 # Constants ----------------------------------------------------------------------------------------

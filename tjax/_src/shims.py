@@ -10,7 +10,7 @@ from typing_extensions import ParamSpec, Self, override
 
 from .function_markers import all_wrapper_assignments
 
-__all__ = ['jit', 'custom_jvp', 'custom_jvp_method', 'custom_vjp', 'custom_vjp_method']
+__all__ = ['custom_jvp', 'custom_jvp_method', 'custom_vjp', 'custom_vjp_method', 'jit']
 
 
 R_co = TypeVar('R_co', covariant=True)

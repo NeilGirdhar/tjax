@@ -11,7 +11,7 @@ from ..annotations import PyTree
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
-__all__ = ['dataclass', 'DataclassInstance', 'TDataclassInstance']
+__all__ = ['DataclassInstance', 'TDataclassInstance', 'dataclass']
 
 
 @runtime_checkable

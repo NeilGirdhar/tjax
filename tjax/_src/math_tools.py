@@ -10,8 +10,13 @@ from jax import float0
 from .annotations import (Array, BooleanNumeric, ComplexNumeric, IntegralNumeric, JaxArray,
                           JaxComplexArray, JaxRealArray, NumpyRealArray, RealNumeric)
 
-__all__ = ['is_scalar', 'abs_square', 'divide_where', 'divide_nonnegative', 'zero_tangent_like',
-           'inverse_softplus']
+__all__ = [
+    'abs_square',
+    'divide_nonnegative',
+    'divide_where',
+    'inverse_softplus',
+    'is_scalar',
+    'zero_tangent_like']
 
 
 def is_scalar(x: Any) -> bool:

@@ -12,8 +12,12 @@ from .annotations import JaxRealArray, RealNumeric
 from .display import tapped_print_generic
 from .shims import custom_jvp, custom_vjp
 
-__all__ = ['scale_cotangent', 'copy_cotangent', 'replace_cotangent', 'print_cotangent',
-           'cotangent_combinator']
+__all__ = [
+    'copy_cotangent',
+    'cotangent_combinator',
+    'print_cotangent',
+    'replace_cotangent',
+    'scale_cotangent']
 
 
 X = TypeVar('X')

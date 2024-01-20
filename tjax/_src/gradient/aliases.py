@@ -14,8 +14,22 @@ from ..dataclasses import dataclass, field
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 
-__all__ = ['AdaBelief', 'AdaFactor', 'AdaGrad', 'Adam', 'AdamW', 'Fromage', 'LARS', 'Lamb',
-           'NoisySGD', 'RAdam', 'RMSProp', 'SGD', 'SM3', 'Yogi', 'DPSGD']
+__all__ = [
+    'DPSGD',
+    'LARS',
+    'SGD',
+    'SM3',
+    'AdaBelief',
+    'AdaFactor',
+    'AdaGrad',
+    'Adam',
+    'AdamW',
+    'Fromage',
+    'Lamb',
+    'NoisySGD',
+    'RAdam',
+    'RMSProp',
+    'Yogi']
 
 # Types --------------------------------------------------------------------------------------------
 ScalarOrSchedule = float | Schedule

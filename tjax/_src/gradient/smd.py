@@ -11,7 +11,7 @@ from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from ..dataclasses import dataclass
 from .transform import GradientState, SecondOrderGradientTransformation
 
-__all__ = ['SMDState', 'SMDGradient']
+__all__ = ['SMDGradient', 'SMDState']
 
 
 Weights = TypeVar('Weights', bound=PyTree)

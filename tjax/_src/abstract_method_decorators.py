@@ -8,7 +8,7 @@ from typing_extensions import ParamSpec, override
 from .function_markers import abstract_custom_jvp_marker, abstract_jit_marker
 from .shims import custom_jvp_method, jit
 
-__all__ = ['JaxAbstractClass', 'abstract_jit', 'abstract_custom_jvp']
+__all__ = ['JaxAbstractClass', 'abstract_custom_jvp', 'abstract_jit']
 
 
 R_co = TypeVar('R_co', covariant=True)

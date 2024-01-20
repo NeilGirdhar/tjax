@@ -8,7 +8,7 @@ from typing_extensions import dataclass_transform, override
 
 from .helpers import field
 
-__all__ = ['module_field', 'DataClassModule']
+__all__ = ['DataClassModule', 'module_field']
 
 
 def module_field(*, init: bool = False) -> Any:

@@ -14,7 +14,7 @@ from jax.tree_util import tree_flatten, tree_map, tree_reduce
 from .annotations import Array, PyTree
 from .dtypes import default_tols
 
-__all__ = ['assert_tree_allclose', 'tree_allclose', 'get_test_string', 'get_relative_test_string']
+__all__ = ['assert_tree_allclose', 'get_relative_test_string', 'get_test_string', 'tree_allclose']
 
 
 def assert_tree_allclose(actual: PyTree,
