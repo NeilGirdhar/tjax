@@ -16,7 +16,10 @@ def create_diagonal_array(m: NumpyRealArray) -> NumpyRealArray:
         m: Has shape (*k, n)
     Returns: Array with shape (*k, n, n) and the elements of m on the diagonals.
     """
-    indices = (..., *np.diag_indices(m.shape[-1]))
-    retval = np.zeros((*m.shape, m.shape[-1]), dtype=m.dtype)
-    retval[indices] = m
-    return retval
+    pre = m.shape[:-1]
+    n = m.shape[-1]
+    s = (*m.shape, n)
+    retval = np.zeros((*pre, n ** 2), dtype=m.dtype)
+    for index in np.ndindex(*pre):
+        retval[(*index, slice(None, None, n + 1))] = m[(*index, slice(None))]
+    return np.reshape(retval, s)
