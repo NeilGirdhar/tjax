@@ -608,8 +608,10 @@ version = "0.8.0"
 description = "Flax: A neural network library for JAX designed for flexibility"
 optional = false
 python-versions = ">=3.9"
-files = []
-develop = false
+files = [
+    {file = "flax-0.8.0-py3-none-any.whl", hash = "sha256:945fdf051895f52a81adc46b7bb6640cdd32aaa759428f0fcb6a2e519a46e8bb"},
+    {file = "flax-0.8.0.tar.gz", hash = "sha256:8fb87a6b2447ec419ecd7afc2e5bdad0ecab00cdd9d7a2cb591edf385040c745"},
+]
 
 [package.dependencies]
 jax = ">=0.4.19"
@@ -624,17 +626,11 @@ orbax-checkpoint = "*"
 PyYAML = ">=5.4.1"
 rich = ">=11.1"
 tensorstore = "*"
-typing_extensions = ">=4.2"
+typing-extensions = ">=4.2"
 
 [package.extras]
 all = ["matplotlib"]
-testing = ["black[jupyter] (==23.7.0)", "clu", "clu (<=0.0.9)", "einops", "gymnasium[accept-rom-license,atari]", "jaxlib", "jraph (>=0.0.6dev0)", "ml-collections", "mypy", "nbstripout", "opencv-python", "pytest", "pytest-cov", "pytest-custom_exit_code", "pytest-xdist", "pytype", "sentencepiece", "tensorflow", "tensorflow_datasets", "tensorflow_text (>=2.11.0)", "torch"]
-
-[package.source]
-type = "git"
-url = "https://github.com/google/flax.git"
-reference = "93d3eb78"
-resolved_reference = "93d3eb788fc130a3446681458fda0e00954fdbcd"
+testing = ["black[jupyter] (==23.7.0)", "clu", "clu (<=0.0.9)", "einops", "gymnasium[accept-rom-license,atari]", "jaxlib", "jraph (>=0.0.6dev0)", "ml-collections", "mypy", "nbstripout", "opencv-python", "pytest", "pytest-cov", "pytest-custom-exit-code", "pytest-xdist", "pytype", "sentencepiece", "tensorflow", "tensorflow-datasets", "tensorflow-text (>=2.11.0)", "torch"]
 
 [[package]]
 name = "fqdn"
@@ -684,13 +680,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "hypothesis"
-version = "6.96.2"
+version = "6.96.4"
 description = "A library for property-based testing"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "hypothesis-6.96.2-py3-none-any.whl", hash = "sha256:34b5fb4c487f159083fa5db186b4357b42a27e597795e9cbccead8cde0242060"},
-    {file = "hypothesis-6.96.2.tar.gz", hash = "sha256:524a0ac22c8dfff640f21f496b85ee193a470e8570ab7707b8e3bfccd7da34a6"},
+    {file = "hypothesis-6.96.4-py3-none-any.whl", hash = "sha256:2beb7a148e95a2067563bcca017d71cc286805c792e43ec5cb155ed6d0a1990d"},
+    {file = "hypothesis-6.96.4.tar.gz", hash = "sha256:3b0d080bfd3b303e91388507ac7edebd7039ffcc96ac2cfcdc3c45806352c09f"},
 ]
 
 [package.dependencies]
@@ -1215,13 +1211,13 @@ test = ["flaky", "ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-sc
 
 [[package]]
 name = "jupyter-server-terminals"
-version = "0.5.1"
+version = "0.5.2"
 description = "A Jupyter Server Extension Providing Terminals."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server_terminals-0.5.1-py3-none-any.whl", hash = "sha256:5e63e947ddd97bb2832db5ef837a258d9ccd4192cd608c1270850ad947ae5dd7"},
-    {file = "jupyter_server_terminals-0.5.1.tar.gz", hash = "sha256:16d3be9cf48be6a1f943f3a6c93c033be259cf4779184c66421709cf63dccfea"},
+    {file = "jupyter_server_terminals-0.5.2-py3-none-any.whl", hash = "sha256:1b80c12765da979513c42c90215481bbc39bd8ae7c0350b4f85bc3eb58d0fa80"},
+    {file = "jupyter_server_terminals-0.5.2.tar.gz", hash = "sha256:396b5ccc0881e550bf0ee7012c6ef1b53edbde69e67cab1d56e89711b46052e8"},
 ]
 
 [package.dependencies]
@@ -1691,13 +1687,13 @@ test = ["pep440", "pre-commit", "pytest", "testpath"]
 
 [[package]]
 name = "nest-asyncio"
-version = "1.5.9"
+version = "1.6.0"
 description = "Patch asyncio to allow nested event loops"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "nest_asyncio-1.5.9-py3-none-any.whl", hash = "sha256:61ec07ef052e72e3de22045b81b2cc7d71fceb04c568ba0b2e4b2f9f5231bec2"},
-    {file = "nest_asyncio-1.5.9.tar.gz", hash = "sha256:d1e1144e9c6e3e6392e0fcf5211cb1c8374b5648a98f1ebe48e5336006b41907"},
+    {file = "nest_asyncio-1.6.0-py3-none-any.whl", hash = "sha256:87af6efd6b5e897c81050477ef65c62e2b2f35d51703cae01aff2905b1852e1c"},
+    {file = "nest_asyncio-1.6.0.tar.gz", hash = "sha256:6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe"},
 ]
 
 [[package]]
@@ -1861,13 +1857,13 @@ test = ["dm-haiku (>=0.0.3)", "dm-tree (>=0.1.7)", "flax (==0.5.3)"]
 
 [[package]]
 name = "orbax-checkpoint"
-version = "0.5.0"
+version = "0.5.1"
 description = "Orbax Checkpoint"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "orbax_checkpoint-0.5.0-py3-none-any.whl", hash = "sha256:95eaeee41ce8974080d5cfcc17d296234c6dc44cd10f9f10289fc3deaceeeaf4"},
-    {file = "orbax_checkpoint-0.5.0.tar.gz", hash = "sha256:3daa8db461a24f89ff9afa03cb2f32a5a1fa65160cd7fbd3ad99222ba8e3d938"},
+    {file = "orbax_checkpoint-0.5.1-py3-none-any.whl", hash = "sha256:d35bafdf01906fb2a3255f9bebff78fc714a30eeae71228e0064a77bd5a40d90"},
+    {file = "orbax_checkpoint-0.5.1.tar.gz", hash = "sha256:6ac556f567e20750fdb31af2af35bf797e68a94df1033efeb81f79f2b15f8140"},
 ]
 
 [package.dependencies]
@@ -2136,13 +2132,13 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.347"
+version = "1.1.348"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.347-py3-none-any.whl", hash = "sha256:14dd31b594aa3ec464894f66b8a2d206ebef1501e52789eb88cf2a79b0907fbe"},
-    {file = "pyright-1.1.347.tar.gz", hash = "sha256:17ea09322f60080f82abc4e622e43d1a5ebaa407ba86963b15b2bc01cca256e0"},
+    {file = "pyright-1.1.348-py3-none-any.whl", hash = "sha256:e7d4df504c4c082b5c3725a8c15fc3fda62da5d09fc77994baa77f359a1b62f2"},
+    {file = "pyright-1.1.348.tar.gz", hash = "sha256:1c6994546f7ab130b9da8c357f8b2a99bef268b6d8ae2eae292bde66923aa7af"},
 ]
 
 [package.dependencies]
@@ -2876,13 +2872,13 @@ files = [
 
 [[package]]
 name = "toolz"
-version = "0.12.0"
+version = "0.12.1"
 description = "List processing tools and functional utilities"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.7"
 files = [
-    {file = "toolz-0.12.0-py3-none-any.whl", hash = "sha256:2059bd4148deb1884bb0eb770a3cde70e7f954cfbbdc2285f1f2de01fd21eb6f"},
-    {file = "toolz-0.12.0.tar.gz", hash = "sha256:88c570861c440ee3f2f6037c4654613228ff40c93a6c25e0eba70d17282c6194"},
+    {file = "toolz-0.12.1-py3-none-any.whl", hash = "sha256:d22731364c07d72eea0a0ad45bafb2c2937ab6fd38a3507bf55eae8744aa7d85"},
+    {file = "toolz-0.12.1.tar.gz", hash = "sha256:ecca342664893f177a13dac0e6b41cbd8ac25a358e5f215316d43e2100224f4d"},
 ]
 
 [[package]]
@@ -3054,4 +3050,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "5646848460d2dfa1047152caaade321ec931058cf4587aa948c98de333373e6f"
+content-hash = "74097b44290eeddc851e8c2eaea331850b060aafa4fa72314064cb0256184ee9"
