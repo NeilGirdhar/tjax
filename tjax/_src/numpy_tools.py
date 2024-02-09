@@ -21,5 +21,6 @@ def create_diagonal_array(m: NumpyRealArray) -> NumpyRealArray:
     s = (*m.shape, n)
     retval = np.zeros((*pre, n ** 2), dtype=m.dtype)
     for index in np.ndindex(*pre):
-        retval[(*index, slice(None, None, n + 1))] = m[(*index, slice(None))]
+        retval[(*index, slice(None, None, n + 1))] = m[
+                (*index, slice(None))]  # type:ignore[arg-type]
     return np.reshape(retval, s)

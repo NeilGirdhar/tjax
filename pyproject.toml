@@ -41,7 +41,7 @@ jupyter = '>=1'
 mypy = '>=1.7'
 pylint = '>=2.12.2'
 pyright = '>=0.0.13'
-pytest = '>=7'
+pytest = '>=8'
 ruff = '>=0.2'
 
 [tool.poetry.group.extra.dependencies]
