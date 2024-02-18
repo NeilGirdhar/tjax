@@ -21,6 +21,7 @@ def field(*, static: bool = False, default: T, init: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
 
+
 @overload
 def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
           repr: bool = ...,  # noqa: A002
@@ -29,6 +30,7 @@ def field(*, static: bool = False, default_factory: Callable[[], T], init: bool 
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
 
+
 @overload
 def field(*, static: bool = False, init: bool = ...,
           repr: bool = ...,  # noqa: A002
@@ -36,6 +38,7 @@ def field(*, static: bool = False, init: bool = ...,
           compare: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Any:
     ...
+
 
 def field(*, static: bool = False, default: Any = MISSING,
           default_factory: Any = MISSING, init: bool = True,

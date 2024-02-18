@@ -161,6 +161,7 @@ def test_tapped_key(capsys: CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
         k = key(123)
+
         @jit
         def f(x: KeyArray) -> KeyArray:
             return tapped_print_generic(x)

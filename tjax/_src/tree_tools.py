@@ -7,6 +7,8 @@ __all__ = ['tree_map_with_path']
 
 
 T = TypeVar('T')
+
+
 def tree_map_with_path(structure: Any,
                        transform: Callable[[T, tuple[str, ...]], T]
                        ) -> Any:

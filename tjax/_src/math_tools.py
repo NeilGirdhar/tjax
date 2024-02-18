@@ -71,7 +71,7 @@ def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> JaxRealAr
     Returns: The quotient assuming that the dividend and divisor are nonnegative, and infinite
     whenever the divisor equals zero.
     """
-    return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)  # noqa: PLR2004
+    return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)
 
 
 def zero_tangent_like(value: Array) -> NumpyRealArray:
