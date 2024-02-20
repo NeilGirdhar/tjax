@@ -15,7 +15,8 @@ from ._src.display.display_generic import display_generic
 from ._src.display.print_generic import print_generic
 from ._src.display.tapped import tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
-from ._src.graph import register_graph_as_jax_pytree, register_graph_as_nnx_node
+from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pytree,
+                         register_graph_as_nnx_node)
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
@@ -85,6 +86,8 @@ __all__ = [
     'get_relative_test_string',
     'get_test_string',
     'gradient',
+    'graph_arrow',
+    'graph_edge_name',
     'inverse_softplus',
     'is_scalar',
     'jit',
@@ -102,4 +105,5 @@ __all__ = [
     'tapped_print_generic',
     'tree_allclose',
     'tree_map_with_path',
-    'zero_tangent_like']
+    'zero_tangent_like',
+]

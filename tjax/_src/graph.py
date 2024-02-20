@@ -11,11 +11,15 @@ from .annotations import PyTree
 from .display.batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .display.display_generic import display_class, display_generic
 
-__all__ = ['register_graph_as_jax_pytree', 'register_graph_as_nnx_node']
+__all__ = []
 
 
 def graph_arrow(directed: bool) -> str:  # noqa: FBT001
     return '⟶' if directed else '↔'
+
+
+def graph_edge_name(arrow: str, source: str, target: str) -> str:
+    return f"{source}{arrow}{target}"
 
 
 try:
@@ -57,7 +61,7 @@ else:
             new_source, new_target = ((source, target)
                                       if directed
                                       else sorted([source, target]))
-            yield f"{new_source}{arrow}{new_target}", data
+            yield graph_edge_name(arrow, new_source, new_target), data
 
     def flatten_graph(graph: nx.Graph[Any],
                       arrow: str
@@ -116,7 +120,7 @@ else:
             retval.children.append(display_generic(node, seen=seen, show_values=show_values,
                                                    key=name, batch_dims=sub_batch_dims))
         for (source, target), edge in value.edges.items():
-            key = f"{source}{arrow}{target}"
+            key = graph_edge_name(arrow, source, target)
             sub_batch_dims = bdi.advance(edge)
             retval.children.append(display_generic(edge, seen=seen, show_values=show_values,
                                                    key=key, batch_dims=sub_batch_dims))
@@ -166,7 +170,7 @@ else:
                 for source, target in graph.edges:
                     validate_node_name(source, arrow)
                     validate_node_name(target, arrow)
-                    yield f"{source}{arrow}{target}"
+                    yield graph_edge_name(arrow, source, target)
 
             def all_keys_graph(graph: nx.Graph[Any]) -> tuple[str, ...]:
                 return tuple(all_keys_helper(graph))
