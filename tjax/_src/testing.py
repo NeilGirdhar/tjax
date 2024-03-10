@@ -259,11 +259,11 @@ def _inexact_number_to_string(x: complex | np.inexact[Any], rtol: float, atol: f
     y: float | complex
     if isinstance(x, Real):  # type: ignore[unreachable]
         y = float(x)  # type: ignore[unreachable]
-    elif isinstance(x, Complex):  # type: ignore[unreachable]
-        y = complex(x)  # type: ignore[unreachable]
+    elif isinstance(x, Complex):
+        y = complex(x)
     else:
         raise TypeError
-    retval = ""  # type: ignore[unreachable]
+    retval = ""
     for i in range(20):
         retval = _float_to_string_with_precision(y, i)
         if np.isclose(complex(retval), x, rtol=rtol, atol=atol):

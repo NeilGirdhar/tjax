@@ -11,7 +11,7 @@ from .annotations import PyTree
 from .display.batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .display.display_generic import display_class, display_generic
 
-__all__ = []
+__all__: list[str] = []
 
 
 def graph_arrow(directed: bool) -> str:  # noqa: FBT001
