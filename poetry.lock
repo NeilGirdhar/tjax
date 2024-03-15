@@ -445,13 +445,13 @@ files = [
 
 [[package]]
 name = "comm"
-version = "0.2.1"
+version = "0.2.2"
 description = "Jupyter Python Comm implementation, for usage in ipykernel, xeus-python etc."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "comm-0.2.1-py3-none-any.whl", hash = "sha256:87928485c0dfc0e7976fd89fc1e187023cf587e7c353e4a9b417555b44adf021"},
-    {file = "comm-0.2.1.tar.gz", hash = "sha256:0bc91edae1344d39d3661dcbc36937181fdaddb304790458f8b044dbc064b89a"},
+    {file = "comm-0.2.2-py3-none-any.whl", hash = "sha256:e6fb86cb70ff661ee8c9c14e7d36d6de3b4066f1441be4063df9c5009f0a64d3"},
+    {file = "comm-0.2.2.tar.gz", hash = "sha256:3fd7a84065306e07bea1773df6eb8282de51ba82f77c72f9c85716ab11fe980e"},
 ]
 
 [package.dependencies]
@@ -609,13 +609,13 @@ devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benc
 
 [[package]]
 name = "flax"
-version = "0.8.1"
+version = "0.8.2"
 description = "Flax: A neural network library for JAX designed for flexibility"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "flax-0.8.1-py3-none-any.whl", hash = "sha256:8cf9ef11859eef252470377556a8cc48db287fc6647407ab34f1fc01461925dd"},
-    {file = "flax-0.8.1.tar.gz", hash = "sha256:ce3d99e9b4c0d2e4d9fc28bc56cced8ba953adfd695aabd24f096b4c8a7e2f92"},
+    {file = "flax-0.8.2-py3-none-any.whl", hash = "sha256:911d83e01380fdb3135c309e70981aabd15e7ca038014d7989ddc3cfaf4d0d45"},
+    {file = "flax-0.8.2.tar.gz", hash = "sha256:1c4e43ac3cb32e8e15c733cfa3df8d827b61d9ce29b50a7035920bfe9fdaa5b0"},
 ]
 
 [package.dependencies]
@@ -741,13 +741,13 @@ socks = ["socksio (==1.*)"]
 
 [[package]]
 name = "hypothesis"
-version = "6.99.4"
+version = "6.99.6"
 description = "A library for property-based testing"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "hypothesis-6.99.4-py3-none-any.whl", hash = "sha256:20ca59622b002b3b4d6c5913c37149e233240e7d7ea632e8da7f77629b2f7040"},
-    {file = "hypothesis-6.99.4.tar.gz", hash = "sha256:edc8f984dba5d1b69a6a4564246b7850fa7ec351d2b27c9e7a43c91deab8d45c"},
+    {file = "hypothesis-6.99.6-py3-none-any.whl", hash = "sha256:f5287e0ca8be94b2129483e1268639f8675c8c041d1b1756561a374575659940"},
+    {file = "hypothesis-6.99.6.tar.gz", hash = "sha256:397e362c8d7e3a5f4654644db964759f6a7f26a8c8a46d2a9e909595d9769ed1"},
 ]
 
 [package.dependencies]
@@ -785,13 +785,13 @@ files = [
 
 [[package]]
 name = "importlib-resources"
-version = "6.1.3"
+version = "6.3.0"
 description = "Read resources from Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "importlib_resources-6.1.3-py3-none-any.whl", hash = "sha256:4c0269e3580fe2634d364b39b38b961540a7738c02cb984e98add8b4221d793d"},
-    {file = "importlib_resources-6.1.3.tar.gz", hash = "sha256:56fb4525197b78544a3354ea27793952ab93f935bb4bf746b846bb1015020f2b"},
+    {file = "importlib_resources-6.3.0-py3-none-any.whl", hash = "sha256:783407aa1cd05550e3aa123e8f7cfaebee35ffa9cb0242919e2d1e4172222705"},
+    {file = "importlib_resources-6.3.0.tar.gz", hash = "sha256:166072a97e86917a9025876f34286f549b9caf1d10b35a1b372bffa1600c6569"},
 ]
 
 [package.extras]
@@ -1131,13 +1131,13 @@ qtconsole = "*"
 
 [[package]]
 name = "jupyter-client"
-version = "8.6.0"
+version = "8.6.1"
 description = "Jupyter protocol implementation and client libraries"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_client-8.6.0-py3-none-any.whl", hash = "sha256:909c474dbe62582ae62b758bca86d6518c85234bdee2d908c778db6d72f39d99"},
-    {file = "jupyter_client-8.6.0.tar.gz", hash = "sha256:0642244bb83b4764ae60d07e010e15f0e2d275ec4e918a8f7b80fbbef3ca60c7"},
+    {file = "jupyter_client-8.6.1-py3-none-any.whl", hash = "sha256:3b7bd22f058434e3b9a7ea4b1500ed47de2713872288c0d511d19926f99b459f"},
+    {file = "jupyter_client-8.6.1.tar.gz", hash = "sha256:e842515e2bab8e19186d89fdfea7abd15e39dd581f94e399f00e2af5a1652d3f"},
 ]
 
 [package.dependencies]
@@ -1177,13 +1177,13 @@ test = ["flaky", "pexpect", "pytest"]
 
 [[package]]
 name = "jupyter-core"
-version = "5.7.1"
+version = "5.7.2"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_core-5.7.1-py3-none-any.whl", hash = "sha256:c65c82126453a723a2804aa52409930434598fd9d35091d63dfb919d2b765bb7"},
-    {file = "jupyter_core-5.7.1.tar.gz", hash = "sha256:de61a9d7fc71240f688b2fb5ab659fbb56979458dc66a71decd098e03c79e218"},
+    {file = "jupyter_core-5.7.2-py3-none-any.whl", hash = "sha256:4f7315d2f6b4bcf2e3e7cb6e46772eba760ae459cd1f59d29eb57b0a01bd7409"},
+    {file = "jupyter_core-5.7.2.tar.gz", hash = "sha256:aa5f8d32bbf6b431ac830496da7392035d6f61b4f54872f15c4bd2a9c3f536d9"},
 ]
 
 [package.dependencies]
@@ -1193,17 +1193,17 @@ traitlets = ">=5.3"
 
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx-autodoc-typehints", "sphinxcontrib-github-alt", "sphinxcontrib-spelling", "traitlets"]
-test = ["ipykernel", "pre-commit", "pytest", "pytest-cov", "pytest-timeout"]
+test = ["ipykernel", "pre-commit", "pytest (<8)", "pytest-cov", "pytest-timeout"]
 
 [[package]]
 name = "jupyter-events"
-version = "0.9.0"
+version = "0.9.1"
 description = "Jupyter Event System library"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_events-0.9.0-py3-none-any.whl", hash = "sha256:d853b3c10273ff9bc8bb8b30076d65e2c9685579db736873de6c2232dde148bf"},
-    {file = "jupyter_events-0.9.0.tar.gz", hash = "sha256:81ad2e4bc710881ec274d31c6c50669d71bbaa5dd9d01e600b56faa85700d399"},
+    {file = "jupyter_events-0.9.1-py3-none-any.whl", hash = "sha256:e51f43d2c25c2ddf02d7f7a5045f71fc1d5cb5ad04ef6db20da961c077654b9b"},
+    {file = "jupyter_events-0.9.1.tar.gz", hash = "sha256:a52e86f59eb317ee71ff2d7500c94b963b8a24f0b7a1517e2e653e24258e15c7"},
 ]
 
 [package.dependencies]
@@ -1272,13 +1272,13 @@ test = ["flaky", "ipykernel", "pre-commit", "pytest (>=7.0)", "pytest-console-sc
 
 [[package]]
 name = "jupyter-server-terminals"
-version = "0.5.2"
+version = "0.5.3"
 description = "A Jupyter Server Extension Providing Terminals."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_server_terminals-0.5.2-py3-none-any.whl", hash = "sha256:1b80c12765da979513c42c90215481bbc39bd8ae7c0350b4f85bc3eb58d0fa80"},
-    {file = "jupyter_server_terminals-0.5.2.tar.gz", hash = "sha256:396b5ccc0881e550bf0ee7012c6ef1b53edbde69e67cab1d56e89711b46052e8"},
+    {file = "jupyter_server_terminals-0.5.3-py3-none-any.whl", hash = "sha256:41ee0d7dc0ebf2809c668e0fc726dfaf258fcd3e769568996ca731b6194ae9aa"},
+    {file = "jupyter_server_terminals-0.5.3.tar.gz", hash = "sha256:5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269"},
 ]
 
 [package.dependencies]
@@ -1291,13 +1291,13 @@ test = ["jupyter-server (>=2.0.0)", "pytest (>=7.0)", "pytest-jupyter[server] (>
 
 [[package]]
 name = "jupyterlab"
-version = "4.1.4"
+version = "4.1.5"
 description = "JupyterLab computational environment"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyterlab-4.1.4-py3-none-any.whl", hash = "sha256:f92c3f2b12b88efcf767205f49be9b2f86b85544f9c4f342bb5e9904a16cf931"},
-    {file = "jupyterlab-4.1.4.tar.gz", hash = "sha256:e03c82c124ad8a0892e498b9dde79c50868b2c267819aca3f55ce47c57ebeb1d"},
+    {file = "jupyterlab-4.1.5-py3-none-any.whl", hash = "sha256:3bc843382a25e1ab7bc31d9e39295a9f0463626692b7995597709c0ab236ab2c"},
+    {file = "jupyterlab-4.1.5.tar.gz", hash = "sha256:c9ad75290cb10bfaff3624bf3fbb852319b4cce4c456613f8ebbaa98d03524db"},
 ]
 
 [package.dependencies]
@@ -1670,13 +1670,13 @@ files = [
 
 [[package]]
 name = "nbclient"
-version = "0.9.0"
+version = "0.10.0"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "nbclient-0.9.0-py3-none-any.whl", hash = "sha256:a3a1ddfb34d4a9d17fc744d655962714a866639acd30130e9be84191cd97cd15"},
-    {file = "nbclient-0.9.0.tar.gz", hash = "sha256:4b28c207877cf33ef3a9838cdc7a54c5ceff981194a82eac59d558f05487295e"},
+    {file = "nbclient-0.10.0-py3-none-any.whl", hash = "sha256:f13e3529332a1f1f81d82a53210322476a168bb7090a0289c795fe9cc11c9d3f"},
+    {file = "nbclient-0.10.0.tar.gz", hash = "sha256:4b3f1b7dba531e498449c4db4f53da339c91d449dc11e9af3a43b4eb5c5abb09"},
 ]
 
 [package.dependencies]
@@ -1688,7 +1688,7 @@ traitlets = ">=5.4"
 [package.extras]
 dev = ["pre-commit"]
 docs = ["autodoc-traits", "mock", "moto", "myst-parser", "nbclient[test]", "sphinx (>=1.7)", "sphinx-book-theme", "sphinxcontrib-spelling"]
-test = ["flaky", "ipykernel (>=6.19.3)", "ipython", "ipywidgets", "nbconvert (>=7.0.0)", "pytest (>=7.0)", "pytest-asyncio", "pytest-cov (>=4.0)", "testpath", "xmltodict"]
+test = ["flaky", "ipykernel (>=6.19.3)", "ipython", "ipywidgets", "nbconvert (>=7.0.0)", "pytest (>=7.0,<8)", "pytest-asyncio", "pytest-cov (>=4.0)", "testpath", "xmltodict"]
 
 [[package]]
 name = "nbconvert"
@@ -1729,13 +1729,13 @@ webpdf = ["playwright"]
 
 [[package]]
 name = "nbformat"
-version = "5.9.2"
+version = "5.10.2"
 description = "The Jupyter Notebook format"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "nbformat-5.9.2-py3-none-any.whl", hash = "sha256:1c5172d786a41b82bcfd0c23f9e6b6f072e8fb49c39250219e4acfff1efe89e9"},
-    {file = "nbformat-5.9.2.tar.gz", hash = "sha256:5f98b5ba1997dff175e77e0c17d5c10a96eaed2cbd1de3533d1fc35d5e111192"},
+    {file = "nbformat-5.10.2-py3-none-any.whl", hash = "sha256:7381189a0d537586b3f18bae5dbad347d7dd0a7cf0276b09cdcd5c24d38edd99"},
+    {file = "nbformat-5.10.2.tar.gz", hash = "sha256:c535b20a0d4310167bf4d12ad31eccfb0dc61e6392d6f8c570ab5b45a06a49a3"},
 ]
 
 [package.dependencies]
@@ -1793,13 +1793,13 @@ setuptools = "*"
 
 [[package]]
 name = "notebook"
-version = "7.1.1"
+version = "7.1.2"
 description = "Jupyter Notebook - A web-based notebook environment for interactive computing"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "notebook-7.1.1-py3-none-any.whl", hash = "sha256:197d8e0595acabf4005851c8716e952a81b405f7aefb648067a761fbde267ce7"},
-    {file = "notebook-7.1.1.tar.gz", hash = "sha256:818e7420fa21f402e726afb9f02df7f3c10f294c02e383ed19852866c316108b"},
+    {file = "notebook-7.1.2-py3-none-any.whl", hash = "sha256:fc6c24b9aef18d0cd57157c9c47e95833b9b0bdc599652639acf0bdb61dc7d5f"},
+    {file = "notebook-7.1.2.tar.gz", hash = "sha256:efc2c80043909e0faa17fce9e9b37c059c03af0ec99a4d4db84cb21d9d2e936a"},
 ]
 
 [package.dependencies]
@@ -1920,13 +1920,13 @@ test = ["dm-tree (>=0.1.7)", "flax (>=0.5.3)"]
 
 [[package]]
 name = "orbax-checkpoint"
-version = "0.5.4"
+version = "0.5.5"
 description = "Orbax Checkpoint"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "orbax_checkpoint-0.5.4-py3-none-any.whl", hash = "sha256:db7fb4bf5f7e5229de855106bbdbb0660b5a2260a118703222ace6e18badc6da"},
-    {file = "orbax_checkpoint-0.5.4.tar.gz", hash = "sha256:421ae160be02018597f314fff32fb3966a641d5d2b88d7f096d6eefe6a86dc62"},
+    {file = "orbax_checkpoint-0.5.5-py3-none-any.whl", hash = "sha256:e01d51e60f94e3393a08e8c07292c811b93ac58672dde80fc23844c16f2eddb7"},
+    {file = "orbax_checkpoint-0.5.5.tar.gz", hash = "sha256:cebcb96f22f11736a1f9ee76c78c888baae8537268c7ff6663ad9cba3076c655"},
 ]
 
 [package.dependencies]
@@ -2067,22 +2067,22 @@ wcwidth = "*"
 
 [[package]]
 name = "protobuf"
-version = "4.25.3"
+version = "5.26.0"
 description = ""
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "protobuf-4.25.3-cp310-abi3-win32.whl", hash = "sha256:d4198877797a83cbfe9bffa3803602bbe1625dc30d8a097365dbc762e5790faa"},
-    {file = "protobuf-4.25.3-cp310-abi3-win_amd64.whl", hash = "sha256:209ba4cc916bab46f64e56b85b090607a676f66b473e6b762e6f1d9d591eb2e8"},
-    {file = "protobuf-4.25.3-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:f1279ab38ecbfae7e456a108c5c0681e4956d5b1090027c1de0f934dfdb4b35c"},
-    {file = "protobuf-4.25.3-cp37-abi3-manylinux2014_aarch64.whl", hash = "sha256:e7cb0ae90dd83727f0c0718634ed56837bfeeee29a5f82a7514c03ee1364c019"},
-    {file = "protobuf-4.25.3-cp37-abi3-manylinux2014_x86_64.whl", hash = "sha256:7c8daa26095f82482307bc717364e7c13f4f1c99659be82890dcfc215194554d"},
-    {file = "protobuf-4.25.3-cp38-cp38-win32.whl", hash = "sha256:f4f118245c4a087776e0a8408be33cf09f6c547442c00395fbfb116fac2f8ac2"},
-    {file = "protobuf-4.25.3-cp38-cp38-win_amd64.whl", hash = "sha256:c053062984e61144385022e53678fbded7aea14ebb3e0305ae3592fb219ccfa4"},
-    {file = "protobuf-4.25.3-cp39-cp39-win32.whl", hash = "sha256:19b270aeaa0099f16d3ca02628546b8baefe2955bbe23224aaf856134eccf1e4"},
-    {file = "protobuf-4.25.3-cp39-cp39-win_amd64.whl", hash = "sha256:e3c97a1555fd6388f857770ff8b9703083de6bf1f9274a002a332d65fbb56c8c"},
-    {file = "protobuf-4.25.3-py3-none-any.whl", hash = "sha256:f0700d54bcf45424477e46a9f0944155b46fb0639d69728739c0e47bab83f2b9"},
-    {file = "protobuf-4.25.3.tar.gz", hash = "sha256:25b5d0b42fd000320bd7830b349e3b696435f3b329810427a6bcce6a5492cc5c"},
+    {file = "protobuf-5.26.0-cp310-abi3-win32.whl", hash = "sha256:f9ecc8eb6f18037e0cbf43256db0325d4723f429bca7ef5cd358b7c29d65f628"},
+    {file = "protobuf-5.26.0-cp310-abi3-win_amd64.whl", hash = "sha256:dfd29f6eb34107dccf289a93d44fb6b131e68888d090b784b691775ac84e8213"},
+    {file = "protobuf-5.26.0-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:7e47c57303466c867374a17b2b5e99c5a7c8b72a94118e2f28efb599f19b4069"},
+    {file = "protobuf-5.26.0-cp37-abi3-manylinux2014_aarch64.whl", hash = "sha256:e184175276edc222e2d5e314a72521e10049938a9a4961fe4bea9b25d073c03f"},
+    {file = "protobuf-5.26.0-cp37-abi3-manylinux2014_x86_64.whl", hash = "sha256:6ee9d1aa02f951c5ce10bf8c6cfb7604133773038e33f913183c8b5201350600"},
+    {file = "protobuf-5.26.0-cp38-cp38-win32.whl", hash = "sha256:2c334550e1cb4efac5c8a3987384bf13a4334abaf5ab59e40479e7b70ecd6b19"},
+    {file = "protobuf-5.26.0-cp38-cp38-win_amd64.whl", hash = "sha256:8eef61a90631c21b06b4f492a27e199a269827f046de3bb68b61aa84fcf50905"},
+    {file = "protobuf-5.26.0-cp39-cp39-win32.whl", hash = "sha256:ca825f4eecb8c342d2ec581e6a5ad1ad1a47bededaecd768e0d3451ae4aaac2b"},
+    {file = "protobuf-5.26.0-cp39-cp39-win_amd64.whl", hash = "sha256:efd4f5894c50bd76cbcfdd668cd941021333861ed0f441c78a83d8254a01cc9f"},
+    {file = "protobuf-5.26.0-py3-none-any.whl", hash = "sha256:a49b6c5359bf34fb7bf965bf21abfab4476e4527d822ab5289ee3bf73f291159"},
+    {file = "protobuf-5.26.0.tar.gz", hash = "sha256:82f5870d74c99addfe4152777bdf8168244b9cf0ac65f8eccf045ddfa9d80d9b"},
 ]
 
 [[package]]
@@ -2195,13 +2195,13 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.353"
+version = "1.1.354"
 description = "Command line wrapper for pyright"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.353-py3-none-any.whl", hash = "sha256:8d7e6719d0be4fd9f4a37f010237c6a74d91ec1e7c81de634c2f3f9965f8ab43"},
-    {file = "pyright-1.1.353.tar.gz", hash = "sha256:24343bbc2a4f997563f966b6244a2e863473f1d85af6d24abcb366fcbb4abca9"},
+    {file = "pyright-1.1.354-py3-none-any.whl", hash = "sha256:f28d61ae8ae035fc52ded1070e8d9e786051a26a4127bbd7a4ba0399b81b37b5"},
+    {file = "pyright-1.1.354.tar.gz", hash = "sha256:b1070dc774ff2e79eb0523fe87f4ba9a90550de7e4b030a2bc9e031864029a1f"},
 ]
 
 [package.dependencies]
@@ -2765,18 +2765,18 @@ win32 = ["pywin32"]
 
 [[package]]
 name = "setuptools"
-version = "69.1.1"
+version = "69.2.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-69.1.1-py3-none-any.whl", hash = "sha256:02fa291a0471b3a18b2b2481ed902af520c69e8ae0919c13da936542754b4c56"},
-    {file = "setuptools-69.1.1.tar.gz", hash = "sha256:5c0806c7d9af348e6dd3777b4f4dbb42c7ad85b190104837488eab9a7c945cf8"},
+    {file = "setuptools-69.2.0-py3-none-any.whl", hash = "sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c"},
+    {file = "setuptools-69.2.0.tar.gz", hash = "sha256:0ff4183f8f42cd8fa3acea16c45205521a4ef28f73c6391d8a25e92893134f2e"},
 ]
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.2)", "pip (>=19.1)", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+testing = ["build[virtualenv]", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.2)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
@@ -2844,28 +2844,28 @@ tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
 name = "tensorstore"
-version = "0.1.54"
+version = "0.1.55"
 description = "Read and write large, multi-dimensional arrays"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "tensorstore-0.1.54-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:54dbc2d5de635ff55c4dd1e85eb8d326ed7c0c90489ab8e9dbbc93ad70f4ebf6"},
-    {file = "tensorstore-0.1.54-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:3d62cec4f3257e7e1d60220d6b1a604cf1e6d2f4684407669a3baa4c53b81f47"},
-    {file = "tensorstore-0.1.54-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7f5e0e9a81b41cba6c7462b57531855e3c0be320ae05b071b220206f04ab3b99"},
-    {file = "tensorstore-0.1.54-cp310-cp310-win_amd64.whl", hash = "sha256:2ccfc236cab7d5d7c0fdd6a1e13fbe9e5aa69a8dd0c472f479dd2b8c4c66f563"},
-    {file = "tensorstore-0.1.54-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:d2c032e5eb31ab0835fc21c74f5134274fe6d1f147917e1571876e4aa011d206"},
-    {file = "tensorstore-0.1.54-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:bcf6925cc1b1793d888d6c81f3f2bafe8b78352c792a5e77cc519b4fc8fd9482"},
-    {file = "tensorstore-0.1.54-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:dab3fb3fca3ec23f43d502641fc7ce3f40bdb864eca63b2b10a5a6592014f00b"},
-    {file = "tensorstore-0.1.54-cp311-cp311-win_amd64.whl", hash = "sha256:ba5d560d321ad353af866910bcdfb396ccd822b89d50e3275a22193dcbd6e35b"},
-    {file = "tensorstore-0.1.54-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:608212a855808f0f55a3cb66a562514632023df9df26e11c8497803102e17303"},
-    {file = "tensorstore-0.1.54-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:02077de82f9a388badc831b8bef0242f82ce47830076130e0f947bc2db88ecc1"},
-    {file = "tensorstore-0.1.54-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5e19ef2c20e7139a5ba3f33b3170ff1418d2cffec01b46f16b0428b66984894e"},
-    {file = "tensorstore-0.1.54-cp312-cp312-win_amd64.whl", hash = "sha256:68dc970e7f69f46d4b7bcbbcb924e0c5ad71e9a2f16481679430edb1deb65fb0"},
-    {file = "tensorstore-0.1.54-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:70de04ad2177fb771f17db1a61cc1ed3295147676021cb3d63649b8a9faf2f45"},
-    {file = "tensorstore-0.1.54-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:954f321049ae0fd97904b76f2b8fc49257a04fa5813c8ca4b5aafa92567e743e"},
-    {file = "tensorstore-0.1.54-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:30ddc9c99b34afe3d64e4c2585238ace9d8a9e1818a9ffcdce356e4e20e98648"},
-    {file = "tensorstore-0.1.54-cp39-cp39-win_amd64.whl", hash = "sha256:9b0501b40107c0bec29c48ce926353eee92b2b6d3b5d5bce0983c35de007eaaf"},
-    {file = "tensorstore-0.1.54.tar.gz", hash = "sha256:e1a9dcb0be7c828f752375409537d4b39c658dd6c6a0873fe21a24a556ec0e2a"},
+    {file = "tensorstore-0.1.55-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:d18b970428cdf22055371db24a3fafa9770caa289dbcfbdc5abb619f88de4a03"},
+    {file = "tensorstore-0.1.55-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f6b0b59b3732a41170e535855f61f7338d730ff0afaeaf5f84fe560c798b685e"},
+    {file = "tensorstore-0.1.55-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2f9d4867933680f515f780df6f0f0a3cdd4b845f883d1d5af9a297bc81410eea"},
+    {file = "tensorstore-0.1.55-cp310-cp310-win_amd64.whl", hash = "sha256:af95a288582f295663c13464ee7e631817783b10eb7af55ed8f44a5989c28778"},
+    {file = "tensorstore-0.1.55-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:994f4ee22d34d028004e5f2fa6c41d66e506409f92ea907157d8efcda2a33931"},
+    {file = "tensorstore-0.1.55-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1fe99e69fc8f30e62f1db90624378656bdf0fed79b7862e272b66f03778dbc4b"},
+    {file = "tensorstore-0.1.55-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:21cb9845d5afe8fcb51a6cddb144ad0840fa8f58837299468c1ca5280f89fab9"},
+    {file = "tensorstore-0.1.55-cp311-cp311-win_amd64.whl", hash = "sha256:0e6d33973c13b78fa9567bc3f7ad5897900e50bc6413e63b7393e370b726ea9c"},
+    {file = "tensorstore-0.1.55-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:909130e32921d45406ca60fda7da11846397dd3e2b1c3bb56266f6b8e762e0e2"},
+    {file = "tensorstore-0.1.55-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:6c68c4507942af50049188acefc627f0031d066b7c179c006cb3a46af934218c"},
+    {file = "tensorstore-0.1.55-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:681e35dbe902d6559de54fa584bde94875f4672a189f9044915bfda768e46466"},
+    {file = "tensorstore-0.1.55-cp312-cp312-win_amd64.whl", hash = "sha256:b23c4f01c26f405c4b957733db252c2714756eb59e232a3a937f0385736c44f3"},
+    {file = "tensorstore-0.1.55-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:447c06d11ed56d543b9c697cf27d99e59c5250a70428385916e76be4a9130a54"},
+    {file = "tensorstore-0.1.55-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:3a860debb06a68b20bd2258e41f7ee39a6dcab530965a261ad65ba937c32f917"},
+    {file = "tensorstore-0.1.55-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:87699a5c085e5ba0d4479c0e347ace19e84990fc3d284a6f6548bf4ed5ac4b06"},
+    {file = "tensorstore-0.1.55-cp39-cp39-win_amd64.whl", hash = "sha256:295d713389951a66e3f1727bca8d5484080e249297370c7f16386f4d4dee292c"},
+    {file = "tensorstore-0.1.55.tar.gz", hash = "sha256:ccdcceb507223d25b121d4cb15e94339948cfb9bbe08be77e972db0d74fc5485"},
 ]
 
 [package.dependencies]
@@ -2874,13 +2874,13 @@ numpy = ">=1.16.0"
 
 [[package]]
 name = "terminado"
-version = "0.18.0"
+version = "0.18.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "terminado-0.18.0-py3-none-any.whl", hash = "sha256:87b0d96642d0fe5f5abd7783857b9cab167f221a39ff98e3b9619a788a3c0f2e"},
-    {file = "terminado-0.18.0.tar.gz", hash = "sha256:1ea08a89b835dd1b8c0c900d92848147cef2537243361b2e3f4dc15df9b6fded"},
+    {file = "terminado-0.18.1-py3-none-any.whl", hash = "sha256:a4468e1b37bb318f8a86514f65814e1afc977cf29b3992a4500d9dd305dcceb0"},
+    {file = "terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e"},
 ]
 
 [package.dependencies]
@@ -2966,18 +2966,18 @@ files = [
 
 [[package]]
 name = "traitlets"
-version = "5.14.1"
+version = "5.14.2"
 description = "Traitlets Python configuration system"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "traitlets-5.14.1-py3-none-any.whl", hash = "sha256:2e5a030e6eff91737c643231bfcf04a65b0132078dad75e4936700b213652e74"},
-    {file = "traitlets-5.14.1.tar.gz", hash = "sha256:8585105b371a04b8316a43d5ce29c098575c2e477850b62b848b964f1444527e"},
+    {file = "traitlets-5.14.2-py3-none-any.whl", hash = "sha256:fcdf85684a772ddeba87db2f398ce00b40ff550d1528c03c14dbf6a02003cd80"},
+    {file = "traitlets-5.14.2.tar.gz", hash = "sha256:8cdd83c040dab7d1dee822678e5f5d100b514f7b72b01615b26fc5718916fdf9"},
 ]
 
 [package.extras]
 docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
-test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
+test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.1)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
 name = "types-python-dateutil"
@@ -3098,18 +3098,18 @@ files = [
 
 [[package]]
 name = "zipp"
-version = "3.17.0"
+version = "3.18.1"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "zipp-3.17.0-py3-none-any.whl", hash = "sha256:0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31"},
-    {file = "zipp-3.17.0.tar.gz", hash = "sha256:84e64a1c28cf7e91ed2078bb8cc8c259cb19b76942096c8d7b84947690cabaf0"},
+    {file = "zipp-3.18.1-py3-none-any.whl", hash = "sha256:206f5a15f2af3dbaee80769fb7dc6f249695e940acca08dfb2a4769fe61e538b"},
+    {file = "zipp-3.18.1.tar.gz", hash = "sha256:2884ed22e7d8961de1c9a05142eb69a247f120291bc0206a00a7642f09b5b715"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
+docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [metadata]
 lock-version = "2.0"

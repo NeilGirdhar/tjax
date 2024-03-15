@@ -47,4 +47,7 @@ def test_clone(graph: nx.DiGraph[Any]) -> None:
 
 def test_flatten(graph: nx.DiGraph[Any]) -> None:
     state, _ = nnx.graph_utils.graph_flatten(graph)
-    assert state['a⟶b']['x'] == 4.0  # noqa: PLR2004
+    substate = state['a⟶b']
+    assert isinstance(substate, nnx.State)
+    variable = substate['x']
+    assert variable.value == 4.0  # noqa: PLR2004

@@ -20,11 +20,7 @@ NamedChildren: TypeAlias = tuple[tuple[str, nnx.State], tuple[str, nnx.GraphDef[
 Children: TypeAlias = tuple[nnx.State, nnx.GraphDef[Any]]
 
 
-@dataclass_transform(field_specifiers=(module_field,
-                                       nnx.field,
-                                       nnx.treenode_field,
-                                       nnx.variable_field,
-                                       nnx.param_field))
+@dataclass_transform(field_specifiers=(module_field, field))
 class _DataClassModule(nnx.Module):
     @override
     def __init_subclass__(cls,
@@ -41,7 +37,7 @@ class _DataClassModule(nnx.Module):
 
 class DataClassModule(_DataClassModule):
     _: KW_ONLY
-    rngs: InitVar[nnx.Rngs] = nnx.field()
+    rngs: InitVar[nnx.Rngs] = field()
 
     def __post_init__(self, rngs: nnx.Rngs) -> None:
         pass

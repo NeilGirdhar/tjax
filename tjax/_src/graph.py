@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Generator, Iterable, MutableSet
-from functools import partial
 from typing import Any, TypeVar
 
 from jax.tree_util import register_pytree_with_keys
@@ -63,12 +62,6 @@ else:
                                       else sorted([source, target]))
             yield graph_edge_name(arrow, new_source, new_target), data
 
-    def flatten_graph(graph: nx.Graph[Any],
-                      arrow: str
-                      ) -> tuple[tuple[tuple[str, Any], ...], None]:
-        t = tuple(flatten_helper(graph, arrow))
-        return t, None
-
     def init_graph(graph: nx.Graph[Any],
                    items: Iterable[tuple[str, Any]],
                    arrow: str
@@ -127,7 +120,7 @@ else:
         return retval
 
     try:
-        from flax.experimental.nnx.nnx.graph_utils import register_node_type
+        from flax.experimental.nnx.nnx.graph_utils import register_mutable_node_type
     except ImportError:
         msg = "NNX not available"
         def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
@@ -136,53 +129,43 @@ else:
         def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore
             arrow = graph_arrow(issubclass(graph_type, nx.DiGraph))
 
-            def get_key_graph(graph: nx.Graph[Any], key: str) -> Any:
+            def flatten_graph(graph: nx.Graph[Any], /) -> tuple[tuple[tuple[str, Any], ...], None]:
+                t = tuple(flatten_helper(graph, arrow))
+                return t, None
+
+            def pop_key_graph(graph: nx.Graph[Any], key: str, /) -> Any:
                 if arrow in key:
                     source, target = key.split(arrow, 2)
-                    return graph.edges[source, target]
-                return graph.nodes[key]
+                    retval = graph.edges[source, target]
+                    graph.remove_edge(source, target)
+                    return retval
+                retval = graph.nodes[key]
+                graph.remove_node(key)
+                return retval
 
-            def set_key_graph(graph: nx.Graph[Any], key: str, value: Any) -> nx.Graph[Any]:
+            def set_key_graph(graph: nx.Graph[Any], key: str, value: Any, /) -> None:
                 if not isinstance(value, dict):
                     raise TypeError
                 d: dict[str, Any]
                 if arrow in key:
                     source, target = key.split(arrow, 2)
+                    if not graph.has_edge(source, target):
+                        graph.add_edge(source, target, **value)
+                        return
                     d = graph.edges[source, target]
+                elif not graph.has_node(key):
+                    graph.add_node(key, **value)
+                    return
                 else:
                     d = graph.nodes[key]
                 d.clear()
                 d.update(value)
-                return graph
 
-            def has_key_graph(graph: nx.Graph[Any], key: str) -> bool:
-                if arrow in key:
-                    source, target = key.split(arrow, 2)
-                    # Care here to return true for only ordered edges.
-                    return (source, target) in list(graph.edges)
-                return key in graph
-
-            def all_keys_helper(graph: nx.Graph[Any]
-                                ) -> Generator[str, None, None]:
-                for name in graph.nodes:
-                    validate_node_name(name, arrow)
-                    yield name
-                for source, target in graph.edges:
-                    validate_node_name(source, arrow)
-                    validate_node_name(target, arrow)
-                    yield graph_edge_name(arrow, source, target)
-
-            def all_keys_graph(graph: nx.Graph[Any]) -> tuple[str, ...]:
-                return tuple(all_keys_helper(graph))
-
-            def create_empty_graph(metadata: None) -> T:
+            def create_empty_graph(metadata: None, /) -> T:
                 return graph_type()
 
-            register_node_type(graph_type,
-                               partial(flatten_graph, arrow=arrow),
-                               get_key_graph,
-                               set_key_graph,
-                               has_key_graph,
-                               all_keys_graph,
-                               create_empty=create_empty_graph,
-                               init=partial(init_graph, arrow=arrow))
+            register_mutable_node_type(graph_type,
+                                       flatten_graph,
+                                       set_key_graph,
+                                       pop_key_graph,
+                                       create_empty_graph)
