@@ -28,17 +28,10 @@ repos:
   hooks:
   - id: isort
 
-- repo: local
+- repo: https://github.com/RobertCraigie/pyright-python
+  rev: v1.1.354
   hooks:
   - id: pyright
-    name: pyright
-    entry: pyright
-    language: node
-    pass_filenames: false
-    types: [python]
-    stages: [pre-commit, pre-merge-commit, pre-push, manual]
-    additional_dependencies: &pyright_dependencies
-    - pyright@1.1.341
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: 'v1.9.0'
