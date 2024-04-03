@@ -72,12 +72,12 @@ def dataclass(clz: Type[T]) -&gt; Type[T]:
                 field_info.name, getattr(self, field_info.name), &#34;=&#34;, show_values, indent)
         return retval
 
-    def tree_flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree.flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in hashed_fields)
         trees = tuple(getattr(x, name) for name in tree_fields)
         return trees, hashed
 
-    def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+    def tree.unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(hashed_fields, hashed))
@@ -87,15 +87,15 @@ def dataclass(clz: Type[T]) -&gt; Type[T]:
     # Assign methods to the class.
     data_clz.__repr__ = __repr__  # type: ignore
     data_clz.display = display  # type: ignore
-    data_clz.tree_flatten = tree_flatten  # type: ignore
-    data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
+    data_clz.tree.flatten = tree.flatten  # type: ignore
+    data_clz.tree.unflatten = classmethod(tree.unflatten)  # type: ignore
 
     # Assign field lists to the class.
     data_clz.tree_fields = tree_fields  # type: ignore
     data_clz.hashed_fields = hashed_fields  # type: ignore
 
     # Register the class as a JAX PyTree.
-    register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
+    register_pytree_node(data_clz, tree.flatten, data_clz.tree.unflatten)  # type: ignore
 
     # Verify that the generated class is PyTreeLike.
     assert isinstance(data_clz, PyTreeLike)
@@ -156,12 +156,12 @@ def field(pytree_like: bool = True, **kwargs: Any) -&gt; dataclasses.Field:
                 field_info.name, getattr(self, field_info.name), &#34;=&#34;, show_values, indent)
         return retval
 
-    def tree_flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree.flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
         hashed = tuple(getattr(x, name) for name in hashed_fields)
         trees = tuple(getattr(x, name) for name in tree_fields)
         return trees, hashed
 
-    def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+    def tree.unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
         if not isinstance(hashed, tuple):
             raise TypeError
         hashed_args = dict(zip(hashed_fields, hashed))
@@ -171,15 +171,15 @@ def field(pytree_like: bool = True, **kwargs: Any) -&gt; dataclasses.Field:
     # Assign methods to the class.
     data_clz.__repr__ = __repr__  # type: ignore
     data_clz.display = display  # type: ignore
-    data_clz.tree_flatten = tree_flatten  # type: ignore
-    data_clz.tree_unflatten = classmethod(tree_unflatten)  # type: ignore
+    data_clz.tree.flatten = tree.flatten  # type: ignore
+    data_clz.tree.unflatten = classmethod(tree.unflatten)  # type: ignore
 
     # Assign field lists to the class.
     data_clz.tree_fields = tree_fields  # type: ignore
     data_clz.hashed_fields = hashed_fields  # type: ignore
 
     # Register the class as a JAX PyTree.
-    register_pytree_node(data_clz, tree_flatten, data_clz.tree_unflatten)  # type: ignore
+    register_pytree_node(data_clz, tree.flatten, data_clz.tree.unflatten)  # type: ignore
 
     # Verify that the generated class is PyTreeLike.
     assert isinstance(data_clz, PyTreeLike)

@@ -5,9 +5,8 @@ from typing import Any
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from jax import enable_custom_prng, jit, vmap
+from jax import enable_custom_prng, jit, tree, vmap
 from jax.random import key
-from jax.tree_util import tree_flatten
 from pytest import CaptureFixture
 from rich.console import Console
 
@@ -230,7 +229,7 @@ def test_pytreedef(capsys: CaptureFixture[str],
         x: int
         y: int
 
-    _, tree_def = tree_flatten(C(1, 2))
+    _, tree_def = tree.flatten(C(1, 2))
 
     print_generic(tree_def, console=console)
     assert isinstance(console.file, StringIO)

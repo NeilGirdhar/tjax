@@ -4,7 +4,7 @@ from collections.abc import Callable
 from typing import Generic, TypeVar
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map
+from jax import tree
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass
@@ -37,7 +37,7 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
 
     @override
     def init(self, parameters: Weights) -> SMDState[Weights]:
-        z = tree_map(jnp.zeros_like, parameters)
+        z = tree.map(jnp.zeros_like, parameters)
         return SMDState[Weights](z, z)
 
     @override
@@ -47,17 +47,17 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
                             parameters: Weights | None,
                             hessian_vector_product: Callable[[Weights], Weights]) -> (
                                 tuple[Weights, SMDState[Weights]]):
-        negative_gradient = tree_map(jnp.negative, gradient)  # delta
+        negative_gradient = tree.map(jnp.negative, gradient)  # delta
 
         # Update log-learning rate.
         def g(log_p: RealNumeric, delta: ComplexNumeric, v: ComplexNumeric) -> ComplexNumeric:
             return log_p + self.meta_learning_rate * delta * v
 
-        new_log_learning_rate = tree_map(g, state.log_learning_rate, negative_gradient, state.v)
-        learning_rate = tree_map(jnp.exp, new_log_learning_rate)  # p
+        new_log_learning_rate = tree.map(g, state.log_learning_rate, negative_gradient, state.v)
+        learning_rate = tree.map(jnp.exp, new_log_learning_rate)  # p
 
         # Calculate gradient.
-        gradient = tree_map(jnp.multiply, learning_rate, negative_gradient)
+        gradient = tree.map(jnp.multiply, learning_rate, negative_gradient)
 
         # Update v.
         def f(v: ComplexNumeric,
@@ -66,7 +66,7 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
               hv: ComplexNumeric) -> ComplexNumeric:
             return v + p * delta - hv  # type: ignore[return-value]
 
-        new_v = tree_map(f, state.v, learning_rate, negative_gradient,
+        new_v = tree.map(f, state.v, learning_rate, negative_gradient,
                          hessian_vector_product(state.v))
 
         return gradient, SMDState[Weights](new_log_learning_rate, new_v)

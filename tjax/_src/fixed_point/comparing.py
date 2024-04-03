@@ -4,7 +4,7 @@ from functools import partial
 from typing import Generic
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map, tree_reduce
+from jax import tree
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass
@@ -51,8 +51,8 @@ class ComparingIteratedFunction(
 
     @override
     def converged(self, augmented: ComparingState[State, Comparand]) -> JaxBooleanArray:
-        return tree_reduce(jnp.logical_and,
-                           tree_map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
+        return tree.reduce(jnp.logical_and,
+                           tree.map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
                                     self.extract_comparand(augmented.current_state),
                                     augmented.last_state),
                            jnp.asarray(True))
@@ -67,11 +67,11 @@ class ComparingIteratedFunction(
             The minimum value of rtol that would lead to convergence now.
         """
         comparand = self.extract_comparand(augmented.current_state)
-        abs_last = tree_map(jnp.abs, augmented.last_state)
-        delta = tree_map(jnp.abs, tree_map(jnp.subtract, comparand, augmented.last_state))
-        delta_over_b = tree_map(divide_nonnegative, delta, abs_last)
-        minium_atol = tree_reduce(jnp.maximum,
-                                  tree_map(jnp.amax, delta), jnp.asarray(0.0))
-        minium_rtol = tree_reduce(jnp.maximum,
-                                  tree_map(jnp.amax, delta_over_b), jnp.asarray(0.0))
+        abs_last = tree.map(jnp.abs, augmented.last_state)
+        delta = tree.map(jnp.abs, tree.map(jnp.subtract, comparand, augmented.last_state))
+        delta_over_b = tree.map(divide_nonnegative, delta, abs_last)
+        minium_atol = tree.reduce(jnp.maximum,
+                                  tree.map(jnp.amax, delta), jnp.asarray(0.0))
+        minium_rtol = tree.reduce(jnp.maximum,
+                                  tree.map(jnp.amax, delta_over_b), jnp.asarray(0.0))
         return minium_atol, minium_rtol

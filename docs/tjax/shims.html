@@ -30,7 +30,7 @@
 
 from jax import custom_vjp as jax_custom_vjp
 from jax import numpy as jnp
-from jax.tree_util import tree_map
+from jax.tree_util import tree.map
 
 __all__ = [&#39;custom_vjp&#39;]
 
@@ -118,7 +118,7 @@ class custom_vjp(Generic[R]):
                 not be provided by the user-provided backward pass.
         &#34;&#34;&#34;
         def new_fwd(*args: Any) -&gt; Tuple[R, Any]:
-            zeroed_args = tuple([tree_map(jnp.zeros_like, args[i])
+            zeroed_args = tuple([tree.map(jnp.zeros_like, args[i])
                                  for i in self.nondiff_argnums])
             primal, internal_residuals = fwd(*args)
             return primal, (zeroed_args, internal_residuals)
@@ -284,7 +284,7 @@ f.defvjp(f_fwd, f_bwd)
                 not be provided by the user-provided backward pass.
         &#34;&#34;&#34;
         def new_fwd(*args: Any) -&gt; Tuple[R, Any]:
-            zeroed_args = tuple([tree_map(jnp.zeros_like, args[i])
+            zeroed_args = tuple([tree.map(jnp.zeros_like, args[i])
                                  for i in self.nondiff_argnums])
             primal, internal_residuals = fwd(*args)
             return primal, (zeroed_args, internal_residuals)
@@ -340,7 +340,7 @@ not be provided by the user-provided backward pass.</dd>
             not be provided by the user-provided backward pass.
     &#34;&#34;&#34;
     def new_fwd(*args: Any) -&gt; Tuple[R, Any]:
-        zeroed_args = tuple([tree_map(jnp.zeros_like, args[i])
+        zeroed_args = tuple([tree.map(jnp.zeros_like, args[i])
                              for i in self.nondiff_argnums])
         primal, internal_residuals = fwd(*args)
         return primal, (zeroed_args, internal_residuals)

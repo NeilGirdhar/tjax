@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import Any, Generic, TypeVar
 
 import jax.numpy as jnp
-from jax import vjp
-from jax.tree_util import tree_map
+from jax import tree, vjp
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass
@@ -205,7 +204,7 @@ class _ZIterate(ComparingIteratedFunctionWithCombinator[
 
         _, df_by_dx = vjp(f_of_x, theta.x_star_differentiand)
         df_by_dx_times_z, = df_by_dx(z)
-        return tree_map(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
+        return tree.map(jnp.add, theta.x_star_bar_differentiand, df_by_dx_times_z)
 
     @override
     def extract_comparand(self, state: Differentiand) -> Differentiand:

@@ -177,8 +177,8 @@ the generated tensor.</p></div>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="tjax.generator.Generator.tree_unflatten"><code class="name flex">
-<span>def <span class="ident">tree_unflatten</span></span>(<span>hashed: Hashable, trees: Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]]) ‑> ~T</span>
+<dt id="tjax.generator.Generator.tree.unflatten"><code class="name flex">
+<span>def <span class="ident">tree.unflatten</span></span>(<span>hashed: Hashable, trees: Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]]) ‑> ~T</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -186,7 +186,7 @@ the generated tensor.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+<pre><code class="python">def tree.unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
     if not isinstance(hashed, tuple):
         raise TypeError
     hashed_args = dict(zip(hashed_fields, hashed))
@@ -327,8 +327,8 @@ assert c1.x == 3 and c1.y == 2</p></div>
     return [Generator(key=key) for key in keys]</code></pre>
 </details>
 </dd>
-<dt id="tjax.generator.Generator.tree_flatten"><code class="name flex">
-<span>def <span class="ident">tree_flatten</span></span>(<span>x: ~T) ‑> Tuple[Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, <a title="tjax.pytree_like.PyTreeLike" href="pytree_like.html#tjax.pytree_like.PyTreeLike">PyTreeLike</a>, Tuple[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], ...], List[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], Dict[Hashable, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], NoneType]], Hashable]</span>
+<dt id="tjax.generator.Generator.tree.flatten"><code class="name flex">
+<span>def <span class="ident">tree.flatten</span></span>(<span>x: ~T) ‑> Tuple[Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, <a title="tjax.pytree_like.PyTreeLike" href="pytree_like.html#tjax.pytree_like.PyTreeLike">PyTreeLike</a>, Tuple[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], ...], List[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], Dict[Hashable, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], NoneType]], Hashable]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -336,7 +336,7 @@ assert c1.x == 3 and c1.y == 2</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tree_flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+<pre><code class="python">def tree.flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
     hashed = tuple(getattr(x, name) for name in hashed_fields)
     trees = tuple(getattr(x, name) for name in tree_fields)
     return trees, hashed</code></pre>
@@ -370,8 +370,8 @@ assert c1.x == 3 and c1.y == 2</p></div>
 <li><code><a title="tjax.generator.Generator.replace" href="#tjax.generator.Generator.replace">replace</a></code></li>
 <li><code><a title="tjax.generator.Generator.split" href="#tjax.generator.Generator.split">split</a></code></li>
 <li><code><a title="tjax.generator.Generator.tree_fields" href="#tjax.generator.Generator.tree_fields">tree_fields</a></code></li>
-<li><code><a title="tjax.generator.Generator.tree_flatten" href="#tjax.generator.Generator.tree_flatten">tree_flatten</a></code></li>
-<li><code><a title="tjax.generator.Generator.tree_unflatten" href="#tjax.generator.Generator.tree_unflatten">tree_unflatten</a></code></li>
+<li><code><a title="tjax.generator.Generator.tree.flatten" href="#tjax.generator.Generator.tree.flatten">tree.flatten</a></code></li>
+<li><code><a title="tjax.generator.Generator.tree.unflatten" href="#tjax.generator.Generator.tree.unflatten">tree.unflatten</a></code></li>
 </ul>
 </li>
 </ul>

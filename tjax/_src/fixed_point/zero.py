@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Generic
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map, tree_reduce
+from jax import tree
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass
@@ -48,8 +48,8 @@ class ZeroIteratedFunction(
         def all_close_zero(x: Any) -> JaxBooleanArray:
             return jnp.all(jnp.abs(x) < self.atol)
 
-        return tree_reduce(jnp.logical_and,
-                           tree_map(all_close_zero, comparand),
+        return tree.reduce(jnp.logical_and,
+                           tree.map(all_close_zero, comparand),
                            jnp.asarray(True))
 
     @override
@@ -62,9 +62,9 @@ class ZeroIteratedFunction(
             The minimum value of rtol that would lead to convergence now.
         """
         comparand = self.extract_comparand(augmented.current_state)
-        abs_comparand = tree_map(jnp.abs, comparand)
-        minium_atol = tree_reduce(jnp.maximum,
-                                  tree_map(jnp.amax, abs_comparand), jnp.asarray(0.0))
+        abs_comparand = tree.map(jnp.abs, comparand)
+        minium_atol = tree.reduce(jnp.maximum,
+                                  tree.map(jnp.amax, abs_comparand), jnp.asarray(0.0))
         return minium_atol, jnp.array(0.0)
 
 

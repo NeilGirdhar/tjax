@@ -33,7 +33,7 @@ from typing import Any, Optional, cast
 import numpy as np
 from jax import numpy as jnp
 from jax.interpreters.xla import DeviceArray
-from jax.tree_util import tree_multimap, tree_reduce
+from jax.tree_util import tree_multimap, tree.reduce
 
 from .annotations import PyTree
 from .dtypes import default_atol, default_rtol
@@ -134,7 +134,7 @@ def jax_allclose(actual: PyTree,
 
     return cast(
         bool,
-        tree_reduce(jnp.logical_and,
+        tree.reduce(jnp.logical_and,
                     tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
                     True))
 
@@ -371,7 +371,7 @@ same type as actual and desired, but contains different values.</dd>
 
     return cast(
         bool,
-        tree_reduce(jnp.logical_and,
+        tree.reduce(jnp.logical_and,
                     tree_multimap(partial(np.allclose, rtol=rtol, atol=atol), actual, desired),
                     True))</code></pre>
 </details>

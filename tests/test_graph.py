@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from jax import jit
-from jax.tree_util import tree_flatten, tree_flatten_with_path, tree_unflatten
+from jax import jit, tree
+from jax.tree_util import tree_flatten_with_path
 
 from tjax import register_graph_as_jax_pytree
 
@@ -33,8 +33,8 @@ def f(x: nx.DiGraph[Any]) -> nx.DiGraph[Any]:
 
 
 def test_rebuild(graph: nx.DiGraph[Any]) -> None:
-    values, tree_def = tree_flatten(graph)
-    rebuilt_graph = tree_unflatten(tree_def, values)
+    values, tree_def = tree.flatten(graph)
+    rebuilt_graph = tree.unflatten(tree_def, values)
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
 
@@ -44,7 +44,7 @@ def test_rebuild_jit(graph: nx.DiGraph[Any]) -> None:
 
 
 def test_flatten_flavors(graph: nx.DiGraph[Any]) -> None:
-    values_a, tree_def_a = tree_flatten(graph)
+    values_a, tree_def_a = tree.flatten(graph)
     keys_and_values, tree_def_b = tree_flatten_with_path(graph)
     key_paths, values_b = zip(*keys_and_values, strict=True)
     assert hash(tree_def_a) == hash(tree_def_b)

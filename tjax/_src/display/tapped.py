@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any, TypeVar, overload
 
+from jax import tree
 from jax.experimental.host_callback import id_tap
-from jax.tree_util import tree_flatten, tree_unflatten
 from rich.console import Console
 
 from ..annotations import TapFunctionTransforms
@@ -55,12 +55,12 @@ def tapped_print_generic(*args: Any,
         kwargs: Keyword arguments to be printed.  Only static keys and dynamic values are allowed.
     Returns: The value of result, or else the lone element of args and kwargs.
     """
-    leaves, tree_def = tree_flatten((args, kwargs))
+    leaves, tree_def = tree.flatten((args, kwargs))
 
     def tap(tap_leaves: list[Any],
             transforms: TapFunctionTransforms
             ) -> None:
-        args, kwargs = tree_unflatten(tree_def, tap_leaves)
+        args, kwargs = tree.unflatten(tree_def, tap_leaves)
         batch_dims: BatchDimensions = None
         flags = []
         for transform_name, transform_dict in transforms:

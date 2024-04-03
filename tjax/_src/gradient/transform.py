@@ -4,7 +4,7 @@ from collections.abc import Callable
 from typing import Generic, TypeVar
 
 import jax.numpy as jnp
-from jax.tree_util import tree_map, tree_reduce
+from jax import tree
 from typing_extensions import Self, override
 
 from tjax.dataclasses import dataclass
@@ -108,8 +108,8 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
         This uses the outer product approximation of the Hessian.
         """
         def hessian_vector_product(v: Weights) -> Weights:
-            d = tree_reduce(jnp.add, tree_map(jnp.vdot, gradient, v), 0.0)  # type: ignore[arg-type]
-            return tree_map(lambda x: x * d, gradient)
+            d = tree.reduce(jnp.add, tree.map(jnp.vdot, gradient, v), 0.0)  # type: ignore[arg-type]
+            return tree.map(lambda x: x * d, gradient)
 
         return self.second_order_update(gradient, state, parameters, hessian_vector_product)
 
@@ -167,7 +167,7 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
         Hessian.
         """
         return self.third_order_update(gradient, state, parameters, hessian_vector_product,
-                                       tree_map(abs_square, gradient))
+                                       tree.map(abs_square, gradient))
 
     def third_order_update(self,
                            gradient: Weights,

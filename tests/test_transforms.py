@@ -6,7 +6,7 @@ import chex
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from jax.tree_util import tree_map
+from jax import tree
 from optax import apply_updates
 
 from tjax import RealArray
@@ -39,7 +39,7 @@ def test_scalers(constructor: Callable[[], GradientTransformation[Any, Any]]) ->
 
     updates, state = transform_fn(per_step_updates, state, params)
     chex.assert_tree_all_finite((params, updates, state))
-    tree_map(lambda *args: chex.assert_equal_shape(args), params, updates)
+    tree.map(lambda *args: chex.assert_equal_shape(args), params, updates)
 
 
 def test_add_decayed_weights() -> None:
@@ -161,7 +161,7 @@ def test_scale() -> None:
         # Manually scale updates.
         def rescale(t: Any, *, factor: float = factor) -> Any:
             return t * factor
-        manual_updates = tree_map(rescale, updates)
+        manual_updates = tree.map(rescale, updates)
         # Check the rescaled updates match.
         chex.assert_trees_all_close(scaled_updates, manual_updates)
 

@@ -39,7 +39,7 @@ T = TypeVar(&#39;T&#39;, bound=nx.Graph)
 
 
 def register_graph_as_jax_pytree(cls: Type[T]) -&gt; None:
-    def tree_unflatten(hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+    def tree.unflatten(hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
         node_dicts, edge_dicts = trees
 
         if not isinstance(node_dicts, dict):
@@ -54,11 +54,11 @@ def register_graph_as_jax_pytree(cls: Type[T]) -&gt; None:
 
         return graph
 
-    def tree_flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+    def tree.flatten(self: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
         # https://github.com/python/mypy/issues/8768
         return ((dict(self.nodes), dict(self.edges)), None)  # type: ignore
 
-    register_pytree_node(cls, tree_flatten, tree_unflatten)
+    register_pytree_node(cls, tree.flatten, tree.unflatten)
 
 
 register_graph_as_jax_pytree(nx.Graph)

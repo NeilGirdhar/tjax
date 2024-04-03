@@ -200,8 +200,8 @@ def create(cls: Type[T], shape: Tuple[int, ...]) -&gt; T:
     return LogCotangent(jnp.zeros(shape))</code></pre>
 </details>
 </dd>
-<dt id="tjax.log_cotangent.LogCotangent.tree_unflatten"><code class="name flex">
-<span>def <span class="ident">tree_unflatten</span></span>(<span>hashed: Hashable, trees: Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]]) ‑> ~T</span>
+<dt id="tjax.log_cotangent.LogCotangent.tree.unflatten"><code class="name flex">
+<span>def <span class="ident">tree.unflatten</span></span>(<span>hashed: Hashable, trees: Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]]) ‑> ~T</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -209,7 +209,7 @@ def create(cls: Type[T], shape: Tuple[int, ...]) -&gt; T:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tree_unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
+<pre><code class="python">def tree.unflatten(cls: Type[T], hashed: Hashable, trees: Sequence[PyTree]) -&gt; T:
     if not isinstance(hashed, tuple):
         raise TypeError
     hashed_args = dict(zip(hashed_fields, hashed))
@@ -337,8 +337,8 @@ assert c1.x == 3 and c1.y == 2</p></div>
     return obj.__class__(**changes)</code></pre>
 </details>
 </dd>
-<dt id="tjax.log_cotangent.LogCotangent.tree_flatten"><code class="name flex">
-<span>def <span class="ident">tree_flatten</span></span>(<span>x: ~T) ‑> Tuple[Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, <a title="tjax.pytree_like.PyTreeLike" href="pytree_like.html#tjax.pytree_like.PyTreeLike">PyTreeLike</a>, Tuple[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], ...], List[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], Dict[Hashable, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], NoneType]], Hashable]</span>
+<dt id="tjax.log_cotangent.LogCotangent.tree.flatten"><code class="name flex">
+<span>def <span class="ident">tree.flatten</span></span>(<span>x: ~T) ‑> Tuple[Sequence[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, <a title="tjax.pytree_like.PyTreeLike" href="pytree_like.html#tjax.pytree_like.PyTreeLike">PyTreeLike</a>, Tuple[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType], ...], List[Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], Dict[Hashable, Union[numpy.ndarray, jax.numpy.lax_numpy.ndarray, ForwardRef('PyTreeLike'), Tuple[ForwardRef('PyTree'), ...], List[ForwardRef('PyTree')], Dict[Hashable, ForwardRef('PyTree')], NoneType]], NoneType]], Hashable]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -346,7 +346,7 @@ assert c1.x == 3 and c1.y == 2</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def tree_flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
+<pre><code class="python">def tree.flatten(x: T) -&gt; Tuple[Sequence[PyTree], Hashable]:
     hashed = tuple(getattr(x, name) for name in hashed_fields)
     trees = tuple(getattr(x, name) for name in tree_fields)
     return trees, hashed</code></pre>
@@ -379,8 +379,8 @@ assert c1.x == 3 and c1.y == 2</p></div>
 <li><code><a title="tjax.log_cotangent.LogCotangent.hashed_fields" href="#tjax.log_cotangent.LogCotangent.hashed_fields">hashed_fields</a></code></li>
 <li><code><a title="tjax.log_cotangent.LogCotangent.replace" href="#tjax.log_cotangent.LogCotangent.replace">replace</a></code></li>
 <li><code><a title="tjax.log_cotangent.LogCotangent.tree_fields" href="#tjax.log_cotangent.LogCotangent.tree_fields">tree_fields</a></code></li>
-<li><code><a title="tjax.log_cotangent.LogCotangent.tree_flatten" href="#tjax.log_cotangent.LogCotangent.tree_flatten">tree_flatten</a></code></li>
-<li><code><a title="tjax.log_cotangent.LogCotangent.tree_unflatten" href="#tjax.log_cotangent.LogCotangent.tree_unflatten">tree_unflatten</a></code></li>
+<li><code><a title="tjax.log_cotangent.LogCotangent.tree.flatten" href="#tjax.log_cotangent.LogCotangent.tree.flatten">tree.flatten</a></code></li>
+<li><code><a title="tjax.log_cotangent.LogCotangent.tree.unflatten" href="#tjax.log_cotangent.LogCotangent.tree.unflatten">tree.unflatten</a></code></li>
 </ul>
 </li>
 </ul>

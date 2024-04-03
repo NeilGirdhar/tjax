@@ -9,7 +9,7 @@ from typing import Any
 import jax
 import jax.numpy as jnp
 import numpy as np
-from jax.tree_util import tree_flatten, tree_map, tree_reduce
+from jax import tree
 
 from .annotations import Array, PyTree
 from .dtypes import default_tols
@@ -70,8 +70,8 @@ def assert_tree_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the assertion.
         atol: The absolute tolerance of the comparisons in the assertion.
     """
-    flattened_actual, structure_actual = tree_flatten(actual)
-    flattened_desired, structure_desired = tree_flatten(desired)
+    flattened_actual, structure_actual = tree.flatten(actual)
+    flattened_desired, structure_desired = tree.flatten(desired)
     if structure_actual != structure_desired:
         msg = f"\nTree structure mismatch.\nActual: {actual}\nDesired: {desired}\n"
         raise AssertionError(msg)
@@ -117,7 +117,7 @@ def tree_allclose(actual: PyTree,
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         return bool(jnp.allclose(actual_array, desired_array, **tols))
 
-    return tree_reduce(and_, tree_map(allclose, actual, desired), True)
+    return tree.reduce(and_, tree.map(allclose, actual, desired), True)
 
 
 # get test string ----------------------------------------------------------------------------------

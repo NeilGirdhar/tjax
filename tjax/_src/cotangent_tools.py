@@ -5,8 +5,7 @@ from functools import partial
 from typing import Any, TypeVar, cast
 
 import jax.numpy as jnp
-from jax import vjp
-from jax.tree_util import tree_map, tree_structure
+from jax import tree, vjp
 
 from .annotations import JaxRealArray, RealNumeric
 from .display.tapped import tapped_print_generic
@@ -33,7 +32,7 @@ def scale_cotangent(x: X, scale: RealNumeric) -> X:
 def _scale_cotangent_jvp(scale: RealNumeric, primals: tuple[X], tangents: tuple[X]) -> tuple[X, X]:
     x, = primals
     x_dot, = tangents
-    scaled_x_dot = tree_map(lambda x_dot_i: x_dot_i * scale, x_dot)
+    scaled_x_dot = tree.map(lambda x_dot_i: x_dot_i * scale, x_dot)
     return x, scaled_x_dot
 
 
@@ -45,12 +44,12 @@ scale_cotangent.defjvp(_scale_cotangent_jvp)  # pyright: ignore
 # copy_cotangent -----------------------------------------------------------------------------------
 @custom_vjp
 def copy_cotangent(x: X, y: X) -> X:
-    assert tree_structure(x) == tree_structure(y)
+    assert tree.structure(x) == tree.structure(y)
     return x
 
 
 def _copy_cotangent_fwd(x: X, y: X) -> tuple[X, None]:
-    assert tree_structure(x) == tree_structure(y)
+    assert tree.structure(x) == tree.structure(y)
     return x, None
 
 
@@ -66,17 +65,17 @@ copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 # replace_cotangent --------------------------------------------------------------------------------
 @custom_vjp
 def replace_cotangent(x: X, new_cotangent: X) -> X:
-    assert tree_structure(x) == tree_structure(new_cotangent)
+    assert tree.structure(x) == tree.structure(new_cotangent)
     return x
 
 
 def _replace_cotangent_fwd(x: X, new_cotangent: X) -> tuple[X, X]:
-    assert tree_structure(x) == tree_structure(new_cotangent)
+    assert tree.structure(x) == tree.structure(new_cotangent)
     return x, new_cotangent
 
 
 def _replace_cotangent_bwd(residuals: X, x_bar: X) -> tuple[X, X]:
-    assert tree_structure(residuals) == tree_structure(x_bar)
+    assert tree.structure(residuals) == tree.structure(x_bar)
     return residuals, x_bar
 
 
@@ -145,12 +144,12 @@ def _cotangent_combinator_bwd(f: Callable[..., tuple[XT, Y]],
     xs_bar, y_bar = xy_bar
     if aux_cotangent_scales is None:
         aux_cotangent_scales = tuple(1.0 for _ in xs_bar)
-    xs_zero = tuple(tree_map(jnp.zeros_like, x_bar)
+    xs_zero = tuple(tree.map(jnp.zeros_like, x_bar)
                     for x_bar in xs_bar)
     all_args_bar = []
     for i, (x_bar, aux_cotangent_scale) in enumerate(zip(xs_bar, aux_cotangent_scales,
                                                          strict=True)):
-        scaled_y_bar = tree_map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale,
+        scaled_y_bar = tree.map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale,
                                 y_bar)
         this_xs_bar = cast(XT, (xs_zero[:i]
                                 + (x_bar,)
@@ -171,7 +170,7 @@ def augment_cotangent(loss: JaxRealArray,
                       cotangent_addend: X
                       ) -> JaxRealArray:
     """Create a cotangent for x equal to the cotangent_addend times the loss cotangent."""
-    assert tree_structure(x) == tree_structure(cotangent_addend)
+    assert tree.structure(x) == tree.structure(cotangent_addend)
     return loss
 
 
@@ -180,14 +179,14 @@ def _augment_cotangent_fwd(loss: JaxRealArray,
                            x: X,
                            cotangent_addend: X
                            ) -> tuple[JaxRealArray, X]:
-    assert tree_structure(x) == tree_structure(cotangent_addend)
+    assert tree.structure(x) == tree.structure(cotangent_addend)
     return loss, cotangent_addend
 
 
 def _augment_cotangent_bwd(cotangent_addend: X,
                            loss_bar: JaxRealArray
                            ) -> tuple[None, X, None]:
-    x_bar = tree_map(lambda x: x * loss_bar, cotangent_addend)
+    x_bar = tree.map(lambda x: x * loss_bar, cotangent_addend)
     return (None, x_bar, None)
 
 
