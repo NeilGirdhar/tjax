@@ -10,13 +10,7 @@ from jax import float0
 from .annotations import (Array, BooleanNumeric, ComplexNumeric, IntegralNumeric, JaxArray,
                           JaxComplexArray, JaxRealArray, NumpyRealArray, RealNumeric)
 
-__all__ = [
-    'abs_square',
-    'divide_nonnegative',
-    'divide_where',
-    'inverse_softplus',
-    'is_scalar',
-    'zero_tangent_like']
+__all__ = []
 
 
 def is_scalar(x: Any) -> bool:
@@ -25,6 +19,37 @@ def is_scalar(x: Any) -> bool:
 
 def abs_square(x: ComplexNumeric) -> JaxRealArray:
     return jnp.square(x.real) + jnp.square(x.imag)
+
+
+def outer_product(x: JaxRealArray, y: None | JaxRealArray = None) -> JaxRealArray:
+    """Return the broadcasted outer product of a vector with itself.
+
+    This is jnp.einsum("...i,...j->...ij", x, y).
+    """
+    if y is None:
+        y = x
+    xi = jnp.reshape(x, (*x.shape, 1))
+    yj = jnp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
+    return xi * yj
+
+
+def matrix_vector_mul(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+    """Return the matrix-vector product.
+
+    This is jnp.einsum("...ij,...j->...i", x, y)
+    """
+    y = jnp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
+    return jnp.sum(x * y, axis=-1)
+
+
+def matrix_dot_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+    """Return the "matrix dot product" of a matrix with the outer product of a vector.
+
+    This equals:
+    * jnp.einsum("...ij,...ij", x, y)
+    * jnp.sum(x * y, axis=(-2, -1))
+    """
+    return jnp.trace(np.swapaxes(x, -2, -1) @ y, axis1=-2, axis2=-1)
 
 
 @overload

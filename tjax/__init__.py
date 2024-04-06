@@ -20,7 +20,8 @@ from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pyt
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
-                              is_scalar, zero_tangent_like)
+                              is_scalar, matrix_dot_product, matrix_vector_mul, outer_product,
+                              zero_tangent_like)
 from ._src.numpy_tools import create_diagonal_array, np_abs_square
 from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, jit
@@ -95,7 +96,10 @@ __all__ = [
     'leaky_data_weight',
     'leaky_integrate',
     'leaky_integrate_time_series',
+    'matrix_dot_product',
+    'matrix_vector_mul',
     'np_abs_square',
+    'outer_product',
     'print_cotangent',
     'print_generic',
     'register_graph_as_jax_pytree',
