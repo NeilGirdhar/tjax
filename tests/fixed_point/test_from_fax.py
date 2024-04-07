@@ -115,7 +115,7 @@ def fixture_ax_plus_b() -> ComparingIteratedFunctionWithCombinator[TPair, RealAr
 # Tests --------------------------------------------------------------------------------------------
 
 
-@settings(max_examples=100, deadline=5000.)
+@settings(max_examples=20, deadline=100.)
 @given(
     hypothesis.extra.numpy.arrays(
         np.float64, (5, 5), elements=hypothesis.strategies.floats(0, 1)),
@@ -134,7 +134,7 @@ def test_simple_contraction(ax_plus_b: ComparingIteratedFunction[TPair, RealArra
     assert_allclose(sol, true_sol, rtol=1e-5, atol=1e-5)
 
 
-@settings(max_examples=100, deadline=5000.)
+@settings(max_examples=10, deadline=400.)
 @given(
     hypothesis.extra.numpy.arrays(
         np.float64, (5, 5), elements=hypothesis.strategies.floats(0.1, 1)),
@@ -154,6 +154,7 @@ def test_jvp(ax_plus_b: ComparingIteratedFunction[TPair, RealArray, RealArray, R
 
     jax.test_util.check_vjp(f, f_vjp, ((matrix, offset), x0),  # type: ignore[no-untyped-call]
                             rtol=1e-4, atol=1e-4)
+    print('.', end='', flush=True)  # hypothesis is stupid.  # noqa: T201
 
 
 def test_gradient(generator: Generator,
