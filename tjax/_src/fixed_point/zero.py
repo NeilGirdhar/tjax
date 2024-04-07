@@ -25,7 +25,7 @@ class ZeroIteratedFunction(
     @override
     def initial_augmented(self, initial_state: State) -> AugmentedState[State]:
         return AugmentedState(current_state=initial_state,
-                              iterations=0)
+                              iterations=jnp.asarray(0))
 
     @override
     def expected_state(self, theta: Parameters, state: State) -> State:

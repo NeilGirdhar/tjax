@@ -31,7 +31,7 @@ class ComparingIteratedFunction(
     @override
     def initial_augmented(self, initial_state: State) -> ComparingState[State, Comparand]:
         return ComparingState(current_state=initial_state,
-                              iterations=0,
+                              iterations=jnp.asarray(0),
                               last_state=self.extract_comparand(initial_state))
 
     @override

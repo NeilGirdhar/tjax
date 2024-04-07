@@ -4,12 +4,12 @@ from functools import partial
 from typing import Generic
 
 import jax.numpy as jnp
-from jax import tree
+from jax import Array, tree
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import ComplexNumeric, JaxBooleanArray, JaxComplexArray, JaxRealArray
+from ..annotations import ComplexArray, JaxBooleanArray, JaxRealArray
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..math_tools import abs_square, divide_nonnegative
 from .augmented import AugmentedState, State
@@ -33,7 +33,7 @@ class StochasticIteratedFunction(
     It converges when an exponentially decaying window has nearly zero variance.
     """
 
-    convergence_detection_decay: float | JaxRealArray
+    convergence_detection_decay: JaxRealArray
 
     # Implemented methods --------------------------------------------------------------------------
     @override
@@ -41,7 +41,7 @@ class StochasticIteratedFunction(
         comparand = self.extract_comparand(initial_state)
         zero_comparand = tree.map(jnp.zeros_like, comparand)
         return StochasticState(current_state=initial_state,
-                               iterations=0,
+                               iterations=jnp.asarray(0),
                                mean_state=zero_comparand,
                                second_moment_state=zero_comparand)
 
@@ -50,8 +50,8 @@ class StochasticIteratedFunction(
                           new_state: State,
                           augmented: StochasticState[State, Comparand]) -> (
                               StochasticState[State, Comparand]):
-        def f(value: ComplexNumeric, drift: ComplexNumeric) -> JaxComplexArray:
-            return leaky_integrate(value, 1.0, drift, self.convergence_detection_decay,
+        def f(value: ComplexArray, drift: ComplexArray) -> ComplexArray:
+            return leaky_integrate(value, jnp.asarray(1.0), drift, self.convergence_detection_decay,
                                    leaky_average=True)
 
         mean_state, second_moment_state = self._sufficient_statistics(augmented.current_state)
@@ -95,6 +95,8 @@ class StochasticIteratedFunction(
         minimum_rtol = divide_nonnegative(tree.reduce(jnp.maximum,  # type: ignore[arg-type]
                                                       tree.map(jnp.amax, scaled_variance), 0.0),
                                           data_weight)
+        assert isinstance(minimum_atol, Array)
+        assert isinstance(minimum_rtol, Array)
         return minimum_atol, minimum_rtol
 
     # Private methods ------------------------------------------------------------------------------

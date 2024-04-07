@@ -128,7 +128,7 @@ def fixture_noisy_it_fun() -> NoisyNewtonsMethod:
                               atol=1e-4,
                               z_minimum_iterations=11,
                               z_maximum_iterations=1000,
-                              convergence_detection_decay=0.05,
+                              convergence_detection_decay=jnp.asarray(0.05),
                               f=squared_error,
                               step_size=0.05)
 

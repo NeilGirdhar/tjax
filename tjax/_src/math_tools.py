@@ -1,104 +1,95 @@
 from __future__ import annotations
 
-from typing import overload
+from typing import cast
 
-import jax.numpy as jnp
-import numpy as np
-from jax import float0
+from array_api_compat import get_namespace
 
-from .annotations import (Array, BooleanNumeric, ComplexNumeric, IntegralNumeric, JaxComplexArray,
-                          JaxRealArray, NumpyRealArray, RealNumeric)
+from .annotations import BooleanArray, ComplexArray, IntegralArray, RealArray
 
 
-def abs_square(x: ComplexNumeric) -> JaxRealArray:
-    return jnp.square(x.real) + jnp.square(x.imag)
+def abs_square(x: ComplexArray) -> RealArray:
+    xp = get_namespace(x)
+    return xp.square(x.real) + xp.square(x.imag)
 
 
-def outer_product(x: JaxRealArray, y: None | JaxRealArray = None) -> JaxRealArray:
+# TODO: Remove this when the Array API has it with broadcasting under xp.linalg.norm.
+def outer_product(x: RealArray, y: RealArray) -> RealArray:
     """Return the broadcasted outer product of a vector with itself.
 
-    This is jnp.einsum("...i,...j->...ij", x, y).
+    This is xp.einsum("...i,...j->...ij", x, y).
     """
-    if y is None:
-        y = x
-    xi = jnp.reshape(x, (*x.shape, 1))
-    yj = jnp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
+    xp = get_namespace(x, y)
+    xi = xp.reshape(x, (*x.shape, 1))
+    yj = xp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
     return xi * yj
 
 
-def matrix_vector_mul(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
     """Return the matrix-vector product.
 
-    This is jnp.einsum("...ij,...j->...i", x, y)
-    """
-    y = jnp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
-    return jnp.sum(x * y, axis=-1)
+    This is xp.einsum("...ij,...j->...i", x, y).
+
+    Note the speed difference:
+    * 14.3 µs: xp.vecdot(matrix_vector_mul(m, x), x)
+    * 4.44 µs: np.einsum("...i,...ij,...j->...", x, m, x)
+    """  # noqa: RUF002
+    xp = get_namespace(x, y)
+    y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
+    return xp.sum(x * y, axis=-1)
 
 
-def matrix_dot_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
     """Return the "matrix dot product" of a matrix with the outer product of a vector.
 
     This equals:
-    * jnp.einsum("...ij,...ij", x, y)
-    * jnp.sum(x * y, axis=(-2, -1))
-    """
-    return jnp.trace(np.swapaxes(x, -2, -1) @ y, axis1=-2, axis2=-1)
+    * 1.19 µs: xp.einsum("...ij,...ij", x, y)
+    * 1.77 µs: xp.sum(x * y, axis=(-2, -1))
+    # 3.87 µs: xp.linalg.trace(xp.moveaxis(x, -2, -1) @ y)
+    """  # noqa: RUF002
+    xp = get_namespace(x, y)
+    return xp.sum(x * y, axis=(-2, -1))
 
 
-@overload
-def divide_where(dividend: RealNumeric,
-                 divisor: RealNumeric | IntegralNumeric,
+def divide_where(dividend: ComplexArray,
+                 divisor: ComplexArray | IntegralArray,
                  *,
-                 where: BooleanNumeric | None = None,
-                 otherwise: RealNumeric | None = None) -> JaxRealArray:
-    ...
-
-
-@overload
-def divide_where(dividend: ComplexNumeric,
-                 divisor: ComplexNumeric | IntegralNumeric,
-                 *,
-                 where: BooleanNumeric | None = None,
-                 otherwise: ComplexNumeric | None = None) -> JaxComplexArray:
-    ...
-
-
-def divide_where(dividend: ComplexNumeric,
-                 divisor: ComplexNumeric | IntegralNumeric,
-                 *,
-                 where: BooleanNumeric | None = None,
-                 otherwise: ComplexNumeric | None = None) -> JaxComplexArray:
+                 where: BooleanArray | None = None,
+                 otherwise: ComplexArray | None = None) -> ComplexArray:
     """Return the quotient or a special value when a condition is false.
 
-    Returns: `jnp.where(where, dividend / divisor, otherwise)`, but without evaluating
+    Returns: `xp.where(where, dividend / divisor, otherwise)`, but without evaluating
     `dividend / divisor` when `where` is false.  This prevents some exceptions.
     """
     if where is None:
         assert otherwise is None
-        return jnp.true_divide(dividend, divisor)
+        xp = get_namespace(dividend, divisor)
+        return xp.true_divide(dividend, divisor)
     assert otherwise is not None
-    dividend = jnp.where(where, dividend, 1.0)
-    divisor = jnp.where(where, divisor, 1.0)
-    quotient: JaxComplexArray = jnp.true_divide(dividend, divisor)
-    return jnp.where(where, quotient, otherwise)
+    xp = get_namespace(dividend, divisor, where, otherwise)
+    dividend = xp.where(where, dividend, 1.0)
+    divisor = xp.where(where, divisor, 1.0)
+    quotient: ComplexArray = xp.true_divide(dividend, divisor)
+    return xp.where(where, quotient, otherwise)
 
 
-def divide_nonnegative(dividend: RealNumeric, divisor: RealNumeric) -> JaxRealArray:
+def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
     """Quotient for use with positive reals that never returns NaN.
 
     Returns: The quotient assuming that the dividend and divisor are nonnegative, and infinite
     whenever the divisor equals zero.
     """
-    return divide_where(dividend, divisor, where=divisor > 0.0, otherwise=jnp.inf)
+    xp = get_namespace(dividend, divisor)
+    return cast(RealArray, divide_where(dividend, divisor, where=divisor > 0.0, otherwise=xp.inf))
 
 
-def zero_tangent_like(value: Array) -> NumpyRealArray:
-    if jnp.issubdtype(value.dtype, jnp.inexact):
-        return np.zeros_like(value)
-    return np.zeros_like(value, dtype=float0)
+# Remove when https://github.com/scipy/scipy/pull/18605 is released.
+def softplus(x: RealArray) -> RealArray:
+    xp = get_namespace(x)
+    return xp.logaddexp(xp.asarray(0.0), x)
 
 
-def inverse_softplus(y: RealNumeric) -> JaxRealArray:
-    return jnp.where(y > 80.0,  # noqa: PLR2004
-                     y,
-                     jnp.log(jnp.expm1(y)))
+def inverse_softplus(y: RealArray) -> RealArray:
+    xp = get_namespace(y)
+    return xp.where(y > 80.0,  # noqa: PLR2004
+                    y,
+                    xp.log(xp.expm1(y)))

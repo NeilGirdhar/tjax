@@ -10,7 +10,7 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
                                RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
                                TapFunctionTransforms)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
-                                   replace_cotangent, scale_cotangent)
+                                   replace_cotangent, scale_cotangent, zero_tangent_like)
 from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
@@ -20,9 +20,8 @@ from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pyt
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
-                              matrix_dot_product, matrix_vector_mul, outer_product,
-                              zero_tangent_like)
-from ._src.numpy_tools import create_diagonal_array, np_abs_square
+                              matrix_dot_product, matrix_vector_mul, outer_product, softplus)
+from ._src.numpy_tools import create_diagonal_array
 from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
@@ -98,7 +97,6 @@ __all__ = [
     'leaky_integrate_time_series',
     'matrix_dot_product',
     'matrix_vector_mul',
-    'np_abs_square',
     'outer_product',
     'print_cotangent',
     'print_generic',
@@ -106,6 +104,7 @@ __all__ = [
     'register_graph_as_nnx_node',
     'replace_cotangent',
     'scale_cotangent',
+    'softplus',
     'tree_allclose',
     'tree_map_with_path',
     'zero_tangent_like',

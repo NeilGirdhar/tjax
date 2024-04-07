@@ -115,7 +115,7 @@ def test_use_classes(theta: float) -> None:
                                    atol=1e-2,
                                    z_minimum_iterations=11,
                                    z_maximum_iterations=1000,
-                                   convergence_detection_decay=0.1,
+                                   convergence_detection_decay=jnp.asarray(0.1),
                                    time_step=0.01)
 
     encoding = EncodingElement(theta)

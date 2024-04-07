@@ -1,44 +1,26 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import overload
 
 import jax.numpy as jnp
 import numpy as np
+from array_api_compat import get_namespace
+from jax import Array
+from jax.dtypes import canonicalize_dtype
 from jax.lax import scan
 from jax.random import normal
 
-from .annotations import (ComplexArray, ComplexNumeric, JaxComplexArray, JaxRealArray, KeyArray,
-                          RealArray, RealNumeric)
+from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxRealArray, KeyArray,
+                          RealArray)
 from .dataclasses.dataclass import dataclass
 
 
-@overload
-def leaky_integrate(value: RealNumeric,
-                    time_step: RealNumeric,
-                    drift: RealNumeric | None = None,
-                    decay: RealNumeric | None = None,
+def leaky_integrate(value: ComplexArray,
+                    time_step: RealArray,
+                    drift: ComplexArray | None = None,
+                    decay: ComplexArray | None = None,
                     *,
-                    leaky_average: bool = False) -> JaxRealArray:
-    ...
-
-
-@overload
-def leaky_integrate(value: ComplexNumeric,
-                    time_step: RealNumeric,
-                    drift: ComplexNumeric | None = None,
-                    decay: ComplexNumeric | None = None,
-                    *,
-                    leaky_average: bool = False) -> JaxComplexArray:
-    ...
-
-
-def leaky_integrate(value: ComplexNumeric,
-                    time_step: RealNumeric,
-                    drift: ComplexNumeric | None = None,
-                    decay: ComplexNumeric | None = None,
-                    *,
-                    leaky_average: bool = False) -> JaxComplexArray:
+                    leaky_average: bool = False) -> ComplexArray:
     """Update the value so that it is the leaky integral (or leaky average).
 
     Args:
@@ -52,54 +34,45 @@ def leaky_integrate(value: ComplexNumeric,
     """
     if drift is None:
         if decay is None:
-            return jnp.asarray(value)
-        return jnp.exp(-decay * time_step) * value
+            return value
+        xp = get_namespace(decay, time_step, value)
+        return xp.exp(-decay * time_step) * value
 
     if decay is None:
         if leaky_average:
             raise ValueError
-        return jnp.asarray(value + drift * time_step)
+        xp = get_namespace(drift, time_step, value)
+        return xp.asarray(value + drift * time_step)
 
-    scaled_integrand = (drift / decay) * -jnp.expm1(-decay * time_step)
+    xp = get_namespace(drift, decay, time_step, value)
+    scaled_integrand = (drift / decay) * -xp.expm1(-decay * time_step)
 
     if leaky_average:
         scaled_integrand *= decay.real
 
-    return jnp.exp(-decay * time_step) * value + scaled_integrand
+    return xp.exp(-decay * time_step) * value + scaled_integrand
 
 
-@overload
-def diffused_leaky_integrate(value: RealArray,
-                             time_step: RealNumeric,
+def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
+                      decay: RealArray
+                      ) -> RealArray:
+    """The amount of data that has been incorporated and has not been decayed.
+
+    This equals leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True).
+    """
+    xp = get_namespace(iterations_times_time_step, decay)
+    return -xp.expm1(-iterations_times_time_step * decay)
+
+
+def diffused_leaky_integrate(value: JaxComplexArray,
+                             time_step: JaxRealArray,
                              rng: KeyArray,
-                             diffusion: RealNumeric,
-                             drift: RealNumeric | None = None,
-                             decay: RealNumeric | None = None,
+                             diffusion: JaxRealArray,
+                             drift: JaxComplexArray | None = None,
+                             decay: JaxComplexArray | None = None,
                              *,
-                             leaky_average: bool = False) -> JaxRealArray:
-    ...
-
-
-@overload
-def diffused_leaky_integrate(value: ComplexArray,
-                             time_step: RealNumeric,
-                             rng: KeyArray,
-                             diffusion: RealNumeric,
-                             drift: ComplexNumeric | None = None,
-                             decay: ComplexNumeric | None = None,
-                             *,
-                             leaky_average: bool = False) -> JaxComplexArray:
-    ...
-
-
-def diffused_leaky_integrate(value: ComplexArray,
-                             time_step: RealNumeric,
-                             rng: KeyArray,
-                             diffusion: RealNumeric,
-                             drift: ComplexNumeric | None = None,
-                             decay: ComplexNumeric | None = None,
-                             *,
-                             leaky_average: bool = False) -> JaxComplexArray:
+                             leaky_average: bool = False
+                             ) -> ComplexArray:
     """Update an Ornstein-Uhlenbeck process.
 
     Args:
@@ -119,43 +92,28 @@ def diffused_leaky_integrate(value: ComplexArray,
     return leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump
 
 
-def leaky_data_weight(iterations_times_time_step: RealNumeric,
-                      decay: RealNumeric) -> JaxRealArray:
-    """The amount of data that has been incorporated and has not been decayed.
-
-    This equals leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True).
-    """
-    return -jnp.expm1(-iterations_times_time_step * decay)
-
-
 @dataclass
 class _FilterCarry:
     iterations: JaxRealArray
     value: JaxComplexArray
 
 
-@overload
-def leaky_integrate_time_series(time_series: RealArray, decay: RealNumeric
-                                ) -> JaxRealArray:
-    ...
-
-
-@overload
-def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
-                                ) -> JaxComplexArray:
-    ...
-
-
-def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
-                                ) -> JaxComplexArray:
+def leaky_integrate_time_series(time_series: IntegralArray | ComplexArray,
+                                decay: ComplexArray
+                                ) -> ComplexArray:
+    xp = get_namespace(time_series, decay)
+    dtype = jnp.promote_types(canonicalize_dtype(time_series.dtype), jnp.float32)
+    time_series = jnp.asarray(time_series, dtype=dtype)
+    decay = jnp.asarray(decay)
     if issubclass(time_series.dtype.type, np.integer):
         msg = "Cast the time series to a floating type."
         raise TypeError(msg)
 
-    def g(carry: _FilterCarry, drift: ComplexNumeric) -> tuple[_FilterCarry, JaxComplexArray]:
+    def g(carry: _FilterCarry, drift: JaxComplexArray) -> tuple[_FilterCarry, JaxComplexArray]:
         new_iterations = carry.iterations + 1.0
         data_weight = leaky_data_weight(new_iterations, decay.real)
-        new_value = leaky_integrate(carry.value, 1.0, drift, decay, leaky_average=True)
+        new_value = leaky_integrate(carry.value, jnp.asarray(1.0), drift, decay, leaky_average=True)
+        assert isinstance(new_value, Array)
         new_carry = _FilterCarry(new_iterations, new_value)
         outputted_value = new_value / data_weight
         return new_carry, outputted_value
@@ -165,32 +123,15 @@ def leaky_integrate_time_series(time_series: ComplexArray, decay: ComplexNumeric
     initial_carry = _FilterCarry(jnp.asarray(0.0), initial_value)
 
     _, filtered_time_series = scan(g, initial_carry, time_series)
-    return filtered_time_series
-
-
-@overload
-def leaky_covariance(x_time_series: RealArray,
-                     y_time_series: RealArray,
-                     decay: RealNumeric,
-                     *,
-                     covariance_matrix: bool = False) -> JaxRealArray:
-    ...
-
-
-@overload
-def leaky_covariance(x_time_series: ComplexArray,
-                     y_time_series: ComplexArray,
-                     decay: ComplexNumeric,
-                     *,
-                     covariance_matrix: bool = False) -> JaxComplexArray:
-    ...
+    return xp.asarray(filtered_time_series)
 
 
 def leaky_covariance(x_time_series: ComplexArray,
                      y_time_series: ComplexArray,
-                     decay: ComplexNumeric,
+                     decay: ComplexArray,
                      *,
-                     covariance_matrix: bool = False) -> JaxComplexArray:
+                     covariance_matrix: bool = False) -> ComplexArray:
+    get_namespace(x_time_series, y_time_series, decay)  # Verify namespace.
     times: Callable[[ComplexArray, ComplexArray], ComplexArray]
     if covariance_matrix:
         if x_time_series.shape[0] != y_time_series.shape[0]:

@@ -5,15 +5,22 @@ from functools import partial
 from typing import Any, TypeVar, cast
 
 import jax.numpy as jnp
-from jax import tree, vjp
+import numpy as np
+from jax import float0, tree, vjp
 
-from .annotations import JaxRealArray, RealNumeric
+from .annotations import JaxComplexArray, JaxRealArray, RealNumeric
 from .display.print_generic import print_generic
 from .shims import custom_jvp, custom_vjp
 
 X = TypeVar('X')
 XT = TypeVar('XT', bound=tuple[Any, ...])
 Y = TypeVar('Y')
+
+
+def zero_tangent_like(value: JaxComplexArray) -> JaxRealArray:
+    if jnp.issubdtype(value.dtype, jnp.inexact):
+        return jnp.zeros_like(value)
+    return np.zeros_like(value, dtype=float0)  # type: ignore  # pyright: ignore
 
 
 # scale_cotangent ----------------------------------------------------------------------------------
