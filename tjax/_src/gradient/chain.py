@@ -9,8 +9,6 @@ from tjax.dataclasses import dataclass
 from ..annotations import PyTree
 from .transform import GradientState, GradientTransformation, Weights
 
-__all__ = ['ChainedGradientState', 'ChainedGradientTransformation']
-
 
 @dataclass
 class ChainedGradientState(GradientState):

@@ -16,28 +16,6 @@ from tjax.dataclasses import dataclass, field
 from ..annotations import IntegralNumeric, KeyArray, RealNumeric
 from .transform import GenericGradientState, GradientTransformation, Weights
 
-__all__ = [
-    'AddDecayedWeights',
-    'AddNoise',
-    'ApplyEvery',
-    'Centralize',
-    'Ema',
-    'Scale',
-    'ScaleByAdam',
-    'ScaleByBelief',
-    'ScaleByParamBlockNorm',
-    'ScaleByParamBlockRMS',
-    'ScaleByRAdam',
-    'ScaleByRms',
-    'ScaleByRss',
-    'ScaleBySM3',
-    'ScaleBySchedule',
-    'ScaleByStddev',
-    'ScaleByTrustRatio',
-    'ScaleByYogi',
-    'Schedule',
-    'Trace']
-
 
 # New classes --------------------------------------------------------------------------------------
 @dataclass

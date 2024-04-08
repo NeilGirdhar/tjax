@@ -13,9 +13,6 @@ from ..annotations import BooleanNumeric, IntegralNumeric, PyTree, RealNumeric
 from .augmented import AugmentedState, State
 from .base import IteratedFunctionBase, Parameters, Trajectory
 
-__all__ = ['IteratedFunction']
-
-
 Comparand = TypeVar('Comparand', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState', bound=AugmentedState[Any])
 

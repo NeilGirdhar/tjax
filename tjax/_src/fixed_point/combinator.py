@@ -15,9 +15,6 @@ from .base import Parameters, Trajectory
 from .comparing import ComparingIteratedFunction, ComparingState
 from .iterated_function import Comparand, IteratedFunction, TheAugmentedState
 
-__all__ = ['ComparingIteratedFunctionWithCombinator', 'IteratedFunctionWithCombinator']
-
-
 Differentiand = TypeVar('Differentiand', bound=PyTree)
 
 

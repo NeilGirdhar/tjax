@@ -5,9 +5,6 @@ from collections.abc import Callable, Mapping
 from dataclasses import MISSING, fields
 from typing import Any, TypeVar, overload
 
-__all__ = ['as_shallow_dict', 'field']
-
-
 T = TypeVar('T')
 
 

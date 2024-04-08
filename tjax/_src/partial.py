@@ -9,9 +9,6 @@ from typing_extensions import override
 
 from .annotations import PyTree
 
-__all__ = ['Partial']
-
-
 R = TypeVar('R')
 
 

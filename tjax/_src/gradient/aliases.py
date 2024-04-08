@@ -15,23 +15,6 @@ from ..annotations import IntegralNumeric, RealNumeric
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 
-__all__ = [
-    'DPSGD',
-    'LARS',
-    'SGD',
-    'SM3',
-    'AdaBelief',
-    'AdaFactor',
-    'AdaGrad',
-    'Adam',
-    'AdamW',
-    'Fromage',
-    'Lamb',
-    'NoisySGD',
-    'RAdam',
-    'RMSProp',
-    'Yogi']
-
 # Types --------------------------------------------------------------------------------------------
 ScalarOrSchedule = float | Schedule
 

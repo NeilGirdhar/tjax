@@ -11,9 +11,6 @@ from tjax.dataclasses import dataclass
 from ..annotations import PyTree
 from .augmented import State
 
-__all__ = ['IteratedFunctionBase']
-
-
 Parameters = TypeVar('Parameters', bound=PyTree)
 Trajectory = TypeVar('Trajectory', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState')

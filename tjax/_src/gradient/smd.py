@@ -12,9 +12,6 @@ from tjax.dataclasses import dataclass
 from ..annotations import ComplexNumeric, PyTree, RealNumeric
 from .transform import GradientState, SecondOrderGradientTransformation
 
-__all__ = ['SMDGradient', 'SMDState']
-
-
 Weights = TypeVar('Weights', bound=PyTree)
 
 

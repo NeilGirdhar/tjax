@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-__all__: list[str] = []
-
-
 solarized = {'base03': '#002b36',
              'base02': '#073642',
              'base01': '#586e75',

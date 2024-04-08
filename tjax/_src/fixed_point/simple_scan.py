@@ -9,8 +9,6 @@ from tjax.dataclasses import dataclass
 from .augmented import State
 from .base import IteratedFunctionBase, Parameters, Trajectory
 
-__all__ = ['SimpleScan']
-
 
 @dataclass
 class SimpleScan(IteratedFunctionBase[Parameters, State, Trajectory, State],

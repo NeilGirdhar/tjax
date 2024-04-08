@@ -3,9 +3,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-__all__ = ['tree_map_with_path']
-
-
 T = TypeVar('T')
 
 

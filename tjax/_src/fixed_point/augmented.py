@@ -6,9 +6,6 @@ from tjax.dataclasses import dataclass
 
 from ..annotations import PyTree
 
-__all__ = ['AugmentedState']
-
-
 State = TypeVar('State', bound=PyTree)
 
 

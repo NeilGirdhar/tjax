@@ -2,8 +2,6 @@ import numpy as np
 
 from .annotations import NumpyComplexArray, NumpyRealArray
 
-__all__ = ['create_diagonal_array', 'np_abs_square']
-
 
 def np_abs_square(x: NumpyComplexArray) -> NumpyRealArray:
     return np.square(x.real) + np.square(x.imag)  # pyright: ignore
