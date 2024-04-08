@@ -1,20 +1,13 @@
 from __future__ import annotations
 
-from numbers import Number
-from typing import Any, overload
+from typing import overload
 
 import jax.numpy as jnp
 import numpy as np
 from jax import float0
 
-from .annotations import (Array, BooleanNumeric, ComplexNumeric, IntegralNumeric, JaxArray,
-                          JaxComplexArray, JaxRealArray, NumpyRealArray, RealNumeric)
-
-__all__ = []
-
-
-def is_scalar(x: Any) -> bool:
-    return isinstance(x, Number) or isinstance(x, np.ndarray | JaxArray) and x.shape == ()
+from .annotations import (Array, BooleanNumeric, ComplexNumeric, IntegralNumeric, JaxComplexArray,
+                          JaxRealArray, NumpyRealArray, RealNumeric)
 
 
 def abs_square(x: ComplexNumeric) -> JaxRealArray:
