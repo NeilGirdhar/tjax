@@ -46,8 +46,7 @@ Tjax's major components are:
 - A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
   `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/display>`_.)  It features:
 
-  - a version for printing traced values :python:`tapped_print_generic`,
-  - decoding size of the batched axes when printing ordinary and traced values,
+  - support for traced values,
   - colorized tree output for aggregate structures, and
   - formatted tabular output for arrays (or statistics when there's no room for tabular output).
 

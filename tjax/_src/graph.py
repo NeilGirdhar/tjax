@@ -7,7 +7,6 @@ from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
 
 from .annotations import PyTree
-from .display.batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .display.display_generic import display_class, display_generic
 
 __all__: list[str] = []
@@ -102,21 +101,18 @@ else:
           seen: MutableSet[int] | None = None,
           show_values: bool = True,
           key: str = '',
-          batch_dims: BatchDimensions | None = None) -> Tree:
+          ) -> Tree:
         if seen is None:
             seen = set()
         arrow = graph_arrow(isinstance(value, nx.DiGraph))
         retval = display_class(key, type(value))
-        bdi = BatchDimensionIterator(batch_dims)
         for name, node in value.nodes.items():
-            sub_batch_dims = bdi.advance(node)
             retval.children.append(display_generic(node, seen=seen, show_values=show_values,
-                                                   key=name, batch_dims=sub_batch_dims))
+                                                   key=name))
         for (source, target), edge in value.edges.items():
             key = graph_edge_name(arrow, source, target)
-            sub_batch_dims = bdi.advance(edge)
             retval.children.append(display_generic(edge, seen=seen, show_values=show_values,
-                                                   key=key, batch_dims=sub_batch_dims))
+                                                   key=key))
         return retval
 
     try:

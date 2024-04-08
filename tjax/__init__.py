@@ -12,8 +12,8 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
                                    replace_cotangent, scale_cotangent)
 from ._src.display.display_generic import display_generic
+from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
-from ._src.display.tapped import tapped_print_generic
 from ._src.dtypes import default_atol, default_rtol, default_tols
 from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pytree,
                          register_graph_as_nnx_node)
@@ -89,6 +89,7 @@ __all__ = [
     'gradient',
     'graph_arrow',
     'graph_edge_name',
+    'internal_print_generic',
     'inverse_softplus',
     'is_scalar',
     'jit',
@@ -106,7 +107,6 @@ __all__ = [
     'register_graph_as_nnx_node',
     'replace_cotangent',
     'scale_cotangent',
-    'tapped_print_generic',
     'tree_allclose',
     'tree_map_with_path',
     'zero_tangent_like',

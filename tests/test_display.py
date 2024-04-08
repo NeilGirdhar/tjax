@@ -4,13 +4,12 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-import pytest
 from jax import enable_custom_prng, jit, tree, vmap
 from jax.random import key
 from pytest import CaptureFixture
 from rich.console import Console
 
-from tjax import KeyArray, RealArray, print_generic, tapped_print_generic
+from tjax import KeyArray, RealArray, print_generic
 from tjax.dataclasses import dataclass, field
 
 
@@ -67,117 +66,53 @@ def test_jit_display(capsys: CaptureFixture[str],
     f(jnp.asarray(1.0))
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
-    verify(captured, "Jax Array () float64")
+    # TODO: https://github.com/google/jax/issues/20627
+    verify(captured,
+           """
+           NumPy Array () float64
+           └── 1.0000
+           """)
 
 
-def test_batch_display(capsys: CaptureFixture[str],
-                       console: Console) -> None:
+def test_vmap_display(capsys: CaptureFixture[str],
+                      console: Console) -> None:
+    """Like test_batch_display, but uses print_generic to get the array."""
     @jit
     def f(x: RealArray) -> RealArray:
-        print_generic(x, console=console)
+        print_generic(x=x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
-    # Unfortunately, there's no way anymore to detect batch axes:
-    # batched over axes of size (4, 6)
-    verify(captured, "Jax Array (3, 5) float64")
+    s = dedent("""
+               x=NumPy Array (3, 5) float64
+               └──  1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
+                    1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
+                    1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000""")
+    verify(captured, s * 24)
 
 
-def test_batch_display_dict(capsys: CaptureFixture[str],
-                            console: Console) -> None:
-    @jit
-    def f(x: RealArray) -> RealArray:
-        print_generic({'abc': x}, console=console)
-        return x
-    vmap(vmap(f))(jnp.ones((3, 4)))
-    assert isinstance(console.file, StringIO)
-    captured = console.file.getvalue()
-    # Unfortunately, there's no way anymore to detect batch axes:
-    # batched over axes of size (3, 4)
-    verify(captured,
-           """
-           dict
-           └── abc=Jax Array () float64
-           """)
-
-
-def test_tapped(capsys: CaptureFixture[str],
-                console: Console) -> None:
-    """Like test_jit_display, but uses tapped_print_generic to get the array."""
-    @jit
-    def f(x: RealArray) -> RealArray:
-        return tapped_print_generic(x, console=console)
-    f(np.ones(3))
-    assert isinstance(console.file, StringIO)
-    captured = console.file.getvalue()
-    verify(captured,
-           """
-           NumPy Array (3,) float64
-           └──  1.0000 │ 1.0000 │ 1.0000
-           """)
-
-
-def test_tapped_batched(capsys: CaptureFixture[str],
-                        console: Console) -> None:
-    """Like test_batch_display, but uses tapped_print_generic to get the array."""
-    @jit
-    def f(x: RealArray) -> RealArray:
-        tapped_print_generic(x, console=console)
-        return x
-    vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
-    assert isinstance(console.file, StringIO)
-    captured = console.file.getvalue()
-    verify(captured,
-           """
-           NumPy Array (3, 5) float64 batched over axes of size (4, 6)
-           ├── mean=1.0
-           └── deviation=0.0
-           """)
-
-
-def test_tapped_dict(capsys: CaptureFixture[str],
-                     console: Console) -> None:
-    """Like test_batch_display, but uses tapped_print_generic to get the array."""
-    @jit
-    def f(x: RealArray) -> RealArray:
-        tapped_print_generic(x=x, console=console)
-        return x
-    vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
-    assert isinstance(console.file, StringIO)
-    captured = console.file.getvalue()
-    verify(captured,
-           """
-           x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
-           ├── mean=1.0
-           └── deviation=0.0
-           """)
-
-
-# Unskip when https://github.com/google/jax/issues/13949 is resolved.
-@pytest.mark.skip()
-def test_tapped_key(capsys: CaptureFixture[str],
+def test_key_display(capsys: CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
         k = key(123)
 
         @jit
-        def f(x: KeyArray) -> KeyArray:
-            return tapped_print_generic(x)
+        def f(x: KeyArray) -> None:
+            print_generic(x, console=console)
 
         f(k)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           x=NumPy Array (3, 5) float64 batched over axes of size (4, 6)
-           ├── mean=1.0
-           └── deviation=0.0
+           NumPy Array (2,) uint32
+           └──  0 │ 123
            """)
 
 
-def test_dict(capsys: CaptureFixture[str],
-              console: Console) -> None:
+def test_dict_display(capsys: CaptureFixture[str],
+                      console: Console) -> None:
     print_generic({'cat': 5,
                    'mouse': {'dog': 3,
                              'sheep': 4}},
@@ -259,7 +194,7 @@ if __name__ == "__main__":
                                               2)},
                               a,
                               'blah'))
-        tapped_print_generic(Triplet({'abc': Triplet(a,
+        print_generic(Triplet({'abc': Triplet(a,
                                                      x,
                                                      2)},
                                      a,

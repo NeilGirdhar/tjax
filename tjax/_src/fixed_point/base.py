@@ -3,12 +3,12 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Generic, TypeVar
 
-from jax.experimental.host_callback import id_tap
+from jax.experimental import io_callback
 from jax.lax import scan
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import PyTree, TapFunctionTransforms
+from ..annotations import PyTree
 from .augmented import State
 
 __all__ = ['IteratedFunctionBase']
@@ -17,7 +17,6 @@ __all__ = ['IteratedFunctionBase']
 Parameters = TypeVar('Parameters', bound=PyTree)
 Trajectory = TypeVar('Trajectory', bound=PyTree)
 TheAugmentedState = TypeVar('TheAugmentedState')
-TapFunction = Callable[[None, TapFunctionTransforms], None]
 
 
 @dataclass
@@ -35,8 +34,8 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
                           theta: Parameters,
                           initial_state: State,
                           maximum_iterations: int,
-                          tap_function: TapFunction | None) -> (
-                              tuple[TheAugmentedState, Trajectory]):
+                          callback: Callable[..., None] | None
+                          ) -> tuple[TheAugmentedState, Trajectory]:
         """Sample the next augmented state in a trajectory and information about the trajectory.
 
         Args:
@@ -44,7 +43,7 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
             initial_state: An initial guess of the final state.
             maximum_iterations: The number of steps in the trajectory.  Unlike the eponymous member
                 variable, this must be static.
-            tap_function: A function that will be called every iteration.
+            callback: A function that will be called every iteration.
 
         Returns:
             x_star: The augmented state at the fixed point.
@@ -54,9 +53,8 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
             trajectory: Trajectory
             new_state, trajectory = self.sampled_state_trajectory(theta, augmented)
             new_augmented = self.iterate_augmented(new_state, augmented)
-            if tap_function is not None:
-                trajectory = id_tap(tap_function,  # type: ignore[no-untyped-call]
-                                    None, result=trajectory)
+            if callback is not None:
+                io_callback(callback, None)
             return new_augmented, trajectory
         return scan(f, self.initial_augmented(initial_state), None, maximum_iterations)
 
@@ -75,7 +73,8 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
 
     def sampled_state_trajectory(self,
                                  theta: Parameters,
-                                 augmented: TheAugmentedState) -> tuple[State, Trajectory]:
+                                 augmented: TheAugmentedState
+                                 ) -> tuple[State, Trajectory]:
         """Sample the next state in a trajectory and information about the trajectory.
 
         Returns:
@@ -86,7 +85,8 @@ class IteratedFunctionBase(Generic[Parameters, State, Trajectory, TheAugmentedSt
 
     def iterate_augmented(self,
                           new_state: State,
-                          augmented: TheAugmentedState) -> TheAugmentedState:
+                          augmented: TheAugmentedState
+                          ) -> TheAugmentedState:
         """Fold the state into the augmented state.
 
         Args:

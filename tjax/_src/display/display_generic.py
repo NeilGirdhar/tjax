@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable, Mapping, MutableSet
+from collections.abc import Mapping, MutableSet
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
@@ -11,7 +11,6 @@ from typing import Any
 import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
-from jax.interpreters.batching import BatchTracer
 from jax.tree_util import PyTreeDef
 from jaxlib.xla_extension import PjitFunction
 from rich.table import Table
@@ -21,11 +20,7 @@ from rich.tree import Tree
 from tjax.dataclasses import DataclassInstance
 
 from ..annotations import NumpyArray
-from .batch_dimensions import BatchDimensionIterator, BatchDimensions
 from .colors import solarized
-
-__all__ = ['display_class', 'display_generic']
-
 
 # Constants ----------------------------------------------------------------------------------------
 # Numeric (warm)
@@ -70,16 +65,14 @@ def display_generic(value: Any,
                     seen: MutableSet[int] | None = None,
                     show_values: bool = True,
                     key: str = '',
-                    batch_dims: BatchDimensions | None = None) -> Tree:
+                    ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
-        return _display_dataclass(value, seen=seen, show_values=show_values, key=key,
-                                  batch_dims=batch_dims)
-    return _display_object(value, seen=seen, show_values=show_values, key=key,
-                           batch_dims=batch_dims)
+        return _display_dataclass(value, seen=seen, show_values=show_values, key=key)
+    return _display_object(value, seen=seen, show_values=show_values, key=key)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -89,7 +82,7 @@ def _(value: str,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: tuple[int | None, ...] | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -103,7 +96,7 @@ def _(value: type[Any],
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -117,16 +110,13 @@ def _(value: NumpyArray,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
         return x
-    extracted_batch_sizes, shape = _batched_axis_sizes_from_array_and_dims(value, batch_dims)
-    batch_str = _batch_str(extracted_batch_sizes)
     retval = _assemble(key,
-                       Text(f"NumPy Array {shape} {value.dtype}{batch_str}",
-                            style=_numpy_array_color))
+                       Text(f"NumPy Array {value.shape} {value.dtype}", style=_numpy_array_color))
     _show_array(retval, value)
     return retval
 
@@ -137,16 +127,13 @@ def _(value: Array,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
         return x
-    # extracted_batch_sizes = _batched_axis_sizes_from_jax_array(value)
-    extracted_batch_sizes = ()
-    batch_str = _batch_str(extracted_batch_sizes)
     retval = _assemble(key,
-                       Text(f"Jax Array {value.shape} {value.dtype}{batch_str}",
+                       Text(f"Jax Array {value.shape} {value.dtype}",
                             style=_jax_array_color))
     try:
         np_value = np.asarray(value)
@@ -164,7 +151,7 @@ def _(value: None | Number,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -178,18 +165,15 @@ def _(value: Mapping[Any, Any],
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
-    for sub_batch_dims, (sub_key, sub_value) in zip(_batch_dimension_iterator(value.values(),
-                                                                              batch_dims),
-                                                    value.items(),
-                                                    strict=True):
+    for sub_key, sub_value in value.items():
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=str(sub_key), batch_dims=sub_batch_dims))
+                                               key=str(sub_key)))
     return retval
 
 
@@ -200,16 +184,15 @@ def _(value: tuple[Any, ...] | list[Any],
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
-    for sub_batch_dims, sub_value in zip(_batch_dimension_iterator(value, batch_dims), value,
-                                         strict=True):
+    for sub_value in value:
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key="", batch_dims=sub_batch_dims))
+                                               key=""))
     return retval
 
 
@@ -219,7 +202,7 @@ def _(value: PyTreeDef,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -237,7 +220,7 @@ def _(value: PyTreeDef,
       seen: MutableSet[int] | None = None,
       show_values: bool = True,
       key: str = '',
-      batch_dims: BatchDimensions | None = None) -> Tree:
+      ) -> Tree:
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -255,7 +238,7 @@ if flax_loaded:
           seen: MutableSet[int] | None = None,
           show_values: bool = True,
           key: str = '',
-          batch_dims: BatchDimensions | None = None) -> Tree:
+          ) -> Tree:
         if seen is None:
             seen = set()
         if (x := _verify(value, seen, key)) is not None:
@@ -267,7 +250,7 @@ if flax_loaded:
                      if not (key.endswith('_hooks') and value)}
         for name, sub_value in variables.items():
             retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                                   key=name, batch_dims=None))
+                                                   key=name))
         return retval
 
 
@@ -293,11 +276,10 @@ def _display_dataclass(value: DataclassInstance,
                        seen: MutableSet[int] | None = None,
                        show_values: bool = True,
                        key: str = '',
-                       batch_dims: BatchDimensions | None = None) -> Tree:
+                       ) -> Tree:
     if seen is None:
         seen = set()
     retval = display_class(key, type(value))
-    bdi = BatchDimensionIterator(batch_dims)
     names = set()
     for field_info in fields(value):
         name = field_info.name
@@ -306,17 +288,14 @@ def _display_dataclass(value: DataclassInstance,
         if not field_info.init:
             display_name += ' (module)'
         sub_value = getattr(value, name, None)
-        sub_batch_dims = (bdi.advance(sub_value)
-                          if field_info.metadata.get('pytree_node', True)
-                          else None)
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=display_name, batch_dims=sub_batch_dims))
+                                               key=display_name))
     variables = _variables(value)
     for name, sub_value in variables.items():
         if name in names:
             continue
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name + '*', batch_dims=None))
+                                               key=name + '*'))
     return retval
 
 
@@ -325,12 +304,12 @@ def _display_object(value: Any,
                     seen: MutableSet[int],
                     show_values: bool = True,
                     key: str = '',
-                    batch_dims: BatchDimensions | None = None) -> Tree:
+                    ) -> Tree:
     retval = display_class(key, type(value))
     variables = _variables(value)
     for name, sub_value in variables.items():
         retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name, batch_dims=None))
+                                               key=name))
     return retval
 
 
@@ -410,66 +389,3 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
             table.add_row(*(_format_number(array[j, i])
                             for i in range(array.shape[1])))
     tree.add(table)
-
-
-def _batch_dimension_iterator(values: Iterable[Any],
-                              batch_dims: BatchDimensions | None = None
-                              ) -> Iterable[BatchDimensions]:
-    """Traverse values and batch_dims in parallel.
-
-    Returns: An iterable of BatchDimensions objects for sub-elements of value.
-    """
-    bdi = BatchDimensionIterator(batch_dims)
-    for value in values:
-        yield bdi.advance(value)
-    bdi.check_done()
-
-
-def _batch_str(extracted_batch_sizes: tuple[int, ...]) -> str:
-    return (f" batched over axes of size {extracted_batch_sizes}"
-            if extracted_batch_sizes
-            else "")
-
-
-def _batched_axis_sizes_from_array_and_dims(value: NumpyArray,
-                                            batch_dims: BatchDimensions
-                                            ) -> tuple[tuple[int, ...],
-                                                       tuple[int, ...]]:
-    """Discover the shapes of the batched axes and the shape of the array without them.
-
-    This function uses batch dimension information and a NumPy array, so it is only effective on
-    jax.Arrays in tapped display.
-
-    Returns: A tuple:
-        The size of the axes that are batched over for a given Numpy array.
-        The shape of the Numpy array without the batched axes.
-    """
-    shape = value.shape
-    if batch_dims is None:
-        return (), shape
-    assert len(batch_dims) == 1
-    batch_dim_tuple = batch_dims[0]
-    if batch_dim_tuple is None:
-        return (), shape
-    assert isinstance(batch_dim_tuple, tuple)
-
-    batch_sizes = []
-    for batch_dim in reversed(batch_dim_tuple):
-        batch_sizes.append(shape[batch_dim])
-        shape = shape[: batch_dim] + shape[batch_dim + 1:]
-    return tuple(batch_sizes), shape
-
-
-def _batched_axis_sizes_from_jax_array(value: Array) -> tuple[int, ...]:
-    """Discover the shapes of the batched axes.
-
-    This function works by looking for BatchTracer objects, so it is only effective on jax.Arrays in
-    non-tapped display.  This no longer works.
-
-    Returns: The size of the axes that are batched over for a given Jax array.
-    """
-    batch_sizes = []
-    while isinstance(value, BatchTracer):
-        batch_sizes.append(value.val.shape[value.batch_dim])
-        value = value.val
-    return tuple(reversed(batch_sizes))

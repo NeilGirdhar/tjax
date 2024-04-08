@@ -8,7 +8,7 @@ import jax.numpy as jnp
 from jax import tree, vjp
 
 from .annotations import JaxRealArray, RealNumeric
-from .display.tapped import tapped_print_generic
+from .display.print_generic import print_generic
 from .shims import custom_jvp, custom_vjp
 
 __all__ = [
@@ -95,9 +95,9 @@ def _print_cotangent_fwd(u: X, name: str | None) -> tuple[X, None]:
 
 def _print_cotangent_bwd(name: str | None, residuals: None, x_bar: X) -> tuple[X]:
     del residuals
-    x_bar = (tapped_print_generic(x_bar)
+    x_bar = (print_generic(x_bar)
         if name is None
-        else tapped_print_generic(
+        else print_generic(
             **{name: x_bar}))  # type: ignore[call-overload] # pyright: ignore
     return (x_bar,)
 
