@@ -7,7 +7,7 @@ from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
 
 from .annotations import PyTree
-from .display.display_generic import display_class, display_generic
+from .display.display_generic import _verify, display_class, display_generic
 
 __all__: list[str] = []
 
@@ -104,6 +104,8 @@ else:
           ) -> Tree:
         if seen is None:
             seen = set()
+        if (x := _verify(value, seen, key)) is not None:
+            return x
         arrow = graph_arrow(isinstance(value, nx.DiGraph))
         retval = display_class(key, type(value))
         for name, node in value.nodes.items():

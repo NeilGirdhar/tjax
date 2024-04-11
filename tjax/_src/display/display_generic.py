@@ -273,12 +273,10 @@ def display_class(key: str, cls: type[Any]) -> Tree:
 # Private functions --------------------------------------------------------------------------------
 def _display_dataclass(value: DataclassInstance,
                        *,
-                       seen: MutableSet[int] | None = None,
+                       seen: MutableSet[int],
                        show_values: bool = True,
                        key: str = '',
                        ) -> Tree:
-    if seen is None:
-        seen = set()
     retval = display_class(key, type(value))
     names = set()
     for field_info in fields(value):
@@ -331,8 +329,7 @@ def _verify(value: Any,
             key: str) -> Tree | None:
     if id(value) in seen:
         return _assemble(key, Text('<seen>', style=_seen_color))
-    if is_dataclass(value) and not isinstance(value, type):
-        seen.add(id(value))
+    seen.add(id(value))
     return None
 
 
