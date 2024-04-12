@@ -85,7 +85,7 @@ def assert_tree_allclose(actual: PyTree,
             test_string = (get_relative_test_string(actual, original_name, original_value, **tols)
                            if original_name is not None and original_value is not None
                            else get_test_string(actual, **tols))
-            test_string = "desired = " + test_string
+            test_string = "desired = " + test_string  # noqa: PLR6104
             # style_config = yapf.style.CreatePEP8Style()
             # style_config['COLUMN_LIMIT'] = column_limit
             # test_string = yapf.yapf_api.FormatCode(test_string, style_config=style_config)[0]
