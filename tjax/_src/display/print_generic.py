@@ -9,10 +9,10 @@ from .internal import internal_print_generic
 
 
 def print_generic(*args: Any,
-                         raise_on_nan: bool = True,
-                         console: Console | None = None,
-                         **kwargs: Any
-                         ) -> None:
+                  raise_on_nan: bool = True,
+                  console: Console | None = None,
+                  **kwargs: Any
+                  ) -> None:
     """Uses internal_print_generic in a tapped function.
 
     Args:

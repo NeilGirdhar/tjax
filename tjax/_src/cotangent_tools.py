@@ -87,10 +87,10 @@ def _print_cotangent_fwd(u: X, name: str | None) -> tuple[X, None]:
 
 def _print_cotangent_bwd(name: str | None, residuals: None, x_bar: X) -> tuple[X]:
     del residuals
-    x_bar = (print_generic(x_bar)
-        if name is None
-        else print_generic(
-            **{name: x_bar}))  # type: ignore[call-overload] # pyright: ignore
+    if name is None:
+        print_generic(x_bar)
+    else:
+        print_generic(**{name: x_bar})  # type: ignore[arg-type] # pyright: ignore
     return (x_bar,)
 
 

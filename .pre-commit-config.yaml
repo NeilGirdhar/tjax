@@ -13,20 +13,11 @@ repos:
   hooks:
   - id: check-toml
   - id: check-yaml
-  - id: check-shebang-scripts-are-executable
-  - id: debug-statements
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.3.7
   hooks:
   - id: ruff
-
-- repo: https://github.com/PyCQA/isort
-  rev: 5.13.2
-  hooks:
-  - id: isort
 
 - repo: https://github.com/RobertCraigie/pyright-python
   rev: v1.1.358
