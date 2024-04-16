@@ -37,7 +37,7 @@ _string_color = solarized['base0']
 _key_color = solarized['blue']
 _separator_color = solarized['base00']
 _table_color = solarized['base02']
-_unknown_color = f"{solarized['red']} bold"
+# _unknown_color = f"{solarized['red']} bold"
 _seen_color = solarized['red']
 
 
@@ -49,6 +49,7 @@ try:
 except ImportError:
     flax_loaded = False
     def is_node_type(x: type[Any]) -> bool:
+        del x
         return False
     FlaxModule = type(None)
     FlaxVariable = type(None)
@@ -83,6 +84,7 @@ def _(value: str,
       show_values: bool = True,
       key: str = '',
       ) -> Tree:
+    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -97,6 +99,7 @@ def _(value: type[Any],
       show_values: bool = True,
       key: str = '',
       ) -> Tree:
+    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -111,6 +114,7 @@ def _(value: NumpyArray,
       show_values: bool = True,
       key: str = '',
       ) -> Tree:
+    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -128,6 +132,7 @@ def _(value: Array,
       show_values: bool = True,
       key: str = '',
       ) -> Tree:
+    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -152,10 +157,7 @@ def _(value: None | Number,
       show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    if seen is None:
-        seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
+    del seen, show_values
     return _assemble(key, Text(str(value), style=_number_color))
 
 
