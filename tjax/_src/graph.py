@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Generator, Iterable, MutableSet
 from typing import Any, TypeVar
 
+from flax.typing import Key
 from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
 
@@ -118,7 +119,7 @@ else:
         return retval
 
     try:
-        from flax.experimental.nnx.nnx.graph_utils import register_mutable_node_type
+        from flax.experimental.nnx.nnx.graph_utils import register_graph_node_type
     except ImportError:
         msg = "NNX not available"
         def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
@@ -127,23 +128,16 @@ else:
         def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore
             arrow = graph_arrow(issubclass(graph_type, nx.DiGraph))
 
-            def flatten_graph(graph: nx.Graph[Any], /) -> tuple[tuple[tuple[str, Any], ...], None]:
+            # flatten: Callable[[Node], tuple[Sequence[tuple[str, Leaf]], AuxData]],
+            def flatten_graph(graph: T, /) -> tuple[tuple[tuple[str, Any], ...], None]:
                 t = tuple(flatten_helper(graph, arrow))
                 return t, None
 
-            def pop_key_graph(graph: nx.Graph[Any], key: str, /) -> Any:
-                if arrow in key:
-                    source, target = key.split(arrow, 2)
-                    retval = graph.edges[source, target]
-                    graph.remove_edge(source, target)
-                    return retval
-                retval = graph.nodes[key]
-                graph.remove_node(key)
-                return retval
-
-            def set_key_graph(graph: nx.Graph[Any], key: str, value: Any, /) -> None:
+            # set_key: Callable[[Node, Key, Leaf], None],
+            def set_key_graph(graph: T, key: Key, value: Any, /) -> None:
                 if not isinstance(value, dict):
                     raise TypeError
+                assert isinstance(key, str)
                 d: dict[str, Any]
                 if arrow in key:
                     source, target = key.split(arrow, 2)
@@ -159,11 +153,31 @@ else:
                 d.clear()
                 d.update(value)
 
+            # pop_key: Callable[[Node, Key], Leaf],
+            def pop_key_graph(graph: T, key: Key, /) -> Any:
+                assert isinstance(key, str)
+                if arrow in key:
+                    source, target = key.split(arrow, 2)
+                    retval = graph.edges[source, target]
+                    graph.remove_edge(source, target)
+                    return retval
+                retval = graph.nodes[key]
+                graph.remove_node(key)
+                return retval
+
+            # create_empty: Callable[[AuxData], Node],
             def create_empty_graph(metadata: None, /) -> T:
+                del metadata
                 return graph_type()
 
-            register_mutable_node_type(graph_type,
-                                       flatten_graph,
-                                       set_key_graph,
-                                       pop_key_graph,
-                                       create_empty_graph)
+            # clear: Callable[[Node, AuxData], None],
+            def clear_graph(graph: T, metadata: None, /) -> None:
+                del metadata
+                graph.clear()
+
+            register_graph_node_type(graph_type,
+                                     flatten_graph,
+                                     set_key_graph,
+                                     pop_key_graph,
+                                     create_empty_graph,
+                                     clear_graph)

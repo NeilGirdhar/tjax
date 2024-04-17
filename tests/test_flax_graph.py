@@ -29,7 +29,7 @@ def graph() -> nx.DiGraph[Any]:
 
 
 def test_rebuild(graph: nx.DiGraph[Any]) -> None:
-    state, graph_def = nnx.graph_utils.graph_flatten(graph)
+    graph_def, state, _ = nnx.graph_utils.graph_flatten(graph)
     rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
@@ -46,8 +46,9 @@ def test_clone(graph: nx.DiGraph[Any]) -> None:
 
 
 def test_flatten(graph: nx.DiGraph[Any]) -> None:
-    state, _ = nnx.graph_utils.graph_flatten(graph)
+    _, state, _ = nnx.graph_utils.graph_flatten(graph)
     substate = state['a⟶b']
     assert isinstance(substate, nnx.State)
     variable = substate['x']
+    assert isinstance(variable, nnx.Variable)
     assert variable.value == 4.0  # noqa: PLR2004
