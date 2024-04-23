@@ -64,7 +64,6 @@ else:
 def display_generic(value: Any,
                     *,
                     seen: MutableSet[int] | None = None,
-                    show_values: bool = True,
                     key: str = '',
                     ) -> Tree:
     if seen is None:
@@ -72,8 +71,8 @@ def display_generic(value: Any,
     if (x := _verify(value, seen, key)) is not None:
         return x
     if is_dataclass(value) and not isinstance(value, type):
-        return _display_dataclass(value, seen=seen, show_values=show_values, key=key)
-    return _display_object(value, seen=seen, show_values=show_values, key=key)
+        return _display_dataclass(value, seen=seen, key=key)
+    return _display_object(value, seen=seen, key=key)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -81,10 +80,8 @@ def display_generic(value: Any,
 def _(value: str,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -96,10 +93,8 @@ def _(value: str,
 def _(value: type[Any],
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -111,10 +106,8 @@ def _(value: type[Any],
 def _(value: NumpyArray,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -129,10 +122,8 @@ def _(value: NumpyArray,
 def _(value: Array,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    del show_values
     if seen is None:
         seen = set()
     if (x := _verify(value, seen, key)) is not None:
@@ -154,10 +145,9 @@ def _(value: Array,
 def _(value: None | Number,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
-    del seen, show_values
+    del seen
     return _assemble(key, Text(str(value), style=_number_color))
 
 
@@ -165,7 +155,6 @@ def _(value: None | Number,
 def _(value: Mapping[Any, Any],
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
     if seen is None:
@@ -174,8 +163,7 @@ def _(value: Mapping[Any, Any],
         return x
     retval = display_class(key, type(value))
     for sub_key, sub_value in value.items():
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=str(sub_key)))
+        retval.children.append(display_generic(sub_value, seen=seen, key=str(sub_key)))
     return retval
 
 
@@ -184,7 +172,6 @@ def _(value: Mapping[Any, Any],
 def _(value: tuple[Any, ...] | list[Any],
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
     if seen is None:
@@ -193,8 +180,7 @@ def _(value: tuple[Any, ...] | list[Any],
         return x
     retval = display_class(key, type(value))
     for sub_value in value:
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=""))
+        retval.children.append(display_generic(sub_value, seen=seen, key=""))
     return retval
 
 
@@ -202,7 +188,6 @@ def _(value: tuple[Any, ...] | list[Any],
 def _(value: PyTreeDef,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
     if seen is None:
@@ -210,8 +195,7 @@ def _(value: PyTreeDef,
     if (x := _verify(value, seen, key)) is not None:
         return x
     retval = display_class(key, type(value))
-    retval.children.append(display_generic(hash(value), seen=seen, show_values=show_values,
-                                           key="hash"))
+    retval.children.append(display_generic(hash(value), seen=seen, key="hash"))
     return retval
 
 
@@ -220,7 +204,6 @@ def _(value: PyTreeDef,
 def _(value: PyTreeDef,
       *,
       seen: MutableSet[int] | None = None,
-      show_values: bool = True,
       key: str = '',
       ) -> Tree:
     if seen is None:
@@ -229,7 +212,7 @@ def _(value: PyTreeDef,
         return x
     name = getattr(value, '__qualname__', "")
     retval = display_class(key, type(value))
-    retval.children.append(display_generic(name, seen=seen, show_values=show_values, key="name"))
+    retval.children.append(display_generic(name, seen=seen, key="name"))
     return retval
 
 
@@ -238,7 +221,6 @@ if flax_loaded:
     def _(value: nnx.Variable[Any],
           *,
           seen: MutableSet[int] | None = None,
-          show_values: bool = True,
           key: str = '',
           ) -> Tree:
         if seen is None:
@@ -251,8 +233,7 @@ if flax_loaded:
                      for key, sub_value in variables.items()
                      if not (key.endswith('_hooks') and value)}
         for name, sub_value in variables.items():
-            retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                                   key=name))
+            retval.children.append(display_generic(sub_value, seen=seen, key=name))
         return retval
 
 
@@ -276,7 +257,6 @@ def display_class(key: str, cls: type[Any]) -> Tree:
 def _display_dataclass(value: DataclassInstance,
                        *,
                        seen: MutableSet[int],
-                       show_values: bool = True,
                        key: str = '',
                        ) -> Tree:
     retval = display_class(key, type(value))
@@ -288,28 +268,24 @@ def _display_dataclass(value: DataclassInstance,
         if not field_info.init:
             display_name += ' (module)'
         sub_value = getattr(value, name, None)
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=display_name))
+        retval.children.append(display_generic(sub_value, seen=seen, key=display_name))
     variables = _variables(value)
     for name, sub_value in variables.items():
         if name in names:
             continue
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name + '*'))
+        retval.children.append(display_generic(sub_value, seen=seen, key=name + '*'))
     return retval
 
 
 def _display_object(value: Any,
                     *,
                     seen: MutableSet[int],
-                    show_values: bool = True,
                     key: str = '',
                     ) -> Tree:
     retval = display_class(key, type(value))
     variables = _variables(value)
     for name, sub_value in variables.items():
-        retval.children.append(display_generic(sub_value, seen=seen, show_values=show_values,
-                                               key=name))
+        retval.children.append(display_generic(sub_value, seen=seen, key=name))
     return retval
 
 

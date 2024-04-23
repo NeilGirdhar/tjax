@@ -100,7 +100,6 @@ else:
     def _(value: nx.Graph[Any],
           *,
           seen: MutableSet[int] | None = None,
-          show_values: bool = True,
           key: str = '',
           ) -> Tree:
         if seen is None:
@@ -110,12 +109,10 @@ else:
         arrow = graph_arrow(isinstance(value, nx.DiGraph))
         retval = display_class(key, type(value))
         for name, node in value.nodes.items():
-            retval.children.append(display_generic(node, seen=seen, show_values=show_values,
-                                                   key=name))
+            retval.children.append(display_generic(node, seen=seen, key=name))
         for (source, target), edge in value.edges.items():
             key = graph_edge_name(arrow, source, target)
-            retval.children.append(display_generic(edge, seen=seen, show_values=show_values,
-                                                   key=key))
+            retval.children.append(display_generic(edge, seen=seen, key=key))
         return retval
 
     try:
