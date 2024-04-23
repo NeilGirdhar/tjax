@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import overload
 
 import jax.numpy as jnp
 import numpy as np
@@ -10,9 +11,31 @@ from jax.dtypes import canonicalize_dtype
 from jax.lax import scan
 from jax.random import normal
 
-from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxRealArray, KeyArray,
-                          RealArray)
+from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxIntegralArray,
+                          JaxRealArray, KeyArray, RealArray)
 from .dataclasses.dataclass import dataclass
+
+
+@overload
+def leaky_integrate(value: JaxComplexArray,
+                    time_step: JaxRealArray,
+                    drift: JaxComplexArray | None = None,
+                    decay: JaxComplexArray | None = None,
+                    *,
+                    leaky_average: bool = False
+                    ) -> JaxComplexArray:
+    ...
+
+
+@overload
+def leaky_integrate(value: ComplexArray,
+                    time_step: RealArray,
+                    drift: ComplexArray | None = None,
+                    decay: ComplexArray | None = None,
+                    *,
+                    leaky_average: bool = False
+                    ) -> ComplexArray:
+    ...
 
 
 def leaky_integrate(value: ComplexArray,
@@ -20,7 +43,8 @@ def leaky_integrate(value: ComplexArray,
                     drift: ComplexArray | None = None,
                     decay: ComplexArray | None = None,
                     *,
-                    leaky_average: bool = False) -> ComplexArray:
+                    leaky_average: bool = False
+                    ) -> ComplexArray:
     """Update the value so that it is the leaky integral (or leaky average).
 
     Args:
@@ -51,6 +75,20 @@ def leaky_integrate(value: ComplexArray,
         scaled_integrand *= decay.real
 
     return xp.exp(-decay * time_step) * value + scaled_integrand
+
+
+@overload
+def leaky_data_weight(iterations_times_time_step: JaxRealArray | JaxIntegralArray,
+                      decay: JaxRealArray
+                      ) -> JaxRealArray:
+    ...
+
+
+@overload
+def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
+                      decay: RealArray
+                      ) -> RealArray:
+    ...
 
 
 def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,

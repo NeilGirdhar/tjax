@@ -1,10 +1,21 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import cast, overload
 
 from array_api_compat import get_namespace
 
-from .annotations import BooleanArray, ComplexArray, IntegralArray, RealArray
+from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxComplexArray, JaxRealArray,
+                          RealArray)
+
+
+@overload
+def abs_square(x: JaxComplexArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def abs_square(x: ComplexArray) -> RealArray:
+    ...
 
 
 def abs_square(x: ComplexArray) -> RealArray:
@@ -13,6 +24,16 @@ def abs_square(x: ComplexArray) -> RealArray:
 
 
 # TODO: Remove this when the Array API has it with broadcasting under xp.linalg.norm.
+@overload
+def outer_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def outer_product(x: RealArray, y: RealArray) -> RealArray:
+    ...
+
+
 def outer_product(x: RealArray, y: RealArray) -> RealArray:
     """Return the broadcasted outer product of a vector with itself.
 
@@ -22,6 +43,16 @@ def outer_product(x: RealArray, y: RealArray) -> RealArray:
     xi = xp.reshape(x, (*x.shape, 1))
     yj = xp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
     return xi * yj
+
+
+@overload
+def matrix_vector_mul(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
+    ...
 
 
 def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
@@ -36,6 +67,16 @@ def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
     xp = get_namespace(x, y)
     y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
     return xp.sum(x * y, axis=-1)
+
+
+@overload
+def matrix_dot_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
+    ...
 
 
 def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
@@ -72,6 +113,16 @@ def divide_where(dividend: ComplexArray,
     return xp.where(where, quotient, otherwise)
 
 
+@overload
+def divide_nonnegative(dividend: JaxRealArray, divisor: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
+    ...
+
+
 def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
     """Quotient for use with positive reals that never returns NaN.
 
@@ -83,9 +134,29 @@ def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
 
 
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
+@overload
+def softplus(x: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def softplus(x: RealArray) -> RealArray:
+    ...
+
+
 def softplus(x: RealArray) -> RealArray:
     xp = get_namespace(x)
     return xp.logaddexp(xp.asarray(0.0), x)
+
+
+@overload
+def inverse_softplus(y: JaxRealArray) -> JaxRealArray:
+    ...
+
+
+@overload
+def inverse_softplus(y: RealArray) -> RealArray:
+    ...
 
 
 def inverse_softplus(y: RealArray) -> RealArray:
