@@ -53,10 +53,12 @@ except ImportError:
         return False
     FlaxModule = type(None)
     FlaxVariable = type(None)
+    FlaxState = type(None)
 else:
     flax_loaded = True
     FlaxModule = nnx.Module
     FlaxVariable = nnx.Variable
+    FlaxState = nnx.State
     is_node_type = nnx.graph_utils.is_node_type
 
 
@@ -72,7 +74,10 @@ def display_generic(value: Any,
         return x
     if is_dataclass(value) and not isinstance(value, type):
         return _display_dataclass(value, seen=seen, key=key)
-    return _display_object(value, seen=seen, key=key)
+    hide_private = False
+    if flax_loaded:
+        hide_private = isinstance(value, FlaxState)
+    return _display_object(value, seen=seen, key=key, hide_private=hide_private)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -231,7 +236,7 @@ if flax_loaded:
         variables = _variables(value)
         variables = {key: sub_value
                      for key, sub_value in variables.items()
-                     if not (key.endswith('_hooks') and value)}
+                     if not (key.startswith('_') or key.endswith('_hooks') and value)}
         for name, sub_value in variables.items():
             retval.children.append(display_generic(sub_value, seen=seen, key=name))
         return retval
@@ -281,10 +286,13 @@ def _display_object(value: Any,
                     *,
                     seen: MutableSet[int],
                     key: str = '',
+                    hide_private: bool = False,
                     ) -> Tree:
     retval = display_class(key, type(value))
     variables = _variables(value)
     for name, sub_value in variables.items():
+        if hide_private and name.startswith('_'):
+            continue
         retval.children.append(display_generic(sub_value, seen=seen, key=name))
     return retval
 
