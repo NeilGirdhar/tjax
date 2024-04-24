@@ -30,9 +30,9 @@ classifiers = [
 python = '>=3.10,<3.13'
 array_api_compat = '>= 1.6'
 rich = '>=12.6'
-jax = '>=0.4.20'
-numpy = '>=1.22'
-optax = '>=0.1'
+jax = '>=0.4.26'
+numpy = '>=1.23'
+optax = '>=0.2.2'
 typing_extensions = '>=4.8'
 
 [tool.poetry.group.dev.dependencies]
@@ -48,7 +48,7 @@ ruff = '>=0.2'
 
 [tool.poetry.group.extra.dependencies]
 flax = { git = "https://github.com/google/flax.git" }  # Pin until Flax release > 0.8.2.
-networkx = '>= 2.8.8'
+networkx = '>= 3.0'
 
 [tool.isort]
 line_length = 100
@@ -129,6 +129,7 @@ disable = [
   'too-many-statements',
   'too-many-try-statements',
   'unexpected-keyword-arg',
+  'ungrouped-imports',
   'unused-argument',
   'unused-import',
   'use-set-for-membership',
@@ -201,7 +202,7 @@ warn_unused_configs = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-module = ['networkx', 'optax']
+module = ['networkx', 'optax', 'array_api_compat']
 ignore_missing_imports = true
 
 [tool.ruff]

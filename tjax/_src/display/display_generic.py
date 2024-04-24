@@ -44,6 +44,7 @@ _seen_color = solarized['red']
 # Extra imports ------------------------------------------------------------------------------------
 FlaxModule: type[Any]
 FlaxVariable: type[Any]
+FlaxState: type[Any]
 try:
     from flax.experimental import nnx
 except ImportError:
