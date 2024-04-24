@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Generator, Iterable, MutableSet
 from typing import Any, TypeVar
 
-from flax.typing import Key
 from jax.tree_util import register_pytree_with_keys
 from rich.tree import Tree
 
@@ -117,6 +116,7 @@ else:
 
     try:
         from flax.experimental.nnx.nnx.graph_utils import register_graph_node_type
+        from flax.typing import Key
     except ImportError:
         msg = "NNX not available"
         def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
