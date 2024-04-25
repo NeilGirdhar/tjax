@@ -30,7 +30,7 @@ def graph() -> nx.DiGraph[Any]:
 
 def test_rebuild(graph: nx.DiGraph[Any]) -> None:
     graph_def, state, _ = nnx.graph_utils.graph_flatten(graph)
-    rebuilt_graph = nnx.graph_utils.graph_unflatten(graph_def, state)
+    rebuilt_graph, _ = nnx.graph_utils.graph_unflatten(graph_def, state)
     assert nx.utils.graphs_equal(graph, rebuilt_graph)
 
 
