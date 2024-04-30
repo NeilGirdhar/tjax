@@ -60,7 +60,7 @@ else:
     FlaxModule = nnx.Module
     FlaxVariable = nnx.Variable
     FlaxState = nnx.State
-    is_node_type = nnx.graph_utils.is_node_type
+    is_node_type = nnx.graph.is_node_type
 
 
 @singledispatch

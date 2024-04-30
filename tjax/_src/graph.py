@@ -115,7 +115,7 @@ else:
         return retval
 
     try:
-        from flax.experimental.nnx.nnx.graph_utils import register_graph_node_type
+        from flax.experimental.nnx.nnx.graph import register_graph_node_type
         from flax.typing import Key
     except ImportError:
         msg = "NNX not available"

@@ -20,7 +20,8 @@ def abs_square(x: ComplexArray) -> RealArray:
 
 def abs_square(x: ComplexArray) -> RealArray:
     xp = get_namespace(x)
-    return xp.square(x.real) + xp.square(x.imag)
+    # TODO: remove workaround when Jax is 0.4.27.
+    return xp.square(x.real) + xp.square(xp.asarray(x.imag))
 
 
 # TODO: Remove this when the Array API has it with broadcasting under xp.linalg.norm.

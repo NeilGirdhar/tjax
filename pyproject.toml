@@ -47,7 +47,7 @@ pytest = '>=8'
 ruff = '>=0.2'
 
 [tool.poetry.group.extra.dependencies]
-flax = { git = "https://github.com/google/flax.git" }  # Pin until Flax release > 0.8.2.
+flax = '>=0.8.3'
 networkx = '>= 3.0'
 
 [tool.isort]
