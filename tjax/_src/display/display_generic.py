@@ -63,6 +63,20 @@ else:
     is_node_type = nnx.graph.is_node_type
 
 
+def attribute_filter(value: Any, attribute_name: str) -> bool:
+    is_private = attribute_name.startswith('_')
+    if flax_loaded:
+        from flax.experimental import nnx  # noqa: PLC0415
+        if isinstance(value, nnx.State) and is_private:
+            return False
+        if (isinstance(value, nnx.Variable | nnx.VariableState)
+            and (is_private or attribute_name.endswith('_hooks'))):
+            return False
+        if isinstance(value, FlaxModule) and attribute_name.startswith('_graph_node__'):
+            return False
+    return True
+
+
 @singledispatch
 def display_generic(value: Any,
                     *,
@@ -75,10 +89,7 @@ def display_generic(value: Any,
         return x
     if is_dataclass(value) and not isinstance(value, type):
         return _display_dataclass(value, seen=seen, key=key)
-    hide_private = False
-    if flax_loaded:
-        hide_private = isinstance(value, FlaxState)
-    return _display_object(value, seen=seen, key=key, hide_private=hide_private)
+    return _display_object(value, seen=seen, key=key)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -222,27 +233,6 @@ def _(value: PyTreeDef,
     return retval
 
 
-if flax_loaded:
-    @display_generic.register(FlaxVariable)
-    def _(value: nnx.Variable[Any],
-          *,
-          seen: MutableSet[int] | None = None,
-          key: str = '',
-          ) -> Tree:
-        if seen is None:
-            seen = set()
-        if (x := _verify(value, seen, key)) is not None:
-            return x
-        retval = display_class(key, type(value))
-        variables = _variables(value)
-        variables = {key: sub_value
-                     for key, sub_value in variables.items()
-                     if not (key.startswith('_') or key.endswith('_hooks') and value)}
-        for name, sub_value in variables.items():
-            retval.children.append(display_generic(sub_value, seen=seen, key=name))
-        return retval
-
-
 # Public unexported functions ----------------------------------------------------------------------
 def display_class(key: str, cls: type[Any]) -> Tree:
     name = cls.__name__
@@ -270,6 +260,8 @@ def _display_dataclass(value: DataclassInstance,
     for field_info in fields(value):
         name = field_info.name
         names.add(name)
+        if not attribute_filter(value, name):
+            continue
         display_name = name
         if not field_info.init:
             display_name += ' (module)'
@@ -277,7 +269,7 @@ def _display_dataclass(value: DataclassInstance,
         retval.children.append(display_generic(sub_value, seen=seen, key=display_name))
     variables = _variables(value)
     for name, sub_value in variables.items():
-        if name in names:
+        if name in names or not attribute_filter(value, name):
             continue
         retval.children.append(display_generic(sub_value, seen=seen, key=name + '*'))
     return retval
@@ -292,7 +284,7 @@ def _display_object(value: Any,
     retval = display_class(key, type(value))
     variables = _variables(value)
     for name, sub_value in variables.items():
-        if hide_private and name.startswith('_'):
+        if not attribute_filter(value, name):
             continue
         retval.children.append(display_generic(sub_value, seen=seen, key=name))
     return retval
