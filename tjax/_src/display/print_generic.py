@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 from jax import debug, tree
 from rich.console import Console
 
@@ -30,8 +31,14 @@ def print_generic(*args: Any,
 
     leaves, tree_def = tree.flatten((args, kwargs))
 
-    def callback(*tap_leaves: Any) -> None:
-        args, kwargs = tree.unflatten(tree_def, tap_leaves)
-        internal_print_generic(*args, raise_on_nan=raise_on_nan, console=console, **kwargs)
+    def fix(u_arg: Any, arg: Any) -> Any:
+        return (np.asarray(u_arg) if isinstance(arg, np.ndarray)
+                else int(u_arg.item()) if isinstance(arg, int)
+                else u_arg)
+
+    def callback(*callback_leaves: Any) -> None:
+        unflattened_tree = tree.unflatten(tree_def, callback_leaves)
+        v_args, v_kwargs = tree.map(fix, unflattened_tree, (args, kwargs))
+        internal_print_generic(*v_args, raise_on_nan=raise_on_nan, console=console, **v_kwargs)
 
     debug.callback(callback, *leaves, ordered=True)

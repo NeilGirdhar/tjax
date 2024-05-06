@@ -69,7 +69,7 @@ def test_jit_display(capsys: CaptureFixture[str],
     # TODO: https://github.com/google/jax/issues/20627
     verify(captured,
            """
-           NumPy Array () float64
+           Jax Array () float64
            └── 1.0000
            """)
 
@@ -85,7 +85,7 @@ def test_vmap_display(capsys: CaptureFixture[str],
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     s = dedent("""
-               x=NumPy Array (3, 5) float64
+               x=Jax Array (3, 5) float64
                └──  1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
                     1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
                     1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000""")
@@ -106,7 +106,7 @@ def test_key_display(capsys: CaptureFixture[str],
     captured = console.file.getvalue()
     verify(captured,
            """
-           NumPy Array (2,) uint32
+           Jax Array (2,) uint32
            └──  0 │ 123
            """)
 
@@ -166,7 +166,7 @@ def test_pytreedef(capsys: CaptureFixture[str],
 
     _, tree_def = tree.flatten(C(1, 2))
 
-    print_generic(tree_def, console=console)
+    print_generic(tree_def, immediate=True, console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
