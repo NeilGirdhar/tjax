@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Callable, Hashable, Iterable
+from collections.abc import Callable
 from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
 
-from jax.tree_util import register_pytree_with_keys
+from jax.tree_util import register_dataclass
 from typing_extensions import dataclass_transform
 
-from ..annotations import PyTree
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import field
 
@@ -41,7 +40,7 @@ def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,  # noq
 def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool = True,  # noqa: A002
               eq: bool = True, order: bool = False
               ) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
-    """A dataclass creator that creates a pytree.
+    """A dataclass creator that creates a Jax pytree.
 
     Returns the same class as was passed in, with dunder methods added based on the fields defined
     in the class.
@@ -60,9 +59,8 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     from typing import ClassVar
 
     import jax.numpy as jnp
-    from tjax import Array, dataclass
-    from tjax.dataclasses import field
-    from jax import grad
+    from tjax.dataclasses import dataclass, field
+    from jax import Array, grad
 
     @dataclass
     class LearnedParameter:
@@ -90,20 +88,11 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
 
     Since this dataclass is a pytree, all of JAX's functions that accept pytrees work with it,
     including iteration, differentiation, and `jax.tree_util` functions.
-
-    Another benefit is the display of dataclasses.  `print(new_w)` gives::
-    ```
-    LearnedParameter
-        weight=Jax Array ()
-                2.0003
-        constrain_positive=True
-    ```
     """
     if cls is None:
         def f(x: type[Any], /) -> type[TDataclassInstance]:
             return dataclass(x, init=init, repr=repr, eq=eq, order=order)
         return f  # Type checking support partial is poor.
-    non_none_cls = cls
 
     # Apply dataclass function to cls.
     data_clz: type[TDataclassInstance] = cast(type[TDataclassInstance],
@@ -120,26 +109,7 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
             static_fields.append(field_info.name)
     data_clz.static_fields = static_fields
     data_clz.dynamic_fields = dynamic_fields
-
-    # Register the class as a Jax PyTree.
-    def flatten_with_keys(x: Any, /) -> tuple[Iterable[tuple[str, PyTree]], Hashable]:
-        hashed = tuple(getattr(x, name) for name in static_fields)
-        trees = tuple((name, getattr(x, name)) for name in dynamic_fields)
-        return trees, hashed
-
-    def unflatten(hashed: Hashable, trees: Iterable[PyTree], /) -> Any:
-        if not isinstance(hashed, tuple):
-            raise TypeError
-        hashed_args = dict(zip(static_fields, hashed, strict=True))
-        tree_args = dict(zip(dynamic_fields, trees, strict=True))
-        return non_none_cls(**hashed_args, **tree_args)
-
-    def flatten(x: Any, /) -> tuple[Iterable[PyTree], Hashable]:
-        hashed = tuple(getattr(x, name) for name in static_fields)
-        trees = tuple(getattr(x, name) for name in dynamic_fields)
-        return trees, hashed
-
-    register_pytree_with_keys(data_clz, flatten_with_keys, unflatten, flatten)
+    register_dataclass(data_clz, dynamic_fields, static_fields)
 
     # Register the dynamically-dispatched functions.
     get_test_string.register(data_clz, get_dataclass_test_string)
