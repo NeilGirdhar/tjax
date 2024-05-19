@@ -143,15 +143,13 @@ def _(value: Array,
       ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
     retval = _assemble(key,
                        Text(f"Jax Array {value.shape} {value.dtype}",
                             style=_jax_array_color))
     try:
         np_value = np.asarray(value)
     except TracerArrayConversionError:
-        pass
+        pass  # This happens when trying to print a tracer in immediate mode.
     else:
         _show_array(retval, np_value)
     return retval

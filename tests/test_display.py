@@ -4,7 +4,7 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-from jax import enable_custom_prng, jit, tree, vmap
+from jax import Array, enable_custom_prng, jit, tree, vmap
 from jax.random import key
 from pytest import CaptureFixture
 from rich.console import Console
@@ -173,6 +173,29 @@ def test_pytreedef(capsys: CaptureFixture[str],
            f"""
            PyTreeDef
            └── hash={hash(tree_def)}
+           """)
+
+
+def test_seen_array(capsys: CaptureFixture[str],
+                    console: Console) -> None:
+    @dataclass
+    class C:
+        x: Array
+        y: Array
+
+    z = jnp.zeros(2)
+    tree_def = C(z, z)
+
+    print_generic(tree_def, immediate=True, console=console)
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
+    verify(captured,
+           """
+           C[dataclass]
+           ├── x=Jax Array (2,) float64
+           │   └──  0.0000 │ 0.0000
+           └── y=Jax Array (2,) float64
+               └──  0.0000 │ 0.0000
            """)
 
 
