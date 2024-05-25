@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import KW_ONLY, InitVar, dataclass
 from typing import Any, TypeAlias
 
-from flax.experimental import nnx
+from flax import nnx
 from typing_extensions import dataclass_transform, override
 
 from .helpers import field

@@ -8,7 +8,7 @@ from tjax import register_graph_as_nnx_node
 
 try:
     import networkx as nx
-    from flax.experimental import nnx
+    from flax import nnx
 except ImportError:
     pytest.skip("Skipping NNX graph test", allow_module_level=True)
 else:

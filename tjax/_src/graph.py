@@ -115,7 +115,7 @@ else:
         return retval
 
     try:
-        from flax.experimental.nnx.nnx.graph import register_graph_node_type
+        from flax.nnx.nnx.graph import register_graph_node_type
         from flax.typing import Key
     except ImportError:
         msg = "NNX not available"
@@ -168,8 +168,7 @@ else:
                 return graph_type()
 
             # clear: Callable[[Node, AuxData], None],
-            def clear_graph(graph: T, metadata: None, /) -> None:
-                del metadata
+            def clear_graph(graph: T, /) -> None:
                 graph.clear()
 
             register_graph_node_type(graph_type,

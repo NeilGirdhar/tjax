@@ -46,7 +46,7 @@ FlaxModule: type[Any]
 FlaxVariable: type[Any]
 FlaxState: type[Any]
 try:
-    from flax.experimental import nnx
+    from flax import nnx
 except ImportError:
     flax_loaded = False
     def is_node_type(x: type[Any]) -> bool:
@@ -66,7 +66,7 @@ else:
 def attribute_filter(value: Any, attribute_name: str) -> bool:
     is_private = attribute_name.startswith('_')
     if flax_loaded:
-        from flax.experimental import nnx  # noqa: PLC0415
+        from flax import nnx  # noqa: PLC0415
         if isinstance(value, nnx.State) and is_private:
             return False
         if (isinstance(value, nnx.Variable | nnx.VariableState)
