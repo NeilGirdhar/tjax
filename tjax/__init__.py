@@ -23,7 +23,7 @@ from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inve
                               matrix_dot_product, matrix_vector_mul, outer_product, softplus)
 from ._src.numpy_tools import create_diagonal_array
 from ._src.partial import Partial
-from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, jit
+from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
 from ._src.tree_tools import tree_map_with_path
@@ -88,6 +88,7 @@ __all__ = [
     'gradient',
     'graph_arrow',
     'graph_edge_name',
+    'hessian',
     'internal_print_generic',
     'inverse_softplus',
     'jit',

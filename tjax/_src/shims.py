@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from functools import update_wrapper
 from typing import Any, Concatenate, Generic, TypeVar, overload
 
@@ -177,3 +177,16 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
             return self
         # Create a partial function application corresponding to a bound method.
         return Partial(self, instance)  # type: ignore[no-untyped-call]
+
+
+def hessian(fun: Callable[..., U],
+            argnums: int | Sequence[int] = 0,
+            *,
+            has_aux: bool = False,
+            holomorphic: bool = False,
+            reverse_only: bool = False
+            ) -> Callable[..., U]:
+    if not reverse_only:
+        return jax.hessian(fun, argnums=argnums, has_aux=has_aux, holomorphic=holomorphic)
+    return jax.jacrev(jax.jacrev(fun, argnums, has_aux=has_aux, holomorphic=holomorphic),
+                      argnums, has_aux=has_aux, holomorphic=holomorphic)
