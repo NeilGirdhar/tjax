@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import cast, overload
+from typing import TypeVar, cast, overload
 
+import numpy as np
 from array_api_compat import get_namespace
 
-from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxComplexArray, JaxRealArray,
-                          RealArray)
+from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxArray, JaxComplexArray,
+                          JaxRealArray, RealArray)
 
 
 @overload
@@ -165,3 +166,28 @@ def inverse_softplus(y: RealArray) -> RealArray:
     return xp.where(y > 80.0,  # noqa: PLR2004
                     y,
                     xp.log(xp.expm1(y)))
+
+
+T = TypeVar('T', bound=ComplexArray)
+
+
+def create_diagonal_array(m: T) -> T:
+    """A vectorized version of diagonal.
+
+    Args:
+        m: Has shape (*k, n)
+    Returns: Array with shape (*k, n, n) and the elements of m on the diagonals.
+    """
+    xp = get_namespace(m)
+    pre = m.shape[:-1]
+    n = m.shape[-1]
+    s = (*m.shape, n)
+    retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
+    for index in np.ndindex(*pre):
+        target_index = (*index, slice(None, None, n + 1))
+        source_values = m[(*index, slice(None))]  # type:ignore[arg-type]
+        if isinstance(retval, JaxArray):
+            retval.at[target_index].set(source_values)
+        else:
+            retval[target_index] = source_values
+    return xp.reshape(retval, s)

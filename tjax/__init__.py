@@ -19,9 +19,9 @@ from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pyt
                          register_graph_as_nnx_node)
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
-from ._src.math_tools import (abs_square, divide_nonnegative, divide_where, inverse_softplus,
-                              matrix_dot_product, matrix_vector_mul, outer_product, softplus)
-from ._src.numpy_tools import create_diagonal_array
+from ._src.math_tools import (abs_square, create_diagonal_array, divide_nonnegative, divide_where,
+                              inverse_softplus, matrix_dot_product, matrix_vector_mul,
+                              outer_product, softplus)
 from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
