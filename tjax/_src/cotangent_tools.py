@@ -37,7 +37,7 @@ def _scale_cotangent_jvp(scale: RealNumeric, primals: tuple[X], tangents: tuple[
 
 scale_cotangent = custom_jvp(scale_cotangent, nondiff_argnums=(1,))
 # The type variables don't match, so this type error needs to be ignored.
-scale_cotangent.defjvp(_scale_cotangent_jvp)  # pyright: ignore
+scale_cotangent.defjvp(_scale_cotangent_jvp)
 
 
 # copy_cotangent -----------------------------------------------------------------------------------
