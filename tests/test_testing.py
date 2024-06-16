@@ -23,8 +23,8 @@ def test_testing(capsys: pytest.CaptureFixture[str], actual: float, desired: str
     pattern = rf"""
 Tree leaves don't match at position 0 with rtol=1e-05 and atol=1e-08\.
 Mismatched elements: 1 / 1 \(100%\)
-Maximum absolute difference: .+
-Maximum relative difference: .+
+Maximum absolute difference among violations: .+
+Maximum relative difference among violations: .+
 
 Actual: {actual}
 Desired: 1000000\.0

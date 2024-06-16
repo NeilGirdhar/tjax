@@ -9,7 +9,7 @@ from typing_extensions import override
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import ComplexNumeric, PyTree, RealNumeric
+from ..annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from .transform import GradientState, SecondOrderGradientTransformation
 
 Weights = TypeVar('Weights', bound=PyTree)
@@ -47,8 +47,8 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
         negative_gradient = tree.map(jnp.negative, gradient)  # delta
 
         # Update log-learning rate.
-        def g(log_p: RealNumeric, delta: ComplexNumeric, v: ComplexNumeric) -> ComplexNumeric:
-            return log_p + self.meta_learning_rate * delta * v
+        def g(log_p: RealNumeric, delta: ComplexNumeric, v: ComplexNumeric) -> JaxComplexArray:
+            return jnp.asarray(log_p + self.meta_learning_rate * delta * v)
 
         new_log_learning_rate = tree.map(g, state.log_learning_rate, negative_gradient, state.v)
         learning_rate = tree.map(jnp.exp, new_log_learning_rate)  # p
@@ -60,8 +60,8 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
         def f(v: ComplexNumeric,
               p: RealNumeric,
               delta: ComplexNumeric,
-              hv: ComplexNumeric) -> ComplexNumeric:
-            return v + p * delta - hv  # type: ignore[return-value]
+              hv: ComplexNumeric) -> JaxComplexArray:
+            return jnp.asarray(v + p * delta - hv)
 
         new_v = tree.map(f, state.v, learning_rate, negative_gradient,
                          hessian_vector_product(state.v))
