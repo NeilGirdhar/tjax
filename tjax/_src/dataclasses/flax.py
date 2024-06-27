@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import KW_ONLY, InitVar, dataclass
-from typing import Any, TypeAlias
+from typing import Any
 
 from flax import nnx
 from typing_extensions import dataclass_transform, override
@@ -12,10 +12,6 @@ from .helpers import field
 def module_field(*, init: bool = False) -> Any:
     """A field that contains submodules."""
     return field(init=init, default=None, kw_only=True)
-
-
-NamedChildren: TypeAlias = tuple[tuple[str, nnx.State], tuple[str, nnx.GraphDef[Any]]]
-Children: TypeAlias = tuple[nnx.State, nnx.GraphDef[Any]]
 
 
 @dataclass_transform(field_specifiers=(module_field, field))
