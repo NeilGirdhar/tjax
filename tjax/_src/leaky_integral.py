@@ -136,6 +136,14 @@ class _FilterCarry:
     value: JaxComplexArray
 
 
+@overload
+def leaky_integrate_time_series(time_series: IntegralArray | RealArray,
+                                decay: RealArray
+                                ) -> RealArray: ...
+@overload
+def leaky_integrate_time_series(time_series: IntegralArray | ComplexArray,
+                                decay: ComplexArray
+                                ) -> ComplexArray: ...
 def leaky_integrate_time_series(time_series: IntegralArray | ComplexArray,
                                 decay: ComplexArray
                                 ) -> ComplexArray:
