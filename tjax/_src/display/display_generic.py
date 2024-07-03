@@ -112,10 +112,7 @@ def _(value: type[Any],
       seen: MutableSet[int] | None = None,
       key: str = '',
       ) -> Tree:
-    if seen is None:
-        seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
+    # No need for seen set ellision.
     return _assemble(key, Text(f"type[{value.__name__}]", style=_type_color))
 
 
@@ -162,7 +159,7 @@ def _(value: None | Number,
       seen: MutableSet[int] | None = None,
       key: str = '',
       ) -> Tree:
-    del seen
+    # No need for seen set ellision.
     return _assemble(key, Text(str(value), style=_number_color))
 
 
