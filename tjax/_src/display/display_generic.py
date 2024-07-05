@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Mapping, MutableSet
+from collections.abc import Generator, Mapping, MutableSet
+from contextlib import contextmanager
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
@@ -85,11 +86,12 @@ def display_generic(value: Any,
                     ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    if is_dataclass(value) and not isinstance(value, type):
-        return _display_dataclass(value, seen=seen, key=key)
-    return _display_object(value, seen=seen, key=key)
+    with _verify(value, seen, key) as x:
+        if x:
+            return x
+        if is_dataclass(value) and not isinstance(value, type):
+            return _display_dataclass(value, seen=seen, key=key)
+        return _display_object(value, seen=seen, key=key)
     # _assemble(key, Text(str(value), style=_unknown_color))
 
 
@@ -99,10 +101,7 @@ def _(value: str,
       seen: MutableSet[int] | None = None,
       key: str = '',
       ) -> Tree:
-    if seen is None:
-        seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
+    # No need for seen set ellision.
     return _assemble(key, Text(f'"{value}"', style=_string_color))
 
 
@@ -122,10 +121,7 @@ def _(value: NumpyArray,
       seen: MutableSet[int] | None = None,
       key: str = '',
       ) -> Tree:
-    if seen is None:
-        seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
+    # No need for seen set ellision.
     retval = _assemble(key,
                        Text(f"NumPy Array {value.shape} {value.dtype}", style=_numpy_array_color))
     _show_array(retval, value)
@@ -138,8 +134,7 @@ def _(value: Array,
       seen: MutableSet[int] | None = None,
       key: str = '',
       ) -> Tree:
-    if seen is None:
-        seen = set()
+    # No need for seen set ellision.
     retval = _assemble(key,
                        Text(f"Jax Array {value.shape} {value.dtype}",
                             style=_jax_array_color))
@@ -171,12 +166,13 @@ def _(value: Mapping[Any, Any],
       ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    retval = display_class(key, type(value))
-    for sub_key, sub_value in value.items():
-        retval.children.append(display_generic(sub_value, seen=seen, key=str(sub_key)))
-    return retval
+    with _verify(value, seen, key) as x:
+        if x:
+            return x
+        retval = display_class(key, type(value))
+        for sub_key, sub_value in value.items():
+            retval.children.append(display_generic(sub_value, seen=seen, key=str(sub_key)))
+        return retval
 
 
 @display_generic.register(tuple)
@@ -188,12 +184,13 @@ def _(value: tuple[Any, ...] | list[Any],
       ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    retval = display_class(key, type(value))
-    for sub_value in value:
-        retval.children.append(display_generic(sub_value, seen=seen, key=""))
-    return retval
+    with _verify(value, seen, key) as x:
+        if x:
+            return x
+        retval = display_class(key, type(value))
+        for sub_value in value:
+            retval.children.append(display_generic(sub_value, seen=seen, key=""))
+        return retval
 
 
 @display_generic.register(PyTreeDef)
@@ -204,11 +201,12 @@ def _(value: PyTreeDef,
       ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    retval = display_class(key, type(value))
-    retval.children.append(display_generic(hash(value), seen=seen, key="hash"))
-    return retval
+    with _verify(value, seen, key) as x:
+        if x:
+            return x
+        retval = display_class(key, type(value))
+        retval.children.append(display_generic(hash(value), seen=seen, key="hash"))
+        return retval
 
 
 @display_generic.register(FunctionType)
@@ -220,12 +218,13 @@ def _(value: PyTreeDef,
       ) -> Tree:
     if seen is None:
         seen = set()
-    if (x := _verify(value, seen, key)) is not None:
-        return x
-    name = getattr(value, '__qualname__', "")
-    retval = display_class(key, type(value))
-    retval.children.append(display_generic(name, seen=seen, key="name"))
-    return retval
+    with _verify(value, seen, key) as x:
+        if x:
+            return x
+        name = getattr(value, '__qualname__', "")
+        retval = display_class(key, type(value))
+        retval.children.append(display_generic(name, seen=seen, key="name"))
+        return retval
 
 
 # Public unexported functions ----------------------------------------------------------------------
@@ -298,13 +297,17 @@ def _variables(value: Any) -> dict[str, Any]:
             if not key.startswith('__')}
 
 
+@contextmanager
 def _verify(value: Any,
             seen: MutableSet[int],
-            key: str) -> Tree | None:
+            key: str
+            ) -> Generator[Tree | None, None, None]:
     if id(value) in seen:
-        return _assemble(key, Text('<seen>', style=_seen_color))
+        yield _assemble(key, Text(f'<seen {id(value)}>', style=_seen_color))
+        return
     seen.add(id(value))
-    return None
+    yield None
+    seen.remove(id(value))
 
 
 def _assemble(key: str,

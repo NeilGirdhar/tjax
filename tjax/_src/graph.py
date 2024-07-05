@@ -103,16 +103,17 @@ else:
           ) -> Tree:
         if seen is None:
             seen = set()
-        if (x := _verify(value, seen, key)) is not None:
-            return x
-        arrow = graph_arrow(isinstance(value, nx.DiGraph))
-        retval = display_class(key, type(value))
-        for name, node in value.nodes.items():
-            retval.children.append(display_generic(node, seen=seen, key=name))
-        for (source, target), edge in value.edges.items():
-            key = graph_edge_name(arrow, source, target)
-            retval.children.append(display_generic(edge, seen=seen, key=key))
-        return retval
+        with _verify(value, seen, key) as x:
+            if x:
+                return x
+            arrow = graph_arrow(isinstance(value, nx.DiGraph))
+            retval = display_class(key, type(value))
+            for name, node in value.nodes.items():
+                retval.children.append(display_generic(node, seen=seen, key=name))
+            for (source, target), edge in value.edges.items():
+                key = graph_edge_name(arrow, source, target)
+                retval.children.append(display_generic(edge, seen=seen, key=key))
+            return retval
 
     try:
         from flax.nnx.nnx.graph import register_graph_node_type
