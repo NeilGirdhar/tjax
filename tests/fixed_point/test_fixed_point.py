@@ -147,8 +147,8 @@ def test_forward(fixed_point_using_while: C,
 def test_grad(fixed_point_using_while: C,
               fixed_point_using_scan: C,
               theta: Array) -> None:
-    g = grad(partial(fixed_point_using_while, x_init=8.0))
-    h = grad(partial(fixed_point_using_scan, x_init=8.0))
+    g = grad(partial(fixed_point_using_while, x_init=jnp.asarray(8.0)))
+    h = grad(partial(fixed_point_using_scan, x_init=jnp.asarray(8.0)))
     assert_allclose(1.0, g(theta), rtol=1e-1)
     assert_allclose(1.0, h(theta), rtol=1e-1)
 

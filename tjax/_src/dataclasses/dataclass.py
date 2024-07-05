@@ -24,14 +24,14 @@ class TDataclassInstance(DataclassInstance, Protocol):
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,  # noqa: A002
+def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
               order: bool = False) -> Callable[[type[Any]], type[TDataclassInstance]]:
     ...
 
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,  # noqa: A002
+def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,
               eq: bool = True, order: bool = False) -> type[TDataclassInstance]:
     ...
 

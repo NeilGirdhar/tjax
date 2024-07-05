@@ -90,7 +90,7 @@ def display_generic(value: Any,
         if x:
             return x
         if is_dataclass(value) and not isinstance(value, type):
-            return _display_dataclass(value, seen=seen, key=key)
+            return _display_dataclass(value, seen=seen, key=key)  # type: ignore[unreachable]
         return _display_object(value, seen=seen, key=key)
     # _assemble(key, Text(str(value), style=_unknown_color))
 

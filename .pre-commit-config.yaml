@@ -15,17 +15,17 @@ repos:
   - id: check-yaml
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.4.6
+  rev: v0.5.4
   hooks:
   - id: ruff
 
 - repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.365
+  rev: v1.1.372
   hooks:
   - id: pyright
 
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: 'v1.10.0'
+  rev: 'v1.11.0'
   hooks:
   - id: mypy
     additional_dependencies: [flax]

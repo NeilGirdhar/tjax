@@ -102,7 +102,8 @@ def _print_cotangent_bwd(name: str | None, residuals: None, x_bar: X) -> tuple[X
 
 
 # https://github.com/python/mypy/issues/14802
-print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
+print_cotangent.defvjp(_print_cotangent_fwd,  # type: ignore[arg-type] # pyright: ignore
+                       _print_cotangent_bwd)
 
 
 # cotangent_combinator -----------------------------------------------------------------------------

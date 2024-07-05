@@ -20,7 +20,7 @@ class _DataClassModule(nnx.Module):
     def __init_subclass__(cls,
                           *,
                           init: bool = True,
-                          repr: bool = True,  # noqa: A002
+                          repr: bool = True,
                           eq: bool = True,
                           order: bool = False,
                           kw_only: bool = False,

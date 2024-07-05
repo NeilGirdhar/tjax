@@ -12,8 +12,8 @@ T = TypeVar('T')
 # to understand the magic that happens at runtime.
 @overload  # `default` and `default_factory` are optional and mutually exclusive.
 def field(*, static: bool = False, default: T, init: bool = ...,
-          repr: bool = ...,  # noqa: A002
-          hash: bool | None = ...,  # noqa: A002
+          repr: bool = ...,
+          hash: bool | None = ...,
           compare: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
@@ -21,8 +21,8 @@ def field(*, static: bool = False, default: T, init: bool = ...,
 
 @overload
 def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
-          repr: bool = ...,  # noqa: A002
-          hash: bool | None = ...,  # noqa: A002
+          repr: bool = ...,
+          hash: bool | None = ...,
           compare: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
@@ -30,8 +30,8 @@ def field(*, static: bool = False, default_factory: Callable[[], T], init: bool 
 
 @overload
 def field(*, static: bool = False, init: bool = ...,
-          repr: bool = ...,  # noqa: A002
-          hash: bool | None = ...,  # noqa: A002
+          repr: bool = ...,
+          hash: bool | None = ...,
           compare: bool = ...,
           metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Any:
     ...

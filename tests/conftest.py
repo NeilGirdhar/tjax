@@ -13,11 +13,11 @@ def _jax_enable64() -> Generator[None, None, None]:
         yield
 
 
-@pytest.fixture()
+@pytest.fixture
 def generator() -> np.random.Generator:
     return np.random.default_rng(123)
 
 
-@pytest.fixture()
+@pytest.fixture
 def console() -> Console:
     return Console(file=StringIO(), width=80)
