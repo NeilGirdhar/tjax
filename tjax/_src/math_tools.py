@@ -185,7 +185,7 @@ def create_diagonal_array(m: T) -> T:
     retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
     for index in np.ndindex(*pre):
         target_index = (*index, slice(None, None, n + 1))
-        source_values = m[(*index, slice(None))]  # type:ignore[arg-type]
+        source_values = m[*index, :]  # type: ignore[arg-type]
         if isinstance(retval, JaxArray):
             retval.at[target_index].set(source_values)
         else:
