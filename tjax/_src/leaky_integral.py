@@ -185,7 +185,7 @@ def leaky_covariance(x_time_series: ComplexArray,
         s = (np.newaxis,)
 
         def times(a: ComplexArray, b: ComplexArray, /) -> ComplexArray:
-            return a[(..., *(s * (b.ndim - 1)))] * b[(slice(None), *(s * (a.ndim - 1)))]
+            return a[..., *(s * (b.ndim - 1))] * b[:, *(s * (a.ndim - 1))]
     else:
         if x_time_series.shape != y_time_series.shape:
             raise ValueError
