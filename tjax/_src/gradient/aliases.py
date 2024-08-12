@@ -5,8 +5,9 @@ from dataclasses import asdict
 from typing import Any, Generic
 
 import jax.numpy as jnp
-from optax import (adabelief, adafactor, adagrad, adam, adamw, dpsgd, fromage, lamb, lars,
-                   noisy_sgd, radam, rmsprop, sgd, sm3, yogi)
+from optax import (adabelief, adafactor, adagrad, adam, adamw, fromage, lamb, lars, noisy_sgd,
+                   radam, rmsprop, sgd, sm3, yogi)
+from optax.contrib import dpsgd
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
