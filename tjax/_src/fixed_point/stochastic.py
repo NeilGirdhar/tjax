@@ -12,6 +12,7 @@ from tjax.dataclasses import dataclass
 from ..annotations import ComplexArray, JaxBooleanArray, JaxRealArray
 from ..leaky_integral import leaky_data_weight, leaky_integrate
 from ..math_tools import abs_square, divide_nonnegative
+from ..tree_tools import dynamic_tree_all
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -66,12 +67,11 @@ class StochasticIteratedFunction(
     def converged(self, augmented: StochasticState[State, Comparand]) -> JaxBooleanArray:
         data_weight = leaky_data_weight(augmented.iterations, self.convergence_detection_decay)
         mean_squared = tree.map(abs_square, augmented.mean_state)
-        return tree.reduce(jnp.logical_and,
-                           tree.map(partial(jnp.allclose, rtol=self.rtol * data_weight,
-                                            atol=self.atol * data_weight),
-                                    augmented.second_moment_state,
-                                    mean_squared),
-                           jnp.asarray(True))
+        return dynamic_tree_all(
+            tree.map(partial(jnp.allclose, rtol=self.rtol * data_weight,
+                             atol=self.atol * data_weight),
+                     augmented.second_moment_state,
+                     mean_squared))
 
     @override
     def minimum_tolerances(self,

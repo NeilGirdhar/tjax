@@ -9,6 +9,7 @@ from typing_extensions import override
 from tjax.dataclasses import dataclass
 
 from ..annotations import JaxBooleanArray, JaxRealArray
+from ..tree_tools import dynamic_tree_all
 from .augmented import AugmentedState, State
 from .combinator import Differentiand, IteratedFunctionWithCombinator
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
@@ -46,9 +47,7 @@ class ZeroIteratedFunction(
         def all_close_zero(x: Any) -> JaxBooleanArray:
             return jnp.all(jnp.abs(x) < self.atol)
 
-        return tree.reduce(jnp.logical_and,
-                           tree.map(all_close_zero, comparand),
-                           jnp.asarray(True))
+        return dynamic_tree_all(tree.map(all_close_zero, comparand))
 
     @override
     def minimum_tolerances(self, augmented: AugmentedState[State]

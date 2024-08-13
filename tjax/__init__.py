@@ -26,7 +26,6 @@ from ._src.partial import Partial
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
-from ._src.tree_tools import tree_map_with_path
 
 __all__ = [
     'Array',
@@ -107,6 +106,5 @@ __all__ = [
     'scale_cotangent',
     'softplus',
     'tree_allclose',
-    'tree_map_with_path',
     'zero_tangent_like',
 ]

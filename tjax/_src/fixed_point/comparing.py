@@ -11,6 +11,7 @@ from tjax.dataclasses import dataclass
 
 from ..annotations import JaxBooleanArray, JaxRealArray
 from ..math_tools import divide_nonnegative
+from ..tree_tools import dynamic_tree_all
 from .augmented import AugmentedState, State
 from .iterated_function import Comparand, IteratedFunction, Parameters, Trajectory
 
@@ -49,11 +50,9 @@ class ComparingIteratedFunction(
 
     @override
     def converged(self, augmented: ComparingState[State, Comparand]) -> JaxBooleanArray:
-        return tree.reduce(jnp.logical_and,
-                           tree.map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
-                                    self.extract_comparand(augmented.current_state),
-                                    augmented.last_state),
-                           jnp.asarray(True))
+        return dynamic_tree_all(tree.map(partial(jnp.allclose, rtol=self.rtol, atol=self.atol),
+                                         self.extract_comparand(augmented.current_state),
+                                         augmented.last_state))
 
     @override
     def minimum_tolerances(self, augmented: ComparingState[State, Comparand]

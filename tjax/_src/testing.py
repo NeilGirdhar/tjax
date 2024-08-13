@@ -3,7 +3,6 @@ from __future__ import annotations
 from functools import partial, singledispatch
 from math import prod
 from numbers import Complex, Integral, Real
-from operator import and_
 from typing import Any
 
 import jax
@@ -115,7 +114,7 @@ def tree_allclose(actual: PyTree,
         tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         return bool(jnp.allclose(actual_array, desired_array, **tols))
 
-    return tree.reduce(and_, tree.map(allclose, actual, desired), True)
+    return tree.all(tree.map(allclose, actual, desired))
 
 
 # get test string ----------------------------------------------------------------------------------
