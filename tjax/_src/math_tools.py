@@ -106,12 +106,12 @@ def divide_where(dividend: ComplexArray,
     if where is None:
         assert otherwise is None
         xp = get_namespace(dividend, divisor)
-        return xp.true_divide(dividend, divisor)
+        return xp.divide(dividend, divisor)
     assert otherwise is not None
     xp = get_namespace(dividend, divisor, where, otherwise)
     dividend = xp.where(where, dividend, 1.0)
     divisor = xp.where(where, divisor, 1.0)
-    quotient: ComplexArray = xp.true_divide(dividend, divisor)
+    quotient: ComplexArray = xp.divide(dividend, divisor)
     return xp.where(where, quotient, otherwise)
 
 
@@ -132,7 +132,8 @@ def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
     whenever the divisor equals zero.
     """
     xp = get_namespace(dividend, divisor)
-    return cast(RealArray, divide_where(dividend, divisor, where=divisor > 0.0, otherwise=xp.inf))
+    return cast(RealArray, divide_where(dividend, divisor, where=divisor > 0.0,
+                                        otherwise=xp.asarray(xp.inf)))
 
 
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
