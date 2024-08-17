@@ -121,9 +121,10 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
 
 def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
     retval = f"{type(actual).__name__}("
-    retval += ",\n".join(((f"{fn.name}=" if fn.kw_only else "")
-                          + get_test_string(getattr(actual, fn.name), rtol, atol))
-                         for fn in dataclasses.fields(actual))
+    retval += ",\n".join(((f"{field_object.name}=" if field_object.kw_only else "")
+                          + get_test_string(getattr(actual, field_object.name), rtol, atol))
+                         for field_object in dataclasses.fields(actual)
+                         if field_object.repr)
     retval += ")"
     return retval
 
@@ -133,14 +134,18 @@ def get_relative_dataclass_test_string(actual: Any,
                                        original: Any,
                                        rtol: float,
                                        atol: float) -> str:
+    repr_dict = {field.name: field.repr
+                 for field in dataclasses.fields(actual)}
     retval = f"replace({original_name}, "
     retval += ",\n".join(
-        f"{fn}=" + get_relative_test_string(f"{original_name}.{fn}",
-                                            getattr(actual, fn),
-                                            getattr(original, fn),
-                                            rtol,
-                                            atol)
-        for fn in actual.dynamic_fields
-        if not tree_allclose(getattr(actual, fn), getattr(original, fn), rtol=rtol, atol=atol))
+        f"{field_name}=" + get_relative_test_string(f"{original_name}.{field_name}",
+                                                    getattr(actual, field_name),
+                                                    getattr(original, field_name),
+                                                    rtol,
+                                                    atol)
+        for field_name in actual.dynamic_fields
+        if repr_dict[field_name]
+        if not tree_allclose(getattr(actual, field_name), getattr(original, field_name),
+                             rtol=rtol, atol=atol))
     retval += ")"
     return retval

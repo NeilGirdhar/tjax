@@ -254,6 +254,8 @@ def _display_dataclass(value: DataclassInstance,
     for field_info in fields(value):
         name = field_info.name
         names.add(name)
+        if not field_info.repr:
+            continue
         if not attribute_filter(value, name):
             continue
         display_name = name
