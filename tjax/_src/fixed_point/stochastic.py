@@ -49,8 +49,8 @@ class StochasticIteratedFunction(
     @override
     def iterate_augmented(self,
                           new_state: State,
-                          augmented: StochasticState[State, Comparand]) -> (
-                              StochasticState[State, Comparand]):
+                          augmented: StochasticState[State, Comparand]
+                          ) -> StochasticState[State, Comparand]:
         def f(value: ComplexArray, drift: ComplexArray) -> ComplexArray:
             return leaky_integrate(value, jnp.asarray(1.0), drift, self.convergence_detection_decay,
                                    leaky_average=True)

@@ -109,8 +109,8 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
                             gradient: Weights,
                             state: State,
                             parameters: Weights | None,
-                            hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                tuple[Weights, State]):
+                            hessian_vector_product: Callable[[Weights], Weights]
+                            ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:
@@ -140,8 +140,8 @@ class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, 
                             gradient: Weights,
                             state: State,
                             parameters: Weights | None,
-                            hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                tuple[Weights, State]):
+                            hessian_vector_product: Callable[[Weights], Weights]
+                            ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:

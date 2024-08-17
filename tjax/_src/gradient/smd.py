@@ -42,8 +42,8 @@ class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
                             gradient: Weights,
                             state: SMDState[Weights],
                             parameters: Weights | None,
-                            hessian_vector_product: Callable[[Weights], Weights]) -> (
-                                tuple[Weights, SMDState[Weights]]):
+                            hessian_vector_product: Callable[[Weights], Weights]
+                            ) -> tuple[Weights, SMDState[Weights]]:
         negative_gradient = tree.map(jnp.negative, gradient)  # delta
 
         # Update log-learning rate.

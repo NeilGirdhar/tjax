@@ -42,8 +42,8 @@ class ComparingIteratedFunction(
     @override
     def iterate_augmented(self,
                           new_state: State,
-                          augmented: ComparingState[State, Comparand]) -> (
-                              ComparingState[State, Comparand]):
+                          augmented: ComparingState[State, Comparand]
+                          ) -> ComparingState[State, Comparand]:
         return ComparingState(current_state=new_state,
                               iterations=augmented.iterations + 1,
                               last_state=self.extract_comparand(augmented.current_state))

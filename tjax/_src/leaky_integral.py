@@ -185,14 +185,16 @@ def leaky_covariance(x_time_series: ComplexArray,
         s = (np.newaxis,)
 
         def times(a: ComplexArray, b: ComplexArray, /) -> ComplexArray:
-            return a[..., *(s * (b.ndim - 1))] * b[:, *(s * (a.ndim - 1))]
+            a_selected = a[..., *(s * (b.ndim - 1))]
+            b_selected = b[:, *(s * (a.ndim - 1))]
+            return a_selected * b_selected  # type: ignore # pyright: ignore
     else:
         if x_time_series.shape != y_time_series.shape:
             raise ValueError
 
         def times(a: ComplexArray, b: ComplexArray, /) -> ComplexArray:
-            return a * b
+            return a * b  # type: ignore # pyright: ignore
     x = leaky_integrate_time_series(x_time_series, decay)
     y = leaky_integrate_time_series(y_time_series, decay)
     xy = leaky_integrate_time_series(times(x_time_series, y_time_series), decay)
-    return xy - times(x, y)
+    return xy - times(x, y)  # type: ignore # pyright: ignore
