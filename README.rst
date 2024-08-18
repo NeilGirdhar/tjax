@@ -25,18 +25,15 @@ Major components
 
 Tjax's major components are:
 
-- A `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/dataclasses>`_ decorator :python:`dataclass` that facilitates defining structured JAX objects (so-called "pytrees"), which benefits from:
+- A `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/dataclasses>`_ decorator
+  :python:`dataclass` that facilitates defining structured JAX objects (so-called "pytrees"), which
+  benefits from:
 
   - the ability to mark fields as static (not available in `chex.dataclass`), and
   - a display method that produces formatted text according to the tree structure.
 
-- A `fixed_point <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/fixed_point>`_ finding library heavily based on `fax <https://github.com/gehring/fax>`_.  Our
-  library
-
-  - supports stochastic iterated functions, and
-  - uses dataclasses instead of closures to avoid leaking JAX tracers.
-
-- A `shim <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/gradient>`_ for the gradient transformation library `optax <https://github.com/deepmind/optax>`_ that supports:
+- A `shim <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/gradient>`_ for the gradient
+  transformation library `optax <https://github.com/deepmind/optax>`_ that supports:
 
 
   - easy differentiation and vectorization of “gradient transformation” (learning rule) parameters,

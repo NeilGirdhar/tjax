@@ -1,5 +1,5 @@
 """Tools for the differential programming library [JAX](https://github.com/google/jax)."""
-from . import dataclasses, fixed_point, gradient
+from . import dataclasses, gradient
 from ._src.abstract_method_decorators import JaxAbstractClass, abstract_custom_jvp, abstract_jit
 from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
                                ComplexNumeric, Integral, IntegralArray, IntegralNumeric, JaxArray,
@@ -81,7 +81,6 @@ __all__ = [
     'display_generic',
     'divide_nonnegative',
     'divide_where',
-    'fixed_point',
     'get_relative_test_string',
     'get_test_string',
     'gradient',
