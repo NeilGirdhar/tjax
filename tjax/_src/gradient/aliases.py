@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import asdict
+from dataclasses import KW_ONLY, asdict
 from typing import Any, Generic
 
 import jax.numpy as jnp
-from optax import (adabelief, adafactor, adagrad, adam, adamw, fromage, lamb, lars, noisy_sgd,
-                   radam, rmsprop, sgd, sm3, yogi)
+from optax import (GradientTransformationExtraArgs, adabelief, adadelta, adafactor, adagrad, adam,
+                   adamax, adamaxw, adamw, fromage, lamb, lars, lbfgs, lion, noisy_sgd, novograd,
+                   optimistic_gradient_descent, polyak_sgd, radam, rmsprop,
+                   scale_by_zoom_linesearch, sgd, sm3, yogi)
 from optax.contrib import dpsgd
 from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
 
-from ..annotations import IntegralNumeric, RealNumeric
+from ..annotations import BooleanNumeric, IntegralNumeric, RealNumeric
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 
@@ -27,6 +29,7 @@ class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[W
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
+    eps_root: RealNumeric = 1e-16
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -39,6 +42,28 @@ class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[W
                parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore
             *adabelief(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class AdaDelta(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: ScalarOrSchedule | None = None
+    rho: RealNumeric = 0.9
+    eps: RealNumeric = 1e-6
+    weight_decay: RealNumeric = 0.0
+    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None,
+                                                                                static=True)
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(adadelta(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *adadelta(**asdict(self)).update(gradient, state.data, parameters))
 
 
 @dataclass
@@ -97,6 +122,8 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     mu_dtype: Any | None = field(default=None, static=True)
+    _: KW_ONLY
+    nesterov: BooleanNumeric = False
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -121,6 +148,8 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     mu_dtype: Any | None = field(default=None, static=True)
     weight_decay: RealNumeric = 1e-4
     mask: Any | Callable[[Any], Any] | None = None
+    _: KW_ONLY
+    nesterov: BooleanNumeric = False
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -133,6 +162,48 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
                parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore
             *adamw(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class Adamax(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: RealNumeric
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-8
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(adamax(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *adamax(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class AdamaxW(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: RealNumeric
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-8
+    weight_decay: RealNumeric = 1e-4
+    mask: Any | Callable[[Any], Any] | None = None
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(adamaxw(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *adamaxw(**asdict(self)).update(gradient, state.data, parameters))
 
 
 @dataclass
@@ -151,6 +222,29 @@ class Fromage(GradientTransformation[GenericGradientState, Weights], Generic[Wei
                parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore
             *fromage(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-6
+    eps_root: RealNumeric = 0.0
+    weight_decay: RealNumeric = 0.0
+    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(lamb(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *lamb(**asdict(self)).update(gradient, state.data, parameters))
 
 
 @dataclass
@@ -180,18 +274,16 @@ class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
-    learning_rate: ScalarOrSchedule
-    b1: RealNumeric = 0.9
-    b2: RealNumeric = 0.999
-    eps: RealNumeric = 1e-6
-    eps_root: RealNumeric = 0.0
-    weight_decay: RealNumeric = 0.0
-    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
+class LBFGS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: None | ScalarOrSchedule = None
+    memory_size: int = field(default=10, static=True)
+    scale_init_precond: bool = field(default=True, static=True)
+    linesearch: None | GradientTransformationExtraArgs = (
+            scale_by_zoom_linesearch(max_linesearch_steps=15))
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(lamb(**asdict(self)).init(parameters))
+        return GenericGradientState(lars(**asdict(self)).init(parameters))
 
     @override
     def update(self,
@@ -199,7 +291,29 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
                state: GenericGradientState,
                parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore
-            *lamb(**asdict(self)).update(gradient, state.data, parameters))
+            *lbfgs(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class Lion(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.99
+    mu_dtype: Any | None = field(default=None, static=True)
+    weight_decay: RealNumeric = 1e-3
+    mask: Any | Callable[[Any], Any] | None = None
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(lion(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *lion(**asdict(self)).update(gradient, state.data, parameters))
 
 
 @dataclass
@@ -223,6 +337,68 @@ class NoisySGD(GradientTransformation[GenericGradientState, Weights], Generic[We
 
 
 @dataclass
+class Novograd(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.25
+    eps: RealNumeric = 1e-6
+    eps_root: RealNumeric = 0.0
+    weight_decay: RealNumeric = 0.0
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(novograd(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *novograd(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class OptimisticGradientDescent(GradientTransformation[GenericGradientState, Weights],
+                                Generic[Weights]):
+    learning_rate: ScalarOrSchedule
+    alpha: ScalarOrSchedule
+    beta: ScalarOrSchedule
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(optimistic_gradient_descent(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *optimistic_gradient_descent(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
+class PolyakSGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+    max_learning_rate: RealNumeric = 1.0
+    scaling: ScalarOrSchedule = 1.0
+    f_min: RealNumeric = 0.0
+    eps: RealNumeric = 0.0
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(polyak_sgd(**asdict(self)).init(parameters))
+
+    @override
+    def update(self,
+               gradient: Weights,
+               state: GenericGradientState,
+               parameters: Weights | None) -> tuple[Weights, GenericGradientState]:
+        return GenericGradientState.wrap(  # pyright: ignore
+            *polyak_sgd(**asdict(self)).update(gradient, state.data, parameters))
+
+
+@dataclass
 class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
@@ -230,6 +406,8 @@ class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     threshold: RealNumeric = 5.0
+    _: KW_ONLY
+    nesterov: BooleanNumeric = False
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -277,6 +455,7 @@ class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Wei
     centered: bool = field(default=False, static=True)
     momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
+    bias_correction: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:

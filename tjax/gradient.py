@@ -1,5 +1,7 @@
-from tjax._src.gradient.aliases import (DPSGD, LARS, SGD, SM3, AdaBelief, AdaFactor, AdaGrad, Adam,
-                                        AdamW, Fromage, Lamb, NoisySGD, RAdam, RMSProp, Yogi)
+from tjax._src.gradient.aliases import (DPSGD, LARS, LBFGS, SGD, SM3, AdaBelief, AdaDelta,
+                                        AdaFactor, AdaGrad, Adam, Adamax, AdamaxW, AdamW, Fromage,
+                                        Lamb, Lion, NoisySGD, Novograd, OptimisticGradientDescent,
+                                        PolyakSGD, RAdam, RMSProp, Yogi)
 from tjax._src.gradient.chain import ChainedGradientState, ChainedGradientTransformation
 from tjax._src.gradient.smd import SMDGradient, SMDState
 from tjax._src.gradient.transform import (GenericGradientState, GradientState,
@@ -13,14 +15,22 @@ from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEve
 
 __all__ = [
     'DPSGD',
+    'DPSGD',
     'LARS',
+    'LARS',
+    'LBFGS',
+    'SGD',
     'SGD',
     'SM3',
+    'SM3',
     'AdaBelief',
+    'AdaDelta',
     'AdaFactor',
     'AdaGrad',
     'Adam',
     'AdamW',
+    'Adamax',
+    'AdamaxW',
     'AddDecayedWeights',
     'AddNoise',
     'ApplyEvery',
@@ -33,7 +43,11 @@ __all__ = [
     'GradientState',
     'GradientTransformation',
     'Lamb',
+    'Lion',
     'NoisySGD',
+    'Novograd',
+    'OptimisticGradientDescent',
+    'PolyakSGD',
     'RAdam',
     'RMSProp',
     'SMDGradient',
@@ -55,4 +69,5 @@ __all__ = [
     'SecondOrderGradientTransformation',
     'ThirdOrderGradientTransformation',
     'Trace',
-    'Yogi']
+    'Yogi',
+]

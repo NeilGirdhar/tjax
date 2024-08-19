@@ -576,7 +576,7 @@ files = [
 [package.dependencies]
 fsspec = {version = "*", optional = true, markers = "extra == \"epath\""}
 importlib_resources = {version = "*", optional = true, markers = "extra == \"epath\""}
-typing_extensions = {version = "*", optional = true, markers = "extra == \"epy\""}
+typing_extensions = {version = "*", optional = true, markers = "extra == \"epath\" or extra == \"epy\""}
 zipp = {version = "*", optional = true, markers = "extra == \"epath\""}
 
 [package.extras]
@@ -3163,4 +3163,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "b22454ca8f18bfb0f9e08ccf5d3c3ff439d0db4adc60c1e008169561d1d25abb"
+content-hash = "98930a0c8d85ec2575ab648866bbc770cb0181b2362b3d753e83c784f916adaf"
