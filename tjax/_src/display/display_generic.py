@@ -65,16 +65,7 @@ else:
 
 
 def attribute_filter(value: Any, attribute_name: str) -> bool:
-    is_private = attribute_name.startswith('_')
-    if flax_loaded:
-        from flax import nnx  # noqa: PLC0415
-        if isinstance(value, nnx.State) and is_private:
-            return False
-        if (isinstance(value, nnx.Variable | nnx.VariableState)
-            and (is_private or attribute_name.endswith('_hooks'))):
-            return False
-        if isinstance(value, FlaxModule) and attribute_name.startswith('_graph_node__'):
-            return False
+    # is_private = attribute_name.startswith('_')
     return True
 
 
@@ -89,6 +80,10 @@ def display_generic(value: Any,
     with _verify(value, seen, key) as x:
         if x:
             return x
+        if flax_loaded:
+            from flax import nnx  # noqa: PLC0415
+            if isinstance(value, nnx.nnx.reprlib.Representable):  # pyright: ignore
+                return _display_flax_object(value, seen=seen, key=key)
         if is_dataclass(value) and not isinstance(value, type):
             return _display_dataclass(value, seen=seen, key=key)  # type: ignore[unreachable]
         return _display_object(value, seen=seen, key=key)
@@ -271,11 +266,28 @@ def _display_dataclass(value: DataclassInstance,
     return retval
 
 
+def _display_flax_object(value: Any,
+                         *,
+                         seen: MutableSet[int],
+                         key: str = '',
+                         ) -> Tree:
+    from flax import nnx  # noqa: PLC0415
+    assert isinstance(value, nnx.nnx.reprlib.Representable)  # pyright: ignore
+    iterator = value.__nnx_repr__()
+    config = next(iterator)
+    assert isinstance(config, nnx.nnx.reprlib.Object)  # pyright: ignore
+    retval = display_class(key, type(value))
+    for element in iterator:
+        assert isinstance(element, nnx.nnx.reprlib.Attr)  # pyright: ignore
+        retval.children.append(display_generic(getattr(value, element.key), seen=seen,
+                                               key=element.key))
+    return retval
+
+
 def _display_object(value: Any,
                     *,
                     seen: MutableSet[int],
                     key: str = '',
-                    hide_private: bool = False,
                     ) -> Tree:
     retval = display_class(key, type(value))
     variables = _variables(value)
