@@ -14,6 +14,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
 from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
+from ._src.dtype_tools import cast_to_result_type, result_type
 from ._src.dtypes import default_atol, default_rtol, default_tols
 from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pytree,
                          register_graph_as_nnx_node)
@@ -27,6 +28,7 @@ from ._src.rng import RngStream, create_streams, fork_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
+from ._src.tree_tools import dynamic_tree_all
 
 __all__ = [
     'Array',
@@ -68,6 +70,7 @@ __all__ = [
     'abstract_custom_jvp',
     'abstract_jit',
     'assert_tree_allclose',
+    'cast_to_result_type',
     'copy_cotangent',
     'cotangent_combinator',
     'create_diagonal_array',
@@ -84,6 +87,7 @@ __all__ = [
     'display_generic',
     'divide_nonnegative',
     'divide_where',
+    'dynamic_tree_all',
     'fork_streams',
     'get_relative_test_string',
     'get_test_string',
@@ -106,6 +110,7 @@ __all__ = [
     'register_graph_as_jax_pytree',
     'register_graph_as_nnx_node',
     'replace_cotangent',
+    'result_type',
     'scale_cotangent',
     'softplus',
     'tree_allclose',
