@@ -25,20 +25,16 @@ class TDataclassInstance(DataclassInstance, Protocol):
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
-              order: bool = False) -> Callable[[type[Any]], type[TDataclassInstance]]:
-    ...
-
-
+              order: bool = False, frozen: bool = True
+              ) -> Callable[[type[Any]], type[TDataclassInstance]]: ...
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,
-              eq: bool = True, order: bool = False) -> type[TDataclassInstance]:
-    ...
-
-
+              eq: bool = True, order: bool = False, frozen: bool = True
+              ) -> type[TDataclassInstance]: ...
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
 def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool = True,  # noqa: A002
-              eq: bool = True, order: bool = False
+              eq: bool = True, order: bool = False, frozen: bool = True
               ) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
     """A dataclass creator that creates a Jax pytree.
 
@@ -91,13 +87,13 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     """
     if cls is None:
         def f(x: type[Any], /) -> type[TDataclassInstance]:
-            return dataclass(x, init=init, repr=repr, eq=eq, order=order)
+            return dataclass(x, init=init, repr=repr, eq=eq, order=order, frozen=frozen)
         return f  # Type checking support partial is poor.
 
     # Apply dataclass function to cls.
-    data_clz: type[TDataclassInstance] = cast(type[TDataclassInstance],
-                                              dataclasses.dataclass(init=init, repr=repr, eq=eq,
-                                                                    order=order, frozen=True)(cls))
+    data_clz: type[TDataclassInstance] = cast(
+            type[TDataclassInstance],
+            dataclasses.dataclass(init=init, repr=repr, eq=eq, order=order, frozen=frozen)(cls))
 
     # Partition fields into static, and dynamic; and assign these to the class.
     static_fields: list[str] = []
