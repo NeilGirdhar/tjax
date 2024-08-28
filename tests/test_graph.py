@@ -50,4 +50,10 @@ def test_flatten_flavors(graph: nx.DiGraph[Any]) -> None:
     assert hash(tree_def_a) == hash(tree_def_b)
     assert values_a == list(values_b)
     assert values_a == [2.0, 3.0, 4.0, 5.0, 7.0]
-    assert key_paths[3][0] == 'a⟶b'
+    simplified = {"".join(str(x) for x in key_path)
+                  for key_path in key_paths}
+    assert simplified == {".node['a']['y']",
+                          ".node['b']['z']",
+                          ".node['c']['w']",
+                          ".edge['a', 'b']['x']",
+                          ".edge['c', 'b']['x']"}

@@ -16,8 +16,8 @@ from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type, result_type
 from ._src.dtypes import default_atol, default_rtol, default_tols
-from ._src.graph import (graph_arrow, graph_edge_name, register_graph_as_jax_pytree,
-                         register_graph_as_nnx_node)
+from ._src.graph import (GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey, graph_arrow,
+                         graph_edge_name, register_graph_as_jax_pytree, register_graph_as_nnx_node)
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, create_diagonal_array, divide_nonnegative, divide_where,
@@ -37,6 +37,8 @@ __all__ = [
     'Complex',
     'ComplexArray',
     'ComplexNumeric',
+    'GraphEdgeKey',
+    'GraphNodeKey',
     'Integral',
     'IntegralArray',
     'IntegralNumeric',
@@ -66,6 +68,7 @@ __all__ = [
     'ShapeLike',
     'SliceLike',
     'TapFunctionTransforms',
+    'UndirectedGraphEdgeKey',
     'abs_square',
     'abstract_custom_jvp',
     'abstract_jit',

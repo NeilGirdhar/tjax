@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from tjax import register_graph_as_nnx_node
+from tjax import GraphEdgeKey, register_graph_as_nnx_node
 
 try:
     import networkx as nx
@@ -47,7 +47,7 @@ def test_clone(graph: nx.DiGraph[Any]) -> None:
 
 def test_flatten(graph: nx.DiGraph[Any]) -> None:
     _, state, _ = nnx.graph.flatten(graph)
-    substate = state['a⟶b']
+    substate = state[GraphEdgeKey('a', 'b')]
     assert isinstance(substate, nnx.State)
     variable = substate['x']
     assert isinstance(variable, nnx.VariableState)
