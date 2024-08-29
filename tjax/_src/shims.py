@@ -42,7 +42,8 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
     def __init__(self,
                  func: Callable[P, R_co],
                  *,
-                 static_argnums: tuple[int, ...] = ()):
+                 static_argnums: tuple[int, ...] = ()
+                 ) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
@@ -72,7 +73,8 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
     def __init__(self,
                  func: Callable[Concatenate[U, P], R_co],
                  *,
-                 static_argnums: tuple[int, ...] = ()):
+                 static_argnums: tuple[int, ...] = ()
+                 ) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
@@ -117,7 +119,8 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
     def __init__(self,
                  func: Callable[P, R_co],
                  *,
-                 nondiff_argnums: tuple[int, ...] = ()):
+                 nondiff_argnums: tuple[int, ...] = ()
+                 ) -> None:
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
@@ -147,7 +150,8 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
     def __init__(self,
                  func: Callable[Concatenate[U, P], R_co],
                  *,
-                 nondiff_argnums: tuple[int, ...] = ()):
+                 nondiff_argnums: tuple[int, ...] = ()
+                 ) -> None:
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)

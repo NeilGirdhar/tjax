@@ -9,7 +9,7 @@ from .annotations import JaxIntegralArray, KeyArray
 
 
 class RngStream:
-    def __init__(self, key: KeyArray, count: JaxIntegralArray | None = None):
+    def __init__(self, key: KeyArray, count: JaxIntegralArray | None = None) -> None:
         super().__init__()
         if count is None:
             count = jnp.zeros((), dtype=jnp.uint32)

@@ -13,7 +13,7 @@ except ImportError:
 @pytest.mark.skip
 def test_dataclass_module() -> None:
     class SomeModule(nnx.Module):
-        def __init__(self, epsilon: Array):
+        def __init__(self, epsilon: Array) -> None:
             super().__init__()
             self.epsilon = epsilon
 
