@@ -1,21 +1,6 @@
-# Python distribution / packaging
-build/
-dist/
-.eggs/
+# Python
 *.egg-info/
-
-# Byte-compiled Python
 *.pyc
-
-# MyPy
-.mypy_cache/
-
-# hypothesis
-.hypothesis/
-
-# Jupyter
 .ipynb_checkpoints/
-*.ipynb
-
-# vim
-*.orig
+/build/
+/dist/
