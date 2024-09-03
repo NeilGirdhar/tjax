@@ -14,7 +14,7 @@ from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
 
-from ..annotations import BooleanNumeric, IntegralNumeric, RealNumeric
+from ..annotations import IntegralNumeric, RealNumeric
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 
@@ -131,7 +131,7 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     eps_root: RealNumeric = 0.0
     mu_dtype: Any | None = field(default=None, static=True)
     _: KW_ONLY
-    nesterov: BooleanNumeric = False
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights
@@ -159,7 +159,7 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     weight_decay: RealNumeric = 1e-4
     mask: Any | Callable[[Any], Any] | None = None
     _: KW_ONLY
-    nesterov: BooleanNumeric = False
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights
@@ -443,7 +443,7 @@ class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
     eps_root: RealNumeric = 0.0
     threshold: RealNumeric = 5.0
     _: KW_ONLY
-    nesterov: BooleanNumeric = False
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights
