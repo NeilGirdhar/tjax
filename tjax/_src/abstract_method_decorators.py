@@ -11,7 +11,6 @@ from .shims import custom_jvp_method, jit
 R_co = TypeVar('R_co', covariant=True)
 F = TypeVar('F', bound=Callable[..., Any])
 P = ParamSpec('P')
-U = TypeVar("U")
 
 
 class JaxAbstractClass:
