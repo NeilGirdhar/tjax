@@ -101,10 +101,10 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
             continue
-        if field_info.metadata.get('pytree_node', True):
-            dynamic_fields.append(field_info.name)
-        else:
+        if field_info.metadata.get('static', False):
             static_fields.append(field_info.name)
+        else:
+            dynamic_fields.append(field_info.name)
     data_clz.static_fields = static_fields
     data_clz.dynamic_fields = dynamic_fields
     register_dataclass(data_clz, dynamic_fields, static_fields)
