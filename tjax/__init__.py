@@ -26,7 +26,7 @@ from ._src.math_tools import (abs_square, create_diagonal_array, divide_nonnegat
                               inverse_softplus, matrix_dot_product, matrix_vector_mul,
                               outer_product, softplus)
 from ._src.partial import Partial
-from ._src.rng import RngStream, create_streams, fork_streams
+from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
@@ -116,6 +116,7 @@ __all__ = [
     'register_graph_as_nnx_node',
     'replace_cotangent',
     'result_type',
+    'sample_streams',
     'scale_cotangent',
     'softplus',
     'tree_allclose',
