@@ -124,3 +124,12 @@ __all__ = [
     'tree_allclose',
     'zero_tangent_like',
 ]
+
+try:
+    import equinox
+except ImportError:
+    pass
+else:
+    if equinox.__version__ > '0.11.5':
+        from ._src.equinox_tools import Memory
+        __all__ += ['Memory']
