@@ -122,7 +122,7 @@ def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
     whenever the divisor equals zero.
     """
     xp = get_namespace(dividend, divisor)
-    return divide_where(dividend, divisor, where=divisor > 0.0,  # pyright: ignore
+    return divide_where(dividend, divisor, where=divisor > 0.0,  # type: ignore # pyright: ignore
                         otherwise=xp.asarray(xp.inf))
 
 
