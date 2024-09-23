@@ -315,7 +315,7 @@ def _variables(value: Any) -> dict[str, Any]:
 def _verify(value: Any,
             seen: MutableSet[int],
             key: str
-            ) -> Generator[Tree | None, None, None]:
+            ) -> Generator[Tree | None]:
     if id(value) in seen:
         yield _assemble(key, Text(f'<seen {id(value)}>', style=_seen_color))
         return
@@ -362,7 +362,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         tree.children.append(display_generic(float(np.std(xarray)), seen=set(), key="deviation"))
         return
     if len(array.shape) == 0:
-        tree.add(_format_number(array[()]))
+        _ = tree.add(_format_number(array[()]))
         return
     table = Table(show_header=False,
                   show_edge=False,
@@ -376,4 +376,4 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         for j in range(array.shape[0]):
             table.add_row(*(_format_number(array[j, i])
                             for i in range(array.shape[1])))
-    tree.add(table)
+    _ = tree.add(table)

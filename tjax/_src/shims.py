@@ -22,7 +22,7 @@ def jit(func: F, **kwargs: Any) -> F:
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
     retval = jax.jit(func, **kwargs)
-    update_wrapper(retval, func, all_wrapper_assignments)
+    _ = update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval  # type: ignore[return-value] # pyright: ignore
 
@@ -47,7 +47,7 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
-        update_wrapper(self, func, all_wrapper_assignments)
+        _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(self,
                fwd: Callable[P, tuple[R_co, Any]],
@@ -78,7 +78,7 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
         self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
-        update_wrapper(self, func, all_wrapper_assignments)
+        _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(self,
                fwd: Callable[Concatenate[U, P], tuple[R_co, Any]],
@@ -124,7 +124,7 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
-        update_wrapper(self, func, all_wrapper_assignments)
+        _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defjvp(self, jvp: Callable[..., tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.
@@ -132,7 +132,7 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
         Args:
             jvp: The custom forward pass.
         """
-        self.jvp.defjvp(jvp)
+        _ = self.jvp.defjvp(jvp)
 
     def __call__(self, /, *args: P.args, **kwargs: P.kwargs) -> R_co:
         return self.jvp(*args, **kwargs)
@@ -155,7 +155,7 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
-        update_wrapper(self, func, all_wrapper_assignments)
+        _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defjvp(self, jvp: Callable[Concatenate[U, P], tuple[R_co, R_co]]) -> None:
         """Implement the custom forward pass of the custom derivative.
@@ -163,7 +163,7 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         Args:
             jvp: The custom forward pass.
         """
-        self.jvp.defjvp(jvp)
+        _ = self.jvp.defjvp(jvp)
 
     def __call__(self, u: U, /, *args: P.args, **kwargs: P.kwargs) -> R_co:
         return self.jvp(u, *args, **kwargs)

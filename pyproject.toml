@@ -128,6 +128,7 @@ disable = [
   'too-many-branches',
   'too-many-instance-attributes',
   'too-many-locals',
+  'too-many-positional-arguments',
   'too-many-return-statements',
   'too-many-statements',
   'too-many-try-statements',
@@ -158,7 +159,11 @@ venv = '.venv'
 enableTypeIgnoreComments = false
 reportImportCycles = true
 reportCallInDefaultInitializer = true
+reportConstantRedefinition = true
+reportDeprecated = true
+reportDuplicateImport = true
 reportImplicitOverride = true
+reportImplicitStringConcatenation = false
 reportIncompatibleMethodOverride = true
 reportIncompatibleVariableOverride = true
 reportInconsistentConstructor = true
@@ -168,6 +173,7 @@ reportMissingSuperCall = true
 reportMissingTypeArgument = true
 reportOverlappingOverload = true
 reportPrivateImportUsage = true
+reportPropertyTypeMismatch = true
 reportShadowedImports = true
 reportUninitializedInstanceVariable = true
 reportUnknownArgumentType = false
@@ -184,6 +190,11 @@ reportUntypedBaseClass = true
 reportUntypedClassDecorator = true
 reportUntypedFunctionDecorator = true
 reportUntypedNamedTuple = true
+reportUnusedCallResult = false
+reportUnusedClass = true
+reportUnusedExpression = true
+reportUnusedFunction = true
+reportUnusedVariable = true
 
 [tool.mypy]
 files = ['tjax', 'tests']
@@ -198,11 +209,13 @@ pretty = true
 show_error_codes = true
 show_error_context = true
 strict_equality = true
+warn_no_return = true
 warn_redundant_casts = true
 # warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+enable_incomplete_feature = 'NewGenericSyntax'
 
 [[tool.mypy.overrides]]
 module = ['networkx', 'optax', 'optax.contrib', 'array_api_compat']
@@ -234,6 +247,7 @@ ignore = [
   'D107', # Missing docstring in __init__.
   'DOC201', # return is not documented in docstring.
   'DOC202', # Docstring should not have a returns section because the function doesn't return anything.
+  'DOC402', # DOC402 `yield` is not documented in docstring.
   'DOC501', # Raised exception `ValueError` missing from docstring.
   'ERA001', # Commented-out code.
   'FBT003', # Boolean positional value in function call.

@@ -162,8 +162,7 @@ def _(actual: list[Any] | tuple[Any], rtol: float, atol: float) -> str:
     is_named_tuple = not is_list and type(actual).__name__ != 'tuple'
     return ((type(actual).__name__ if is_named_tuple else "")
             + ("[" if is_list else "(")
-            + ", ".join(get_test_string(sub_actual, rtol, atol)
-                        for i, sub_actual in enumerate(actual))
+            + ", ".join(get_test_string(sub_actual, rtol, atol) for sub_actual in actual)
             + (',' if len(actual) == 1 else '')
             + ("]" if is_list else ")"))
 

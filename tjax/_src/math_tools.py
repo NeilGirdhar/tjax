@@ -166,7 +166,7 @@ def create_diagonal_array(m: T) -> T:
         target_index = (*index, slice(None, None, n + 1))
         source_values = m[*index, :]  # type: ignore[arg-type]
         if isinstance(retval, jax.Array):
-            retval.at[target_index].set(source_values)
+            retval = retval.at[target_index].set(source_values)
         else:
             retval[target_index] = source_values
     return xp.reshape(retval, s)

@@ -107,11 +107,11 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
             dynamic_fields.append(field_info.name)
     data_clz.static_fields = static_fields
     data_clz.dynamic_fields = dynamic_fields
-    register_dataclass(data_clz, dynamic_fields, static_fields)
+    _ = register_dataclass(data_clz, dynamic_fields, static_fields)
 
     # Register the dynamically-dispatched functions.
-    get_test_string.register(data_clz, get_dataclass_test_string)
-    get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)
+    _ = get_test_string.register(data_clz, get_dataclass_test_string)
+    _ = get_relative_test_string.register(data_clz, get_relative_dataclass_test_string)
     return data_clz
 
 

@@ -15,12 +15,12 @@ repos:
   - id: check-yaml
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.4
+  rev: v0.6.7
   hooks:
   - id: ruff
 
 - repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.379
+  rev: v1.1.381
   hooks:
   - id: pyright
 

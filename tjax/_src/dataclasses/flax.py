@@ -26,7 +26,7 @@ class _DataClassModule(nnx.Module):
                           kw_only: bool = False,
                           **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs, experimental_pytree=True)
-        dataclass(init=init, repr=repr, eq=eq, order=order, kw_only=kw_only)(cls)
+        _ = dataclass(init=init, repr=repr, eq=eq, order=order, kw_only=kw_only)(cls)
 
 
 class DataClassModule(_DataClassModule):
