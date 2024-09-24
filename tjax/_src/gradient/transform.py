@@ -5,7 +5,8 @@ from typing import Generic, TypeVar
 
 import jax.numpy as jnp
 from jax import tree
-from typing_extensions import Self, override
+from typing_extensions import override
+from typing import Self
 
 from tjax.dataclasses import dataclass
 

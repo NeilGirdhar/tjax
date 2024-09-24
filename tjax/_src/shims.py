@@ -6,7 +6,8 @@ from typing import Any, Concatenate, Generic, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
-from typing_extensions import ParamSpec, Self, override
+from typing_extensions import ParamSpec, override
+from typing import Self
 
 from .function_markers import all_wrapper_assignments
 
