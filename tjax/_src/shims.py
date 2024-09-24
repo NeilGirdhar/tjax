@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from functools import update_wrapper
-from typing import Any, Concatenate, Generic, TypeVar, overload
+from typing import Any, Concatenate, Generic, Self, TypeVar, overload
 
 import jax
 from jax.tree_util import Partial
-from typing_extensions import ParamSpec, Self, override
+from typing_extensions import ParamSpec, override
 
 from .function_markers import all_wrapper_assignments
 

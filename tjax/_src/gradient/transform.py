@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import jax.numpy as jnp
 from jax import tree
-from typing_extensions import Self, override
+from typing_extensions import override
 
 from tjax.dataclasses import dataclass
 
