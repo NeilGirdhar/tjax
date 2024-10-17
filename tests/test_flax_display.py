@@ -5,7 +5,7 @@ import pytest
 from pytest import CaptureFixture
 from rich.console import Console
 
-from tjax import JaxRealArray, print_generic
+from tjax import print_generic
 from tjax.dataclasses import DataClassModule, field
 
 from .test_display import verify
@@ -44,7 +44,7 @@ def test_module_display(capsys: CaptureFixture[str],
 def test_dataclass_module_display(capsys: CaptureFixture[str],
                                   console: Console) -> None:
     class C(DataClassModule):
-        x: JaxRealArray
+        x: float
         y: str = field(static=True)
 
         def __post_init__(self, rngs: nnx.Rngs) -> None:
@@ -52,7 +52,7 @@ def test_dataclass_module_display(capsys: CaptureFixture[str],
                 super().__post_init__(rngs)
             self.a = nnx.Variable(jnp.zeros(4))
 
-    c = C(jnp.zeros(4), 'abc', rngs=nnx.Rngs())
+    c = C(0.5, 'abc', rngs=nnx.Rngs())
     print_generic(c=c, console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
@@ -62,7 +62,6 @@ def test_dataclass_module_display(capsys: CaptureFixture[str],
            ├── a=Variable
            │   └── value=Jax Array (4,) float64
            │       └──  0.0000 │ 0.0000 │ 0.0000 │ 0.0000
-           ├── x=Jax Array (4,) float64
-           │   └──  0.0000 │ 0.0000 │ 0.0000 │ 0.0000
+           ├── x=0.5
            └── y="abc"
            """)

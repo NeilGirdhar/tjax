@@ -10,7 +10,7 @@ T = TypeVar('T', bound="nx.Graph[Any]")
 
 try:
     import networkx as nx
-    from flax.nnx.nnx.graph import register_graph_node_type
+    from flax.nnx.graph import register_graph_node_type
 except ImportError:
     msg = "NetworkX or NNX not available"
     def register_graph_as_nnx_node(graph_type: type[Any]) -> None:

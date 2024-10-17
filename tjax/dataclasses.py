@@ -9,6 +9,7 @@ try:
 except ImportError:
     pass
 else:
-    if flax.__version__ > '0.8':
+    flax_version = tuple(int(x) for x in flax.__version__.split('.'))
+    if flax_version > (0, 10):
         from ._src.dataclasses.flax import DataClassModule, module_field
         __all__ += ['DataClassModule', 'module_field']

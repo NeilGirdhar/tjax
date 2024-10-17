@@ -41,15 +41,15 @@ repository = 'https://github.com/NeilGirdhar/tjax'
 [tool.uv]
 dev-dependencies = [
   'chex >= 0.1.3',
-  'flax >= 0.9.0',
+  'flax >= 0.10',
   'isort >= 5.11',
   'jupyter >= 1',
-  'mypy >= 1.7',
+  'mypy >= 1.12',
   'networkx >= 3.0',
-  'pylint >= 2.12.2',
+  'pylint >= 3.3.1',
   'pyright >= 0.0.13',
   'pytest >= 8',
-  'ruff >= 0.4.3',
+  'ruff >= 0.7',
 ]
 
 [tool.isort]
@@ -215,7 +215,6 @@ warn_redundant_casts = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
-enable_incomplete_feature = 'NewGenericSyntax'
 
 [[tool.mypy.overrides]]
 module = ['networkx', 'optax', 'optax.contrib', 'array_api_compat']
