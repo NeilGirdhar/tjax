@@ -302,7 +302,9 @@ def _variables(value: Any) -> dict[str, Any]:
     try:
         variables = vars(value)
     except TypeError:
-        variables = ({name: getattr(value, name) for name in value.__slots__}
+        variables = ({name: getattr(value, name)
+                      for name in value.__slots__
+                      if hasattr(value, name)}  # Work around a Jax oddity.
                      if hasattr(value, '__slots__')
                      else {})
     return {key: value
