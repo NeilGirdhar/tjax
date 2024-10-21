@@ -10,8 +10,7 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, Com
                                RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
                                TapFunctionTransforms)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
-                                   replace_cotangent, reverse_scale_cotangent, scale_cotangent,
-                                   zero_tangent_like)
+                                   replace_cotangent, reverse_scale_cotangent, scale_cotangent)
 from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
@@ -122,5 +121,4 @@ __all__ = [
     'scale_cotangent',
     'softplus',
     'tree_allclose',
-    'zero_tangent_like',
 ]
