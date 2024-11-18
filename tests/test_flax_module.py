@@ -2,10 +2,10 @@ import jax.numpy as jnp
 import pytest
 from jax import Array, vmap
 
-from tjax.dataclasses import DataClassModule
-
 try:
     from flax import nnx
+
+    from tjax.dataclasses import DataClassModule
 except ImportError:
     pytest.skip("Skipping NNX graph test", allow_module_level=True)
 

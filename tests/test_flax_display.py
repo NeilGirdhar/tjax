@@ -6,12 +6,14 @@ from pytest import CaptureFixture
 from rich.console import Console
 
 from tjax import print_generic
-from tjax.dataclasses import DataClassModule, field
+from tjax.dataclasses import field
 
 from .test_display import verify
 
 try:
     from flax import nnx
+
+    from tjax.dataclasses import DataClassModule
 except ImportError:
     pytest.skip("Skipping NNX display tests", allow_module_level=True)
 
