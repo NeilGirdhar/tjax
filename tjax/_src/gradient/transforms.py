@@ -412,7 +412,7 @@ class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], G
         weight_decay: RealNumeric = 0.0
     """
     weight_decay: RealNumeric = 0.0
-    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:

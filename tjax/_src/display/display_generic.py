@@ -144,7 +144,7 @@ def _(value: Array,
 
 @display_generic.register(type(None))
 @display_generic.register(Number)
-def _(value: None | Number,
+def _(value: Number | None,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',

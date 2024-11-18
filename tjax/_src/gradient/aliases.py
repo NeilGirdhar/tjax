@@ -52,7 +52,7 @@ class AdaDelta(GradientTransformation[GenericGradientState, Weights], Generic[We
     rho: RealNumeric = 0.9
     eps: RealNumeric = 1e-6
     weight_decay: RealNumeric = 0.0
-    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None,
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None,
                                                                                 static=True)
 
     @override
@@ -83,7 +83,7 @@ class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[W
     weight_decay_rate: float | None = None
     eps: RealNumeric = 1e-30
     factored: bool = field(default=True, static=True)
-    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None,
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None,
                                                                                 static=True)
 
     @override
@@ -250,7 +250,7 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
     eps: RealNumeric = 1e-6
     eps_root: RealNumeric = 0.0
     weight_decay: RealNumeric = 0.0
-    mask: None | bool | Weights | Callable[[Weights], Any] = field(default=None, static=True)
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights
@@ -271,11 +271,11 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
     learning_rate: ScalarOrSchedule
     weight_decay: RealNumeric = 0.0
-    weight_decay_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=True,
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(default=True,
                                                                                 static=True)
     trust_coefficient: RealNumeric = 0.001
     eps: RealNumeric = 0.0
-    trust_ratio_mask: None | bool | Weights | Callable[[Weights], Any] = field(default=True,
+    trust_ratio_mask: bool | Weights | Callable[[Weights], Any] | None = field(default=True,
                                                                                static=True)
     momentum: RealNumeric = 0.9
     nesterov: bool = field(default=False, static=True)
@@ -297,10 +297,10 @@ class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 @dataclass
 class LBFGS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
-    learning_rate: None | ScalarOrSchedule = None
+    learning_rate: ScalarOrSchedule | None = None
     memory_size: int = field(default=10, static=True)
     scale_init_precond: bool = field(default=True, static=True)
-    linesearch: None | GradientTransformationExtraArgs = (
+    linesearch: GradientTransformationExtraArgs | None = (
             scale_by_zoom_linesearch(max_linesearch_steps=15))
 
     @override

@@ -6,10 +6,10 @@ import jax
 import jax.numpy as jnp
 from jax.dtypes import canonicalize_dtype
 
-_T = TypeVar('_T', bound=tuple[None | jax.Array, ...])
+_T = TypeVar('_T', bound=tuple[jax.Array | None, ...])
 
 
-def result_type(*args: None | jax.Array,
+def result_type(*args: jax.Array | None,
                 dtype: jax.typing.DTypeLike | None = None,
                 ensure_inexact: bool = True
                 ) -> jax.typing.DTypeLike:
@@ -37,7 +37,7 @@ def result_type(*args: None | jax.Array,
 def cast_to_result_type(arrays: _T,
                         /,
                         *,
-                        dtype: None | jax.typing.DTypeLike = None,
+                        dtype: jax.typing.DTypeLike | None = None,
                         ensure_inexact: bool = True
                         ) -> _T:
     """Casts the input arrays to a common data dtype.

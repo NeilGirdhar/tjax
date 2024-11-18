@@ -9,7 +9,7 @@ from jax import Array as JaxArray
 
 Shape = tuple[int, ...]
 ShapeLike = int | Sequence[int]
-_SliceLikeItem = int | None | slice
+_SliceLikeItem = int | slice | None
 SliceLike = _SliceLikeItem | tuple[_SliceLikeItem, ...]
 
 
