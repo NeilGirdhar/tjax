@@ -60,9 +60,9 @@ else:
             return (zip(keys, values, strict=True), keys)
 
         flatten_with_keys_ = cast(
-                Callable[[Graph], tuple[Iterable[tuple[Hashable, Any]], Hashable]],
+                "Callable[[Graph], tuple[Iterable[tuple[Hashable, Any]], Hashable]]",
                 flatten_with_keys)
-        unflatten_tree_ = cast(Callable[[Hashable, Any], Graph], unflatten_tree)
-        flatten_tree_ = cast(Callable[[Graph], tuple[Iterable[Any], Hashable]],
+        unflatten_tree_ = cast("Callable[[Hashable, Any], Graph]", unflatten_tree)
+        flatten_tree_ = cast("Callable[[Graph], tuple[Iterable[Any], Hashable]]",
                              flatten_tree)
         register_pytree_with_keys(graph_type, flatten_with_keys_, unflatten_tree_, flatten_tree_)

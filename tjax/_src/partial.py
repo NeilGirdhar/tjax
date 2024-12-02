@@ -77,7 +77,7 @@ class Partial(Generic[R]):
         if not isinstance(dynamic_kwargs, dict):
             raise RuntimeError  # noqa: TRY004
 
-        dynamic_kwargs = cast(dict[str, Any], dynamic_kwargs)
+        dynamic_kwargs = cast('dict[str, Any]', dynamic_kwargs)
         args = cls._unpartition_args(static_argnums, static_args, dynamic_args,
                                      callable_is_static=callable_is_static)
 

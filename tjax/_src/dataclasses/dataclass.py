@@ -92,7 +92,7 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
 
     # Apply dataclass function to cls.
     data_clz: type[TDataclassInstance] = cast(
-            type[TDataclassInstance],
+            'type[TDataclassInstance]',
             dataclasses.dataclass(init=init, repr=repr, eq=eq, order=order, frozen=frozen)(cls))
 
     # Partition fields into static, and dynamic; and assign these to the class.

@@ -182,9 +182,9 @@ def _cotangent_combinator_bwd(f: Callable[..., tuple[XT, Y]],
                                                          strict=True)):
         scaled_y_bar = tree.map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale,
                                 y_bar)
-        this_xs_bar = cast(XT, (xs_zero[:i]
-                                + (x_bar,)
-                                + xs_zero[i + 1:]))
+        this_xs_bar = cast('XT', (xs_zero[:i]
+                                  + (x_bar,)
+                                  + xs_zero[i + 1:]))
         this_result_bar = (this_xs_bar, scaled_y_bar)
         this_args_bar = f_vjp(this_result_bar)
         all_args_bar.append(this_args_bar)
