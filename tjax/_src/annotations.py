@@ -32,18 +32,14 @@ RealArray = NumpyRealArray | JaxArray
 ComplexArray = NumpyComplexArray | JaxArray
 
 
-Integral = int
-Real = float | int
-Complex = complex | float | int
 NumpyBooleanNumeric = NumpyBooleanArray | bool
-NumpyIntegralNumeric = NumpyIntegralArray | Integral
-NumpyRealNumeric = NumpyRealArray | Real
-NumpyComplexNumeric = NumpyComplexArray | Complex
+NumpyIntegralNumeric = NumpyIntegralArray | int
+NumpyRealNumeric = NumpyRealArray | float
+NumpyComplexNumeric = NumpyComplexArray | complex
 BooleanNumeric = BooleanArray | bool
-IntegralNumeric = IntegralArray | Integral
-RealNumeric = RealArray | Real
-ComplexNumeric = ComplexArray | Complex
+IntegralNumeric = IntegralArray | int
+RealNumeric = RealArray | float
+ComplexNumeric = ComplexArray | complex
 
 
 PyTree = Any
-TapFunctionTransforms = Sequence[tuple[str, dict[str, Any]]]

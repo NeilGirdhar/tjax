@@ -1,14 +1,13 @@
 """Tools for the differential programming library [JAX](https://github.com/google/jax)."""
 from . import dataclasses, gradient
 from ._src.abstract_method_decorators import JaxAbstractClass, abstract_custom_jvp, abstract_jit
-from ._src.annotations import (Array, BooleanArray, BooleanNumeric, Complex, ComplexArray,
-                               ComplexNumeric, Integral, IntegralArray, IntegralNumeric, JaxArray,
-                               JaxBooleanArray, JaxComplexArray, JaxIntegralArray, JaxRealArray,
-                               KeyArray, NumpyArray, NumpyBooleanArray, NumpyBooleanNumeric,
+from ._src.annotations import (Array, BooleanArray, BooleanNumeric, ComplexArray, ComplexNumeric,
+                               IntegralArray, IntegralNumeric, JaxArray, JaxBooleanArray,
+                               JaxComplexArray, JaxIntegralArray, JaxRealArray, KeyArray,
+                               NumpyArray, NumpyBooleanArray, NumpyBooleanNumeric,
                                NumpyComplexArray, NumpyComplexNumeric, NumpyIntegralArray,
-                               NumpyIntegralNumeric, NumpyRealArray, NumpyRealNumeric, PyTree, Real,
-                               RealArray, RealNumeric, Shape, ShapeLike, SliceLike,
-                               TapFunctionTransforms)
+                               NumpyIntegralNumeric, NumpyRealArray, NumpyRealNumeric, PyTree,
+                               RealArray, RealNumeric, Shape, ShapeLike, SliceLike)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
                                    replace_cotangent, reverse_scale_cotangent, scale_cotangent)
 from ._src.display.display_generic import display_generic
@@ -36,12 +35,10 @@ __all__ = [
     'Array',
     'BooleanArray',
     'BooleanNumeric',
-    'Complex',
     'ComplexArray',
     'ComplexNumeric',
     'GraphEdgeKey',
     'GraphNodeKey',
-    'Integral',
     'IntegralArray',
     'IntegralNumeric',
     'JaxAbstractClass',
@@ -62,14 +59,12 @@ __all__ = [
     'NumpyRealNumeric',
     'Partial',
     'PyTree',
-    'Real',
     'RealArray',
     'RealNumeric',
     'RngStream',
     'Shape',
     'ShapeLike',
     'SliceLike',
-    'TapFunctionTransforms',
     'UndirectedGraphEdgeKey',
     'abs_square',
     'abstract_custom_jvp',
