@@ -27,8 +27,8 @@ class JaxAbstractClass:
                 continue
             # Override detected.
             method = original_method
-            if getattr(super_method, abstract_jit_marker, False):
-                method = jit(original_method)
+            if (kwargs := getattr(super_method, abstract_jit_marker, None)) is not None:
+                method = jit(original_method, **kwargs)
             if hasattr(super_method, abstract_custom_jvp_marker):
                 jvp, nondiff_argnums = super_method._abstract_custom_jvp  # noqa: SLF001
                 method_jvp: Any = custom_jvp_method(method, nondiff_argnums=nondiff_argnums)
@@ -38,9 +38,9 @@ class JaxAbstractClass:
             setattr(cls, name, method)
 
 
-def abstract_jit(fun: F) -> F:
+def abstract_jit(fun: F, **kwargs: Any) -> F:
     """An abstract method whose override need to be jitted."""
-    fun._abstract_jit = True  # type: ignore # noqa: SLF001 # pyright: ignore
+    setattr(fun, abstract_jit_marker, kwargs)
     return fun
 
 
