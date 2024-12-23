@@ -7,6 +7,7 @@ from typing import Any, TypeVar, cast
 
 import jax.numpy as jnp
 from jax import tree, vjp
+from jax.custom_derivatives import zero_from_primal as jax_zero_from_primal
 
 from .annotations import JaxRealArray, RealNumeric
 from .display.print_generic import print_generic
@@ -15,6 +16,10 @@ from .shims import custom_jvp, custom_vjp
 X = TypeVar('X')
 XT = TypeVar('XT', bound=tuple[Any, ...])
 Y = TypeVar('Y')
+
+
+def zero_from_primal(x: X, /, *, symbolic_zeros: bool = False) -> X:
+    return jax_zero_from_primal(x, symbolic_zeros=symbolic_zeros)
 
 
 # scale_cotangent ----------------------------------------------------------------------------------

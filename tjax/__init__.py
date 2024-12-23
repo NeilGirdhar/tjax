@@ -9,7 +9,8 @@ from ._src.annotations import (Array, BooleanArray, BooleanNumeric, ComplexArray
                                NumpyIntegralNumeric, NumpyRealArray, NumpyRealNumeric, PyTree,
                                RealArray, RealNumeric, Shape, ShapeLike, SliceLike)
 from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_cotangent,
-                                   replace_cotangent, reverse_scale_cotangent, scale_cotangent)
+                                   replace_cotangent, reverse_scale_cotangent, scale_cotangent,
+                                   zero_from_primal)
 from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
@@ -116,4 +117,5 @@ __all__ = [
     'scale_cotangent',
     'softplus',
     'tree_allclose',
+    'zero_from_primal',
 ]
