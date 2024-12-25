@@ -66,7 +66,6 @@ def test_jit_display(capsys: CaptureFixture[str],
     f(jnp.asarray(1.0))
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
-    # TODO: https://github.com/google/jax/issues/20627
     verify(captured,
            """
            Jax Array () float64
