@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, overload
+from typing import Literal, TypeVar, overload
 
 import jax
 import numpy as np
@@ -147,11 +147,26 @@ def inverse_softplus(y: RealArray) -> RealArray:
                     xp.log(xp.expm1(y)))
 
 
-def l1_normalize(x: JaxRealArray) -> JaxRealArray:
+def normalize(mode: Literal['l1', 'l2', 'max'],
+              x: JaxRealArray,
+              *,
+              axis: tuple[int, ...] | int | None = None
+              ) -> JaxRealArray:
     """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
     xp = get_namespace(x)
-    sum_x = xp.sum(x)
-    return xp.where(sum_x == 0.0, xp.ones_like(x) / x.size, x / sum_x)
+    epsilon = 10 * xp.finfo(x.dtype).eps
+    match mode:
+        case 'l1':
+            sum_x = xp.sum(xp.abs(x), axis=axis, keepdims=True)
+            size = x.size / sum_x.size
+            return xp.where(sum_x < epsilon, xp.ones_like(x) / size, x / sum_x)
+        case 'l2':
+            sum_x = xp.sqrt(xp.sum(xp.square(x), axis=axis, keepdims=True))
+            size = x.size / sum_x.size
+            return xp.where(sum_x < epsilon, xp.ones_like(x) * xp.sqrt(1 / size), x / sum_x)
+        case 'max':
+            sum_x = xp.max(xp.abs(x), axis=axis, keepdims=True)
+            return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
 
 
 T = TypeVar('T', bound=ComplexArray)
