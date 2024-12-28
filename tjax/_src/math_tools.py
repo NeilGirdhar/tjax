@@ -147,6 +147,13 @@ def inverse_softplus(y: RealArray) -> RealArray:
                     xp.log(xp.expm1(y)))
 
 
+def l1_normalize(x: JaxRealArray) -> JaxRealArray:
+    """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
+    xp = get_namespace(x)
+    sum_x = xp.sum(x)
+    return xp.where(sum_x == 0.0, xp.ones_like(x) / x.size, x / sum_x)
+
+
 T = TypeVar('T', bound=ComplexArray)
 
 

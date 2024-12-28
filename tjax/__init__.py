@@ -23,7 +23,7 @@ from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKe
 from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
                                   leaky_integrate, leaky_integrate_time_series)
 from ._src.math_tools import (abs_square, create_diagonal_array, divide_nonnegative, divide_where,
-                              inverse_softplus, matrix_dot_product, matrix_vector_mul,
+                              inverse_softplus, l1_normalize, matrix_dot_product, matrix_vector_mul,
                               outer_product, softplus)
 from ._src.partial import Partial
 from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
@@ -99,6 +99,7 @@ __all__ = [
     'internal_print_generic',
     'inverse_softplus',
     'jit',
+    'l1_normalize',
     'leaky_covariance',
     'leaky_data_weight',
     'leaky_integrate',
