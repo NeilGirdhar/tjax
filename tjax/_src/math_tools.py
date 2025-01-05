@@ -111,21 +111,6 @@ def divide_where(dividend: ComplexArray,
     return xp.where(where, quotient, otherwise)
 
 
-@overload
-def divide_nonnegative(dividend: JaxRealArray, divisor: JaxRealArray) -> JaxRealArray: ...
-@overload
-def divide_nonnegative(dividend: NumpyRealArray, divisor: NumpyRealArray) -> NumpyRealArray: ...
-def divide_nonnegative(dividend: RealArray, divisor: RealArray) -> RealArray:
-    """Quotient for use with positive reals that never returns NaN.
-
-    Returns: The quotient assuming that the dividend and divisor are nonnegative, and infinite
-    whenever the divisor equals zero.
-    """
-    xp = get_namespace(dividend, divisor)
-    return divide_where(dividend, divisor, where=divisor > 0.0,  # type: ignore # pyright: ignore
-                        otherwise=xp.asarray(xp.inf))
-
-
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
 @overload
 def softplus(x: JaxRealArray) -> JaxRealArray: ...
