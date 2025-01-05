@@ -97,7 +97,8 @@ def divide_where(dividend: ComplexArray,
     """Return the quotient or a special value when a condition is false.
 
     Returns: `xp.where(where, dividend / divisor, otherwise)`, but without evaluating
-    `dividend / divisor` when `where` is false.  This prevents some exceptions.
+    `dividend / divisor` when `where` is false.  This prevents both infinite cotangents, and
+    some exceptions.
     """
     if where is None:
         assert otherwise is None
