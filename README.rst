@@ -83,7 +83,7 @@ Contribution guidelines
 
 - How to clean the source:
 
-  - :bash:`ruff .`
+  - :bash:`ruff check .`
   - :bash:`pyright`
   - :bash:`mypy`
   - :bash:`isort .`
