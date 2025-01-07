@@ -360,8 +360,8 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         return
     if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # noqa: PLR2004
         xarray = np.asarray(array)
-        tree.children.append(display_generic(float(np.mean(xarray)), seen=set(), key="mean"))
-        tree.children.append(display_generic(float(np.std(xarray)), seen=set(), key="deviation"))
+        tree.children.append(display_generic(np.mean(xarray).item(), seen=set(), key="mean"))
+        tree.children.append(display_generic(np.std(xarray).item(), seen=set(), key="deviation"))
         return
     if len(array.shape) == 0:
         _ = tree.add(_format_number(array[()]))
