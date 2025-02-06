@@ -210,7 +210,7 @@ def _(actual: Array | jax.Array, original_name: str, original: Any, rtol: float,
 
 @get_relative_test_string.register
 def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
-    return _inexact_number_to_string(actual, rtol, atol)  # type: ignore[arg-type] # pyright: ignore
+    return _inexact_number_to_string(actual, rtol, atol)
 
 
 @get_relative_test_string.register
@@ -251,17 +251,14 @@ def _float_to_string_with_precision(x: complex, precision: int) -> str:
         return repr(np.asarray(x))[6:-1]
 
 
-def _inexact_number_to_string(x: complex | np.inexact[Any], rtol: float, atol: float) -> str:
-    y: float | complex
-    if isinstance(x, Real):  # type: ignore[unreachable]
-        y = float(x)  # type: ignore[unreachable]
-    elif isinstance(x, Complex):
-        y = complex(x)
-    else:
-        raise TypeError
+def _inexact_number_to_string(x: complex | Complex | np.inexact[Any],
+                              rtol: float,
+                              atol: float
+                              ) -> str:
+    y = float(x) if isinstance(x, Real) else complex(x)
     retval = ""
     for i in range(20):
         retval = _float_to_string_with_precision(y, i)
-        if np.isclose(complex(retval), x, rtol=rtol, atol=atol):
+        if np.isclose(complex(retval), y, rtol=rtol, atol=atol):
             break
     return retval
