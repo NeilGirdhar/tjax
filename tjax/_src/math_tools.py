@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, TypeVar, overload
 
-import jax
+import array_api_extra as xpx
 import numpy as np
 from array_api_compat import get_namespace
 
@@ -168,13 +168,8 @@ def create_diagonal_array(m: T) -> T:
     xp = get_namespace(m)
     pre = m.shape[:-1]
     n = m.shape[-1]
-    s = (*m.shape, n)
     retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
     for index in np.ndindex(*pre):
         target_index = (*index, slice(None, None, n + 1))
-        source_values = m[*index, :]  # type: ignore[arg-type]
-        if isinstance(retval, jax.Array):
-            retval = retval.at[target_index].set(source_values)
-        else:
-            retval[target_index] = source_values
-    return xp.reshape(retval, s)
+        xpx.at(retval)[target_index].set(m[*index, :])
+    return xp.reshape(retval, (*m.shape, n))

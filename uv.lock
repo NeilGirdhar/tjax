@@ -81,6 +81,18 @@ wheels = [
 ]
 
 [[package]]
+name = "array-api-extra"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "array-api-compat" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/da/38/bb6ec91d5a1dc23f17d733b769054c62f2c2c735029ba9e06ed7dad47c70/array_api_extra-0.6.0.tar.gz", hash = "sha256:392e6ad645a08d774e3148d04612c0e4725f79c6c6dd3f5c3dae4dd060f81b32", size = 110251 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/20/6fc693dcdebdea8b8c75afe83263bba12d2af0847ff20a04e9424890d2e9/array_api_extra-0.6.0-py3-none-any.whl", hash = "sha256:a4a3954358ee382f84d18ff3912809f35ee9b3823dec6e8bb34116b54fc5ccb9", size = 21649 },
+]
+
+[[package]]
 name = "arrow"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2068,6 +2080,7 @@ version = "1.1.3"
 source = { editable = "." }
 dependencies = [
     { name = "array-api-compat" },
+    { name = "array-api-extra" },
     { name = "jax" },
     { name = "numpy" },
     { name = "optax" },
@@ -2093,6 +2106,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "array-api-compat", specifier = ">=1.10" },
+    { name = "array-api-extra", specifier = ">=0.6.0" },
     { name = "jax", specifier = ">=0.4.27" },
     { name = "numpy", specifier = ">=1.25" },
     { name = "optax", specifier = ">=0.2.3" },
