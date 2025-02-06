@@ -171,5 +171,5 @@ def create_diagonal_array(m: T) -> T:
     retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
     for index in np.ndindex(*pre):
         target_index = (*index, slice(None, None, n + 1))
-        xpx.at(retval)[target_index].set(m[*index, :])
+        retval = xpx.at(retval)[target_index].set(m[*index, :])
     return xp.reshape(retval, (*m.shape, n))
