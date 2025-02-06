@@ -1,20 +1,27 @@
-=============
-Tools for JAX
-=============
-
-|pypi| |py_versions|
-
-.. |pypi| image:: https://img.shields.io/pypi/v/tjax
-   :alt: PyPI - Version
-
-.. |py_versions| image:: https://img.shields.io/pypi/pyversions/tjax
-   :alt: PyPI - Python Version
-
 .. role:: bash(code)
     :language: bash
 
 .. role:: python(code)
     :language: python
+
+.. image:: https://img.shields.io/pypi/v/tjax
+   :target: https://pypi.org/project/tjax/
+   :alt: PyPI - Version
+   :align: center
+.. image:: https://img.shields.io/badge/version_scheme-EffVer-0097a7
+   :alt: EffVer Versioning
+   :target: https://jacobtomlinson.dev/effver
+.. image:: https://img.shields.io/badge/SPEC-0-blue
+   :target: https://scientific-python.org/specs/spec-0000/
+   :alt: SPEC-0
+   :align: center
+.. image:: https://img.shields.io/pypi/pyversions/tjax
+   :alt: PyPI - Python Version
+   :align: center
+
+=============
+Tools for JAX
+=============
 
 This repository implements a variety of tools for the differential programming library
 `JAX <https://github.com/google/jax>`_.
