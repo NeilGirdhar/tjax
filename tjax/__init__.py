@@ -20,8 +20,7 @@ from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_flax import register_graph_as_nnx_node
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
-from ._src.leaky_integral import (diffused_leaky_integrate, leaky_covariance, leaky_data_weight,
-                                  leaky_integrate, leaky_integrate_time_series)
+from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
 from ._src.math_tools import (abs_square, create_diagonal_array, divide_where, inverse_softplus,
                               matrix_dot_product, matrix_vector_mul, normalize, outer_product,
                               softplus)
@@ -98,10 +97,8 @@ __all__ = [
     'internal_print_generic',
     'inverse_softplus',
     'jit',
-    'leaky_covariance',
     'leaky_data_weight',
     'leaky_integrate',
-    'leaky_integrate_time_series',
     'matrix_dot_product',
     'matrix_vector_mul',
     'normalize',
