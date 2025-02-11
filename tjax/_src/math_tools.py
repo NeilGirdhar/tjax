@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from types import ModuleType
 from typing import Literal, TypeVar, overload
 
 import array_api_extra as xpx
 import numpy as np
-from array_api_compat import get_namespace
+from array_api_compat import get_namespace, is_jax_array, is_torch_array
 
 from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxBooleanArray,
                           JaxComplexArray, JaxIntegralArray, JaxRealArray, NumpyBooleanArray,
@@ -173,3 +174,19 @@ def create_diagonal_array(m: T) -> T:
         target_index = (*index, slice(None, None, n + 1))
         retval = xpx.at(retval)[target_index].set(m[*index, :])
     return xp.reshape(retval, (*m.shape, n))
+
+
+U = TypeVar('U')
+
+
+def stop_gradient(x: U, *, xp: ModuleType | None = None) -> U:
+    if xp is None:
+        xp = get_namespace(x)
+    if is_jax_array(xp):
+        from jax.lax import stop_gradient as sg  # noqa: PLC0415
+        return sg(x)
+    if is_torch_array(xp):
+        from torch import Tensor  # noqa: PLC0415
+        assert isinstance(x, Tensor)
+        return x.detach()  # pyright: ignore
+    return x

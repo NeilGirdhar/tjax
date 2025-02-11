@@ -23,7 +23,7 @@ from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKe
 from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
 from ._src.math_tools import (abs_square, create_diagonal_array, divide_where, inverse_softplus,
                               matrix_dot_product, matrix_vector_mul, normalize, outer_product,
-                              softplus)
+                              softplus, stop_gradient)
 from ._src.partial import Partial
 from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
@@ -113,6 +113,7 @@ __all__ = [
     'sample_streams',
     'scale_cotangent',
     'softplus',
+    'stop_gradient',
     'tree_allclose',
     'zero_from_primal',
 ]

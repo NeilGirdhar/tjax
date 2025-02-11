@@ -46,6 +46,7 @@ dev-dependencies = [
   "isort>=5.13",
   "jupyter>=1",
   "mypy>=1.12",
+  "torch>=2.6",
   "networkx>=3.1",
   "pre-commit>=4",
   "pylint>=3.3",
