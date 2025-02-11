@@ -436,7 +436,7 @@ wheels = [
 
 [[package]]
 name = "flax"
-version = "0.10.2"
+version = "0.10.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jax" },
@@ -447,11 +447,12 @@ dependencies = [
     { name = "pyyaml" },
     { name = "rich" },
     { name = "tensorstore" },
+    { name = "treescope" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ff/38/4a0203198ac9459832abd33246d4e4fe250528b928a1fcd14cd6559bfcb4/flax-0.10.2.tar.gz", hash = "sha256:6f831350026ad48182ba6588bb4dd72dc1084985d9aca923254cb3e4c78d75f3", size = 5082773 }
+sdist = { url = "https://files.pythonhosted.org/packages/95/63/79b204d9f99e855ff36207d4810b4932f83dc7c100e9512eebe1466f0c4f/flax-0.10.3.tar.gz", hash = "sha256:29cde8cf05ffbff39b7f7167f0fe9916694cce76ce4c14e8be3549c1fd1b7c81", size = 5181656 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/50/a2/daca2bc563e1fd53c33fbff1e33e84004639f7ad9e1a9a54370480a7780d/flax-0.10.2-py3-none-any.whl", hash = "sha256:5bc0954b98d1596e8984f8e1bb84105e6e1dd9eae311cee3a777d7a335470a76", size = 424180 },
+    { url = "https://files.pythonhosted.org/packages/77/28/5d84597a2b1703486b554ab430f1e22f5f26a732ad98c398a8b414cd22c4/flax-0.10.3-py3-none-any.whl", hash = "sha256:7158b5dd6a05837e662a1ce1beea7adbad6d3612c0551c986b1c0a56071e3021", size = 435734 },
 ]
 
 [[package]]
@@ -1349,7 +1350,7 @@ wheels = [
 
 [[package]]
 name = "orbax-checkpoint"
-version = "0.11.4"
+version = "0.11.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "absl-py" },
@@ -1365,9 +1366,9 @@ dependencies = [
     { name = "tensorstore" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/7e/6bb1d9667e66651ade2e3a7b50951a90d614a7767b969f4eaea3875f27ea/orbax_checkpoint-0.11.4.tar.gz", hash = "sha256:f95fc7ed945f376389e1435ca8f08f9520889d97f730a5a6d9ba510d3edbf551", size = 248644 }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/b4/262439a3fe00064b53a5182c0149447304f5a2d5a328a92d64390c18d189/orbax_checkpoint-0.11.5.tar.gz", hash = "sha256:8331ff594980a241ba43eb59dd683e5b590b339cff32a7b72d78cb5a350030b4", size = 249258 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/c1/769af2f2f21b2ef7f52b02c6d2b28ef50ae650dd6d46d7088e775c4560ff/orbax_checkpoint-0.11.4-py3-none-any.whl", hash = "sha256:f8599c5370e203246207fa5be2dd1d0e5ab6c74ab3baa4c90185b9dfc02f1c07", size = 342088 },
+    { url = "https://files.pythonhosted.org/packages/66/80/e659696b5b1c2ced427efedd2d9d29c1bc31d841ac8a031215aa38f6b2ae/orbax_checkpoint-0.11.5-py3-none-any.whl", hash = "sha256:b55a7a254ea0ab18237e8234a6ca8bf5522f589fcc2ac698cf6893d5e7ae3500", size = 342800 },
 ]
 
 [[package]]
@@ -2117,7 +2118,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "chex", specifier = ">=0.1.3" },
-    { name = "flax", specifier = ">=0.10" },
+    { name = "flax", specifier = ">=0.10.3" },
     { name = "isort", specifier = ">=5.13" },
     { name = "jupyter", specifier = ">=1" },
     { name = "mypy", specifier = ">=1.12" },
@@ -2175,6 +2176,18 @@ wheels = [
 ]
 
 [[package]]
+name = "treescope"
+version = "0.1.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7c/1c/1ba87dd2b44058424547067ff5cc9a69bc39a21a495b8b5b03a6d0619bb0/treescope-0.1.8.tar.gz", hash = "sha256:6a81bac3dccf84a8a8635fe43531e28c2c7e4ffbf571693259e54b9329612633", size = 530665 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/5c/3c97439d8f3846f376ce41d44c5ada8ff9c601c8f146293ca878145c59cd/treescope-0.1.8-py3-none-any.whl", hash = "sha256:56637aed9946834a62cca41eafd812b92df6119a6b6c16990d9e0f47a6a971d8", size = 175934 },
+]
+
+[[package]]
 name = "types-python-dateutil"
 version = "2.9.0.20241206"
 source = { registry = "https://pypi.org/simple" }
@@ -2212,16 +2225,16 @@ wheels = [
 
 [[package]]
 name = "virtualenv"
-version = "20.29.1"
+version = "20.29.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "distlib" },
     { name = "filelock" },
     { name = "platformdirs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/ca/f23dcb02e161a9bba141b1c08aa50e8da6ea25e6d780528f1d385a3efe25/virtualenv-20.29.1.tar.gz", hash = "sha256:b8b8970138d32fb606192cb97f6cd4bb644fa486be9308fb9b63f81091b5dc35", size = 7658028 }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/88/dacc875dd54a8acadb4bcbfd4e3e86df8be75527116c91d8f9784f5e9cab/virtualenv-20.29.2.tar.gz", hash = "sha256:fdaabebf6d03b5ba83ae0a02cfe96f48a716f4fae556461d180825866f75b728", size = 4320272 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/89/9b/599bcfc7064fbe5740919e78c5df18e5dceb0887e676256a1061bb5ae232/virtualenv-20.29.1-py3-none-any.whl", hash = "sha256:4e4cb403c0b0da39e13b46b1b2476e505cb0046b25f242bee80f62bf990b2779", size = 4282379 },
+    { url = "https://files.pythonhosted.org/packages/93/fa/849483d56773ae29740ae70043ad88e068f98a6401aa819b5d6bee604683/virtualenv-20.29.2-py3-none-any.whl", hash = "sha256:febddfc3d1ea571bdb1dc0f98d7b45d24def7428214d4fb73cc486c9568cce6a", size = 4301478 },
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import Any, TypeVar
 
 from .types_ import GraphEdgeKey, GraphNodeKey
@@ -71,9 +71,15 @@ else:
         def clear_graph(graph: T, /) -> None:
             graph.clear()
 
+        # init: tp.Callable[[Node, tp.Iterable[tuple[Key, Leaf]]], None],
+        def init_graph(graph: T, it: Iterable[tuple[Key, Any]]) -> None:
+            for key, value in it:
+                set_key_graph(graph, key, value)
+
         register_graph_node_type(graph_type,
                                  flatten_graph,
                                  set_key_graph,
                                  pop_key_graph,
                                  create_empty_graph,
-                                 clear_graph)
+                                 clear_graph,
+                                 init_graph)
