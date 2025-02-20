@@ -115,20 +115,60 @@ def divide_where(dividend: ComplexArray,
 
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
 @overload
-def softplus(x: JaxRealArray) -> JaxRealArray: ...
+def softplus(x: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
 @overload
-def softplus(x: RealArray) -> RealArray: ...
-def softplus(x: RealArray) -> RealArray:
-    xp = get_namespace(x)
+def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
+def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+    """Softplus, which is log(1+exp(x)).
+
+    This has asymptotic behavior exp(x) as x -> -inf and x as x -> +inf.
+    """
+    if xp is None:
+        xp = get_namespace(x)
     return xp.logaddexp(xp.asarray(0.0), x)
 
 
 @overload
-def inverse_softplus(y: JaxRealArray) -> JaxRealArray: ...
+def log_softplus(x: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
 @overload
-def inverse_softplus(y: RealArray) -> RealArray: ...
-def inverse_softplus(y: RealArray) -> RealArray:
-    xp = get_namespace(y)
+def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
+def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+    """Log-softplus, which is log(1+log(1+exp(x))).
+
+    This has asymptotic behavior 0 as x -> -inf and log(x) as x -> +inf.
+    """
+    if xp is None:
+        xp = get_namespace(x)
+    z = xp.asarray(0.0)
+    return xp.logaddexp(z, xp.logaddexp(z, x))
+
+
+@overload
+def sublinear_softplus(x: JaxRealArray, maximum: JaxRealArray, /, *, xp: ModuleType | None = None
+                       ) -> JaxRealArray: ...
+@overload
+def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | None = None
+                       ) -> RealArray: ...
+def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | None = None
+                       ) -> RealArray:
+    """Sublinear-softplus, which is softplus(x) / (1 + softplus(x) / maximum).
+
+    This has asymptotic behavior exp(x) as x -> -inf and maximum as x -> +inf.
+    """
+    if xp is None:
+        xp = get_namespace(x)
+    o = xp.asarray(1.0)
+    sp = softplus(x, xp=xp)
+    return sp / (o + sp / maximum)
+
+
+@overload
+def inverse_softplus(y: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
+@overload
+def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
+def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+    if xp is None:
+        xp = get_namespace(y)
     return xp.where(y > 80.0,  # noqa: PLR2004
                     y,
                     xp.log(xp.expm1(y)))

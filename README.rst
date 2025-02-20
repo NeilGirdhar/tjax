@@ -78,7 +78,7 @@ Tjax also includes:
 - A testing function :python:`assert_tree_allclose` that automatically produces testing code.  And, a related
   function :python:`tree_allclose`.  (See `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/testing.py>`_.)
 
-- Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/tools.py>`_.)
+- Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/math_tools.py>`_.)
 
 -----------------------
 Contribution guidelines
