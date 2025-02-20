@@ -5,7 +5,7 @@ from typing import Literal, TypeVar, overload
 
 import array_api_extra as xpx
 import numpy as np
-from array_api_compat import get_namespace, is_jax_array, is_torch_array
+from array_api_compat import array_namespace, is_jax_array, is_torch_array
 
 from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxBooleanArray,
                           JaxComplexArray, JaxIntegralArray, JaxRealArray, NumpyBooleanArray,
@@ -17,7 +17,7 @@ def abs_square(x: JaxComplexArray) -> JaxRealArray: ...
 @overload
 def abs_square(x: ComplexArray) -> RealArray: ...
 def abs_square(x: ComplexArray) -> RealArray:
-    xp = get_namespace(x)
+    xp = array_namespace(x)
     return xp.square(x.real) + xp.square(x.imag)
 
 
@@ -32,7 +32,7 @@ def outer_product(x: RealArray, y: RealArray) -> RealArray:
 
     This is xp.einsum("...i,...j->...ij", x, y).
     """
-    xp = get_namespace(x, y)
+    xp = array_namespace(x, y)
     xi = xp.reshape(x, (*x.shape, 1))
     yj = xp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
     return xi * yj
@@ -51,7 +51,7 @@ def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
     * 14.3 µs: xp.vecdot(matrix_vector_mul(m, x), x)
     * 4.44 µs: np.einsum("...i,...ij,...j->...", x, m, x)
     """  # noqa: RUF002
-    xp = get_namespace(x, y)
+    xp = array_namespace(x, y)
     y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
     return xp.sum(x * y, axis=-1)
 
@@ -68,7 +68,7 @@ def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
     * 1.77 µs: xp.sum(x * y, axis=(-2, -1))
     # 3.87 µs: xp.linalg.trace(xp.moveaxis(x, -2, -1) @ y)
     """  # noqa: RUF002
-    xp = get_namespace(x, y)
+    xp = array_namespace(x, y)
     return xp.sum(x * y, axis=(-2, -1))
 
 
@@ -103,10 +103,10 @@ def divide_where(dividend: ComplexArray,
     """
     if where is None:
         assert otherwise is None
-        xp = get_namespace(dividend, divisor)
+        xp = array_namespace(dividend, divisor)
         return xp.divide(dividend, divisor)
     assert otherwise is not None
-    xp = get_namespace(dividend, divisor, where, otherwise)
+    xp = array_namespace(dividend, divisor, where, otherwise)
     dividend = xp.where(where, dividend, 1.0)
     divisor = xp.where(where, divisor, 1.0)
     quotient: ComplexArray = xp.divide(dividend, divisor)
@@ -124,7 +124,7 @@ def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
     This has asymptotic behavior exp(x) as x -> -inf and x as x -> +inf.
     """
     if xp is None:
-        xp = get_namespace(x)
+        xp = array_namespace(x)
     return xp.logaddexp(xp.asarray(0.0), x)
 
 
@@ -138,7 +138,7 @@ def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
     This has asymptotic behavior 0 as x -> -inf and log(x) as x -> +inf.
     """
     if xp is None:
-        xp = get_namespace(x)
+        xp = array_namespace(x)
     z = xp.asarray(0.0)
     return xp.logaddexp(z, xp.logaddexp(z, x))
 
@@ -156,7 +156,7 @@ def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | 
     This has asymptotic behavior exp(x) as x -> -inf and maximum as x -> +inf.
     """
     if xp is None:
-        xp = get_namespace(x)
+        xp = array_namespace(x)
     o = xp.asarray(1.0)
     sp = softplus(x, xp=xp)
     return sp / (o + sp / maximum)
@@ -168,7 +168,7 @@ def inverse_softplus(y: JaxRealArray, /, *, xp: ModuleType | None = None) -> Jax
 def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
 def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
     if xp is None:
-        xp = get_namespace(y)
+        xp = array_namespace(y)
     return xp.where(y > 80.0,  # noqa: PLR2004
                     y,
                     xp.log(xp.expm1(y)))
@@ -180,7 +180,7 @@ def normalize(mode: Literal['l1', 'l2', 'max'],
               axis: tuple[int, ...] | int | None = None
               ) -> JaxRealArray:
     """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
-    xp = get_namespace(x)
+    xp = array_namespace(x)
     epsilon = 10 * xp.finfo(x.dtype).eps
     match mode:
         case 'l1':
@@ -206,7 +206,7 @@ def create_diagonal_array(m: T) -> T:
         m: Has shape (*k, n)
     Returns: Array with shape (*k, n, n) and the elements of m on the diagonals.
     """
-    xp = get_namespace(m)
+    xp = array_namespace(m)
     pre = m.shape[:-1]
     n = m.shape[-1]
     retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
@@ -221,7 +221,7 @@ U = TypeVar('U')
 
 def stop_gradient(x: U, *, xp: ModuleType | None = None) -> U:
     if xp is None:
-        xp = get_namespace(x)
+        xp = array_namespace(x)
     if is_jax_array(xp):
         from jax.lax import stop_gradient as sg  # noqa: PLC0415
         return sg(x)

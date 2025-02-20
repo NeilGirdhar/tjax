@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import overload
 
 import jax.numpy as jnp
-from array_api_compat import get_namespace
+from array_api_compat import array_namespace
 from jax.random import normal
 
 from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxIntegralArray,
@@ -53,16 +53,16 @@ def leaky_integrate(value: ComplexArray,
     if drift is None:
         if decay is None:
             return value
-        xp = get_namespace(decay, time_step, value)
+        xp = array_namespace(decay, time_step, value)
         return xp.exp(-decay * time_step) * value
 
     if decay is None:
         if leaky_average:
             raise ValueError
-        xp = get_namespace(drift, time_step, value)
+        xp = array_namespace(drift, time_step, value)
         return xp.asarray(value + drift * time_step)
 
-    xp = get_namespace(drift, decay, time_step, value)
+    xp = array_namespace(drift, decay, time_step, value)
     scaled_integrand = (drift / decay) * -xp.expm1(-decay * time_step)
 
     if leaky_average:
@@ -92,7 +92,7 @@ def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
 
     This equals leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True).
     """
-    xp = get_namespace(iterations_times_time_step, decay)
+    xp = array_namespace(iterations_times_time_step, decay)
     return -xp.expm1(-iterations_times_time_step * decay)
 
 
