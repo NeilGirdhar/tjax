@@ -36,11 +36,8 @@ dependencies = [
   "typing_extensions>=4.11",
 ]
 
-[project.urls]
-repository = "https://github.com/NeilGirdhar/tjax"
-
-[tool.uv]
-dev-dependencies = [
+[project.optional-dependencies]
+dev = [
   "chex>=0.1.3",
   "flax>=0.10.3",
   "isort>=5.13",
@@ -54,6 +51,9 @@ dev-dependencies = [
   "pytest>=8",
   "ruff>=0.8",
 ]
+
+[project.urls]
+repository = "https://github.com/NeilGirdhar/tjax"
 
 [tool.isort]
 line_length = 100
@@ -264,6 +264,7 @@ ignore = [
   "TD002", # Missing author in TODO; try: # TODO(<author_name>): ....
   "TD003", # Missing issue link on the line following this TODO.
   "TID252", # Relative imports from parent modules are banned.
+  "UP037", # Remove quotes from type annotation.
 ]
 
 [tool.ruff.lint.flake8-import-conventions.extend-aliases]
