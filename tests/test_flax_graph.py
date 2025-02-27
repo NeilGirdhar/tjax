@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TypeVar, override
 
 import pytest
 
@@ -15,11 +15,25 @@ else:
     register_graph_as_nnx_node(nx.DiGraph)
 
 
+T = TypeVar('T')
+
+
+class ComparableVariable(nnx.Variable[T]):
+    @override
+    def __hash__(self) -> int:
+        raise NotImplementedError
+
+    @override
+    def __eq__(self, other: object) -> bool:
+        assert isinstance(other, ComparableVariable)
+        return self.raw_value == other.raw_value
+
+
 @pytest.fixture(scope='session')
 def graph() -> nx.DiGraph[Any]:
-    v = nnx.Variable(2.0)
-    w = nnx.Variable(3.0)
-    x = nnx.Variable(4.0)
+    v = ComparableVariable(2.0)
+    w = ComparableVariable(3.0)
+    x = ComparableVariable(4.0)
     g = nx.DiGraph()
     g.add_node('a', y=v)
     g.add_node('b', z=w)
@@ -47,8 +61,7 @@ def test_clone(graph: nx.DiGraph[Any]) -> None:
 
 def test_flatten(graph: nx.DiGraph[Any]) -> None:
     _, state = nnx.graph.flatten(graph)
-    substate = state[GraphEdgeKey('a', 'b')]
-    assert isinstance(substate, nnx.State)
-    variable = substate['x']
+    state_dict = dict(state)
+    variable = state_dict[GraphEdgeKey('a', 'b'), 'x']
     assert isinstance(variable, nnx.VariableState)
     assert variable.value == 4.0  # noqa: PLR2004

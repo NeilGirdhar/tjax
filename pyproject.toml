@@ -39,7 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "chex>=0.1.3",
-  "flax>=0.10.3",
+  "flax>=0.10.4",
   "isort>=5.13",
   "jupyter>=1",
   "mypy>=1.12",
