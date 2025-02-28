@@ -11,7 +11,6 @@ import numpy as np
 from jax import tree
 
 from .annotations import Array, PyTree
-from .dtypes import default_tols
 
 
 def assert_tree_allclose(actual: PyTree,
@@ -19,8 +18,9 @@ def assert_tree_allclose(actual: PyTree,
                          original_name: str | None = None,
                          original_value: PyTree | None = None,
                          *,
-                         rtol: float | None = None,
-                         atol: float | None = None) -> None:
+                         rtol: float = 1e-5,
+                         atol: float = 1e-8
+                         ) -> None:
     """Assert that an actual pytree matches a desired pytree.
 
     If the assertion fails, a passing test string is printed::
@@ -74,23 +74,21 @@ def assert_tree_allclose(actual: PyTree,
         raise AssertionError(msg)
 
     for i, (actual_, desired_) in enumerate(zip(flattened_actual, flattened_desired, strict=True)):
-        dtype = jnp.result_type(actual_, desired_)
-        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
         try:
-            np.testing.assert_allclose(actual_, desired_, **tols)
+            np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)
         except AssertionError as exception:
             old_message = exception.args[0].split('\n')
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-            test_string = (get_relative_test_string(actual, original_name, original_value, **tols)
+            test_string = (get_relative_test_string(actual, original_name, original_value,
+                                                    rtol=rtol, atol=atol)
                            if original_name is not None and original_value is not None
-                           else get_test_string(actual, **tols))
+                           else get_test_string(actual, rtol=rtol, atol=atol))
             test_string = "desired = " + test_string
             # style_config = yapf.style.CreatePEP8Style()
             # style_config['COLUMN_LIMIT'] = column_limit
             # test_string = yapf.yapf_api.FormatCode(test_string, style_config=style_config)[0]
             message = (
-                f"\nTree leaves don't match at position {i} with rtol={tols['rtol']} and "
-                f"atol={tols['atol']}.\n"
+                f"\nTree leaves don't match at position {i} with rtol={rtol} and atol={atol}.\n"
                 f"{best_part_of_old_message}\n\n"
                 f"Actual: {actual}\nDesired: {desired}\n"
                 f"Test string:\n{test_string}")
@@ -99,8 +97,8 @@ def assert_tree_allclose(actual: PyTree,
 
 def tree_allclose(actual: PyTree,
                   desired: PyTree,
-                  rtol: float | None = None,
-                  atol: float | None = None) -> bool:
+                  rtol: float = 1e-5,
+                  atol: float = 1e-8) -> bool:
     """Return whether two pytrees are close.
 
     Args:
@@ -110,9 +108,7 @@ def tree_allclose(actual: PyTree,
         atol: The absolute tolerance of the comparisons in the comparison.
     """
     def allclose(actual_array: Array, desired_array: Array) -> bool:
-        dtype = jnp.result_type(actual_array, desired_array)
-        tols = default_tols(dtype.type, rtol=rtol, atol=atol)
-        return bool(jnp.allclose(actual_array, desired_array, **tols))
+        return bool(jnp.allclose(actual_array, desired_array, rtol=rtol, atol=atol))
 
     return tree.all(tree.map(allclose, actual, desired))
 

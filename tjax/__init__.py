@@ -15,7 +15,6 @@ from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type
-from ._src.dtypes import default_atol, default_rtol, default_tols
 from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_flax import register_graph_as_nnx_node
 from ._src.graph.register_jax import register_graph_as_jax_pytree
@@ -80,9 +79,6 @@ __all__ = [
     'custom_vjp',
     'custom_vjp_method',
     'dataclasses',
-    'default_atol',
-    'default_rtol',
-    'default_tols',
     'diffused_leaky_integrate',
     'display_generic',
     'divide_where',
