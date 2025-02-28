@@ -4,10 +4,10 @@ from typing import Any
 
 import jax.numpy as jnp
 import pytest
-from jax import Array, vjp
+from jax import vjp
 from numpy.testing import assert_allclose
 
-from tjax import JaxRealArray, divide_where, normalize
+from tjax import Array, JaxRealArray, divide_where, normalize
 
 
 @pytest.mark.parametrize(("x", "axis", "result"),
