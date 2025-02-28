@@ -1,33 +1,24 @@
 from __future__ import annotations
 
-from types import ModuleType
-from typing import Literal, TypeVar, overload
+from typing import Literal, TypeVar
 
 import array_api_extra as xpx
 import numpy as np
 from array_api_compat import array_namespace, is_jax_array, is_torch_array
 
-from .annotations import (BooleanArray, ComplexArray, IntegralArray, JaxBooleanArray,
-                          JaxComplexArray, JaxIntegralArray, JaxRealArray, NumpyBooleanArray,
-                          NumpyComplexArray, NumpyIntegralArray, NumpyRealArray, RealArray)
+from .annotations import Array, BooleanArray, Namespace
+
+T = TypeVar('T', bound=Array)
 
 
-@overload
-def abs_square(x: JaxComplexArray) -> JaxRealArray: ...
-@overload
-def abs_square(x: ComplexArray) -> RealArray: ...
-def abs_square(x: ComplexArray) -> RealArray:
+def abs_square(x: T) -> T:
     xp = array_namespace(x)
-    return xp.square(x.real) + xp.square(x.imag)
+    return xp.square(x.real) + xp.square(x.imag)  # pyright: ignore
 
 
-# TODO: Remove when it's added to the Array API:
+# TODO: Remove when it's added to theArrayAPI:
 # https://github.com/data-apis/array-api/issues/242
-@overload
-def outer_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray: ...
-@overload
-def outer_product(x: RealArray, y: RealArray) -> RealArray: ...
-def outer_product(x: RealArray, y: RealArray) -> RealArray:
+def outer_product(x: T, y: T) -> T:
     """Return the broadcasted outer product of a vector with itself.
 
     This is xp.einsum("...i,...j->...ij", x, y).
@@ -38,11 +29,7 @@ def outer_product(x: RealArray, y: RealArray) -> RealArray:
     return xi * yj
 
 
-@overload
-def matrix_vector_mul(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray: ...
-@overload
-def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray: ...
-def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
+def matrix_vector_mul(x: T, y: T) -> T:
     """Return the matrix-vector product.
 
     This is xp.einsum("...ij,...j->...i", x, y).
@@ -56,11 +43,7 @@ def matrix_vector_mul(x: RealArray, y: RealArray) -> RealArray:
     return xp.sum(x * y, axis=-1)
 
 
-@overload
-def matrix_dot_product(x: JaxRealArray, y: JaxRealArray) -> JaxRealArray: ...
-@overload
-def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray: ...
-def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
+def matrix_dot_product(x: T, y: T) -> T:
     """Return the "matrix dot product" of a matrix with the outer product of a vector.
 
     This equals:
@@ -72,29 +55,11 @@ def matrix_dot_product(x: RealArray, y: RealArray) -> RealArray:
     return xp.sum(x * y, axis=(-2, -1))
 
 
-@overload
-def divide_where(dividend: JaxRealArray,
-                 divisor: JaxRealArray | JaxIntegralArray,
-                 *,
-                 where: JaxBooleanArray | None = None,
-                 otherwise: JaxRealArray | None = None) -> JaxRealArray: ...
-@overload
-def divide_where(dividend: NumpyRealArray,
-                 divisor: NumpyRealArray | NumpyIntegralArray,
-                 *,
-                 where: NumpyBooleanArray | None = None,
-                 otherwise: NumpyRealArray | None = None) -> NumpyRealArray: ...
-@overload
-def divide_where(dividend: NumpyComplexArray,
-                 divisor: NumpyComplexArray | NumpyIntegralArray,
-                 *,
-                 where: NumpyBooleanArray | None = None,
-                 otherwise: NumpyComplexArray | None = None) -> NumpyComplexArray: ...
-def divide_where(dividend: ComplexArray,
-                 divisor: ComplexArray | IntegralArray,
+def divide_where(dividend: T,
+                 divisor: T,
                  *,
                  where: BooleanArray | None = None,
-                 otherwise: ComplexArray | None = None) -> ComplexArray:
+                 otherwise: T | None = None) -> T:
     """Return the quotient or a special value when a condition is false.
 
     Returns: `xp.where(where, dividend / divisor, otherwise)`, but without evaluating
@@ -109,16 +74,12 @@ def divide_where(dividend: ComplexArray,
     xp = array_namespace(dividend, divisor, where, otherwise)
     dividend = xp.where(where, dividend, 1.0)
     divisor = xp.where(where, divisor, 1.0)
-    quotient: ComplexArray = xp.divide(dividend, divisor)
+    quotient: T = xp.divide(dividend, divisor)
     return xp.where(where, quotient, otherwise)
 
 
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
-@overload
-def softplus(x: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
-@overload
-def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
-def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+def softplus(x: T, /, *, xp: Namespace | None = None) -> T:
     """Softplus, which is log(1+exp(x)).
 
     This has asymptotic behavior exp(x) as x -> -inf and x as x -> +inf.
@@ -128,11 +89,7 @@ def softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
     return xp.logaddexp(xp.asarray(0.0), x)
 
 
-@overload
-def log_softplus(x: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
-@overload
-def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
-def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+def log_softplus(x: T, /, *, xp: Namespace | None = None) -> T:
     """Log-softplus, which is log(1+log(1+exp(x))).
 
     This has asymptotic behavior 0 as x -> -inf and log(x) as x -> +inf.
@@ -143,14 +100,7 @@ def log_softplus(x: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
     return xp.logaddexp(z, xp.logaddexp(z, x))
 
 
-@overload
-def sublinear_softplus(x: JaxRealArray, maximum: JaxRealArray, /, *, xp: ModuleType | None = None
-                       ) -> JaxRealArray: ...
-@overload
-def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | None = None
-                       ) -> RealArray: ...
-def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | None = None
-                       ) -> RealArray:
+def sublinear_softplus(x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:
     """Sublinear-softplus, which is softplus(x) / (1 + softplus(x) / maximum).
 
     This has asymptotic behavior exp(x) as x -> -inf and maximum as x -> +inf.
@@ -162,11 +112,7 @@ def sublinear_softplus(x: RealArray, maximum: RealArray, /, *, xp: ModuleType | 
     return sp / (o + sp / maximum)
 
 
-@overload
-def inverse_softplus(y: JaxRealArray, /, *, xp: ModuleType | None = None) -> JaxRealArray: ...
-@overload
-def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray: ...
-def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealArray:
+def inverse_softplus(y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
     return xp.where(y > 80.0,  # noqa: PLR2004
@@ -175,10 +121,10 @@ def inverse_softplus(y: RealArray, /, *, xp: ModuleType | None = None) -> RealAr
 
 
 def normalize(mode: Literal['l1', 'l2', 'max'],
-              x: JaxRealArray,
+              x: T,
               *,
               axis: tuple[int, ...] | int | None = None
-              ) -> JaxRealArray:
+              ) -> T:
     """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
     xp = array_namespace(x)
     epsilon = 10 * xp.finfo(x.dtype).eps
@@ -196,15 +142,12 @@ def normalize(mode: Literal['l1', 'l2', 'max'],
             return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
 
 
-T = TypeVar('T', bound=ComplexArray)
-
-
 def create_diagonal_array(m: T) -> T:
     """A vectorized version of diagonal.
 
     Args:
         m: Has shape (*k, n)
-    Returns: Array with shape (*k, n, n) and the elements of m on the diagonals.
+    Returns: An array having shape (*k, n, n) and the elements of m on the diagonals.
     """
     xp = array_namespace(m)
     pre = m.shape[:-1]
@@ -219,7 +162,7 @@ def create_diagonal_array(m: T) -> T:
 U = TypeVar('U')
 
 
-def stop_gradient(x: U, *, xp: ModuleType | None = None) -> U:
+def stop_gradient(x: U, *, xp: Namespace | None = None) -> U:
     if xp is None:
         xp = array_namespace(x)
     if is_jax_array(xp):
