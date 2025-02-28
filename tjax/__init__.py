@@ -14,7 +14,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
 from ._src.display.display_generic import display_generic
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
-from ._src.dtype_tools import cast_to_result_type, result_type
+from ._src.dtype_tools import cast_to_result_type
 from ._src.dtypes import default_atol, default_rtol, default_tols
 from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_flax import register_graph_as_nnx_node
@@ -109,7 +109,6 @@ __all__ = [
     'register_graph_as_jax_pytree',
     'register_graph_as_nnx_node',
     'replace_cotangent',
-    'result_type',
     'reverse_scale_cotangent',
     'sample_streams',
     'scale_cotangent',
