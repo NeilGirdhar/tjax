@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from types import ModuleType
 from typing import Any
 
 import numpy as np
@@ -25,7 +26,6 @@ NumpyBooleanArray = npt.NDArray[np.bool_]
 NumpyIntegralArray = npt.NDArray[np.integer[Any]]
 NumpyRealArray = npt.NDArray[np.floating[Any]]
 NumpyComplexArray = npt.NDArray[np.floating[Any]] | npt.NDArray[np.complexfloating[Any, Any]]
-Array = NumpyArray | JaxArray
 BooleanArray = NumpyBooleanArray | JaxArray
 IntegralArray = NumpyIntegralArray | JaxArray
 RealArray = NumpyRealArray | JaxArray
@@ -40,6 +40,13 @@ BooleanNumeric = BooleanArray | bool
 IntegralNumeric = IntegralArray | int
 RealNumeric = RealArray | float
 ComplexNumeric = ComplexArray | complex
+
+
+# Eventually, these will come from array_api_extra.
+Array = NumpyArray | JaxArray
+Device = Any
+DType = Any
+Namespace = ModuleType
 
 
 PyTree = Any
