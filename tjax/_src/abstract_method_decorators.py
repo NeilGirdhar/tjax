@@ -38,7 +38,7 @@ class JaxAbstractClass:
             setattr(cls, name, method)
 
 
-def abstract_jit(fun: F, **kwargs: Any) -> F:
+def abstract_jit(fun: F, **kwargs: object) -> F:
     """An abstract method whose override need to be jitted."""
     setattr(fun, abstract_jit_marker, kwargs)
     return fun

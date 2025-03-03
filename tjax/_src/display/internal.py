@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from rich.console import Console
 from rich.tree import Tree
 
@@ -12,10 +10,10 @@ global_console = Console()
 
 
 # Functions ----------------------------------------------------------------------------------------
-def internal_print_generic(*args: Any,
+def internal_print_generic(*args: object,
                            raise_on_nan: bool = True,
                            console: Console | None = None,
-                           **kwargs: Any) -> None:
+                           **kwargs: object) -> None:
     if console is None:
         console = global_console
     found_nan = False

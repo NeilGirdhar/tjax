@@ -35,11 +35,11 @@ class Partial(Generic[R]):
     def __init__(self,
                  function: Partial[R] | Callable[..., R],
                  /,
-                 *args: Any,
+                 *args: object,
                  callable_is_static: bool = True,
                  static_argnums: tuple[int, ...] = (),
                  static_kwargs: Mapping[str, Any] | None = None,
-                 **dynamic_kwargs: Any) -> None:
+                 **dynamic_kwargs: object) -> None:
         super().__init__()
         if isinstance(function, Partial) and callable_is_static:
             raise TypeError
@@ -88,7 +88,7 @@ class Partial(Generic[R]):
                           **dynamic_kwargs)
 
     # Magic methods --------------------------------------------------------------------------------
-    def __call__(self, *args: Any, **kwargs: Any) -> R:
+    def __call__(self, *args: object, **kwargs: object) -> R:
         keywords = {**self.static_kwargs, **self.dynamic_kwargs, **kwargs}
         return self.function(*self.args, *args, **keywords)
 

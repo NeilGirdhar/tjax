@@ -9,11 +9,11 @@ from rich.console import Console
 from .internal import internal_print_generic
 
 
-def print_generic(*args: Any,
+def print_generic(*args: object,
                   raise_on_nan: bool = True,
                   immediate: bool = False,
                   console: Console | None = None,
-                  **kwargs: Any
+                  **kwargs: object
                   ) -> None:
     """Uses internal_print_generic in a tapped function.
 
@@ -36,7 +36,7 @@ def print_generic(*args: Any,
                 else int(u_arg.item()) if isinstance(arg, int)
                 else u_arg)
 
-    def callback(*callback_leaves: Any) -> None:
+    def callback(*callback_leaves: object) -> None:
         unflattened_tree = tree.unflatten(tree_def, callback_leaves)
         v_args, v_kwargs = tree.map(fix, unflattened_tree, (args, kwargs))
         internal_print_generic(*v_args, raise_on_nan=raise_on_nan, console=console, **v_kwargs)
