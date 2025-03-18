@@ -20,9 +20,9 @@ from ._src.graph.register_flax import register_graph_as_nnx_node
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
 from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
-from ._src.math_tools import (abs_square, create_diagonal_array, divide_where, inverse_softplus,
-                              log_softplus, matrix_dot_product, matrix_vector_mul, normalize,
-                              outer_product, softplus, stop_gradient, sublinear_softplus)
+from ._src.math_tools import (abs_square, divide_where, inverse_softplus, log_softplus,
+                              matrix_dot_product, matrix_vector_mul, normalize, outer_product,
+                              softplus, stop_gradient, sublinear_softplus)
 from ._src.partial import Partial
 from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
@@ -72,7 +72,6 @@ __all__ = [
     'cast_to_result_type',
     'copy_cotangent',
     'cotangent_combinator',
-    'create_diagonal_array',
     'create_streams',
     'custom_jvp',
     'custom_jvp_method',

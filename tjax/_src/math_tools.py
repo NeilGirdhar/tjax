@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Literal, TypeVar
 
-import array_api_extra as xpx
-import numpy as np
 from array_api_compat import array_namespace, is_jax_array, is_torch_array
 
 from .annotations import Array, BooleanArray, Namespace
@@ -140,23 +138,6 @@ def normalize(mode: Literal['l1', 'l2', 'max'],
         case 'max':
             sum_x = xp.max(xp.abs(x), axis=axis, keepdims=True)
             return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
-
-
-def create_diagonal_array(m: T) -> T:
-    """A vectorized version of diagonal.
-
-    Args:
-        m: Has shape (*k, n)
-    Returns: An array having shape (*k, n, n) and the elements of m on the diagonals.
-    """
-    xp = array_namespace(m)
-    pre = m.shape[:-1]
-    n = m.shape[-1]
-    retval = xp.zeros((*pre, n ** 2), dtype=m.dtype)
-    for index in np.ndindex(*pre):
-        target_index = (*index, slice(None, None, n + 1))
-        retval = xpx.at(retval)[target_index].set(m[*index, :])
-    return xp.reshape(retval, (*m.shape, n))
 
 
 U = TypeVar('U')
