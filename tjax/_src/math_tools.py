@@ -134,7 +134,7 @@ def normalize(mode: Literal['l1', 'l2', 'max'],
         case 'l2':
             sum_x = xp.sqrt(xp.sum(xp.square(x), axis=axis, keepdims=True))
             size = x.size / sum_x.size
-            return xp.where(sum_x < epsilon, xp.ones_like(x) * xp.sqrt(1 / size), x / sum_x)
+            return xp.where(sum_x < epsilon, xp.ones_like(x) * xp.pow(size, -0.5), x / sum_x)
         case 'max':
             sum_x = xp.max(xp.abs(x), axis=axis, keepdims=True)
             return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
