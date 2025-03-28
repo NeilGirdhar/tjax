@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import overload
 
 import jax.numpy as jnp
+import jax.random as jr
 from array_api_compat import array_namespace
-from jax.random import normal
 
 from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxIntegralArray,
                           JaxRealArray, KeyArray, RealArray)
@@ -120,5 +120,5 @@ def diffused_leaky_integrate(value: JaxComplexArray,
     variance = (diffusion * time_step
                 if decay is None
                 else diffusion / decay * -jnp.expm1(-decay * time_step))
-    jump = jnp.sqrt(variance) * normal(rng, value.shape)
+    jump = jnp.sqrt(variance) * jr.normal(rng, value.shape)
     return leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump

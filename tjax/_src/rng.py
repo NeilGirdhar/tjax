@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 import jax.numpy as jnp
-from jax.random import fold_in, split
+import jax.random as jr
 
 from .annotations import JaxIntegralArray, KeyArray
 
@@ -19,7 +19,7 @@ class RngStream:
         self.count = count
 
     def key(self) -> KeyArray:
-        key = fold_in(self._key, self.count)
+        key = jr.fold_in(self._key, self.count)
         self.count += 1
         return key
 
@@ -33,4 +33,4 @@ def sample_streams(rngs: Mapping[str, RngStream]) -> Mapping[str, KeyArray]:
 
 
 def fork_streams(rngs: Mapping[str, RngStream], samples: int) -> Mapping[str, KeyArray]:
-    return {name: split(stream.key(), samples) for name, stream in rngs.items()}
+    return {name: jr.split(stream.key(), samples) for name, stream in rngs.items()}

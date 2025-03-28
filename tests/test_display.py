@@ -3,9 +3,9 @@ from textwrap import dedent
 from typing import Any
 
 import jax.numpy as jnp
+import jax.random as jr
 import numpy as np
 from jax import Array, enable_custom_prng, jit, tree, vmap
-from jax.random import key
 from pytest import CaptureFixture
 from rich.console import Console
 
@@ -94,7 +94,7 @@ def test_vmap_display(capsys: CaptureFixture[str],
 def test_key_display(capsys: CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
-        k = key(123)
+        k = jr.key(123)
 
         @jit
         def f(x: KeyArray) -> None:
