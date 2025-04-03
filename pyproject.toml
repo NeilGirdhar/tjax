@@ -243,6 +243,7 @@ ignore = [
 "optimistix" = "optx"
 "optype.numpy" = "onp"
 "pyqtgraph" = "pg"
+"scipy.special" = "sc"
 "seaborn" = "sns"
 
 [tool.ruff.lint.flake8-errmsg]
