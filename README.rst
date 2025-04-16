@@ -84,14 +84,15 @@ Tjax also includes:
 Contribution guidelines
 -----------------------
 
-- Conventions: PEP8.
+The implementation should be consistent with the surrounding style, be type annotated, and pass the
+linters below.
 
-- How to run tests: :bash:`pytest .`
+To run tests: :bash:`pytest`
 
-- How to clean the source:
+There are a few tools to clean and check the source:
 
-  - :bash:`ruff check .`
-  - :bash:`pyright`
-  - :bash:`mypy`
-  - :bash:`isort .`
-  - :bash:`pylint tjax tests`
+- :bash:`ruff check`
+- :bash:`pyright`
+- :bash:`mypy`
+- :bash:`isort .`
+- :bash:`pylint tjax tests`
