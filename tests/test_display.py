@@ -91,6 +91,25 @@ def test_vmap_display(capsys: CaptureFixture[str],
     verify(captured, s * 24)
 
 
+def test_immediate_key_display(capsys: CaptureFixture[str],
+                               console: Console) -> None:
+    with enable_custom_prng():
+        k = jr.key(123)
+
+        @jit
+        def f(x: KeyArray) -> None:
+            print_generic(x, immediate=True, console=console)
+
+        f(k)
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
+    verify(captured,
+           """
+           JaxKey[dataclass]
+           └── key_data=Jax Array (2,) uint32
+           """)
+
+
 def test_key_display(capsys: CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
@@ -105,8 +124,9 @@ def test_key_display(capsys: CaptureFixture[str],
     captured = console.file.getvalue()
     verify(captured,
            """
-           Jax Array (2,) uint32
-           └──  0 │ 123
+           JaxKey[dataclass]
+           └── key_data=Jax Array (2,) uint32
+               └──  0 │ 123
            """)
 
 
