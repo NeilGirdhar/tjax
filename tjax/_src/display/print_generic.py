@@ -2,11 +2,26 @@ from __future__ import annotations
 
 from typing import Any
 
+import jax
+import jax.numpy as jnp
+import jax.random as jr
 import numpy as np
-from jax import debug, tree
+from jax import Array, debug, tree
 from rich.console import Console
 
+from ..dataclasses.dataclass import dataclass
 from .internal import internal_print_generic
+
+
+@dataclass
+class JaxKey:
+    key_data: Array
+
+
+def replace_key(leaf: Any) -> Any:
+    if isinstance(leaf, Array) and jnp.issubdtype(leaf.dtype, jax.dtypes.prng_key):
+        return JaxKey(jr.key_data(leaf))
+    return leaf
 
 
 def print_generic(*args: object,
@@ -25,6 +40,8 @@ def print_generic(*args: object,
         args: Positional arguments to be printed.  Only dynamic arguments are allowed.
         kwargs: Keyword arguments to be printed.  Only static keys and dynamic values are allowed.
     """
+    args, kwargs = tree.map(replace_key, (args, kwargs))
+
     if immediate:
         internal_print_generic(*args, raise_on_nan=raise_on_nan, console=console, **kwargs)
         return
