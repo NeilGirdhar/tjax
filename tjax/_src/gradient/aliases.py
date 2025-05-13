@@ -14,12 +14,12 @@ from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
 
-from ..annotations import IntegralNumeric, RealNumeric
+from ..annotations import IntegralNumeric, JaxArray, RealNumeric
 from .transform import GenericGradientState, GradientTransformation, Weights
 from .transforms import Schedule
 
 # Types --------------------------------------------------------------------------------------------
-ScalarOrSchedule = float | Schedule
+ScalarOrSchedule = float | JaxArray | Schedule
 
 
 # Transforms from optax._src.alias.py --------------------------------------------------------------
