@@ -25,23 +25,26 @@ def replace_key(leaf: Any) -> Any:
 
 
 def print_generic(*args: object,
-                  raise_on_nan: bool = True,
                   immediate: bool = False,
+                  raise_on_nan: bool = True,
+                  as_leaves: bool = False,
                   console: Console | None = None,
                   ) -> None:
     """Uses internal_print_generic in a tapped function.
 
     Args:
-        raise_on_nan: Assert if NaN is found in the output.
         immediate: Print the value immediately even if they're tracers.  Do not wait for the
             compiled function to be called.
+        raise_on_nan: Assert if NaN is found in the output.
+        as_leaves: Print the elements of args showing only the the tree leaves and their paths.
         console: The console that formats the output.
         args: Positional arguments to be printed.  Only dynamic arguments are allowed.
     """
     args = tree.map(replace_key, args)
 
     if immediate:
-        internal_print_generic(*args, raise_on_nan=raise_on_nan, console=console)
+        internal_print_generic(*args, raise_on_nan=raise_on_nan, as_leaves=as_leaves,
+                               console=console)
         return
 
     leaves, tree_def = tree.flatten(args)
@@ -54,6 +57,7 @@ def print_generic(*args: object,
     def callback(*callback_leaves: object) -> None:
         unflattened_tree = tree.unflatten(tree_def, callback_leaves)
         v_args = tree.map(fix, unflattened_tree, args)
-        internal_print_generic(*v_args, raise_on_nan=raise_on_nan, console=console)
+        internal_print_generic(*v_args, raise_on_nan=raise_on_nan, as_leaves=as_leaves,
+                               console=console)
 
     debug.callback(callback, *leaves, ordered=True)

@@ -176,6 +176,41 @@ def test_dataclass(capsys: CaptureFixture[str],
            """)
 
 
+def test_dataclass_as_leaves(capsys: CaptureFixture[str],
+                             console: Console) -> None:
+    @dataclass
+    class C:
+        x: int
+        y: int
+
+    @dataclass
+    class D:
+        c: C
+        d: C
+
+    print_generic(D(C(1, 2), C(3, 4)),
+                  console=console,
+                  as_leaves=True)
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
+    verify(captured,
+           """
+           list
+           ├── tuple
+           │   ├── ".c.x"
+           │   └── 1
+           ├── tuple
+           │   ├── ".c.y"
+           │   └── 2
+           ├── tuple
+           │   ├── ".d.x"
+           │   └── 3
+           └── tuple
+               ├── ".d.y"
+               └── 4
+           """)
+
+
 def test_pytreedef(capsys: CaptureFixture[str],
                    console: Console) -> None:
     @dataclass
