@@ -28,7 +28,6 @@ def print_generic(*args: object,
                   raise_on_nan: bool = True,
                   immediate: bool = False,
                   console: Console | None = None,
-                  **kwargs: object
                   ) -> None:
     """Uses internal_print_generic in a tapped function.
 
@@ -38,15 +37,14 @@ def print_generic(*args: object,
             compiled function to be called.
         console: The console that formats the output.
         args: Positional arguments to be printed.  Only dynamic arguments are allowed.
-        kwargs: Keyword arguments to be printed.  Only static keys and dynamic values are allowed.
     """
-    args, kwargs = tree.map(replace_key, (args, kwargs))
+    args = tree.map(replace_key, args)
 
     if immediate:
-        internal_print_generic(*args, raise_on_nan=raise_on_nan, console=console, **kwargs)
+        internal_print_generic(*args, raise_on_nan=raise_on_nan, console=console)
         return
 
-    leaves, tree_def = tree.flatten((args, kwargs))
+    leaves, tree_def = tree.flatten(args)
 
     def fix(u_arg: Any, arg: Any) -> Any:
         return (np.asarray(u_arg) if isinstance(arg, np.ndarray)
@@ -55,7 +53,7 @@ def print_generic(*args: object,
 
     def callback(*callback_leaves: object) -> None:
         unflattened_tree = tree.unflatten(tree_def, callback_leaves)
-        v_args, v_kwargs = tree.map(fix, unflattened_tree, (args, kwargs))
-        internal_print_generic(*v_args, raise_on_nan=raise_on_nan, console=console, **v_kwargs)
+        v_args = tree.map(fix, unflattened_tree, args)
+        internal_print_generic(*v_args, raise_on_nan=raise_on_nan, console=console)
 
     debug.callback(callback, *leaves, ordered=True)

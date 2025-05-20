@@ -20,12 +20,12 @@ def verify(actual: str, desired: str) -> None:
 
 def test_numpy_display(capsys: CaptureFixture[str],
                        console: Console) -> None:
-    print_generic(numpy_array=np.reshape(np.arange(6.0), (3, 2)), console=console)
+    print_generic(np.reshape(np.arange(6.0), (3, 2)), console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           numpy_array=NumPy Array (3, 2) float64
+           NumPy Array (3, 2) float64
            └──  0.0000 │ 1.0000
                 2.0000 │ 3.0000
                 4.0000 │ 5.0000
@@ -34,12 +34,12 @@ def test_numpy_display(capsys: CaptureFixture[str],
 
 def test_numpy_display_big(capsys: CaptureFixture[str],
                            console: Console) -> None:
-    print_generic(numpy_array=np.reshape(np.arange(30.0), (15, 2)), console=console)
+    print_generic(np.reshape(np.arange(30.0), (15, 2)), console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           numpy_array=NumPy Array (15, 2) float64
+           NumPy Array (15, 2) float64
            ├── mean=14.5
            └── deviation=8.65544144839919
            """)
@@ -78,13 +78,13 @@ def test_vmap_display(capsys: CaptureFixture[str],
     """Like test_batch_display, but uses print_generic to get the array."""
     @jit
     def f(x: RealArray) -> RealArray:
-        print_generic(x=x, console=console)
+        print_generic(x, console=console)
         return x
     vmap(vmap(f, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     s = dedent("""
-               x=Jax Array (3, 5) float64
+               Jax Array (3, 5) float64
                └──  1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
                     1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000
                     1.0000 │ 1.0000 │ 1.0000 │ 1.0000 │ 1.0000""")
@@ -160,13 +160,13 @@ def test_dataclass(capsys: CaptureFixture[str],
         c: C
         d: C
 
-    print_generic(d=D(C(1, 2), C(3, 4)),
+    print_generic(D(C(1, 2), C(3, 4)),
                   console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           d=D[dataclass]
+           D[dataclass]
            ├── c=C[dataclass]
            │   ├── x=1
            │   └── y=2

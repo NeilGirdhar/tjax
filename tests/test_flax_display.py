@@ -28,12 +28,12 @@ def test_module_display(capsys: CaptureFixture[str],
             self.a = nnx.Variable(jnp.zeros(4))
 
     c = C()
-    print_generic(c=c, console=console, immediate=True)
+    print_generic(c, console=console, immediate=True)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           c=C[flax-module]
+           C[flax-module]
            ├── x=Jax Array (4,) float64
            │   └──  0.0000 │ 0.0000 │ 0.0000 │ 0.0000
            ├── y="abc"
@@ -55,12 +55,12 @@ def test_dataclass_module_display(capsys: CaptureFixture[str],
             self.a = nnx.Variable(jnp.zeros(4))
 
     c = C(0.5, 'abc', rngs=nnx.Rngs())
-    print_generic(c=c, console=console)
+    print_generic(c, console=console)
     assert isinstance(console.file, StringIO)
     captured = console.file.getvalue()
     verify(captured,
            """
-           c=C[dataclass,flax-module]
+           C[dataclass,flax-module]
            ├── a=Variable
            │   └── value=Jax Array (4,) float64
            │       └──  0.0000 │ 0.0000 │ 0.0000 │ 0.0000
