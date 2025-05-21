@@ -13,7 +13,7 @@ import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.tree_util import PyTreeDef
-from jaxlib.xla_extension import PjitFunction
+from jaxlib._jax import PjitFunction  # noqa: PLC2701
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -22,6 +22,9 @@ from tjax.dataclasses import DataclassInstance
 
 from ..annotations import NumpyArray
 from .colors import solarized
+
+assert isinstance(PyTreeDef, type)
+assert isinstance(PjitFunction, type)
 
 # Constants ----------------------------------------------------------------------------------------
 # Numeric (warm)
@@ -189,7 +192,7 @@ def _(value: tuple[Any, ...] | list[Any],
 
 
 @display_generic.register(PyTreeDef)
-def _(value: PyTreeDef,
+def _(value: Any,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',
@@ -206,7 +209,7 @@ def _(value: PyTreeDef,
 
 @display_generic.register(FunctionType)
 @display_generic.register(PjitFunction)
-def _(value: PyTreeDef,
+def _(value: Any,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',
