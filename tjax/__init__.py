@@ -28,7 +28,7 @@ from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
                            tree_allclose)
-from ._src.tree_tools import dynamic_tree_all
+from ._src.tree_tools import dynamic_tree_all, element_count, tree_sum
 
 __all__ = [
     'Array',
@@ -82,6 +82,7 @@ __all__ = [
     'display_generic',
     'divide_where',
     'dynamic_tree_all',
+    'element_count',
     'fork_streams',
     'get_relative_test_string',
     'get_test_string',
@@ -111,5 +112,6 @@ __all__ = [
     'stop_gradient',
     'sublinear_softplus',
     'tree_allclose',
+    'tree_sum',
     'zero_from_primal',
 ]
