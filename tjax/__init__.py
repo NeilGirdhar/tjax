@@ -25,6 +25,7 @@ from ._src.math_tools import (abs_square, divide_where, inverse_softplus, log_so
                               matrix_dot_product, matrix_vector_mul, normalize, outer_product,
                               softplus, stop_gradient, sublinear_softplus)
 from ._src.partial import Partial
+from ._src.project_tree import Projectable, Projector
 from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
 from ._src.testing import (assert_tree_allclose, get_relative_test_string, get_test_string,
@@ -58,6 +59,8 @@ __all__ = [
     'NumpyRealArray',
     'NumpyRealNumeric',
     'Partial',
+    'Projectable',
+    'Projector',
     'PyTree',
     'RealArray',
     'RealNumeric',
