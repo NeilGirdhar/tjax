@@ -19,6 +19,7 @@ from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_flax import register_graph_as_nnx_node
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
+from ._src.k_means import cluster_with_k_means
 from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
 from ._src.math_tools import (abs_square, divide_where, inverse_softplus, log_softplus,
                               matrix_dot_product, matrix_vector_mul, normalize, outer_product,
@@ -70,6 +71,7 @@ __all__ = [
     'abstract_jit',
     'assert_tree_allclose',
     'cast_to_result_type',
+    'cluster_with_k_means',
     'copy_cotangent',
     'cotangent_combinator',
     'create_streams',
