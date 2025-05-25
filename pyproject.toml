@@ -53,7 +53,7 @@ dev = [
 ]
 
 [project.urls]
-repository = "https://github.com/NeilGirdhar/tjax"
+source = "https://github.com/NeilGirdhar/tjax"
 
 [tool.isort]
 line_length = 100
