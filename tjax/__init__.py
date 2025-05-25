@@ -12,6 +12,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent, reverse_scale_cotangent, scale_cotangent,
                                    zero_from_primal)
 from ._src.display.display_generic import display_generic
+from ._src.timer import Timer, display_time
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type
@@ -68,6 +69,7 @@ __all__ = [
     'Shape',
     'ShapeLike',
     'SliceLike',
+    'Timer',
     'UndirectedGraphEdgeKey',
     'abs_square',
     'abstract_custom_jvp',
@@ -85,6 +87,7 @@ __all__ = [
     'dataclasses',
     'diffused_leaky_integrate',
     'display_generic',
+    'display_time',
     'divide_where',
     'dynamic_tree_all',
     'element_count',
