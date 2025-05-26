@@ -26,5 +26,5 @@ def cast_to_result_type(arrays: _T,
     if xp is None:
         xp = array_namespace(*arrays)
     dtype = xp.result_type(*arrays, *arrays_and_dtypes)
-    return tuple(xp.asarray(x, dtype)  # type: ignore # pyright: ignore
+    return tuple(xp.astype(x, dtype)  # type: ignore # pyright: ignore
                  if x is not None else None for x in arrays)
