@@ -16,11 +16,11 @@ class RngStream:
         else:
             assert count.ndim == 0
         self._key = key
-        self.count = count
+        self._count = count
 
     def key(self) -> KeyArray:
-        key = jr.fold_in(self._key, self.count)
-        self.count += 1
+        key = jr.fold_in(self._key, self._count)
+        self._count += 1
         return key
 
     def fork(self, samples: int) -> KeyArray:
