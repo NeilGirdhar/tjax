@@ -23,6 +23,9 @@ class RngStream:
         self.count += 1
         return key
 
+    def fork(self, samples: int) -> KeyArray:
+        return jr.split(self.key(), samples)
+
 
 def create_streams(keys: Mapping[str, KeyArray]) -> Mapping[str, RngStream]:
     return {name: RngStream(key) for name, key in keys.items()}
@@ -33,4 +36,4 @@ def sample_streams(rngs: Mapping[str, RngStream]) -> Mapping[str, KeyArray]:
 
 
 def fork_streams(rngs: Mapping[str, RngStream], samples: int) -> Mapping[str, KeyArray]:
-    return {name: jr.split(stream.key(), samples) for name, stream in rngs.items()}
+    return {name: stream.fork(samples) for name, stream in rngs.items()}
