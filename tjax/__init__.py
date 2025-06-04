@@ -12,6 +12,7 @@ from ._src.cotangent_tools import (copy_cotangent, cotangent_combinator, print_c
                                    replace_cotangent, reverse_scale_cotangent, scale_cotangent,
                                    zero_from_primal)
 from ._src.display.display_generic import display_generic
+from ._src.display.generic_string import GenericString
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type
@@ -38,6 +39,7 @@ __all__ = [
     'BooleanNumeric',
     'ComplexArray',
     'ComplexNumeric',
+    'GenericString',
     'GraphEdgeKey',
     'GraphNodeKey',
     'IntegralArray',
