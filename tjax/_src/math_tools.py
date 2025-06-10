@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal, TypeVar
 
-from array_api_compat import array_namespace, is_jax_array, is_torch_array
+from array_api_compat import array_namespace, is_jax_namespace, is_torch_namespace
 
 from .annotations import Array, BooleanArray, Namespace
 
@@ -146,10 +146,10 @@ U = TypeVar('U')
 def stop_gradient(x: U, *, xp: Namespace | None = None) -> U:
     if xp is None:
         xp = array_namespace(x)
-    if is_jax_array(xp):
+    if is_jax_namespace(xp):
         from jax.lax import stop_gradient as sg  # noqa: PLC0415
         return sg(x)
-    if is_torch_array(xp):
+    if is_torch_namespace(xp):
         from torch import Tensor  # noqa: PLC0415
         assert isinstance(x, Tensor)
         return x.detach()  # pyright: ignore
