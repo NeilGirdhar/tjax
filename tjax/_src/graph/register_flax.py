@@ -28,7 +28,7 @@ else:
             return list(zip(keys, values, strict=True)), None
 
         # set_key: Callable[[Node, Key, Leaf], None],
-        def set_key_graph(graph: T, key: Key, value: Any, /) -> None:
+        def set_key_graph(graph: T, key: Key, value: object, /) -> None:
             if not isinstance(value, dict):
                 raise TypeError
             d: dict[str, Any]
@@ -49,7 +49,7 @@ else:
             d.update(value)
 
         # pop_key: Callable[[Node, Key], Leaf],
-        def pop_key_graph(graph: T, key: Key, /) -> Any:
+        def pop_key_graph(graph: T, key: Key, /) -> object:
             match key:
                 case GraphNodeKey(name):
                     retval = graph.nodes[name]

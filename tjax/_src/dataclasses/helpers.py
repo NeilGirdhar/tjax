@@ -3,9 +3,14 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Callable, Mapping
 from dataclasses import MISSING, fields
-from typing import Any, TypeVar, overload
+from typing import Any, ClassVar, Never, Protocol, TypeVar, overload, runtime_checkable
 
 T = TypeVar('T')
+
+
+@runtime_checkable
+class DataclassInstance(Protocol):
+    __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
 
 
 # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
@@ -33,7 +38,7 @@ def field(*, static: bool = False, init: bool = ...,
           repr: bool = ...,
           hash: bool | None = ...,
           compare: bool = ...,
-          metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Any:
+          metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> Never:
     ...
 
 
@@ -68,5 +73,5 @@ def field(*, static: bool = False, default: Any = MISSING,
                              kw_only=kw_only)
 
 
-def as_shallow_dict(dcls: Any) -> dict[str, Any]:
+def as_shallow_dict(dcls: DataclassInstance) -> dict[str, Any]:
     return {field.name: getattr(dcls, field.name) for field in fields(dcls)}

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import operator
-from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -10,12 +9,12 @@ import jax.numpy as jnp
 from .annotations import JaxArray, JaxBooleanArray
 
 
-def dynamic_tree_all(tree: Any) -> JaxBooleanArray:
+def dynamic_tree_all(tree: object) -> JaxBooleanArray:
     """Like `jax.tree.all`, but can be used in dynamic code like jitted functions and loops."""
     return jax.tree.reduce(jnp.logical_and, tree, jnp.asarray(True))
 
 
-def tree_sum(x: Any) -> JaxArray:
+def tree_sum(x: object) -> JaxArray:
     if not jax.tree.leaves(x):
         return jnp.zeros(())
     retval = jax.tree.reduce(operator.add, jax.tree.map(jnp.sum, x))
@@ -24,8 +23,8 @@ def tree_sum(x: Any) -> JaxArray:
     return retval
 
 
-def element_count(x: Any) -> int:
-    def array_element_count(x: Any) -> int:
+def element_count(x: object) -> int:
+    def array_element_count(x: object) -> int:
         if not isinstance(x, JaxArray):
             raise TypeError
         return math.prod(x.shape)

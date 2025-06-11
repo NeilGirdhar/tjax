@@ -111,7 +111,7 @@ class Partial(Generic[R]):
 
         static_argnums = set(self.static_argnums)
 
-        def _append(value: Any, *, is_static: bool) -> None:
+        def _append(value: object, *, is_static: bool) -> None:
             if is_static:
                 static_args.append(value)
             else:

@@ -116,7 +116,7 @@ def tree_allclose(actual: PyTree,
 # get test string ----------------------------------------------------------------------------------
 # Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
 @singledispatch
-def get_test_string(actual: Any, rtol: float, atol: float) -> str:
+def get_test_string(actual: object, rtol: float, atol: float) -> str:
     """Produce a short string of Python code that produces the actual value.
 
     Args:
@@ -171,9 +171,9 @@ def _(actual: dict[Any, Any], rtol: float, atol: float) -> str:
 
 # get relative test string -------------------------------------------------------------------------
 @singledispatch
-def get_relative_test_string(actual: Any,
+def get_relative_test_string(actual: object,
                              original_name: str,
-                             original: Any,
+                             original: object,
                              rtol: float,
                              atol: float) -> str:
     """Produce code for use in tests based on actual and produced values.
@@ -194,7 +194,7 @@ def get_relative_test_string(actual: Any,
 
 @get_relative_test_string.register(np.ndarray)
 @get_relative_test_string.register(jax.Array)
-def _(actual: Array | jax.Array, original_name: str, original: Any, rtol: float,
+def _(actual: Array | jax.Array, original_name: str, original: object, rtol: float,
       atol: float) -> str:
     with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
                                                           atol=atol),
@@ -205,18 +205,18 @@ def _(actual: Array | jax.Array, original_name: str, original: Any, rtol: float,
 
 
 @get_relative_test_string.register
-def _(actual: Complex, original_name: str, original: Any, rtol: float, atol: float) -> str:
+def _(actual: Complex, original_name: str, original: object, rtol: float, atol: float) -> str:
     return _inexact_number_to_string(actual, rtol, atol)
 
 
 @get_relative_test_string.register
-def _(actual: Integral, original_name: str, original: Any, rtol: float, atol: float) -> str:
+def _(actual: Integral, original_name: str, original: object, rtol: float, atol: float) -> str:
     return str(actual)
 
 
 @get_relative_test_string.register(list)
 @get_relative_test_string.register(tuple)
-def _(actual: list[Any] | tuple[Any], original_name: str, original: Any, rtol: float,
+def _(actual: list[Any] | tuple[Any], original_name: str, original: list[Any], rtol: float,
       atol: float) -> str:
     is_list = isinstance(actual, list)
     return (("[" if is_list else "(")
@@ -229,11 +229,12 @@ def _(actual: list[Any] | tuple[Any], original_name: str, original: Any, rtol: f
 
 
 @get_relative_test_string.register(dict)
-def _(actual: dict[Any, Any], original_name: str, original: Any, rtol: float, atol: float) -> str:
+def _(actual: dict[Any, Any], original_name: str, original: object, rtol: float, atol: float
+      ) -> str:
     if not isinstance(original, dict):
         raise TypeError
 
-    def relative_string(key: Any, sub_actual: Any) -> str:
+    def relative_string(key: object, sub_actual: object) -> str:
         return get_relative_test_string(
             f"{original_name}[{key}]", sub_actual, original[key], rtol, atol)
 

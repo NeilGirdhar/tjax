@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any
 
 import jax.numpy as jnp
-from jax import vjp
+from jax import Array, vjp
 from numpy.testing import assert_equal
 
 from tjax import (JaxRealArray, assert_tree_allclose, copy_cotangent, cotangent_combinator,
@@ -71,7 +70,7 @@ def test_copy_cotangent() -> None:
 
 
 def test_combinator() -> None:
-    def f(x: Any) -> tuple[Any, None]:
+    def f(x: float | Array) -> tuple[tuple[float | Array, float | Array], None]:
         return (x ** 2, x ** 2), None
     o = jnp.ones(())
 

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 import jax
 import jax.numpy as jnp
 import jax.random as jr
@@ -18,7 +16,7 @@ class JaxKey:
     key_data: Array
 
 
-def replace_key(leaf: Any) -> Any:
+def replace_key(leaf: object) -> object:
     if isinstance(leaf, Array) and jnp.issubdtype(leaf.dtype, jax.dtypes.prng_key):
         return JaxKey(jr.key_data(leaf))
     return leaf
@@ -49,9 +47,9 @@ def print_generic(*args: object,
 
     leaves, tree_def = tree.flatten(args)
 
-    def fix(u_arg: Any, arg: Any) -> Any:
+    def fix(u_arg: object, arg: object) -> object:
         return (np.asarray(u_arg) if isinstance(arg, np.ndarray)
-                else int(u_arg.item()) if isinstance(arg, int)
+                else int(u_arg) if isinstance(arg, int)  # pyright: ignore
                 else u_arg)
 
     def callback(*callback_leaves: object) -> None:

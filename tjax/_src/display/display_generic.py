@@ -67,13 +67,13 @@ else:
     is_node_type = nnx.graph.is_node_type
 
 
-def attribute_filter(value: Any, attribute_name: str) -> bool:
+def attribute_filter(value: object, attribute_name: str) -> bool:
     # is_private = attribute_name.startswith('_')
     return True
 
 
 @singledispatch
-def display_generic(value: Any,
+def display_generic(value: object,
                     *,
                     seen: MutableSet[int] | None = None,
                     key: str = '',
@@ -192,7 +192,7 @@ def _(value: tuple[Any, ...] | list[Any],
 
 
 @display_generic.register(PyTreeDef)
-def _(value: Any,
+def _(value: object,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',
@@ -209,7 +209,7 @@ def _(value: Any,
 
 @display_generic.register(FunctionType)
 @display_generic.register(PjitFunction)
-def _(value: Any,
+def _(value: object,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',
@@ -269,14 +269,14 @@ def _display_dataclass(value: DataclassInstance,
     return retval
 
 
-def _display_flax_object(value: Any,
+def _display_flax_object(value: object,
                          *,
                          seen: MutableSet[int],
                          key: str = '',
                          ) -> Tree:
     from flax import nnx  # noqa: PLC0415
     assert isinstance(value, nnx.reprlib.Representable)  # pyright: ignore
-    iterator = value.__nnx_repr__()
+    iterator = value.__nnx_repr__()  # pyright: ignore
     config = next(iterator)
     assert isinstance(config, nnx.reprlib.Object)  # pyright: ignore
     retval = display_class(key, type(value))
@@ -287,7 +287,7 @@ def _display_flax_object(value: Any,
     return retval
 
 
-def _display_object(value: Any,
+def _display_object(value: object,
                     *,
                     seen: MutableSet[int],
                     key: str = '',
@@ -301,12 +301,12 @@ def _display_object(value: Any,
     return retval
 
 
-def _variables(value: Any) -> dict[str, Any]:
+def _variables(value: object) -> dict[str, Any]:
     try:
         variables = vars(value)
     except TypeError:
         variables = ({name: getattr(value, name)
-                      for name in value.__slots__
+                      for name in value.__slots__  # pyright: ignore
                       if hasattr(value, name)}  # Work around a Jax oddity.
                      if hasattr(value, '__slots__')
                      else {})
@@ -317,7 +317,7 @@ def _variables(value: Any) -> dict[str, Any]:
 
 
 @contextmanager
-def _verify(value: Any,
+def _verify(value: object,
             seen: MutableSet[int],
             key: str
             ) -> Generator[Tree | None]:
@@ -341,7 +341,7 @@ def _assemble(key: str,
 
 
 @singledispatch
-def _format_number(x: Any) -> str:
+def _format_number(x: object) -> str:
     return str(x)
 
 

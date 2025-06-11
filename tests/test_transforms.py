@@ -1,12 +1,12 @@
 """Tests from optax._src.transform_test."""
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TypeVar
 
 import chex
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from jax import tree
+from jax import Array, tree
 from optax import apply_updates
 
 from tjax import RealArray
@@ -21,7 +21,10 @@ init_params = (np.asarray([1., 2.]), np.asarray([3., 4.]))
 per_step_updates = (np.asarray([500., 5.]), np.asarray([300., 3.]))
 
 
-def variant(x: Any) -> Any:
+T = TypeVar('T')
+
+
+def variant(x: T) -> T:
     return x
 
 
@@ -159,7 +162,7 @@ def test_scale() -> None:
         scaled_updates, _ = rescaler.update(updates, empty_state, updates)
 
         # Manually scale updates.
-        def rescale(t: Any, *, factor: float = factor) -> Any:
+        def rescale(t: float | Array, *, factor: float = factor) -> float | Array:
             return t * factor
         manual_updates = tree.map(rescale, updates)
         # Check the rescaled updates match.
@@ -172,7 +175,7 @@ def test_scale() -> None:
     ([[[1., 2.], [3., 4.]],
       [[5., 6.], [7., 8.]]], [[[-1.5, -0.5], [0.5, 1.5]], [[-1.5, -0.5], [0.5, 1.5]]]),
 ])
-def test_centralize(inputs: Any, outputs: Any) -> None:
+def test_centralize(inputs: object, outputs: object) -> None:
     inputs = jnp.asarray(inputs)
     outputs = jnp.asarray(outputs)
     centralizer = Centralize[Any]()

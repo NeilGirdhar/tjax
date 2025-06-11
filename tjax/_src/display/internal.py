@@ -33,7 +33,7 @@ def internal_print_generic(*args: object,
         assert False  # noqa: PT015
 
 
-def node_to_leaves(tree_: Any, is_leaf: Callable[[Any], bool] | None = None
+def node_to_leaves(tree_: object, is_leaf: Callable[[Any], bool] | None = None
                    ) -> list[tuple[str, Any]]:
     leaves_and_paths = tree.leaves_with_path(tree_, is_leaf=is_leaf)
     return [("".join(str(x) for x in key_path), leaf)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from typing import Any
 
 import pytest
 
@@ -38,5 +37,5 @@ desired = {desired}"""
                           ((1.2, 3.4), (1.2, 3.4), True),
                           ({'a': 1.2}, {'a': 1.2}, True),
                           (1.3, 1.4, False)])
-def test_tree_allclose(actual: Any, desired: Any, *, result: bool | None) -> None:
+def test_tree_allclose(actual: object, desired: object, *, result: bool | None) -> None:
     assert tree_allclose(actual, desired) == result

@@ -8,12 +8,7 @@ from jax.tree_util import register_dataclass
 from typing_extensions import dataclass_transform
 
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
-from .helpers import field
-
-
-@runtime_checkable
-class DataclassInstance(Protocol):
-    __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
+from .helpers import DataclassInstance, field
 
 
 @runtime_checkable
@@ -115,7 +110,7 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     return data_clz
 
 
-def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
+def get_dataclass_test_string(actual: DataclassInstance, rtol: float, atol: float) -> str:
     retval = f"{type(actual).__name__}("
     retval += ",\n".join(((f"{field_object.name}=" if field_object.kw_only else "")
                           + get_test_string(getattr(actual, field_object.name), rtol, atol))
@@ -125,9 +120,9 @@ def get_dataclass_test_string(actual: Any, rtol: float, atol: float) -> str:
     return retval
 
 
-def get_relative_dataclass_test_string(actual: Any,
+def get_relative_dataclass_test_string(actual: TDataclassInstance,
                                        original_name: str,
-                                       original: Any,
+                                       original: object,
                                        rtol: float,
                                        atol: float) -> str:
     repr_dict = {field.name: field.repr

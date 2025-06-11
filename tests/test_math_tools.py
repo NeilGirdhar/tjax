@@ -1,6 +1,5 @@
 import math
 from functools import partial
-from typing import Any
 
 import jax.numpy as jnp
 import pytest
@@ -14,7 +13,7 @@ from tjax import Array, JaxRealArray, divide_where, normalize
                          [((1.0, 2.0, 3.0, 4.0), 0, (0.1, 0.2, 0.3, 0.4)),
                           ((0.0, 0.0), 0, (0.5, 0.5)),
                           ])
-def test_l1(x: Any,
+def test_l1(x: object,
             axis: tuple[int, ...] | int | None,
             result: JaxRealArray,
             ) -> None:
@@ -25,7 +24,7 @@ def test_l1(x: Any,
                          [((5.0, 12.0), 0, (5 / 13, 12 / 13)),
                           ((0.0, 0.0), 0, jnp.ones(2) / jnp.sqrt(2)),
                           ])
-def test_l2(x: Any,
+def test_l2(x: object,
             axis: tuple[int, ...] | int | None,
             result: JaxRealArray,
             ) -> None:

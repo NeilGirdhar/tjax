@@ -16,12 +16,12 @@ P = ParamSpec('P')
 U = TypeVar("U")
 
 
-def jit(func: F, **kwargs: Any) -> F:
+def jit(func: F, **kwargs: object) -> F:
     """A version of jax.jit that preserves flags.
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
-    retval = jax.jit(func, **kwargs)
+    retval = jax.jit(func, **kwargs)  # pyright: ignore
     _ = update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval  # type: ignore[return-value] # pyright: ignore
@@ -93,14 +93,14 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
         return self.vjp(u, *args, **kwargs)
 
     @overload
-    def __get__(self, instance: None, owner: Any = None) -> Self:
+    def __get__(self, instance: None, owner: object = None) -> Self:
         ...
 
     @overload
-    def __get__(self, instance: U, owner: Any = None) -> Callable[P, R_co]:
+    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]:
         ...
 
-    def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R_co]:
+    def __get__(self, instance: Any, owner: object = None) -> Callable[..., R_co]:
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
@@ -169,11 +169,11 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         return self.jvp(u, *args, **kwargs)
 
     @overload
-    def __get__(self, instance: None, owner: Any = None) -> Self:
+    def __get__(self, instance: None, owner: object = None) -> Self:
         ...
 
     @overload
-    def __get__(self, instance: U, owner: Any = None) -> Callable[P, R_co]:
+    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]:
         ...
 
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R_co]:
