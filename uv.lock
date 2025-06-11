@@ -2299,7 +2299,7 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "chex" },
     { name = "flax" },
@@ -2319,25 +2319,28 @@ dev = [
 requires-dist = [
     { name = "array-api-compat", specifier = ">=1.10" },
     { name = "array-api-extra", specifier = ">=0.6.0" },
-    { name = "chex", marker = "extra == 'dev'", specifier = ">=0.1.3" },
-    { name = "flax", marker = "extra == 'dev'", specifier = ">=0.10.4" },
-    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.13" },
     { name = "jax", specifier = ">=0.6.1" },
-    { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.12" },
-    { name = "networkx", marker = "extra == 'dev'", specifier = ">=3.1" },
     { name = "numpy", specifier = ">=1.25" },
     { name = "optax", specifier = ">=0.2.3" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4" },
-    { name = "pylint", marker = "extra == 'dev'", specifier = ">=3.3" },
-    { name = "pyright", marker = "extra == 'dev'", specifier = ">=0.0.13" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "rich", specifier = ">=13.7" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8" },
-    { name = "torch", marker = "extra == 'dev'", specifier = ">=2.6" },
     { name = "typing-extensions", specifier = ">=4.11" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "chex", specifier = ">=0.1.3" },
+    { name = "flax", specifier = ">=0.10.4" },
+    { name = "isort", specifier = ">=5.13" },
+    { name = "jupyter", specifier = ">=1" },
+    { name = "mypy", specifier = ">=1.12" },
+    { name = "networkx", specifier = ">=3.1" },
+    { name = "pre-commit", specifier = ">=4" },
+    { name = "pylint", specifier = ">=3.3" },
+    { name = "pyright", specifier = ">=0.0.13" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "ruff", specifier = ">=0.8" },
+    { name = "torch", specifier = ">=2.6" },
+]
 
 [[package]]
 name = "tomlkit"
