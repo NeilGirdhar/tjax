@@ -5,8 +5,8 @@ from typing import Any
 import jax.numpy as jnp
 import jax.random as jr
 import numpy as np
+import pytest
 from jax import Array, enable_custom_prng, jit, tree, vmap
-from pytest import CaptureFixture
 from rich.console import Console
 
 from tjax import KeyArray, RealArray, print_generic
@@ -18,7 +18,7 @@ def verify(actual: str, desired: str) -> None:
     assert actual == dedent(desired).strip()
 
 
-def test_numpy_display(capsys: CaptureFixture[str],
+def test_numpy_display(capsys: pytest.CaptureFixture[str],
                        console: Console) -> None:
     print_generic(np.reshape(np.arange(6.0), (3, 2)), console=console)
     assert isinstance(console.file, StringIO)
@@ -32,7 +32,7 @@ def test_numpy_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_numpy_display_big(capsys: CaptureFixture[str],
+def test_numpy_display_big(capsys: pytest.CaptureFixture[str],
                            console: Console) -> None:
     print_generic(np.reshape(np.arange(30.0), (15, 2)), console=console)
     assert isinstance(console.file, StringIO)
@@ -45,7 +45,7 @@ def test_numpy_display_big(capsys: CaptureFixture[str],
            """)
 
 
-def test_jax_numpy_display(capsys: CaptureFixture[str],
+def test_jax_numpy_display(capsys: pytest.CaptureFixture[str],
                            console: Console) -> None:
     print_generic(jnp.ones(3), console=console)
     assert isinstance(console.file, StringIO)
@@ -57,7 +57,7 @@ def test_jax_numpy_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_jit_display(capsys: CaptureFixture[str],
+def test_jit_display(capsys: pytest.CaptureFixture[str],
                      console: Console) -> None:
     @jit
     def f(x: RealArray) -> RealArray:
@@ -73,7 +73,7 @@ def test_jit_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_vmap_display(capsys: CaptureFixture[str],
+def test_vmap_display(capsys: pytest.CaptureFixture[str],
                       console: Console) -> None:
     """Like test_batch_display, but uses print_generic to get the array."""
     @jit
@@ -91,7 +91,7 @@ def test_vmap_display(capsys: CaptureFixture[str],
     verify(captured, s * 24)
 
 
-def test_immediate_key_display(capsys: CaptureFixture[str],
+def test_immediate_key_display(capsys: pytest.CaptureFixture[str],
                                console: Console) -> None:
     with enable_custom_prng():
         k = jr.key(123)
@@ -110,7 +110,7 @@ def test_immediate_key_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_key_display(capsys: CaptureFixture[str],
+def test_key_display(capsys: pytest.CaptureFixture[str],
                     console: Console) -> None:
     with enable_custom_prng():
         k = jr.key(123)
@@ -130,7 +130,7 @@ def test_key_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_dict_display(capsys: CaptureFixture[str],
+def test_dict_display(capsys: pytest.CaptureFixture[str],
                       console: Console) -> None:
     print_generic({'cat': 5,
                    'mouse': {'dog': 3,
@@ -148,7 +148,7 @@ def test_dict_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_dataclass(capsys: CaptureFixture[str],
+def test_dataclass(capsys: pytest.CaptureFixture[str],
                    console: Console) -> None:
     @dataclass
     class C:
@@ -176,7 +176,7 @@ def test_dataclass(capsys: CaptureFixture[str],
            """)
 
 
-def test_dataclass_as_leaves(capsys: CaptureFixture[str],
+def test_dataclass_as_leaves(capsys: pytest.CaptureFixture[str],
                              console: Console) -> None:
     @dataclass
     class C:
@@ -211,7 +211,7 @@ def test_dataclass_as_leaves(capsys: CaptureFixture[str],
            """)
 
 
-def test_pytreedef(capsys: CaptureFixture[str],
+def test_pytreedef(capsys: pytest.CaptureFixture[str],
                    console: Console) -> None:
     @dataclass
     class C:
@@ -230,7 +230,7 @@ def test_pytreedef(capsys: CaptureFixture[str],
            """)
 
 
-def test_seen_array(capsys: CaptureFixture[str],
+def test_seen_array(capsys: pytest.CaptureFixture[str],
                     console: Console) -> None:
     @dataclass
     class C:
@@ -272,8 +272,8 @@ if __name__ == "__main__":
                               a,
                               'blah'))
         print_generic(Triplet({'abc': Triplet(a,
-                                                     x,
-                                                     2)},
-                                     a,
-                                     'blah'))
+                                              x,
+                                              2)},
+                              a,
+                              'blah'))
     vmap(vmap(g, in_axes=2), in_axes=1)(jnp.ones((3, 4, 5, 6)))

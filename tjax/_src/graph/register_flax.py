@@ -20,7 +20,7 @@ else:
 
     from .register_jax import flatten_tree
 
-    def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore
+    def register_graph_as_nnx_node(graph_type: type[T]) -> None:  # pyright: ignore # noqa: C901
         # flatten: Callable[[Node], tuple[Sequence[tuple[Key, Leaf]], AuxData]],
         def flatten_graph(graph: T, /
                           ) -> tuple[Sequence[tuple[Key, Any]], None]:

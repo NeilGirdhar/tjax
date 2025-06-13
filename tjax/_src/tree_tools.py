@@ -11,7 +11,7 @@ from .annotations import JaxArray, JaxBooleanArray
 
 def dynamic_tree_all(tree: object) -> JaxBooleanArray:
     """Like `jax.tree.all`, but can be used in dynamic code like jitted functions and loops."""
-    return jax.tree.reduce(jnp.logical_and, tree, jnp.asarray(True))
+    return jax.tree.reduce(jnp.logical_and, tree, jnp.asarray(True))  # noqa: FBT003
 
 
 def tree_sum(x: object) -> JaxArray:

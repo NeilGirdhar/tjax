@@ -30,7 +30,7 @@ def internal_print_generic(*args: object,
         found_nan = found_nan or raise_on_nan and 'nan' in str(root)
     console.print(root)
     if found_nan:
-        assert False  # noqa: PT015
+        raise AssertionError
 
 
 def node_to_leaves(tree_: object, is_leaf: Callable[[Any], bool] | None = None

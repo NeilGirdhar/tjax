@@ -2,7 +2,6 @@ from io import StringIO
 
 import jax.numpy as jnp
 import pytest
-from pytest import CaptureFixture
 from rich.console import Console
 
 from tjax import print_generic
@@ -18,7 +17,7 @@ except ImportError:
     pytest.skip("Skipping NNX display tests", allow_module_level=True)
 
 
-def test_module_display(capsys: CaptureFixture[str],
+def test_module_display(capsys: pytest.CaptureFixture[str],
                         console: Console) -> None:
     class C(nnx.Module):
         def __init__(self) -> None:
@@ -43,7 +42,7 @@ def test_module_display(capsys: CaptureFixture[str],
            """)
 
 
-def test_dataclass_module_display(capsys: CaptureFixture[str],
+def test_dataclass_module_display(capsys: pytest.CaptureFixture[str],
                                   console: Console) -> None:
     class C(DataClassModule):
         x: float
