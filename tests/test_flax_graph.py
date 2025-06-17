@@ -26,7 +26,7 @@ class ComparableVariable(nnx.Variable[T]):
     @override
     def __eq__(self, other: object) -> bool:
         assert isinstance(other, ComparableVariable)
-        return self.raw_value == other.raw_value
+        return bool(self.raw_value == other.raw_value)
 
 
 @pytest.fixture(scope='session')

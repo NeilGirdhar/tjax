@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import SupportsInt
+
 import jax
 import jax.numpy as jnp
 import jax.random as jr
@@ -48,9 +50,10 @@ def print_generic(*args: object,
     leaves, tree_def = tree.flatten(args)
 
     def fix(u_arg: object, arg: object) -> object:
-        return (np.asarray(u_arg) if isinstance(arg, np.ndarray)
-                else int(u_arg) if isinstance(arg, int)  # pyright: ignore
-                else u_arg)
+        if isinstance(arg, int):
+            assert isinstance(u_arg, SupportsInt)
+            return int(u_arg)
+        return np.asarray(u_arg) if isinstance(arg, np.ndarray) else u_arg
 
     def callback(*callback_leaves: object) -> None:
         unflattened_tree = tree.unflatten(tree_def, callback_leaves)

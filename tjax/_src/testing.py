@@ -234,7 +234,7 @@ def _(actual: dict[Any, Any], original_name: str, original: object, rtol: float,
     if not isinstance(original, dict):
         raise TypeError
 
-    def relative_string(key: object, sub_actual: object) -> str:
+    def relative_string(key: object, sub_actual: str) -> str:
         return get_relative_test_string(
             f"{original_name}[{key}]", sub_actual, original[key], rtol, atol)
 
