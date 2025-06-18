@@ -23,8 +23,8 @@ class _DataClassModule(nnx.Module):
                           eq: bool = True,
                           order: bool = False,
                           kw_only: bool = False,
-                          **kwargs: object) -> None:
-        super().__init_subclass__(**kwargs, experimental_pytree=True)
+                          pytree: bool) -> None:
+        super().__init_subclass__(pytree=pytree, experimental_pytree=True)
         _ = dataclass(init=init, repr=repr, eq=eq, order=order, kw_only=kw_only)(cls)
 
 

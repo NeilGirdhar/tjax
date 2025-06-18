@@ -43,6 +43,7 @@ dev = [
   "isort>=5.13",
   "jupyter>=1",
   "mypy>=1.12",
+  "optype>=0.12.2",
   "torch>=2.6",
   "networkx>=3.1",
   "lefthook>=1.11.13",
@@ -225,6 +226,8 @@ ignore = [
 
 [tool.ruff.lint.flake8-import-conventions.extend-aliases]
 "array_api_extra" = "xpx"
+"ctypes" = "ct"
+"datetime" = "dt"
 "equinox" = "eqx"
 "itertools" = "it"
 "jax.numpy" = "jnp"
@@ -233,7 +236,10 @@ ignore = [
 "networkx" = "nx"
 "numpy.typing" = "npt"
 "optimistix" = "optx"
+"optype" = "op"
 "optype.numpy" = "onp"
+"optype.numpy.compat" = "npc"
+"optype.typing" = "opt"
 "pyqtgraph" = "pg"
 "scipy.special" = "sc"
 "seaborn" = "sns"

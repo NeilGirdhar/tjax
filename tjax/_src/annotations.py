@@ -2,51 +2,52 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from types import ModuleType
-from typing import Any
+from typing import Any, TypeAlias
 
 import numpy as np
-import numpy.typing as npt
+import optype.numpy as onp
+import optype.numpy.compat as npc
 from jax import Array as JaxArray
 
-Shape = tuple[int, ...]
-ShapeLike = int | Sequence[int]
-_SliceLikeItem = int | slice | None
-SliceLike = _SliceLikeItem | tuple[_SliceLikeItem, ...]
+Shape: TypeAlias = tuple[int, ...]
+ShapeLike: TypeAlias = int | Sequence[int]
+_SliceLikeItem: TypeAlias = int | slice | None
+SliceLike: TypeAlias = _SliceLikeItem | tuple[_SliceLikeItem, ...]
 
 
-JaxBooleanArray = JaxArray
-JaxIntegralArray = JaxArray
-JaxRealArray = JaxArray
-JaxComplexArray = JaxArray
-KeyArray = JaxArray
+JaxBooleanArray: TypeAlias = JaxArray
+JaxIntegralArray: TypeAlias = JaxArray
+JaxRealArray: TypeAlias = JaxArray
+JaxComplexArray: TypeAlias = JaxArray
+KeyArray: TypeAlias = JaxArray
 
 
-NumpyArray = npt.NDArray[Any]
-NumpyBooleanArray = npt.NDArray[np.bool_]
-NumpyIntegralArray = npt.NDArray[np.integer[Any]]
-NumpyRealArray = npt.NDArray[np.floating[Any]]
-NumpyComplexArray = npt.NDArray[np.floating[Any]] | npt.NDArray[np.complexfloating[Any, Any]]
-BooleanArray = NumpyBooleanArray | JaxArray
-IntegralArray = NumpyIntegralArray | JaxArray
-RealArray = NumpyRealArray | JaxArray
-ComplexArray = NumpyComplexArray | JaxArray
+NumpyArray: TypeAlias = onp.ArrayND
+NumpyBooleanArray: TypeAlias = onp.ArrayND[np.bool_]
+NumpyIntegralArray: TypeAlias = onp.ArrayND[npc.integer]
+NumpyRealArray: TypeAlias = onp.ArrayND[npc.floating]
+NumpyComplexArray: TypeAlias = onp.ArrayND[npc.number]
+BooleanArray: TypeAlias = NumpyBooleanArray | JaxArray
+IntegralArray: TypeAlias = NumpyIntegralArray | JaxArray
+RealArray: TypeAlias = NumpyRealArray | JaxArray
+ComplexArray: TypeAlias = NumpyComplexArray | JaxArray
 
 
-NumpyBooleanNumeric = NumpyBooleanArray | bool
-NumpyIntegralNumeric = NumpyIntegralArray | int
-NumpyRealNumeric = NumpyRealArray | float
-NumpyComplexNumeric = NumpyComplexArray | complex
-BooleanNumeric = BooleanArray | bool
-IntegralNumeric = IntegralArray | int
-RealNumeric = RealArray | float
-ComplexNumeric = ComplexArray | complex
+NumpyBooleanNumeric: TypeAlias = NumpyBooleanArray | bool
+NumpyIntegralNumeric: TypeAlias = NumpyIntegralArray | int
+NumpyRealNumeric: TypeAlias = NumpyRealArray | float
+NumpyComplexNumeric: TypeAlias = NumpyComplexArray | complex
+BooleanNumeric: TypeAlias = BooleanArray | bool
+IntegralNumeric: TypeAlias = IntegralArray | int
+RealNumeric: TypeAlias = RealArray | float
+ComplexNumeric: TypeAlias = ComplexArray | complex
 
 
 # Eventually, these will come from array_api_extra.
-Array = NumpyArray | JaxArray
-Device = Any
-DType = Any
-Namespace = ModuleType
+Array: TypeAlias = NumpyArray | JaxArray
+Device: TypeAlias = Any
+DType: TypeAlias = Any
+Namespace: TypeAlias = ModuleType
 
 
-PyTree = Any
+PyTree: TypeAlias = Any
