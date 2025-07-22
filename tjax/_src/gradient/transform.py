@@ -100,7 +100,7 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
         This uses the outer product approximation of the Hessian.
         """
         def hessian_vector_product(v: Weights) -> Weights:
-            d = tree.reduce(jnp.add, tree.map(jnp.vdot, gradient, v), 0.0)  # type: ignore[arg-type]
+            d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)
             return tree.map(lambda x: x * d, gradient)
 
         return self.second_order_update(gradient, state, parameters, hessian_vector_product)

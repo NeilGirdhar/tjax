@@ -2373,7 +2373,7 @@ dev = [
 requires-dist = [
     { name = "array-api-compat", specifier = ">=1.10" },
     { name = "array-api-extra", specifier = ">=0.6.0" },
-    { name = "jax", specifier = ">=0.6.1" },
+    { name = "jax", specifier = ">=0.7" },
     { name = "numpy", specifier = ">=1.25" },
     { name = "optax", specifier = ">=0.2.3" },
     { name = "rich", specifier = ">=13.7" },
