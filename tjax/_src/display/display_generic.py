@@ -46,27 +46,6 @@ _seen_color = solarized['red']
 
 
 # Extra imports ------------------------------------------------------------------------------------
-FlaxModule: type[Any]
-FlaxVariable: type[Any]
-FlaxState: type[Any]
-try:
-    from flax import nnx
-except ImportError:
-    flax_loaded = False
-    def is_node_type(x: type[Any]) -> bool:
-        del x
-        return False
-    FlaxModule = type(None)
-    FlaxVariable = type(None)
-    FlaxState = type(None)
-else:
-    flax_loaded = True
-    FlaxModule = nnx.Module
-    FlaxVariable = nnx.Variable
-    FlaxState = nnx.State
-    is_node_type = nnx.graph.is_node_type
-
-
 def attribute_filter(value: object, attribute_name: str) -> bool:
     # is_private = attribute_name.startswith('_')
     return True
@@ -83,10 +62,6 @@ def display_generic(value: object,
     with _verify(value, seen, key) as x:
         if x:
             return x
-        if flax_loaded:
-            from flax import nnx  # noqa: PLC0415
-            if isinstance(value, nnx.reprlib.Representable):  # pyright: ignore
-                return _display_flax_object(value, seen=seen, key=key)
         if is_dataclass(value) and not isinstance(value, type):
             return _display_dataclass(value, seen=seen, key=key)
         return _display_object(value, seen=seen, key=key)
@@ -231,11 +206,6 @@ def display_class(key: str, cls: type[Any]) -> Tree:
     tags = []
     if is_dataclass(cls):
         tags.append('dataclass')
-    if flax_loaded and cls not in {int, float, tuple, list, set, dict}:
-        if issubclass(cls, FlaxModule):
-            tags.append('flax-module')
-        elif is_node_type(cls):
-            tags.append('flax-node')
     if tags:
         name += f"[{','.join(tags)}]"
     return _assemble(key, Text(name, style=_class_color))
@@ -266,24 +236,6 @@ def _display_dataclass(value: DataclassInstance,
         if name in names or not attribute_filter(value, name):
             continue
         retval.children.append(display_generic(sub_value, seen=seen, key=name + '*'))
-    return retval
-
-
-def _display_flax_object(value: object,
-                         *,
-                         seen: MutableSet[int],
-                         key: str = '',
-                         ) -> Tree:
-    from flax import nnx  # noqa: PLC0415
-    assert isinstance(value, nnx.reprlib.Representable)  # pyright: ignore
-    iterator = value.__nnx_repr__()  # pyright: ignore
-    config = next(iterator)
-    assert isinstance(config, nnx.reprlib.Object)  # pyright: ignore
-    retval = display_class(key, type(value))
-    for element in iterator:
-        assert isinstance(element, nnx.reprlib.Attr)  # pyright: ignore
-        retval.children.append(display_generic(getattr(value, element.key), seen=seen,
-                                               key=element.key))
     return retval
 
 

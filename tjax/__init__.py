@@ -17,7 +17,6 @@ from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type
 from ._src.graph.display import graph_arrow, graph_edge_name
-from ._src.graph.register_flax import register_graph_as_nnx_node
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
 from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
@@ -111,7 +110,6 @@ __all__ = [
     'print_cotangent',
     'print_generic',
     'register_graph_as_jax_pytree',
-    'register_graph_as_nnx_node',
     'replace_cotangent',
     'reverse_scale_cotangent',
     'sample_streams',
