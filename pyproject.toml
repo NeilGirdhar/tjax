@@ -11,7 +11,6 @@ dev = [
   "matplotlib>=3.10",
   "mypy>=1.12",
   "networkx>=3.1",
-  "optype>=0.12.2",
   "pylint>=3.3",
   "pyright>=0.0.13",
   "pytest>=8",
@@ -50,6 +49,7 @@ dependencies = [
   "jax>=0.7",
   "numpy>=1.25",
   "optax>=0.2.3",
+  "optype[numpy]>=0.12.2",
   "rich>=13.7",
   "typing_extensions>=4.11"
 ]
