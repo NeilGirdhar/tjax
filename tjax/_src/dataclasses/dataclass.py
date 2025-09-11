@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import dataclasses
 from collections.abc import Callable
-from typing import Any, ClassVar, Protocol, cast, overload, runtime_checkable
+from typing import Any, ClassVar, Protocol, cast, dataclass_transform, overload, runtime_checkable
 
 from jax.tree_util import register_dataclass
-from typing_extensions import dataclass_transform
 
 from ..testing import get_relative_test_string, get_test_string, tree_allclose
 from .helpers import DataclassInstance, field

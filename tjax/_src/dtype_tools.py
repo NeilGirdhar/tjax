@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-from typing import TypeVar
-
 from array_api_compat import array_namespace
 
 from .annotations import Array, DType, Namespace
 
-_T = TypeVar('_T', bound=tuple[Array | None, ...])
 
-
-def cast_to_result_type(arrays: _T,
+def cast_to_result_type[T: tuple[Array | None, ...]](arrays: T,
                         *arrays_and_dtypes: type[complex | bool] | Array | DType,
                         xp: Namespace | None = None
-                        ) -> _T:
+                        ) -> T:
     """Casts the input arrays to a common data dtype.
 
     Args:

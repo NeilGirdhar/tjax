@@ -2,19 +2,18 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import asdict
-from typing import Any, Generic
+from typing import Any, override
 
 from optax import (add_decayed_weights, add_noise, apply_every, centralize, ema, scale,
                    scale_by_adam, scale_by_belief, scale_by_param_block_norm,
                    scale_by_param_block_rms, scale_by_radam, scale_by_rms, scale_by_rss,
                    scale_by_schedule, scale_by_sm3, scale_by_stddev, scale_by_trust_ratio,
                    scale_by_yogi, trace)
-from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
 
-from ..annotations import IntegralNumeric, KeyArray, RealNumeric
-from .transform import GenericGradientState, GradientTransformation, Weights
+from ..annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
+from .transform import GenericGradientState, GradientTransformation
 
 
 # New classes --------------------------------------------------------------------------------------
@@ -34,7 +33,7 @@ class Schedule:
 
 # Transforms from optax._src.transform.py ----------------------------------------------------------
 @dataclass
-class Trace(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Trace[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Compute a trace of past updates.
 
     Note: `trace` and `ema` have very similar but distinct updates;
@@ -68,7 +67,7 @@ class Trace(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 
 
 @dataclass
-class Ema(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Ema[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Compute an exponential moving average of past updates.
 
     Note: `trace` and `ema` have very similar but distinct updates;
@@ -100,7 +99,7 @@ class Ema(GradientTransformation[GenericGradientState, Weights], Generic[Weights
 
 
 @dataclass
-class ScaleByRss(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByRss[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates by the root of the sum of all squared gradients to date.
 
     References:
@@ -130,7 +129,7 @@ class ScaleByRss(GradientTransformation[GenericGradientState, Weights], Generic[
 
 
 @dataclass
-class ScaleByRms(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByRms[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates by the root of the exp. moving avg of the square.
 
     References:
@@ -162,7 +161,7 @@ class ScaleByRms(GradientTransformation[GenericGradientState, Weights], Generic[
 
 
 @dataclass
-class ScaleByStddev(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByStddev[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates by the root of the centered exp. moving average of squares.
 
     References:
@@ -194,7 +193,7 @@ class ScaleByStddev(GradientTransformation[GenericGradientState, Weights], Gener
 
 
 @dataclass
-class ScaleByAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
@@ -215,7 +214,7 @@ class ScaleByAdam(GradientTransformation[GenericGradientState, Weights], Generic
 
 
 @dataclass
-class Scale(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Scale[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates by some fixed scalar `step_size`.
 
     Args:
@@ -237,8 +236,7 @@ class Scale(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 
 
 @dataclass
-class ScaleByParamBlockNorm(GradientTransformation[GenericGradientState, Weights],
-                            Generic[Weights]):
+class ScaleByParamBlockNorm[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates for each param block by the norm of that block's parameters.
 
     A `block` is here a weight vector (e.g. in a Linear layer) or a weight matrix
@@ -265,7 +263,7 @@ class ScaleByParamBlockNorm(GradientTransformation[GenericGradientState, Weights
 
 
 @dataclass
-class ScaleByParamBlockRMS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByParamBlockRMS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates by rms of the gradient for each param vector or matrix.
 
     A `block` is here a weight vector (e.g. in a Linear layer) or a weight matrix
@@ -292,7 +290,7 @@ class ScaleByParamBlockRMS(GradientTransformation[GenericGradientState, Weights]
 
 
 @dataclass
-class ScaleByBelief(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByBelief[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates according to the AdaBelief algorithm.
 
     References:
@@ -326,7 +324,7 @@ class ScaleByBelief(GradientTransformation[GenericGradientState, Weights], Gener
 
 
 @dataclass
-class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByYogi[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates according to the Yogi algorithm.
 
     References:
@@ -364,7 +362,7 @@ class ScaleByYogi(GradientTransformation[GenericGradientState, Weights], Generic
 
 
 @dataclass
-class ScaleByRAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByRAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Rescale updates according to the Rectified Adam algorithm.
 
     References:
@@ -400,7 +398,7 @@ class ScaleByRAdam(GradientTransformation[GenericGradientState, Weights], Generi
 
 
 @dataclass
-class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AddDecayedWeights[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Add parameter scaled by `weight_decay`.
 
     Args:
@@ -429,7 +427,7 @@ class AddDecayedWeights(GradientTransformation[GenericGradientState, Weights], G
 
 
 @dataclass
-class ScaleBySchedule(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleBySchedule[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates using a custom schedule for the `step_size`.
 
     Args:
@@ -454,7 +452,7 @@ class ScaleBySchedule(GradientTransformation[GenericGradientState, Weights], Gen
 
 
 @dataclass
-class ScaleByTrustRatio(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleByTrustRatio[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates by trust ratio`.
 
     References:
@@ -484,7 +482,7 @@ class ScaleByTrustRatio(GradientTransformation[GenericGradientState, Weights], G
 
 
 @dataclass
-class AddNoise(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AddNoise[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Add gradient noise.
 
     References:
@@ -513,7 +511,7 @@ class AddNoise(GradientTransformation[GenericGradientState, Weights], Generic[We
 
 
 @dataclass
-class ApplyEvery(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ApplyEvery[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Accumulate gradients and apply them every k steps.
 
     Note that if this transformation is part of a chain, the states of the other
@@ -541,7 +539,7 @@ class ApplyEvery(GradientTransformation[GenericGradientState, Weights], Generic[
 
 
 @dataclass
-class Centralize(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Centralize[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Centralize gradients.
 
     References:
@@ -561,7 +559,7 @@ class Centralize(GradientTransformation[GenericGradientState, Weights], Generic[
 
 
 @dataclass
-class ScaleBySM3(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class ScaleBySM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Scale updates by sm3`.
 
     References:

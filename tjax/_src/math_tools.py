@@ -1,22 +1,20 @@
 from __future__ import annotations
 
-from typing import Literal, TypeVar
+from typing import Literal
 
 from array_api_compat import array_namespace, is_jax_namespace, is_torch_namespace
 
 from .annotations import Array, BooleanArray, Namespace
 
-T = TypeVar('T', bound=Array)
 
-
-def abs_square(x: T) -> T:
+def abs_square[T: Array](x: T) -> T:
     xp = array_namespace(x)
     return xp.square(x.real) + xp.square(x.imag)  # pyright: ignore
 
 
 # TODO: Remove when it's added to theArrayAPI:
 # https://github.com/data-apis/array-api/issues/242
-def outer_product(x: T, y: T) -> T:
+def outer_product[T: Array](x: T, y: T) -> T:
     """Return the broadcasted outer product of a vector with itself.
 
     This is xp.einsum("...i,...j->...ij", x, y).
@@ -27,7 +25,7 @@ def outer_product(x: T, y: T) -> T:
     return xi * yj
 
 
-def matrix_vector_mul(x: T, y: T) -> T:
+def matrix_vector_mul[T: Array](x: T, y: T) -> T:
     """Return the matrix-vector product.
 
     This is xp.einsum("...ij,...j->...i", x, y).
@@ -41,7 +39,7 @@ def matrix_vector_mul(x: T, y: T) -> T:
     return xp.sum(x * y, axis=-1)
 
 
-def matrix_dot_product(x: T, y: T) -> T:
+def matrix_dot_product[T: Array](x: T, y: T) -> T:
     """Return the "matrix dot product" of a matrix with the outer product of a vector.
 
     This equals:
@@ -53,11 +51,11 @@ def matrix_dot_product(x: T, y: T) -> T:
     return xp.sum(x * y, axis=(-2, -1))
 
 
-def divide_where(dividend: T,
-                 divisor: T,
-                 *,
-                 where: BooleanArray | None = None,
-                 otherwise: T | None = None) -> T:
+def divide_where[T: Array](dividend: T,
+                           divisor: T,
+                           *,
+                           where: BooleanArray | None = None,
+                           otherwise: T | None = None) -> T:
     """Return the quotient or a special value when a condition is false.
 
     Returns: `xp.where(where, dividend / divisor, otherwise)`, but without evaluating
@@ -77,7 +75,7 @@ def divide_where(dividend: T,
 
 
 # Remove when https://github.com/scipy/scipy/pull/18605 is released.
-def softplus(x: T, /, *, xp: Namespace | None = None) -> T:
+def softplus[T: Array](x: T, /, *, xp: Namespace | None = None) -> T:
     """Softplus, which is log(1+exp(x)).
 
     This has asymptotic behavior exp(x) as x -> -inf and x as x -> +inf.
@@ -87,7 +85,7 @@ def softplus(x: T, /, *, xp: Namespace | None = None) -> T:
     return xp.logaddexp(xp.asarray(0.0), x)
 
 
-def log_softplus(x: T, /, *, xp: Namespace | None = None) -> T:
+def log_softplus[T: Array](x: T, /, *, xp: Namespace | None = None) -> T:
     """Log-softplus, which is log(1+log(1+exp(x))).
 
     This has asymptotic behavior 0 as x -> -inf and log(x) as x -> +inf.
@@ -98,7 +96,7 @@ def log_softplus(x: T, /, *, xp: Namespace | None = None) -> T:
     return xp.logaddexp(z, xp.logaddexp(z, x))
 
 
-def sublinear_softplus(x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:
+def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:
     """Sublinear-softplus, which is softplus(x) / (1 + softplus(x) / maximum).
 
     This has asymptotic behavior exp(x) as x -> -inf and maximum as x -> +inf.
@@ -110,7 +108,7 @@ def sublinear_softplus(x: T, maximum: T, /, *, xp: Namespace | None = None) -> T
     return sp / (o + sp / maximum)
 
 
-def inverse_softplus(y: T, /, *, xp: Namespace | None = None) -> T:
+def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
     return xp.where(y > 80.0,  # noqa: PLR2004
@@ -118,7 +116,7 @@ def inverse_softplus(y: T, /, *, xp: Namespace | None = None) -> T:
                     xp.log(xp.expm1(y)))
 
 
-def normalize(mode: Literal['l1', 'l2', 'max'],
+def normalize[T: Array](mode: Literal['l1', 'l2', 'max'],
               x: T,
               *,
               axis: tuple[int, ...] | int | None = None
@@ -140,10 +138,7 @@ def normalize(mode: Literal['l1', 'l2', 'max'],
             return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
 
 
-U = TypeVar('U')
-
-
-def stop_gradient(x: U, *, xp: Namespace | None = None) -> U:
+def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
     if xp is None:
         xp = array_namespace(x)
     if is_jax_namespace(xp):

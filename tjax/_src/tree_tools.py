@@ -3,8 +3,8 @@ from __future__ import annotations
 import math
 import operator
 
-from jax import tree
 import jax.numpy as jnp
+from jax import tree
 
 from .annotations import JaxArray, JaxBooleanArray
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Hashable
 from dataclasses import dataclass
-from typing import Any, TypeAlias, override
+from typing import Any, override
 
 
 @dataclass(frozen=True)
@@ -47,5 +47,5 @@ class UndirectedGraphEdgeKey(GraphEdgeKey):
                 < sorted((value.source, value.target)))  # type: ignore # pyright: ignore
 
 
-GraphAuxData: TypeAlias = list[GraphNodeKey | GraphEdgeKey]  # The auxilliary data for Jax.
-GraphData: TypeAlias = dict[str, Any]  # What networkx stores in the graph.
+type GraphAuxData = list[GraphNodeKey | GraphEdgeKey]  # The auxilliary data for Jax.
+type GraphData = dict[str, Any]  # What networkx stores in the graph.

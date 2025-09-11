@@ -2,18 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Mapping, Sequence
 from reprlib import recursive_repr
-from typing import Any, Generic, TypeVar, cast
+from typing import Any, cast, override
 
 from jax.tree_util import register_pytree_node_class
-from typing_extensions import override
 
 from .annotations import PyTree
 
-R = TypeVar('R')
-
 
 @register_pytree_node_class
-class Partial(Generic[R]):
+class Partial[R]:
     """A version of functools.partial that returns a pytree.
 
     Use it for partial function evaluation in a way that is compatible with JAX's transformations,

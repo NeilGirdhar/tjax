@@ -6,7 +6,7 @@ Compare this example with
 https://optax.readthedocs.io/en/latest/_collections/examples/meta_learning.html
 """
 import operator
-from typing import Any, TypeVar
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -18,8 +18,6 @@ from jax import tree
 from tjax import JaxArray, RngStream
 from tjax.dataclasses import dataclass
 from tjax.gradient import Adam, GenericGradientState, GradientState, GradientTransformation, RMSProp
-
-T = TypeVar('T')
 
 
 @dataclass
@@ -41,7 +39,7 @@ class TrainingExample:
     target: JaxArray
 
 
-def apply_updates(parameters: T, updates: T) -> T:
+def apply_updates[T](parameters: T, updates: T) -> T:
     return tree.map(operator.add, parameters, updates)
 
 

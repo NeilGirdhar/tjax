@@ -1,29 +1,25 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Generic, TypeVar
+from typing import override
 
 import jax.numpy as jnp
 from jax import tree
-from typing_extensions import override
 
 from tjax.dataclasses import dataclass
 
 from ..annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from .transform import GradientState, SecondOrderGradientTransformation
 
-Weights = TypeVar('Weights', bound=PyTree)
-
 
 @dataclass
-class SMDState(GradientState, Generic[Weights]):
+class SMDState[Weights: PyTree](GradientState):
     log_learning_rate: Weights
     v: Weights
 
 
 @dataclass
-class SMDGradient(SecondOrderGradientTransformation[SMDState[Weights], Weights],
-                  Generic[Weights]):
+class SMDGradient[Weights: PyTree](SecondOrderGradientTransformation[SMDState[Weights], Weights]):
     """Stochastic meta-descent.
 
     Schraudolph, N. N. (1999). Local gain adaptation in stochastic gradient descent. Artificial

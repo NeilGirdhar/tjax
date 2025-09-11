@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Generic, Self, TypeVar
+from typing import Self, override
 
 import jax.numpy as jnp
 from jax import tree
-from typing_extensions import override
 
 from tjax.dataclasses import dataclass
 
 from ..annotations import PyTree
 from ..math_tools import abs_square
 
+
 # Gradient states ----------------------------------------------------------------------------------
-U = TypeVar('U', bound=PyTree)
-
-
 @dataclass
 class GradientState:
     """This base class allows instance checks, and strict type annotations."""
@@ -30,19 +27,15 @@ class GenericGradientState(GradientState):
     data: PyTree
 
     @classmethod
-    def wrap(cls, weights: Weights, state: PyTree) -> tuple[Weights, Self]:
+    def wrap[Weights: PyTree](cls, weights: Weights, state: PyTree) -> tuple[Weights, Self]:
         return weights, cls(state)
 
 
+# Gradient transformation base classes -------------------------------------------------------------
 # The weights type variable must be the same type variable that is used for the gradients.  After
 # all, these must be compatible pytrees.
-Weights = TypeVar('Weights', bound=PyTree)
-State = TypeVar('State', bound=GradientState)
-
-
-# Gradient transformation base classes -------------------------------------------------------------
 @dataclass
-class GradientTransformation(Generic[State, Weights]):
+class GradientTransformation[State: GradientState, Weights: PyTree]:
     """A class that transforms weight cotangents into into weight deltas.
 
     The delta are added to the weights.  The typical goal of a gradient transformation is for the
@@ -74,8 +67,8 @@ class GradientTransformation(Generic[State, Weights]):
 
 
 @dataclass
-class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
-                                        Generic[State, Weights]):
+class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
+        GradientTransformation[State, Weights]):
     """A second order gradient transformation.
 
     This is a special case of a gradient transformation whose update rule accepts a
@@ -128,8 +121,8 @@ class SecondOrderGradientTransformation(GradientTransformation[State, Weights],
 
 
 @dataclass
-class ThirdOrderGradientTransformation(SecondOrderGradientTransformation[State, Weights],
-                                       Generic[State, Weights]):
+class ThirdOrderGradientTransformation[State: GradientState, Weights: PyTree](
+        SecondOrderGradientTransformation[State, Weights]):
     """A third order gradient transformation.
 
     This is a special case of a second order gradient transformation whose update rule accepts the

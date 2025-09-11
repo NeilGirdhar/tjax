@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import Self, TypeVar, override
+from typing import Self, override
 
 import jax.numpy as jnp
 import jax.random as jr
 from jax import tree
 
 from .annotations import JaxArray
-
-T = TypeVar('T')
 
 
 class Projectable:
@@ -26,7 +24,7 @@ class Projector:
         self.dimensions = dimensions
         self._projection_matrices: dict[int, JaxArray] = {}
 
-    def project(self, projectable: T) -> T:
+    def project[T](self, projectable: T) -> T:
         """Project the arrays in a PyTree to the plane."""
         return tree.map(self._project, projectable, is_leaf=lambda x: isinstance(x, Projectable))
 
@@ -38,7 +36,7 @@ class Projector:
             self._projection_matrices[features] = self._random_directions(features)
         return self._projection_matrices[features]
 
-    def _project(self, projectable: T) -> T:
+    def _project[T](self, projectable: T) -> T:
         """Project an array or Projectable instance to the plane."""
         if projectable is None:
             return projectable

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import KW_ONLY, asdict
-from typing import Any, Generic
+from typing import Any, override
 
 import jax.numpy as jnp
 from optax import (GradientTransformationExtraArgs, adabelief, adadelta, adafactor, adagrad, adam,
@@ -10,12 +10,11 @@ from optax import (GradientTransformationExtraArgs, adabelief, adadelta, adafact
                    optimistic_gradient_descent, polyak_sgd, radam, rmsprop,
                    scale_by_zoom_linesearch, sgd, sm3, yogi)
 from optax.contrib import dpsgd
-from typing_extensions import override
 
 from tjax.dataclasses import dataclass, field
 
-from ..annotations import IntegralNumeric, JaxArray, RealNumeric
-from .transform import GenericGradientState, GradientTransformation, Weights
+from ..annotations import IntegralNumeric, JaxArray, PyTree, RealNumeric
+from .transform import GenericGradientState, GradientTransformation
 from .transforms import Schedule
 
 # Types --------------------------------------------------------------------------------------------
@@ -24,7 +23,7 @@ ScalarOrSchedule = float | JaxArray | Schedule
 
 # Transforms from optax._src.alias.py --------------------------------------------------------------
 @dataclass
-class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -47,7 +46,7 @@ class AdaBelief(GradientTransformation[GenericGradientState, Weights], Generic[W
 
 
 @dataclass
-class AdaDelta(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdaDelta[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule | None = None
     rho: RealNumeric = 0.9
     eps: RealNumeric = 1e-6
@@ -71,7 +70,7 @@ class AdaDelta(GradientTransformation[GenericGradientState, Weights], Generic[We
 
 
 @dataclass
-class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule | None = None
     min_dim_size_to_factor: IntegralNumeric = 128
     decay_rate: RealNumeric = 0.8
@@ -102,7 +101,7 @@ class AdaFactor(GradientTransformation[GenericGradientState, Weights], Generic[W
 
 
 @dataclass
-class AdaGrad(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdaGrad[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     initial_accumulator_value: RealNumeric = 0.1
     eps: RealNumeric = 1e-7
@@ -123,7 +122,7 @@ class AdaGrad(GradientTransformation[GenericGradientState, Weights], Generic[Wei
 
 
 @dataclass
-class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Adam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -149,7 +148,7 @@ class Adam(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: RealNumeric
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -177,7 +176,7 @@ class AdamW(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 
 
 @dataclass
-class Adamax(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: RealNumeric
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -199,7 +198,7 @@ class Adamax(GradientTransformation[GenericGradientState, Weights], Generic[Weig
 
 
 @dataclass
-class AdamaxW(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: RealNumeric
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -223,7 +222,7 @@ class AdamaxW(GradientTransformation[GenericGradientState, Weights], Generic[Wei
 
 
 @dataclass
-class Fromage(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: RealNumeric
     min_norm: RealNumeric = 1e-6
 
@@ -243,7 +242,7 @@ class Fromage(GradientTransformation[GenericGradientState, Weights], Generic[Wei
 
 
 @dataclass
-class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -268,7 +267,7 @@ class Lamb(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class LARS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     weight_decay: RealNumeric = 0.0
     weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(default=True,
@@ -296,7 +295,7 @@ class LARS(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class LBFGS(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule | None = None
     memory_size: int = field(default=10, static=True)
     scale_init_precond: bool = field(default=True, static=True)
@@ -320,7 +319,7 @@ class LBFGS(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 
 
 @dataclass
-class Lion(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.99
@@ -344,7 +343,7 @@ class Lion(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class NoisySGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     eta: RealNumeric = 0.01
     gamma: RealNumeric = 0.55
@@ -366,7 +365,7 @@ class NoisySGD(GradientTransformation[GenericGradientState, Weights], Generic[We
 
 
 @dataclass
-class Novograd(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.25
@@ -390,8 +389,8 @@ class Novograd(GradientTransformation[GenericGradientState, Weights], Generic[We
 
 
 @dataclass
-class OptimisticGradientDescent(GradientTransformation[GenericGradientState, Weights],
-                                Generic[Weights]):
+class OptimisticGradientDescent[Weights: PyTree](
+        GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     alpha: ScalarOrSchedule
     beta: ScalarOrSchedule
@@ -412,7 +411,7 @@ class OptimisticGradientDescent(GradientTransformation[GenericGradientState, Wei
 
 
 @dataclass
-class PolyakSGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     max_learning_rate: RealNumeric = 1.0
     scaling: ScalarOrSchedule = 1.0
     f_min: RealNumeric = 0.0
@@ -435,7 +434,7 @@ class PolyakSGD(GradientTransformation[GenericGradientState, Weights], Generic[W
 
 
 @dataclass
-class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class RAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -461,7 +460,7 @@ class RAdam(GradientTransformation[GenericGradientState, Weights], Generic[Weigh
 
 
 @dataclass
-class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """A flexible RMSProp optimiser.
 
     RMSProp is an SGD variant with learning rate adaptation. The `learning_rate`
@@ -511,7 +510,7 @@ class RMSProp(GradientTransformation[GenericGradientState, Weights], Generic[Wei
 
 
 @dataclass
-class SGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """A canonical Stochastic Gradient Descent optimiser.
 
     This implements stochastic gradient descent. It also includes support for
@@ -553,7 +552,7 @@ class SGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights
 
 
 @dataclass
-class SM3(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class SM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: RealNumeric
     momentum: RealNumeric = 0.9
 
@@ -573,7 +572,7 @@ class SM3(GradientTransformation[GenericGradientState, Weights], Generic[Weights
 
 
 @dataclass
-class Yogi(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class Yogi[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
@@ -595,7 +594,7 @@ class Yogi(GradientTransformation[GenericGradientState, Weights], Generic[Weight
 
 
 @dataclass
-class DPSGD(GradientTransformation[GenericGradientState, Weights], Generic[Weights]):
+class DPSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     learning_rate: ScalarOrSchedule
     l2_norm_clip: RealNumeric
     noise_multiplier: RealNumeric

@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Generic
-
-from typing_extensions import override
+from typing import Any, override
 
 from tjax.dataclasses import dataclass
 
 from ..annotations import PyTree
-from .transform import GradientState, GradientTransformation, Weights
+from .transform import GradientState, GradientTransformation
 
 
 @dataclass
@@ -16,8 +14,8 @@ class ChainedGradientState(GradientState):
 
 
 @dataclass
-class ChainedGradientTransformation(GradientTransformation[ChainedGradientState, Weights],
-                                    Generic[Weights]):
+class ChainedGradientTransformation[Weights: PyTree](
+        GradientTransformation[ChainedGradientState, Weights]):
     transforms: list[GradientTransformation[Any, Weights]]
 
     @override

@@ -3,9 +3,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Callable, Mapping
 from dataclasses import MISSING, fields
-from typing import Any, ClassVar, Never, Protocol, TypeVar, overload, runtime_checkable
-
-T = TypeVar('T')
+from typing import Any, ClassVar, Never, Protocol, overload, runtime_checkable
 
 
 @runtime_checkable
@@ -16,20 +14,20 @@ class DataclassInstance(Protocol):
 # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
 # to understand the magic that happens at runtime.
 @overload  # `default` and `default_factory` are optional and mutually exclusive.
-def field(*, static: bool = False, default: T, init: bool = ...,
-          repr: bool = ...,
-          hash: bool | None = ...,
-          compare: bool = ...,
-          metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
+def field[T](*, static: bool = False, default: T, init: bool = ...,
+             repr: bool = ...,
+             hash: bool | None = ...,
+             compare: bool = ...,
+             metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
 
 
 @overload
-def field(*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
-          repr: bool = ...,
-          hash: bool | None = ...,
-          compare: bool = ...,
-          metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
+def field[T](*, static: bool = False, default_factory: Callable[[], T], init: bool = ...,
+             repr: bool = ...,
+             hash: bool | None = ...,
+             compare: bool = ...,
+             metadata: Mapping[str, Any] | None = ..., kw_only: bool = ...) -> T:
     ...
 
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Iterable
-from typing import TYPE_CHECKING, Any, TypeAlias, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from jax.tree_util import register_pytree_with_keys
 
@@ -18,9 +18,9 @@ except ImportError:
         raise RuntimeError(msg)
 else:
     if TYPE_CHECKING:
-        Graph: TypeAlias = nx.Graph[Any]
+        type Graph = nx.Graph[Any]
     else:
-        Graph: TypeAlias = nx.Graph
+        type Graph = nx.Graph
 
     def nodes_helper(graph: nx.Graph[Any]) -> tuple[list[GraphNodeKey], list[PyTree]]:
         node_data = graph.nodes.data()

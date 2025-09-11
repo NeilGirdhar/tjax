@@ -2,21 +2,15 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from functools import update_wrapper
-from typing import Any, Concatenate, Generic, Self, TypeVar, overload
+from typing import Any, Concatenate, Self, overload, override
 
 import jax
 from jax.tree_util import Partial
-from typing_extensions import ParamSpec, override
 
 from .function_markers import all_wrapper_assignments
 
-R_co = TypeVar('R_co', covariant=True)
-F = TypeVar('F', bound=Callable[..., Any])
-P = ParamSpec('P')
-U = TypeVar("U")
 
-
-def jit(func: F, **kwargs: object) -> F:
+def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
     """A version of jax.jit that preserves flags.
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
@@ -27,7 +21,7 @@ def jit(func: F, **kwargs: object) -> F:
     return retval  # type: ignore[return-value] # pyright: ignore
 
 
-class custom_vjp(Generic[P, R_co]):  # noqa: N801
+class custom_vjp[**P, R_co]:  # noqa: N801
     """A shim class over jax.custom_vjp that uses ParamSpec.
 
     Args:
@@ -58,7 +52,7 @@ class custom_vjp(Generic[P, R_co]):  # noqa: N801
         return self.vjp(*args, **kwargs)
 
 
-class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
+class custom_vjp_method[U, **P, R_co]:  # noqa: N801
     """A shim class over jax.custom_vjp that uses ParamSpec and works with methods.
 
     Args:
@@ -107,7 +101,7 @@ class custom_vjp_method(Generic[U, P, R_co]):  # noqa: N801
         return Partial(self, instance)  # type: ignore[no-untyped-call]
 
 
-class custom_jvp(Generic[P, R_co]):  # noqa: N801
+class custom_jvp[**P, R_co]:  # noqa: N801
     """A shim class over jax.custom_jvp that uses ParamSpec.
 
     Args:
@@ -138,7 +132,7 @@ class custom_jvp(Generic[P, R_co]):  # noqa: N801
         return self.jvp(*args, **kwargs)
 
 
-class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
+class custom_jvp_method[U, **P, R_co]:  # noqa: N801
     """A shim class over jax.custom_jvp that uses ParamSpec and works with methods.
 
     Args:
@@ -183,7 +177,7 @@ class custom_jvp_method(Generic[U, P, R_co]):  # noqa: N801
         return Partial(self, instance)  # type: ignore[no-untyped-call]
 
 
-def hessian(fun: Callable[..., U],
+def hessian[U](fun: Callable[..., U],
             argnums: int | Sequence[int] = 0,
             *,
             has_aux: bool = False,

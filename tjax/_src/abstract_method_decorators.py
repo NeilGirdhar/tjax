@@ -1,16 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, TypeVar
-
-from typing_extensions import ParamSpec, override
+from typing import Any, override
 
 from .function_markers import abstract_custom_jvp_marker, abstract_jit_marker
 from .shims import custom_jvp_method, jit
-
-R_co = TypeVar('R_co', covariant=True)
-F = TypeVar('F', bound=Callable[..., Any])
-P = ParamSpec('P')
 
 
 class JaxAbstractClass:
@@ -38,15 +32,16 @@ class JaxAbstractClass:
             setattr(cls, name, method)
 
 
-def abstract_jit(fun: F, **kwargs: object) -> F:
+def abstract_jit[F: Callable[..., Any]](fun: F, **kwargs: object) -> F:
     """An abstract method whose override need to be jitted."""
     setattr(fun, abstract_jit_marker, kwargs)
     return fun
 
 
-def abstract_custom_jvp(jvp: Callable[..., tuple[R_co, R_co]],
-                        nondiff_argnums: tuple[int, ...] = ()
-    ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
+def abstract_custom_jvp[**P, R_co](
+        jvp: Callable[..., tuple[R_co, R_co]],
+        nondiff_argnums: tuple[int, ...] = ()
+        ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
     """An abstract method whose override need to be decorated with custom_jvp_method."""
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
         fun._abstract_custom_jvp = (jvp,  # type: ignore # noqa: SLF001 # pyright: ignore

@@ -1,6 +1,6 @@
 """Tests from optax._src.transform_test."""
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any
 
 import chex
 import jax.numpy as jnp
@@ -21,10 +21,7 @@ init_params = (np.asarray([1., 2.]), np.asarray([3., 4.]))
 per_step_updates = (np.asarray([500., 5.]), np.asarray([300., 3.]))
 
 
-T = TypeVar('T')
-
-
-def variant(x: T) -> T:
+def variant[T](x: T) -> T:
     return x
 
 
