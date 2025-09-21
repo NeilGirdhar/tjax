@@ -15,8 +15,7 @@ dev = [
   "pyright>=0.0.13",
   "pytest>=8",
   "ruff>=0.8",
-  "toml-sort>=0.24",
-  "torch>=2.6"
+  "toml-sort>=0.24"
 ]
 
 [project]
