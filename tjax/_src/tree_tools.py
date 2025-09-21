@@ -12,7 +12,7 @@ from .annotations import JaxArray, JaxBooleanArray
 def dynamic_tree_all(x: object, /) -> JaxBooleanArray:
     """Like `jax.tree.all`, but can be used in dynamic code like jitted functions and loops."""
     jax_true = jnp.asarray(True)  # noqa: FBT003
-    return tree.reduce_associative(jnp.logical_and, tree, identity=jax_true)
+    return tree.reduce_associative(jnp.logical_and, x, identity=jax_true)
 
 
 def tree_sum(x: object, /) -> JaxArray:
