@@ -11,7 +11,7 @@ dev = [
   "matplotlib>=3.10",
   "mypy>=1.12",
   "networkx>=3.1",
-  "pylint>=3.3",
+  "pylint>=4.0",
   "pyright>=0.0.13",
   "pytest>=8",
   "ruff>=0.8",
@@ -87,7 +87,7 @@ ignore_missing_imports = true
 
 [tool.pylint.master]
 jobs = 0
-py-version = "3.11"
+py-version = "3.12"
 load-plugins = [
   "pylint.extensions.bad_builtin",
   "pylint.extensions.broad_try_clause",
@@ -255,6 +255,7 @@ disable = [
   "R6201",
   "R6301",
   "W0012",
+  "W0101",
   "W0102",
   "W0104",
   "W0106",
