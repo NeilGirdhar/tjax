@@ -3,7 +3,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
-from jax.experimental import enable_x64
+from jax import enable_x64
 from rich.console import Console
 
 
