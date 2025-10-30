@@ -145,7 +145,7 @@ def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
         from jax.lax import stop_gradient as sg  # noqa: PLC0415
         return sg(x)
     if is_torch_namespace(xp):
-        from torch import Tensor  # noqa: PLC0415
+        from torch import Tensor  # noqa: PLC0415 # pyright: ignore
         assert isinstance(x, Tensor)
         return x.detach()  # pyright: ignore
     return x
