@@ -22,7 +22,7 @@ class GraphNodeKey:
 @dataclass(frozen=True)
 class GraphEdgeKey:
     """Struct for use with :func:`jax.tree_util.register_pytree_with_keys`."""
-    source: Hashable
+    source: Hashable  # TODO: mark this as comparable
     target: Hashable
 
     @override
@@ -31,7 +31,7 @@ class GraphEdgeKey:
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
         return isinstance(value, GraphEdgeKey) and (
-                (self.source, self.target) < (value.source, value.target))
+                (self.source, self.target) < (value.source, value.target))  # type: ignore
 
 
 @dataclass(frozen=True)

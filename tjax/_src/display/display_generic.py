@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Generator, Mapping, MutableSet
+from collections.abc import Generator, Mapping, MutableSet, Sequence
 from contextlib import contextmanager
 from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
 from types import FunctionType
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.tree_util import PyTreeDef
-from jaxlib._jax import PjitFunction  # noqa: PLC2701
+from jaxlib._jax import PjitFunction  # noqa: PLC2701 # type: ignore
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -253,6 +253,11 @@ def _display_object(value: object,
     return retval
 
 
+@runtime_checkable
+class SupportsSlots(Protocol):
+    __slots__: Sequence[str] | None
+
+
 def _variables(value: object) -> dict[str, Any]:
     try:
         variables = vars(value)
@@ -260,7 +265,8 @@ def _variables(value: object) -> dict[str, Any]:
         variables = ({name: getattr(value, name)
                       for name in value.__slots__  # pyright: ignore
                       if hasattr(value, name)}  # Work around a Jax oddity.
-                     if hasattr(value, '__slots__')
+                     if (isinstance(value, SupportsSlots) and
+                         isinstance(value.__slots__, Sequence))  # pyright: ignore
                      else {})
     return {key: value
             for key, value in variables.items()

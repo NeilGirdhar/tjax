@@ -19,6 +19,7 @@ def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
 
 
 # scale_cotangent ----------------------------------------------------------------------------------
+@partial(custom_jvp, nondiff_argnums=(1, 2))
 def scale_cotangent[X](x: X,
                        scalar_scale: RealNumeric | None = None,
                        tree_scale: X | None = None,
@@ -47,7 +48,6 @@ def _scale_cotangent_jvp[X](scalar_scale: RealNumeric | None,
     return x, x_dot
 
 
-scale_cotangent = custom_jvp(scale_cotangent, nondiff_argnums=(1, 2))
 scale_cotangent.defjvp(_scale_cotangent_jvp)
 
 
@@ -139,6 +139,7 @@ print_cotangent.defvjp(_print_cotangent_fwd,  # type: ignore[arg-type]
 
 
 # cotangent_combinator -----------------------------------------------------------------------------
+@partial(custom_vjp, static_argnums=(0, 2))
 def cotangent_combinator[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],
                          args_tuples: tuple[tuple[Any, ...], ...],
                          aux_cotangent_scales: tuple[RealNumeric, ...] | None) -> tuple[XT, Y]:
@@ -155,9 +156,6 @@ def cotangent_combinator[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],
     send them back through to each of the corresponding argument tuples.
     """
     return f(*args_tuples[0])
-
-
-cotangent_combinator = custom_vjp(cotangent_combinator, static_argnums=(0, 2))
 
 
 def _cotangent_combinator_fwd[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],

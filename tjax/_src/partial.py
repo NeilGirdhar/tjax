@@ -62,6 +62,7 @@ class Partial[R]:
             raise RuntimeError  # noqa: TRY004
 
         callable_is_static, static_argnums, static_args, static_kwarg_items = static
+        assert isinstance(static_kwarg_items, Mapping)
         static_kwargs = dict(static_kwarg_items)
 
         if not isinstance(static_args, tuple):
