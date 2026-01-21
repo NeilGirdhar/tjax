@@ -7,11 +7,12 @@ from dataclasses import fields, is_dataclass
 from functools import singledispatch
 from numbers import Number
 from types import FunctionType
-from typing import Any, Protocol, runtime_checkable
+from typing import Any
 
 import numpy as np
 from jax import Array
 from jax.errors import TracerArrayConversionError
+from jax.interpreters.partial_eval import DynamicJaxprTracer
 from jax.tree_util import PyTreeDef
 from jaxlib._jax import PjitFunction  # noqa: PLC2701 # type: ignore
 from rich.table import Table
@@ -102,7 +103,7 @@ def _(value: NumpyArray,
 
 
 @display_generic.register
-def _(value: Array,
+def _(value: Array | DynamicJaxprTracer,
       *,
       seen: MutableSet[int] | None = None,
       key: str = '',
@@ -253,11 +254,6 @@ def _display_object(value: object,
     return retval
 
 
-@runtime_checkable
-class SupportsSlots(Protocol):
-    __slots__: Sequence[str] | None
-
-
 def _variables(value: object) -> dict[str, Any]:
     try:
         variables = vars(value)
@@ -265,7 +261,7 @@ def _variables(value: object) -> dict[str, Any]:
         variables = ({name: getattr(value, name)
                       for name in value.__slots__  # pyright: ignore
                       if hasattr(value, name)}  # Work around a Jax oddity.
-                     if (isinstance(value, SupportsSlots) and
+                     if (hasattr(type(value), '__slots__') and
                          isinstance(value.__slots__, Sequence))  # pyright: ignore
                      else {})
     return {key: value
