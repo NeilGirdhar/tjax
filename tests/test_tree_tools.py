@@ -12,7 +12,7 @@ from tjax import element_count, tree_sum
 def test_tree_sum(x: object, s: float) -> None:
     t = tree_sum(x)
     assert t.ndim == 0
-    assert float(t) == s
+    assert float(t) == s  # noqa: RUF069
 
 
 @pytest.mark.parametrize(("x", "s"),

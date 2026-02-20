@@ -15,13 +15,9 @@ from tjax._src.gradient.transforms import (AddDecayedWeights, AddNoise, ApplyEve
 
 __all__ = [
     'DPSGD',
-    'DPSGD',
-    'LARS',
     'LARS',
     'LBFGS',
     'SGD',
-    'SGD',
-    'SM3',
     'SM3',
     'AdaBelief',
     'AdaDelta',
