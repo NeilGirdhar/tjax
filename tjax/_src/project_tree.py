@@ -11,12 +11,14 @@ from .annotations import JaxArray
 
 class Projectable:
     """Base class to override how an element of a PyTree is projected."""
+
     def project(self, projector: Projector) -> Self:
         raise NotImplementedError
 
 
 class Projector:
     """A tool to project the arrays in a PyTree to fewer dimensions. This is useful for graphing."""
+
     @override
     def __init__(self, *, seed: int = 0, dimensions: int = 2) -> None:
         super().__init__()
@@ -41,7 +43,7 @@ class Projector:
         if projectable is None:
             return projectable
         if isinstance(projectable, Projectable):
-            return projectable.project(self)
+            return projectable.project(self)  # type: ignore
 
         assert isinstance(projectable, JaxArray)
         features = projectable.shape[-1]

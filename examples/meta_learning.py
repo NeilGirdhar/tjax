@@ -5,6 +5,7 @@ Using tjax.gradient is much simpler than optax since we don't need inject_hyperp
 Compare this example with
 https://optax.readthedocs.io/en/latest/_collections/examples/meta_learning.html
 """
+
 import operator
 from typing import Any
 
@@ -58,10 +59,11 @@ def loss(theta: JaxArray, training_example: TrainingExample) -> JaxArray:
     return jnp.sum(jnp.square(training_example.target - model(theta, training_example.observation)))
 
 
-def step(opt: GradientTransformation[Any, JaxArray],
-         inference_state: InferenceState,
-         training_example: TrainingExample,
-         ) -> InferenceState:
+def step(
+    opt: GradientTransformation[Any, JaxArray],
+    inference_state: InferenceState,
+    training_example: TrainingExample,
+) -> InferenceState:
     gradient = jax.grad(loss)(inference_state.theta, training_example)
     updates, state = opt.update(gradient, inference_state.state, inference_state.theta)
     theta = apply_updates(inference_state.theta, updates)
@@ -69,10 +71,11 @@ def step(opt: GradientTransformation[Any, JaxArray],
 
 
 @jax.jit
-def outer_loss(eta: JaxArray,
-               inference_state: InferenceState,
-               training_examples: list[TrainingExample],
-               ) -> tuple[JaxArray, InferenceState]:
+def outer_loss(
+    eta: JaxArray,
+    inference_state: InferenceState,
+    training_examples: list[TrainingExample],
+) -> tuple[JaxArray, InferenceState]:
     # Eta is the logit of the learning rate.
     opt = RMSProp(learning_rate=jss.expit(eta))
     # Use all but one sample to train theta.
@@ -84,14 +87,15 @@ def outer_loss(eta: JaxArray,
 
 
 @jax.jit
-def outer_step(outer_inference_state: OuterInferenceState,
-               training_examples: list[tuple[JaxArray, JaxArray]],
-               meta_opt: GradientTransformation[Any, JaxArray],
-               ) -> OuterInferenceState:
+def outer_step(
+    outer_inference_state: OuterInferenceState,
+    training_examples: list[tuple[JaxArray, JaxArray]],
+    meta_opt: GradientTransformation[Any, JaxArray],
+) -> OuterInferenceState:
     g_outer_loss = jax.grad(outer_loss, has_aux=True)
-    gradient, inference_state = g_outer_loss(outer_inference_state.eta,
-                                             outer_inference_state.inference_state,
-                                             training_examples)
+    gradient, inference_state = g_outer_loss(
+        outer_inference_state.eta, outer_inference_state.inference_state, training_examples
+    )
 
     meta_updates, meta_state = meta_opt.update(gradient, outer_inference_state.meta_state, None)
     new_eta = apply_updates(outer_inference_state.eta, meta_updates)
@@ -107,8 +111,9 @@ def create_state() -> tuple[OuterInferenceState, GradientTransformation[Any, Jax
     eta = jss.logit(init_learning_rate)
     theta = jax.random.normal(jax.random.PRNGKey(42))
     inference_state = InferenceState(theta=theta, state=opt.init(theta))
-    outer_inference_state = OuterInferenceState(inference_state=inference_state, eta=eta,
-                                                meta_state=meta_opt.init(eta))
+    outer_inference_state = OuterInferenceState(
+        inference_state=inference_state, eta=eta, meta_state=meta_opt.init(eta)
+    )
     return outer_inference_state, meta_opt
 
 
@@ -125,18 +130,18 @@ def run() -> None:
         thetas.append(outer_inference_state.inference_state.theta)
 
     fig, (ax1, ax2) = plt.subplots(2)
-    fig.suptitle('Meta-learning RMSProp\'s learning rate')
-    plt.xlabel('Step')
+    fig.suptitle("Meta-learning RMSProp's learning rate")
+    plt.xlabel("Step")
 
     ax1.semilogy(range(len(learning_rates)), learning_rates)
-    ax1.set(ylabel='Learning rate')
+    ax1.set(ylabel="Learning rate")
     ax1.label_outer()
 
-    plt.xlabel('Number of updates')
+    plt.xlabel("Number of updates")
     ax2.semilogy(range(len(thetas)), thetas)
 
     ax2.label_outer()
-    ax2.set(ylabel='Theta')
+    ax2.set(ylabel="Theta")
 
     plt.show()
 

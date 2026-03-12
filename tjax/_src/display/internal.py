@@ -14,11 +14,12 @@ global_console = Console()
 
 
 # Functions ----------------------------------------------------------------------------------------
-def internal_print_generic(*args: object,
-                           raise_on_nan: bool = True,
-                           as_leaves: bool = False,
-                           console: Console | None = None,
-                           ) -> None:
+def internal_print_generic(
+    *args: object,
+    raise_on_nan: bool = True,
+    as_leaves: bool = False,
+    console: Console | None = None,
+) -> None:
     if console is None:
         console = global_console
     found_nan = False
@@ -27,14 +28,14 @@ def internal_print_generic(*args: object,
         if as_leaves:
             value = node_to_leaves(value)  # noqa: PLW2901
         _ = root.add(display_generic(value, seen=set()))
-        found_nan = found_nan or raise_on_nan and 'nan' in str(root)
+        found_nan = found_nan or raise_on_nan and "nan" in str(root)
     console.print(root)
     if found_nan:
         raise AssertionError
 
 
-def node_to_leaves(tree_: object, is_leaf: Callable[[Any], bool] | None = None
-                   ) -> list[tuple[str, Any]]:
+def node_to_leaves(
+    tree_: object, is_leaf: Callable[[Any], bool] | None = None
+) -> list[tuple[str, Any]]:
     leaves_and_paths = tree.leaves_with_path(tree_, is_leaf=is_leaf)
-    return [("".join(str(x) for x in key_path), leaf)
-            for key_path, leaf in leaves_and_paths]
+    return [("".join(str(x) for x in key_path), leaf) for key_path, leaf in leaves_and_paths]

@@ -20,10 +20,11 @@ def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
 
 # scale_cotangent ----------------------------------------------------------------------------------
 @partial(custom_jvp, nondiff_argnums=(1, 2))
-def scale_cotangent[X](x: X,
-                       scalar_scale: RealNumeric | None = None,
-                       tree_scale: X | None = None,
-                       ) -> X:
+def scale_cotangent[X](
+    x: X,
+    scalar_scale: RealNumeric | None = None,
+    tree_scale: X | None = None,
+) -> X:
     """Scale x's cotangent.
 
     Args:
@@ -34,13 +35,11 @@ def scale_cotangent[X](x: X,
     return x
 
 
-def _scale_cotangent_jvp[X](scalar_scale: RealNumeric | None,
-                            tree_scale: X | None,
-                            primals: tuple[X],
-                            tangents: tuple[X]
-                            ) -> tuple[X, X]:
-    x, = primals
-    x_dot, = tangents
+def _scale_cotangent_jvp[X](
+    scalar_scale: RealNumeric | None, tree_scale: X | None, primals: tuple[X], tangents: tuple[X]
+) -> tuple[X, X]:
+    (x,) = primals
+    (x_dot,) = tangents
     if scalar_scale is not None:
         x_dot = tree.map(lambda x_dot_i: x_dot_i * scalar_scale, x_dot)
     if tree_scale is not None:
@@ -133,16 +132,16 @@ def _print_cotangent_bwd[X](name: str | None, residuals: None, x_bar: X) -> tupl
     return (x_bar,)
 
 
-# https://github.com/python/mypy/issues/14802
-print_cotangent.defvjp(_print_cotangent_fwd,  # type: ignore[arg-type]
-                       _print_cotangent_bwd)
+print_cotangent.defvjp(_print_cotangent_fwd, _print_cotangent_bwd)
 
 
 # cotangent_combinator -----------------------------------------------------------------------------
 @partial(custom_vjp, static_argnums=(0, 2))
-def cotangent_combinator[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],
-                         args_tuples: tuple[tuple[Any, ...], ...],
-                         aux_cotangent_scales: tuple[RealNumeric, ...] | None) -> tuple[XT, Y]:
+def cotangent_combinator[XT: tuple[Any, ...], Y](
+    f: Callable[..., tuple[XT, Y]],
+    args_tuples: tuple[tuple[Any, ...], ...],
+    aux_cotangent_scales: tuple[RealNumeric, ...] | None,
+) -> tuple[XT, Y]:
     """Run a function once, but send differerent cotangents back to each input.
 
     Args:
@@ -158,31 +157,30 @@ def cotangent_combinator[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],
     return f(*args_tuples[0])
 
 
-def _cotangent_combinator_fwd[XT: tuple[Any, ...], Y](f: Callable[..., tuple[XT, Y]],
-                              args_tuples: tuple[tuple[Any, ...], ...],
-                              aux_cotangent_scales: tuple[RealNumeric, ...] | None
-                              ) -> tuple[tuple[XT, Y],
-                                         Callable[[tuple[XT, Y]], tuple[Any, ...]]]:
+def _cotangent_combinator_fwd[XT: tuple[Any, ...], Y](
+    f: Callable[..., tuple[XT, Y]],
+    args_tuples: tuple[tuple[Any, ...], ...],
+    aux_cotangent_scales: tuple[RealNumeric, ...] | None,
+) -> tuple[tuple[XT, Y], Callable[[tuple[XT, Y]], tuple[Any, ...]]]:
     return vjp(f, *args_tuples[0])
 
 
 def _cotangent_combinator_bwd[Y, XT: tuple[Any, ...]](
-        f: Callable[..., tuple[XT, Y]],
-        aux_cotangent_scales: tuple[RealNumeric, ...] | None,
-        f_vjp: Callable[[tuple[XT, Y]], tuple[Any, ...]],
-        xy_bar: tuple[XT, Y]
-        ) -> tuple[Any, ...]:
+    f: Callable[..., tuple[XT, Y]],
+    aux_cotangent_scales: tuple[RealNumeric, ...] | None,
+    f_vjp: Callable[[tuple[XT, Y]], tuple[Any, ...]],
+    xy_bar: tuple[XT, Y],
+) -> tuple[Any, ...]:
     xs_bar, y_bar = xy_bar
     if aux_cotangent_scales is None:
         aux_cotangent_scales = tuple(1.0 for _ in xs_bar)
-    xs_zero = tuple(tree.map(jnp.zeros_like, x_bar)
-                    for x_bar in xs_bar)
+    xs_zero = tuple(tree.map(jnp.zeros_like, x_bar) for x_bar in xs_bar)
     all_args_bar = []
-    for i, (x_bar, aux_cotangent_scale) in enumerate(zip(xs_bar, aux_cotangent_scales,
-                                                         strict=True)):
-        scaled_y_bar = tree.map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale,
-                                y_bar)
-        this_xs_bar = cast('XT', (*xs_zero[:i], x_bar, *xs_zero[i + 1:]))
+    for i, (x_bar, aux_cotangent_scale) in enumerate(
+        zip(xs_bar, aux_cotangent_scales, strict=True)
+    ):
+        scaled_y_bar = tree.map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale, y_bar)
+        this_xs_bar = cast("XT", (*xs_zero[:i], x_bar, *xs_zero[i + 1 :]))
         this_result_bar = (this_xs_bar, scaled_y_bar)
         this_args_bar = f_vjp(this_result_bar)
         all_args_bar.append(this_args_bar)

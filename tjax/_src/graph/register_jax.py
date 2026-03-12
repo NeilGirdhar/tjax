@@ -12,8 +12,10 @@ try:
     import networkx as nx
 except ImportError:
     msg = "NetworkX not available"
+
     def register_graph_as_jax_pytree(graph_type: type[Any]) -> None:
         raise RuntimeError(msg)
+
     def register_graph_as_nnx_node(graph_type: type[Any]) -> None:
         raise RuntimeError(msg)
 else:
@@ -32,7 +34,8 @@ else:
         directed = isinstance(graph, nx.DiGraph)
         edge_data = graph.edges.data()
         edge_key: Callable[[Hashable, Hashable], GraphEdgeKey] = (
-                GraphEdgeKey if directed else UndirectedGraphEdgeKey)
+            GraphEdgeKey if directed else UndirectedGraphEdgeKey
+        )
         edge_keys = [edge_key(source, target) for source, target, _ in edge_data]
         edge_data = [data for _, _, data in edge_data]
         return edge_keys, edge_data
@@ -53,16 +56,15 @@ else:
                         graph.add_edge(source, target, **value)
             return graph
 
-        def flatten_with_keys(graph: nx.Graph[Any], /
-                              ) -> tuple[Iterable[tuple[GraphNodeKey | GraphEdgeKey, GraphData]],
-                                         GraphAuxData]:
+        def flatten_with_keys(
+            graph: nx.Graph[Any], /
+        ) -> tuple[Iterable[tuple[GraphNodeKey | GraphEdgeKey, GraphData]], GraphAuxData]:
             values, keys = flatten_tree(graph)
             return (zip(keys, values, strict=True), keys)
 
         flatten_with_keys_ = cast(
-                "Callable[[Graph], tuple[Iterable[tuple[Hashable, Any]], Hashable]]",
-                flatten_with_keys)
+            "Callable[[Graph], tuple[Iterable[tuple[Hashable, Any]], Hashable]]", flatten_with_keys
+        )
         unflatten_tree_ = cast("Callable[[Hashable, Any], Graph]", unflatten_tree)
-        flatten_tree_ = cast("Callable[[Graph], tuple[Iterable[Any], Hashable]]",
-                             flatten_tree)
+        flatten_tree_ = cast("Callable[[Graph], tuple[Iterable[Any], Hashable]]", flatten_tree)
         register_pytree_with_keys(graph_type, flatten_with_keys_, unflatten_tree_, flatten_tree_)

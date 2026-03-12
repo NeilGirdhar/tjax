@@ -9,7 +9,7 @@ from ..display.display_generic import _verify, display_class, display_generic
 
 
 def graph_arrow(directed: bool) -> str:  # noqa: FBT001
-    return '⟶' if directed else '↔'
+    return "⟶" if directed else "↔"
 
 
 def graph_edge_name(arrow: str, source: str, target: str) -> str:
@@ -21,12 +21,14 @@ try:
 except ImportError:
     pass
 else:
+
     @display_generic.register(nx.Graph)
-    def _(value: nx.Graph[Any],
-          *,
-          seen: MutableSet[int] | None = None,
-          key: str = '',
-          ) -> Tree:
+    def _(
+        value: nx.Graph[Any],
+        *,
+        seen: MutableSet[int] | None = None,
+        key: str = "",
+    ) -> Tree:
         if seen is None:
             seen = set()
         with _verify(value, seen, key) as x:

@@ -18,18 +18,37 @@ class TDataclassInstance(DataclassInstance, Protocol):
 
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(*, init: bool = True, repr: bool = True, eq: bool = True,
-              order: bool = False, frozen: bool = True
-              ) -> Callable[[type[Any]], type[TDataclassInstance]]: ...
+def dataclass(
+    *,
+    init: bool = True,
+    repr: bool = True,
+    eq: bool = True,
+    order: bool = False,
+    frozen: bool = True,
+) -> Callable[[type[Any]], type[TDataclassInstance]]: ...
 @overload
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: type[Any], /, *, init: bool = True, repr: bool = True,
-              eq: bool = True, order: bool = False, frozen: bool = True
-              ) -> type[TDataclassInstance]: ...
+def dataclass(
+    cls: type[Any],
+    /,
+    *,
+    init: bool = True,
+    repr: bool = True,
+    eq: bool = True,
+    order: bool = False,
+    frozen: bool = True,
+) -> type[TDataclassInstance]: ...
 @dataclass_transform(frozen_default=True, field_specifiers=(field,))
-def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool = True,  # noqa: A002
-              eq: bool = True, order: bool = False, frozen: bool = True
-              ) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
+def dataclass(
+    cls: type[Any] | None = None,
+    /,
+    *,
+    init: bool = True,
+    repr: bool = True,  # noqa: A002
+    eq: bool = True,
+    order: bool = False,
+    frozen: bool = True,
+) -> type[TDataclassInstance] | Callable[[type[Any]], type[TDataclassInstance]]:
     """A dataclass creator that creates a Jax pytree.
 
     Returns the same class as was passed in, with dunder methods added based on the fields defined
@@ -80,14 +99,17 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     including iteration, differentiation, and `jax.tree_util` functions.
     """
     if cls is None:
+
         def f(x: type[Any], /) -> type[TDataclassInstance]:
-            return dataclass(x, init=init, repr=repr, eq=eq, order=order, frozen=frozen)
+            return dataclass(x, init=init, repr=repr, eq=eq, order=order, frozen=frozen)  # type: ignore
+
         return f  # Type checking support partial is poor.
 
     # Apply dataclass function to cls.
     data_clz: type[TDataclassInstance] = cast(
-            'type[TDataclassInstance]',
-            dataclasses.dataclass(init=init, repr=repr, eq=eq, order=order, frozen=frozen)(cls))
+        "type[TDataclassInstance]",
+        dataclasses.dataclass(init=init, repr=repr, eq=eq, order=order, frozen=frozen)(cls),
+    )
 
     # Partition fields into static, and dynamic; and assign these to the class.
     static_fields: list[str] = []
@@ -95,7 +117,7 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
     for field_info in dataclasses.fields(data_clz):
         if not field_info.init:
             continue
-        if field_info.metadata.get('static', False):
+        if field_info.metadata.get("static", False):
             static_fields.append(field_info.name)
         else:
             dynamic_fields.append(field_info.name)
@@ -111,31 +133,37 @@ def dataclass(cls: type[Any] | None = None, /, *, init: bool = True, repr: bool 
 
 def get_dataclass_test_string(actual: DataclassInstance, rtol: float, atol: float) -> str:
     retval = f"{type(actual).__name__}("
-    retval += ",\n".join(((f"{field_object.name}=" if field_object.kw_only else "")
-                          + get_test_string(getattr(actual, field_object.name), rtol, atol))
-                         for field_object in dataclasses.fields(actual)
-                         if field_object.repr)
+    retval += ",\n".join(
+        (
+            (f"{field_object.name}=" if field_object.kw_only else "")
+            + get_test_string(getattr(actual, field_object.name), rtol, atol)
+        )
+        for field_object in dataclasses.fields(actual)
+        if field_object.repr
+    )
     retval += ")"
     return retval
 
 
-def get_relative_dataclass_test_string(actual: TDataclassInstance,
-                                       original_name: str,
-                                       original: object,
-                                       rtol: float,
-                                       atol: float) -> str:
-    repr_dict = {field.name: field.repr
-                 for field in dataclasses.fields(actual)}
+def get_relative_dataclass_test_string(
+    actual: TDataclassInstance, original_name: str, original: object, rtol: float, atol: float
+) -> str:
+    repr_dict = {field.name: field.repr for field in dataclasses.fields(actual)}
     retval = f"replace({original_name}, "
     retval += ",\n".join(
-        f"{field_name}=" + get_relative_test_string(f"{original_name}.{field_name}",
-                                                    getattr(actual, field_name),
-                                                    getattr(original, field_name),
-                                                    rtol,
-                                                    atol)
+        f"{field_name}="
+        + get_relative_test_string(
+            f"{original_name}.{field_name}",
+            getattr(actual, field_name),
+            getattr(original, field_name),
+            rtol,
+            atol,
+        )
         for field_name in actual.dynamic_fields
         if repr_dict[field_name]
-        if not tree_allclose(getattr(actual, field_name), getattr(original, field_name),
-                             rtol=rtol, atol=atol))
+        if not tree_allclose(
+            getattr(actual, field_name), getattr(original, field_name), rtol=rtol, atol=atol
+        )
+    )
     retval += ")"
     return retval

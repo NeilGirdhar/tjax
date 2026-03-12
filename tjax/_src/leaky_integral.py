@@ -6,39 +6,47 @@ import jax.numpy as jnp
 import jax.random as jr
 from array_api_compat import array_namespace
 
-from .annotations import (ComplexArray, IntegralArray, JaxComplexArray, JaxIntegralArray,
-                          JaxRealArray, KeyArray, RealArray)
+from .annotations import (
+    ComplexArray,
+    IntegralArray,
+    JaxComplexArray,
+    JaxIntegralArray,
+    JaxRealArray,
+    KeyArray,
+    RealArray,
+)
 
 
 @overload
-def leaky_integrate(value: JaxComplexArray,
-                    time_step: JaxRealArray,
-                    drift: JaxComplexArray | None = None,
-                    decay: JaxComplexArray | None = None,
-                    *,
-                    leaky_average: bool = False
-                    ) -> JaxComplexArray:
-    ...
+def leaky_integrate(
+    value: JaxComplexArray,
+    time_step: JaxRealArray,
+    drift: JaxComplexArray | None = None,
+    decay: JaxComplexArray | None = None,
+    *,
+    leaky_average: bool = False,
+) -> JaxComplexArray: ...
 
 
 @overload
-def leaky_integrate(value: ComplexArray,
-                    time_step: RealArray,
-                    drift: ComplexArray | None = None,
-                    decay: ComplexArray | None = None,
-                    *,
-                    leaky_average: bool = False
-                    ) -> ComplexArray:
-    ...
+def leaky_integrate(
+    value: ComplexArray,
+    time_step: RealArray,
+    drift: ComplexArray | None = None,
+    decay: ComplexArray | None = None,
+    *,
+    leaky_average: bool = False,
+) -> ComplexArray: ...
 
 
-def leaky_integrate(value: ComplexArray,
-                    time_step: RealArray,
-                    drift: ComplexArray | None = None,
-                    decay: ComplexArray | None = None,
-                    *,
-                    leaky_average: bool = False
-                    ) -> ComplexArray:
+def leaky_integrate(
+    value: ComplexArray,
+    time_step: RealArray,
+    drift: ComplexArray | None = None,
+    decay: ComplexArray | None = None,
+    *,
+    leaky_average: bool = False,
+) -> ComplexArray:
     """Update the value so that it is the leaky integral (or leaky average).
 
     Args:
@@ -72,22 +80,20 @@ def leaky_integrate(value: ComplexArray,
 
 
 @overload
-def leaky_data_weight(iterations_times_time_step: JaxRealArray | JaxIntegralArray,
-                      decay: JaxRealArray
-                      ) -> JaxRealArray:
-    ...
+def leaky_data_weight(
+    iterations_times_time_step: JaxRealArray | JaxIntegralArray, decay: JaxRealArray
+) -> JaxRealArray: ...
 
 
 @overload
-def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
-                      decay: RealArray
-                      ) -> RealArray:
-    ...
+def leaky_data_weight(
+    iterations_times_time_step: RealArray | IntegralArray, decay: RealArray
+) -> RealArray: ...
 
 
-def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
-                      decay: RealArray
-                      ) -> RealArray:
+def leaky_data_weight(
+    iterations_times_time_step: RealArray | IntegralArray, decay: RealArray
+) -> RealArray:
     """The amount of data that has been incorporated and has not been decayed.
 
     This equals leaky_integrate(0.0, iterations_times_time_step, 1.0, decay, leaky_average=True).
@@ -96,15 +102,16 @@ def leaky_data_weight(iterations_times_time_step: RealArray | IntegralArray,
     return -xp.expm1(-iterations_times_time_step * decay)
 
 
-def diffused_leaky_integrate(value: JaxComplexArray,
-                             time_step: JaxRealArray,
-                             rng: KeyArray,
-                             diffusion: JaxRealArray,
-                             drift: JaxComplexArray | None = None,
-                             decay: JaxComplexArray | None = None,
-                             *,
-                             leaky_average: bool = False
-                             ) -> ComplexArray:
+def diffused_leaky_integrate(
+    value: JaxComplexArray,
+    time_step: JaxRealArray,
+    rng: KeyArray,
+    diffusion: JaxRealArray,
+    drift: JaxComplexArray | None = None,
+    decay: JaxComplexArray | None = None,
+    *,
+    leaky_average: bool = False,
+) -> ComplexArray:
     """Update an Ornstein-Uhlenbeck process.
 
     Args:
@@ -117,8 +124,10 @@ def diffused_leaky_integrate(value: JaxComplexArray,
         leaky_average: A flag indicating a leaky average rather than a leaky integral.  This scales
             the drift by the real component (in case the decay is complex) of the decay.
     """
-    variance = (diffusion * time_step
-                if decay is None
-                else diffusion / decay * -jnp.expm1(-decay * time_step))
+    variance = (
+        diffusion * time_step
+        if decay is None
+        else diffusion / decay * -jnp.expm1(-decay * time_step)
+    )
     jump = jnp.sqrt(variance) * jr.normal(rng, value.shape)
     return leaky_integrate(value, time_step, drift, decay, leaky_average=leaky_average) + jump

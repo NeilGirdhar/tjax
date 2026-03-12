@@ -51,11 +51,9 @@ def matrix_dot_product[T: Array](x: T, y: T) -> T:
     return xp.sum(x * y, axis=(-2, -1))
 
 
-def divide_where[T: Array](dividend: T,
-                           divisor: T,
-                           *,
-                           where: BooleanArray | None = None,
-                           otherwise: T | None = None) -> T:
+def divide_where[T: Array](
+    dividend: T, divisor: T, *, where: BooleanArray | None = None, otherwise: T | None = None
+) -> T:
     """Return the quotient or a special value when a condition is false.
 
     Returns: `xp.where(where, dividend / divisor, otherwise)`, but without evaluating
@@ -111,29 +109,29 @@ def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = 
 def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
-    return xp.where(y > 80.0,  # noqa: PLR2004
-                    y,
-                    xp.log(xp.expm1(y)))
+    return xp.where(
+        y > 80.0,  # noqa: PLR2004
+        y,
+        xp.log(xp.expm1(y)),
+    )
 
 
-def normalize[T: Array](mode: Literal['l1', 'l2', 'max'],
-              x: T,
-              *,
-              axis: tuple[int, ...] | int | None = None
-              ) -> T:
+def normalize[T: Array](
+    mode: Literal["l1", "l2", "max"], x: T, *, axis: tuple[int, ...] | int | None = None
+) -> T:
     """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
     xp = array_namespace(x)
     epsilon = 10 * xp.finfo(x.dtype).eps
     match mode:
-        case 'l1':
+        case "l1":
             sum_x = xp.sum(xp.abs(x), axis=axis, keepdims=True)
             size = x.size / sum_x.size
             return xp.where(sum_x < epsilon, xp.ones_like(x) / size, x / sum_x)
-        case 'l2':
+        case "l2":
             sum_x = xp.sqrt(xp.sum(xp.square(x), axis=axis, keepdims=True))
             size = x.size / sum_x.size
             return xp.where(sum_x < epsilon, xp.ones_like(x) * xp.pow(size, -0.5), x / sum_x)
-        case 'max':
+        case "max":
             sum_x = xp.max(xp.abs(x), axis=axis, keepdims=True)
             return xp.where(sum_x < epsilon, xp.ones_like(x), x / sum_x)
 
@@ -143,9 +141,11 @@ def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
         xp = array_namespace(x)
     if is_jax_namespace(xp):
         from jax.lax import stop_gradient as sg  # noqa: PLC0415
+
         return sg(x)
     if is_torch_namespace(xp):
         from torch import Tensor  # noqa: PLC0415 # pyright: ignore # type: ignore
+
         assert isinstance(x, Tensor)
         return x.detach()  # pyright: ignore
     return x

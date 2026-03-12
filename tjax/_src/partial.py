@@ -28,15 +28,18 @@ class Partial[R]:
         static_kwargs: The static applied keyword arguments.
         dynamic_kwargs: The dynamic applied keyword arguments.
     """
+
     @override
-    def __init__(self,
-                 function: Partial[R] | Callable[..., R],
-                 /,
-                 *args: object,
-                 callable_is_static: bool = True,
-                 static_argnums: tuple[int, ...] = (),
-                 static_kwargs: Mapping[str, Any] | None = None,
-                 **dynamic_kwargs: object) -> None:
+    def __init__(
+        self,
+        function: Partial[R] | Callable[..., R],
+        /,
+        *args: object,
+        callable_is_static: bool = True,
+        static_argnums: tuple[int, ...] = (),
+        static_kwargs: Mapping[str, Any] | None = None,
+        **dynamic_kwargs: object,
+    ) -> None:
         super().__init__()
         if isinstance(function, Partial) and callable_is_static:
             raise TypeError
@@ -51,13 +54,13 @@ class Partial[R]:
     def tree_flatten(self: Partial[R]) -> tuple[Sequence[PyTree], Hashable]:
         static_args, dynamic_args = self._partition_args()
         static_kwargs = tuple((key, self.static_kwargs[key]) for key in sorted(self.static_kwargs))
-        return ((dynamic_args, self.dynamic_kwargs),
-                (self.callable_is_static, self.static_argnums, static_args, static_kwargs))
+        return (
+            (dynamic_args, self.dynamic_kwargs),
+            (self.callable_is_static, self.static_argnums, static_args, static_kwargs),
+        )
 
     @classmethod
-    def tree_unflatten(cls,
-                       static: Hashable,
-                       trees: Sequence[PyTree]) -> Partial[R]:
+    def tree_unflatten(cls, static: Hashable, trees: Sequence[PyTree]) -> Partial[R]:
         if not isinstance(static, tuple):
             raise RuntimeError  # noqa: TRY004
 
@@ -75,15 +78,21 @@ class Partial[R]:
         if not isinstance(dynamic_kwargs, dict):
             raise RuntimeError  # noqa: TRY004
 
-        dynamic_kwargs = cast('dict[str, Any]', dynamic_kwargs)
-        args = cls._unpartition_args(static_argnums, static_args, dynamic_args,
-                                     callable_is_static=callable_is_static)
+        dynamic_kwargs = cast("dict[str, Any]", dynamic_kwargs)
+        args = cls._unpartition_args(
+            static_argnums,  # type: ignore
+            static_args,
+            dynamic_args,
+            callable_is_static=callable_is_static,  # type: ignore
+        )
 
-        return Partial[R](*args,
-                          callable_is_static=callable_is_static,
-                          static_argnums=static_argnums,
-                          static_kwargs=static_kwargs,
-                          **dynamic_kwargs)
+        return Partial[R](
+            *args,
+            callable_is_static=callable_is_static,  # type: ignore
+            static_argnums=static_argnums,  # type: ignore
+            static_kwargs=static_kwargs,
+            **dynamic_kwargs,
+        )
 
     # Magic methods --------------------------------------------------------------------------------
     def __call__(self, *args: object, **kwargs: object) -> R:
@@ -95,9 +104,13 @@ class Partial[R]:
         qualname = type(self).__qualname__
         args = [repr(self.function)]
         args.extend(repr(x) for x in self.args)
-        args.extend([f"callable_is_static={self.callable_is_static}",
-                     f"static_argnums={self.static_argnums}",
-                     f"static_kwargs={self.static_kwargs}"])
+        args.extend(
+            [
+                f"callable_is_static={self.callable_is_static}",
+                f"static_argnums={self.static_argnums}",
+                f"static_kwargs={self.static_kwargs}",
+            ]
+        )
         args.extend(f"{k}={v!r}" for (k, v) in self.dynamic_kwargs.items())
         return f"{qualname}({', '.join(args)})"
 
@@ -122,20 +135,19 @@ class Partial[R]:
         return tuple(reversed(static_args)), tuple(reversed(dynamic_args))
 
     @classmethod
-    def _unpartition_args(cls,
-                          static_argnums: tuple[int, ...],
-                          static_args: tuple[Any, ...],
-                          dynamic_args: tuple[Any, ...],
-                          *,
-                          callable_is_static: bool
-                          ) -> tuple[Any, ...]:
+    def _unpartition_args(
+        cls,
+        static_argnums: tuple[int, ...],
+        static_args: tuple[Any, ...],
+        dynamic_args: tuple[Any, ...],
+        *,
+        callable_is_static: bool,
+    ) -> tuple[Any, ...]:
         static_arg_list = list(static_args)
         dynamic_arg_list = list(dynamic_args)
         args = []
         for i in range(len(static_args) + len(dynamic_args)):
-            is_static = (callable_is_static
-                         if i == 0
-                         else i - 1 in static_argnums)
+            is_static = callable_is_static if i == 0 else i - 1 in static_argnums
             if is_static:
                 args.append(static_arg_list.pop())
             else:

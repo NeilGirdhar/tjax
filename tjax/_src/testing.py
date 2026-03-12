@@ -13,14 +13,15 @@ from jax import tree
 from .annotations import Array, PyTree
 
 
-def assert_tree_allclose(actual: PyTree,
-                         desired: PyTree,
-                         original_name: str | None = None,
-                         original_value: PyTree | None = None,
-                         *,
-                         rtol: float = 1e-5,
-                         atol: float = 1e-8
-                         ) -> None:
+def assert_tree_allclose(
+    actual: PyTree,
+    desired: PyTree,
+    original_name: str | None = None,
+    original_value: PyTree | None = None,
+    *,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
+) -> None:
     """Assert that an actual pytree matches a desired pytree.
 
     If the assertion fails, a passing test string is printed::
@@ -77,12 +78,15 @@ def assert_tree_allclose(actual: PyTree,
         try:
             np.testing.assert_allclose(actual_, desired_, rtol=rtol, atol=atol)
         except AssertionError as exception:
-            old_message = exception.args[0].split('\n')
+            old_message = exception.args[0].split("\n")
             best_part_of_old_message = "\n".join(old_message[3:6]).replace("Max ", "Maximum ")
-            test_string = (get_relative_test_string(actual, original_name, original_value,
-                                                    rtol=rtol, atol=atol)
-                           if original_name is not None and original_value is not None
-                           else get_test_string(actual, rtol=rtol, atol=atol))
+            test_string = (
+                get_relative_test_string(
+                    actual, original_name, original_value, rtol=rtol, atol=atol
+                )
+                if original_name is not None and original_value is not None
+                else get_test_string(actual, rtol=rtol, atol=atol)
+            )
             test_string = "desired = " + test_string
             # style_config = yapf.style.CreatePEP8Style()
             # style_config['COLUMN_LIMIT'] = column_limit
@@ -91,14 +95,12 @@ def assert_tree_allclose(actual: PyTree,
                 f"\nTree leaves don't match at position {i} with rtol={rtol} and atol={atol}.\n"
                 f"{best_part_of_old_message}\n\n"
                 f"Actual: {actual}\nDesired: {desired}\n"
-                f"Test string:\n{test_string}")
+                f"Test string:\n{test_string}"
+            )
             raise AssertionError(message) from None
 
 
-def tree_allclose(actual: PyTree,
-                  desired: PyTree,
-                  rtol: float = 1e-5,
-                  atol: float = 1e-8) -> bool:
+def tree_allclose(actual: PyTree, desired: PyTree, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
     """Return whether two pytrees are close.
 
     Args:
@@ -107,6 +109,7 @@ def tree_allclose(actual: PyTree,
         rtol: The relative tolerance of the comparisons in the comparison.
         atol: The absolute tolerance of the comparisons in the comparison.
     """
+
     def allclose(actual_array: Array, desired_array: Array) -> bool:
         return bool(jnp.allclose(actual_array, desired_array, rtol=rtol, atol=atol))
 
@@ -114,7 +117,6 @@ def tree_allclose(actual: PyTree,
 
 
 # get test string ----------------------------------------------------------------------------------
-# Redefinition typing errors in this file are due to https://github.com/python/mypy/issues/2904.
 @singledispatch
 def get_test_string(actual: object, rtol: float, atol: float) -> str:
     """Produce a short string of Python code that produces the actual value.
@@ -132,12 +134,15 @@ def get_test_string(actual: object, rtol: float, atol: float) -> str:
 def _(actual: Array | jax.Array, rtol: float, atol: float) -> str:
     if prod(actual.shape) == 0:
         return f"np.empty({actual.shape}, dtype=np.{actual.dtype})"
-    with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
-                                                          atol=atol),
-                                    'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
-                                                            atol=atol)}):
-        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace(
-            '  ', ' ').replace('dtype=', 'dtype=np.')
+    with np.printoptions(
+        formatter={
+            "float_kind": partial(_inexact_number_to_string, rtol=rtol, atol=atol),
+            "complex_kind": partial(_inexact_number_to_string, rtol=rtol, atol=atol),
+        }
+    ):
+        return "np." + repr(np.asarray(actual)).replace(" ]", "]").replace(" ,", ",").replace(
+            "  ", " "
+        ).replace("dtype=", "dtype=np.")
 
 
 @get_test_string.register
@@ -155,27 +160,33 @@ def _(actual: Integral, rtol: float, atol: float) -> str:
 @get_test_string.register(tuple)
 def _(actual: list[Any] | tuple[Any], rtol: float, atol: float) -> str:
     is_list = isinstance(actual, list)
-    is_named_tuple = not is_list and type(actual).__name__ != 'tuple'
-    return ((type(actual).__name__ if is_named_tuple else "")
-            + ("[" if is_list else "(")
-            + ", ".join(get_test_string(sub_actual, rtol, atol) for sub_actual in actual)
-            + (',' if len(actual) == 1 else '')
-            + ("]" if is_list else ")"))
+    is_named_tuple = not is_list and type(actual).__name__ != "tuple"
+    return (
+        (type(actual).__name__ if is_named_tuple else "")
+        + ("[" if is_list else "(")
+        + ", ".join(get_test_string(sub_actual, rtol, atol) for sub_actual in actual)
+        + ("," if len(actual) == 1 else "")
+        + ("]" if is_list else ")")
+    )
 
 
 @get_test_string.register(dict)
 def _(actual: dict[Any, Any], rtol: float, atol: float) -> str:
-    return '{' + ",\n".join(repr(key) + ': ' + get_test_string(sub_actual, rtol, atol)
-                            for key, sub_actual in actual.items()) + '}'
+    return (
+        "{"
+        + ",\n".join(
+            repr(key) + ": " + get_test_string(sub_actual, rtol, atol)
+            for key, sub_actual in actual.items()
+        )
+        + "}"
+    )
 
 
 # get relative test string -------------------------------------------------------------------------
 @singledispatch
-def get_relative_test_string(actual: object,
-                             original_name: str,
-                             original: object,
-                             rtol: float,
-                             atol: float) -> str:
+def get_relative_test_string(
+    actual: object, original_name: str, original: object, rtol: float, atol: float
+) -> str:
     """Produce code for use in tests based on actual and produced values.
 
     Args:
@@ -194,14 +205,18 @@ def get_relative_test_string(actual: object,
 
 @get_relative_test_string.register(np.ndarray)
 @get_relative_test_string.register(jax.Array)
-def _(actual: Array | jax.Array, original_name: str, original: object, rtol: float,
-      atol: float) -> str:
-    with np.printoptions(formatter={'float_kind': partial(_inexact_number_to_string, rtol=rtol,
-                                                          atol=atol),
-                                    'complex_kind': partial(_inexact_number_to_string, rtol=rtol,
-                                                            atol=atol)}):
-        return "np." + repr(np.asarray(actual)).replace(' ]', ']').replace(' ,', ',').replace('  ',
-                                                                                              ' ')
+def _(
+    actual: Array | jax.Array, original_name: str, original: object, rtol: float, atol: float
+) -> str:
+    with np.printoptions(
+        formatter={
+            "float_kind": partial(_inexact_number_to_string, rtol=rtol, atol=atol),
+            "complex_kind": partial(_inexact_number_to_string, rtol=rtol, atol=atol),
+        }
+    ):
+        return "np." + repr(np.asarray(actual)).replace(" ]", "]").replace(" ,", ",").replace(
+            "  ", " "
+        )
 
 
 @get_relative_test_string.register
@@ -216,42 +231,59 @@ def _(actual: Integral, original_name: str, original: object, rtol: float, atol:
 
 @get_relative_test_string.register(list)
 @get_relative_test_string.register(tuple)
-def _(actual: list[Any] | tuple[Any], original_name: str, original: list[Any], rtol: float,
-      atol: float) -> str:
+def _(
+    actual: list[Any] | tuple[Any],
+    original_name: str,
+    original: list[Any],
+    rtol: float,
+    atol: float,
+) -> str:
     is_list = isinstance(actual, list)
-    return (("[" if is_list else "(")
-            + ", ".join(get_relative_test_string(f"{original_name}[{i}]",
-                                                 sub_actual, sub_original,
-                                                 rtol, atol)
-                        for i, (sub_actual, sub_original) in enumerate(zip(actual, original,
-                                                                           strict=True)))
-            + ("]" if is_list else ")"))
+    return (
+        ("[" if is_list else "(")
+        + ", ".join(
+            get_relative_test_string(f"{original_name}[{i}]", sub_actual, sub_original, rtol, atol)
+            for i, (sub_actual, sub_original) in enumerate(zip(actual, original, strict=True))
+        )
+        + ("]" if is_list else ")")
+    )
 
 
 @get_relative_test_string.register(dict)
-def _(actual: dict[Any, Any], original_name: str, original: object, rtol: float, atol: float
-      ) -> str:
+def _(
+    actual: dict[Any, Any], original_name: str, original: object, rtol: float, atol: float
+) -> str:
     if not isinstance(original, dict):
         raise TypeError
 
     def relative_string(key: object, sub_actual: str) -> str:
         return get_relative_test_string(
-            f"{original_name}[{key}]", sub_actual, original[key], rtol, atol)
+            f"{original_name}[{key}]",
+            sub_actual,
+            original[key],  # type: ignore
+            rtol,
+            atol,
+        )
 
-    return '{' + ",\n".join(repr(key) + ': ' + relative_string(key, sub_actual)
-                            for key, sub_actual in actual.items()) + '}'
+    return (
+        "{"
+        + ",\n".join(
+            repr(key) + ": " + relative_string(key, sub_actual)
+            for key, sub_actual in actual.items()
+        )
+        + "}"
+    )
 
 
 # Private functions --------------------------------------------------------------------------------
 def _float_to_string_with_precision(x: complex, precision: int) -> str:
-    with np.printoptions(precision=precision, floatmode='maxprec'):
+    with np.printoptions(precision=precision, floatmode="maxprec"):
         return repr(np.asarray(x))[6:-1]
 
 
-def _inexact_number_to_string(x: complex | Complex | np.inexact[Any],
-                              rtol: float,
-                              atol: float
-                              ) -> str:
+def _inexact_number_to_string(
+    x: complex | Complex | np.inexact[Any], rtol: float, atol: float
+) -> str:
     y = float(x) if isinstance(x, Real) else complex(x)
     retval = ""
     for i in range(20):

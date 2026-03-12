@@ -10,7 +10,7 @@ _metric_factor = 1000
 log = logging.getLogger(__name__)
 
 
-class Timer(AbstractContextManager['Timer']):
+class Timer(AbstractContextManager["Timer"]):
     @override
     def __init__(self, final_string: str, precision: int = 3) -> None:
         super().__init__()
@@ -26,11 +26,13 @@ class Timer(AbstractContextManager['Timer']):
         return self
 
     @override
-    def __exit__(self,
-                 exc_type: type[BaseException] | None,
-                 exc_val: BaseException | None,
-                 exc_tb: TracebackType | None,
-                 /) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+        /,
+    ) -> None:
         super().__exit__(exc_type, exc_val, exc_tb)  # pyright: ignore
         self.end = perf_counter_ns()
         log.info(f"{self.final_string} took {self.elapsed_str()}")

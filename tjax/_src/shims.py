@@ -15,10 +15,10 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
-    retval = jax.jit(func, **kwargs)  # pyright: ignore
+    retval = jax.jit(func, **kwargs)  # pyright: ignore  # type: ignore
     _ = update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
-    return retval  # type: ignore[return-value] # pyright: ignore
+    return retval  # pyright: ignore
 
 
 class custom_vjp[**P, R_co]:  # noqa: N801
@@ -33,19 +33,13 @@ class custom_vjp[**P, R_co]:  # noqa: N801
     vjp: jax.custom_vjp[R_co]
 
     @override
-    def __init__(self,
-                 func: Callable[P, R_co],
-                 *,
-                 static_argnums: tuple[int, ...] = ()
-                 ) -> None:
+    def __init__(self, func: Callable[P, R_co], *, static_argnums: tuple[int, ...] = ()) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)  # pyright: ignore
         _ = update_wrapper(self, func, all_wrapper_assignments)
 
-    def defvjp(self,
-               fwd: Callable[P, tuple[R_co, Any]],
-               bwd: Callable[..., Any]) -> None:
+    def defvjp(self, fwd: Callable[P, tuple[R_co, Any]], bwd: Callable[..., Any]) -> None:
         self.vjp.defvjp(fwd, bwd)
 
     def __call__(self, /, *args: P.args, **kwargs: P.kwargs) -> R_co:
@@ -64,41 +58,33 @@ class custom_vjp_method[U, **P, R_co]:  # noqa: N801
     vjp: jax.custom_vjp[R_co]
 
     @override
-    def __init__(self,
-                 func: Callable[Concatenate[U, P], R_co],
-                 *,
-                 static_argnums: tuple[int, ...] = ()
-                 ) -> None:
+    def __init__(
+        self, func: Callable[Concatenate[U, P], R_co], *, static_argnums: tuple[int, ...] = ()
+    ) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)  # pyright: ignore
         _ = update_wrapper(self, func, all_wrapper_assignments)
 
-    def defvjp(self,
-               fwd: Callable[Concatenate[U, P], tuple[R_co, Any]],
-               bwd: Callable[..., Any]) -> None:
+    def defvjp(
+        self, fwd: Callable[Concatenate[U, P], tuple[R_co, Any]], bwd: Callable[..., Any]
+    ) -> None:
         self.vjp.defvjp(fwd, bwd)
 
-    def __call__(self,
-                 u: U,
-                 /,
-                 *args: P.args,
-                 **kwargs: P.kwargs) -> R_co:
+    def __call__(self, u: U, /, *args: P.args, **kwargs: P.kwargs) -> R_co:
         return self.vjp(u, *args, **kwargs)
 
     @overload
-    def __get__(self, instance: None, owner: object = None) -> Self:
-        ...
+    def __get__(self, instance: None, owner: object = None) -> Self: ...
 
     @overload
-    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]:
-        ...
+    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]: ...
 
     def __get__(self, instance: Any, owner: object = None) -> Callable[..., R_co]:
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)  # type: ignore[no-untyped-call]
+        return Partial(self, instance)
 
 
 class custom_jvp[**P, R_co]:  # noqa: N801
@@ -110,11 +96,7 @@ class custom_jvp[**P, R_co]:  # noqa: N801
     """
 
     @override
-    def __init__(self,
-                 func: Callable[P, R_co],
-                 *,
-                 nondiff_argnums: tuple[int, ...] = ()
-                 ) -> None:
+    def __init__(self, func: Callable[P, R_co], *, nondiff_argnums: tuple[int, ...] = ()) -> None:
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
@@ -141,11 +123,9 @@ class custom_jvp_method[U, **P, R_co]:  # noqa: N801
     """
 
     @override
-    def __init__(self,
-                 func: Callable[Concatenate[U, P], R_co],
-                 *,
-                 nondiff_argnums: tuple[int, ...] = ()
-                 ) -> None:
+    def __init__(
+        self, func: Callable[Concatenate[U, P], R_co], *, nondiff_argnums: tuple[int, ...] = ()
+    ) -> None:
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
         self.jvp = jax.custom_jvp(func, nondiff_argnums=nondiff_argnums)
@@ -163,28 +143,31 @@ class custom_jvp_method[U, **P, R_co]:  # noqa: N801
         return self.jvp(u, *args, **kwargs)
 
     @overload
-    def __get__(self, instance: None, owner: object = None) -> Self:
-        ...
+    def __get__(self, instance: None, owner: object = None) -> Self: ...
 
     @overload
-    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]:
-        ...
+    def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]: ...
 
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R_co]:
         if instance is None:
             return self
         # Create a partial function application corresponding to a bound method.
-        return Partial(self, instance)  # type: ignore[no-untyped-call]
+        return Partial(self, instance)
 
 
-def hessian[U](fun: Callable[..., U],
-            argnums: int | Sequence[int] = 0,
-            *,
-            has_aux: bool = False,
-            holomorphic: bool = False,
-            reverse_only: bool = False
-            ) -> Callable[..., U]:
+def hessian[U](
+    fun: Callable[..., U],
+    argnums: int | Sequence[int] = 0,
+    *,
+    has_aux: bool = False,
+    holomorphic: bool = False,
+    reverse_only: bool = False,
+) -> Callable[..., U]:
     if not reverse_only:
         return jax.hessian(fun, argnums=argnums, has_aux=has_aux, holomorphic=holomorphic)
-    return jax.jacrev(jax.jacrev(fun, argnums, has_aux=has_aux, holomorphic=holomorphic),
-                      argnums, has_aux=has_aux, holomorphic=holomorphic)
+    return jax.jacrev(
+        jax.jacrev(fun, argnums, has_aux=has_aux, holomorphic=holomorphic),
+        argnums,
+        has_aux=has_aux,
+        holomorphic=holomorphic,
+    )

@@ -15,19 +15,18 @@ class ChainedGradientState(GradientState):
 
 @dataclass
 class ChainedGradientTransformation[Weights: PyTree](
-        GradientTransformation[ChainedGradientState, Weights]):
+    GradientTransformation[ChainedGradientState, Weights]
+):
     transforms: list[GradientTransformation[Any, Weights]]
 
     @override
     def init(self, parameters: Weights) -> ChainedGradientState:
-        return ChainedGradientState([transform.init(parameters)
-                                     for transform in self.transforms])
+        return ChainedGradientState([transform.init(parameters) for transform in self.transforms])
 
     @override
-    def update(self,
-               gradient: Weights,
-               state: ChainedGradientState,
-               parameters: Weights | None) -> tuple[Weights, ChainedGradientState]:
+    def update(
+        self, gradient: Weights, state: ChainedGradientState, parameters: Weights | None
+    ) -> tuple[Weights, ChainedGradientState]:
         new_state: list[PyTree] = []
         for sub_state, transform in zip(state.sub_states, self.transforms, strict=True):
             gradient, new_sub_state = transform.update(gradient, sub_state, parameters)

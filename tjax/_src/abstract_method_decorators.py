@@ -9,6 +9,7 @@ from .shims import custom_jvp_method, jit
 
 class JaxAbstractClass:
     """A class with abstract methods whose overrides need to be decorated with Jax decorators."""
+
     @override
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
@@ -27,7 +28,7 @@ class JaxAbstractClass:
                 jvp, nondiff_argnums = super_method._abstract_custom_jvp  # noqa: SLF001
                 method_jvp: Any = custom_jvp_method(method, nondiff_argnums=nondiff_argnums)
                 method_jvp.defjvp(jvp)
-                setattr(cls, f'_original_{name}', method)
+                setattr(cls, f"_original_{name}", method)
                 method = method_jvp
             setattr(cls, name, method)
 
@@ -39,12 +40,15 @@ def abstract_jit[F: Callable[..., Any]](fun: F, **kwargs: object) -> F:
 
 
 def abstract_custom_jvp[**P, R_co](
-        jvp: Callable[..., tuple[R_co, R_co]],
-        nondiff_argnums: tuple[int, ...] = ()
-        ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
+    jvp: Callable[..., tuple[R_co, R_co]], nondiff_argnums: tuple[int, ...] = ()
+) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
     """An abstract method whose override need to be decorated with custom_jvp_method."""
+
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
-        fun._abstract_custom_jvp = (jvp,  # type: ignore # noqa: SLF001 # pyright: ignore
-                                    nondiff_argnums)
+        fun._abstract_custom_jvp = (  # type: ignore # pyright: ignore  # noqa: SLF001
+            jvp,
+            nondiff_argnums,
+        )
         return fun
-    return decorator
+
+    return decorator  # type: ignore

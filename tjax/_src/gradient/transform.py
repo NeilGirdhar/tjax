@@ -24,6 +24,7 @@ class GenericGradientState(GradientState):
 
     Optax doesn't provide a suitable base class.
     """
+
     data: PyTree
 
     @classmethod
@@ -45,13 +46,13 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
     interpreted as doing Newton's method with an assumed isotropic loss Hessian.  In general, all
     gradient transformations can be interpreted as Hessian estimators.
     """
+
     def init(self, parameters: Weights) -> State:
         raise NotImplementedError
 
-    def update(self,
-               gradient: Weights,
-               state: State,
-               parameters: Weights | None) -> tuple[Weights, State]:
+    def update(
+        self, gradient: Weights, state: State, parameters: Weights | None
+    ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:
@@ -68,17 +69,18 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
 
 @dataclass
 class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
-        GradientTransformation[State, Weights]):
+    GradientTransformation[State, Weights]
+):
     """A second order gradient transformation.
 
     This is a special case of a gradient transformation whose update rule accepts a
     Hessian-vector-product function in its update.
     """
+
     @override
-    def update(self,
-               gradient: Weights,
-               state: State,
-               parameters: Weights | None) -> tuple[Weights, State]:
+    def update(
+        self, gradient: Weights, state: State, parameters: Weights | None
+    ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:
@@ -92,18 +94,20 @@ class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
 
         This uses the outer product approximation of the Hessian.
         """
+
         def hessian_vector_product(v: Weights) -> Weights:
-            d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)
+            d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)  # type: ignore
             return tree.map(lambda x: x * d, gradient)
 
         return self.second_order_update(gradient, state, parameters, hessian_vector_product)
 
-    def second_order_update(self,
-                            gradient: Weights,
-                            state: State,
-                            parameters: Weights | None,
-                            hessian_vector_product: Callable[[Weights], Weights]
-                            ) -> tuple[Weights, State]:
+    def second_order_update(
+        self,
+        gradient: Weights,
+        state: State,
+        parameters: Weights | None,
+        hessian_vector_product: Callable[[Weights], Weights],
+    ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:
@@ -122,19 +126,22 @@ class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
 
 @dataclass
 class ThirdOrderGradientTransformation[State: GradientState, Weights: PyTree](
-        SecondOrderGradientTransformation[State, Weights]):
+    SecondOrderGradientTransformation[State, Weights]
+):
     """A third order gradient transformation.
 
     This is a special case of a second order gradient transformation whose update rule accepts the
     diagonal entries of the Hessian.
     """
+
     @override
-    def second_order_update(self,
-                            gradient: Weights,
-                            state: State,
-                            parameters: Weights | None,
-                            hessian_vector_product: Callable[[Weights], Weights]
-                            ) -> tuple[Weights, State]:
+    def second_order_update(
+        self,
+        gradient: Weights,
+        state: State,
+        parameters: Weights | None,
+        hessian_vector_product: Callable[[Weights], Weights],
+    ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:
@@ -151,15 +158,18 @@ class ThirdOrderGradientTransformation[State: GradientState, Weights: PyTree](
         Uses the outer product approximation of the Hessian to provide the diagonal entries of the
         Hessian.
         """
-        return self.third_order_update(gradient, state, parameters, hessian_vector_product,
-                                       tree.map(abs_square, gradient))
+        return self.third_order_update(
+            gradient, state, parameters, hessian_vector_product, tree.map(abs_square, gradient)
+        )
 
-    def third_order_update(self,
-                           gradient: Weights,
-                           state: State,
-                           parameters: Weights | None,
-                           hessian_vector_product: Callable[[Weights], Weights],
-                           hessian_diagonal: Weights) -> tuple[Weights, State]:
+    def third_order_update(
+        self,
+        gradient: Weights,
+        state: State,
+        parameters: Weights | None,
+        hessian_vector_product: Callable[[Weights], Weights],
+        hessian_diagonal: Weights,
+    ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
         Args:

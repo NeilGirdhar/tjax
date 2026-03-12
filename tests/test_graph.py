@@ -15,14 +15,14 @@ else:
     register_graph_as_jax_pytree(nx.DiGraph)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def graph() -> nx.DiGraph[Any]:
     g = nx.DiGraph()
-    g.add_node('a', y=2.0)
-    g.add_node('b', z=3.0)
-    g.add_node('c', w=4.0)
-    g.add_edge('a', 'b', x=5.0)
-    g.add_edge('c', 'b', x=7.0)
+    g.add_node("a", y=2.0)
+    g.add_node("b", z=3.0)
+    g.add_node("c", w=4.0)
+    g.add_edge("a", "b", x=5.0)
+    g.add_edge("c", "b", x=7.0)
     return g
 
 
@@ -49,10 +49,11 @@ def test_flatten_flavors(graph: nx.DiGraph[Any]) -> None:
     assert hash(tree_def_a) == hash(tree_def_b)
     assert values_a == list(values_b)
     assert values_a == [2.0, 3.0, 4.0, 5.0, 7.0]
-    simplified = {"".join(str(x) for x in key_path)
-                  for key_path in key_paths}
-    assert simplified == {".node['a']['y']",
-                          ".node['b']['z']",
-                          ".node['c']['w']",
-                          ".edge['a', 'b']['x']",
-                          ".edge['c', 'b']['x']"}
+    simplified = {"".join(str(x) for x in key_path) for key_path in key_paths}
+    assert simplified == {
+        ".node['a']['y']",
+        ".node['b']['z']",
+        ".node['c']['w']",
+        ".edge['a', 'b']['x']",
+        ".edge['c', 'b']['x']",
+    }

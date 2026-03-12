@@ -27,6 +27,7 @@ def element_count(x: object, /) -> int:
         if not isinstance(x, JaxArray):
             raise TypeError
         return math.prod(x.shape)
+
     retval = tree.reduce_associative(operator.add, tree.map(array_element_count, x), identity=0)
     assert isinstance(retval, int)
     return retval
