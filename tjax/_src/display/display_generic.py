@@ -333,8 +333,8 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         return
     if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # noqa: PLR2004
         xarray = np.asarray(array)
-        tree.children.append(display_generic(np.mean(xarray).item(), seen=set(), key="mean"))  # type: ignore
-        tree.children.append(display_generic(np.std(xarray).item(), seen=set(), key="deviation"))  # type: ignore
+        tree.children.append(display_generic(np.mean(xarray).item(), seen=set(), key="mean"))
+        tree.children.append(display_generic(np.std(xarray).item(), seen=set(), key="deviation"))
         return
     if len(array.shape) == 0:
         _ = tree.add(_format_number(array[()]))
