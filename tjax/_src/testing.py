@@ -101,7 +101,7 @@ def assert_tree_allclose(
 
 
 def tree_allclose(actual: PyTree, desired: PyTree, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
-    """Return whether two pytrees are close.
+    """Return whether two pytrees with the same structure are close.
 
     Args:
         actual: The actual value.
@@ -242,7 +242,7 @@ def _(
     return (
         ("[" if is_list else "(")
         + ", ".join(
-            get_relative_test_string(f"{original_name}[{i}]", sub_actual, sub_original, rtol, atol)
+            get_relative_test_string(sub_actual, f"{original_name}[{i}]", sub_original, rtol, atol)
             for i, (sub_actual, sub_original) in enumerate(zip(actual, original, strict=True))
         )
         + ("]" if is_list else ")")
@@ -258,8 +258,8 @@ def _(
 
     def relative_string(key: object, sub_actual: str) -> str:
         return get_relative_test_string(
-            f"{original_name}[{key}]",
             sub_actual,
+            f"{original_name}[{key}]",
             original[key],  # type: ignore
             rtol,
             atol,

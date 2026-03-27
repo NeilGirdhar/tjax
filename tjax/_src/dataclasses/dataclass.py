@@ -153,8 +153,8 @@ def get_relative_dataclass_test_string(
     retval += ",\n".join(
         f"{field_name}="
         + get_relative_test_string(
-            f"{original_name}.{field_name}",
             getattr(actual, field_name),
+            f"{original_name}.{field_name}",
             getattr(original, field_name),
             rtol,
             atol,
