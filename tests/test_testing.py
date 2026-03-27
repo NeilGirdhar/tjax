@@ -5,6 +5,7 @@ import re
 import pytest
 
 from tjax import assert_tree_allclose, tree_allclose
+from tjax.dataclasses import dataclass
 
 
 @pytest.mark.parametrize(
@@ -47,3 +48,25 @@ desired = {desired}"""
 )
 def test_tree_allclose(actual: object, desired: object, *, result: bool | None) -> None:
     assert tree_allclose(actual, desired) == result
+
+
+def test_tree_allclose_structure_mismatch() -> None:
+    with pytest.raises(ValueError, match="Tuple arity mismatch"):
+        tree_allclose((1, 2), (1, 2, 3))
+
+
+def test_assert_tree_allclose_relative_dataclass_message() -> None:
+    @dataclass
+    class Point:
+        x: int
+        y: int
+
+    original = Point(1, 2)
+    desired = Point(0, 0)
+    actual = Point(3, 4)
+
+    with pytest.raises(AssertionError) as exception:
+        assert_tree_allclose(actual, desired, "original", original)
+
+    assertion_string = exception.value.args[0]
+    assert "desired = replace(original, x=3,\ny=4)" in assertion_string
