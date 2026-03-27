@@ -50,7 +50,7 @@ class Projector:
         if features <= self.dimensions:
             return projectable
         projection_matrix = self.get_projection_matrix(features)
-        return projectable @ projection_matrix  # type: ignore[return-value] # pyright: ignore
+        return projectable @ projection_matrix  # type: ignore # pyright: ignore
 
     def _random_directions(self, features: int) -> JaxArray:
         """Produce a random projection matrix.

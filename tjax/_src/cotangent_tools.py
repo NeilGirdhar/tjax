@@ -128,7 +128,7 @@ def _print_cotangent_bwd[X](name: str | None, residuals: None, x_bar: X) -> tupl
     if name is None:
         print_generic(x_bar)
     else:
-        print_generic(**{name: x_bar})  # type: ignore[arg-type] # pyright: ignore
+        print_generic(**{name: x_bar})  # type: ignore # pyright: ignore
     return (x_bar,)
 
 
