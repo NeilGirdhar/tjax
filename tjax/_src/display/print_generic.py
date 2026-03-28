@@ -9,7 +9,7 @@ import numpy as np
 from jax import Array, debug, tree
 from rich.console import Console
 
-from ..dataclasses.dataclass import dataclass
+from tjax._src.dataclasses.dataclass import dataclass
 from .internal import internal_print_generic
 
 

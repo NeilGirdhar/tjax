@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from jax.tree_util import register_pytree_with_keys
 
-from ..annotations import PyTree
+from tjax._src.annotations import PyTree
 from .types_ import GraphAuxData, GraphData, GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
 
 try:

@@ -33,7 +33,7 @@ def matrix_vector_mul[T: Array](x: T, y: T) -> T:
     Note the speed difference:
     * 14.3 µs: xp.vecdot(matrix_vector_mul(m, x), x)
     * 4.44 µs: np.einsum("...i,...ij,...j->...", x, m, x)
-    """  # noqa: RUF002
+    """
     xp = array_namespace(x, y)
     y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
     return xp.sum(x * y, axis=-1)
@@ -46,7 +46,7 @@ def matrix_dot_product[T: Array](x: T, y: T) -> T:
     * 1.19 µs: xp.einsum("...ij,...ij", x, y)
     * 1.77 µs: xp.sum(x * y, axis=(-2, -1))
     # 3.87 µs: xp.linalg.trace(xp.moveaxis(x, -2, -1) @ y)
-    """  # noqa: RUF002
+    """
     xp = array_namespace(x, y)
     return xp.sum(x * y, axis=(-2, -1))
 

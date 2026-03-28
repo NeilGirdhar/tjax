@@ -21,7 +21,7 @@ from rich.tree import Tree
 
 from tjax.dataclasses import DataclassInstance
 
-from ..annotations import NumpyArray
+from tjax._src.annotations import NumpyArray
 from .colors import solarized
 
 assert isinstance(PyTreeDef, type)
