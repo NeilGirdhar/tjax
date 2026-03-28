@@ -7,7 +7,11 @@ from typing import Any, override
 
 @dataclass(frozen=True)
 class GraphNodeKey:
-    """Struct for use with :func:`jax.tree_util.register_pytree_with_keys`."""
+    """Struct for use with :func:`jax.tree_util.register_pytree_with_keys`.
+
+    Ordering assumes node keys are mutually comparable. Heterogeneous node-key types may therefore
+    fail when an ordered traversal is requested.
+    """
 
     key: Hashable
 
@@ -21,7 +25,11 @@ class GraphNodeKey:
 
 @dataclass(frozen=True)
 class GraphEdgeKey:
-    """Struct for use with :func:`jax.tree_util.register_pytree_with_keys`."""
+    """Struct for use with :func:`jax.tree_util.register_pytree_with_keys`.
+
+    Ordering assumes source and target keys are mutually comparable. Heterogeneous endpoint types
+    may therefore fail when an ordered traversal is requested.
+    """
 
     source: Hashable  # TODO: mark this as comparable
     target: Hashable
@@ -38,6 +46,8 @@ class GraphEdgeKey:
 
 @dataclass(frozen=True)
 class UndirectedGraphEdgeKey(GraphEdgeKey):
+    """An undirected graph edge key with the same comparability assumptions as GraphEdgeKey."""
+
     @override
     def __hash__(self) -> int:
         return hash(self.source) ^ hash(self.target)
