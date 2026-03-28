@@ -8,8 +8,8 @@ from jax import tree
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import PyTree
-from ..math_tools import abs_square
+from tjax._src.annotations import PyTree
+from tjax._src.math_tools import abs_square
 
 
 # Gradient states ----------------------------------------------------------------------------------

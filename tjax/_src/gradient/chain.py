@@ -4,7 +4,7 @@ from typing import Any, override
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import PyTree
+from tjax._src.annotations import PyTree
 from .transform import GradientState, GradientTransformation
 
 

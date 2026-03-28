@@ -5,7 +5,7 @@ from typing import Any
 
 from rich.tree import Tree
 
-from ..display.display_generic import _verify, display_class, display_generic
+from tjax._src.display.display_generic import _verify, display_class, display_generic
 
 
 def graph_arrow(directed: bool) -> str:  # noqa: FBT001

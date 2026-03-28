@@ -8,7 +8,7 @@ from jax import tree
 
 from tjax.dataclasses import dataclass
 
-from ..annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
+from tjax._src.annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from .transform import GradientState, SecondOrderGradientTransformation
 
 
