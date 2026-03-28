@@ -52,11 +52,21 @@ class Partial[R]:
         self.dynamic_kwargs = dynamic_kwargs
 
     def tree_flatten(self: Partial[R]) -> tuple[Sequence[PyTree], Hashable]:
-        static_args, dynamic_args = self._partition_args()
+        argument_slots = (
+            self.callable_is_static,
+            *(i in self.static_argnums for i in range(len(self.args))),
+        )
+        static_args: list[Any] = []
+        dynamic_args: list[Any] = []
+        for value, is_static in zip((self.function, *self.args), argument_slots, strict=True):
+            if is_static:
+                static_args.append(value)
+            else:
+                dynamic_args.append(value)
         static_kwargs = tuple((key, self.static_kwargs[key]) for key in sorted(self.static_kwargs))
         return (
-            (dynamic_args, self.dynamic_kwargs),
-            (self.callable_is_static, self.static_argnums, static_args, static_kwargs),
+            (tuple(dynamic_args), self.dynamic_kwargs),
+            (argument_slots, tuple(static_args), static_kwargs),
         )
 
     @classmethod
@@ -64,8 +74,9 @@ class Partial[R]:
         if not isinstance(static, tuple):
             raise RuntimeError  # noqa: TRY004
 
-        callable_is_static, static_argnums, static_args, static_kwarg_items = static
-        assert isinstance(static_kwarg_items, Mapping)
+        argument_slots, static_args, static_kwarg_items = static
+        assert isinstance(argument_slots, tuple)
+        assert isinstance(static_kwarg_items, tuple)
         static_kwargs = dict(static_kwarg_items)
 
         if not isinstance(static_args, tuple):
@@ -79,17 +90,16 @@ class Partial[R]:
             raise RuntimeError  # noqa: TRY004
 
         dynamic_kwargs = cast("dict[str, Any]", dynamic_kwargs)
-        args = cls._unpartition_args(
-            static_argnums,  # type: ignore
-            static_args,
-            dynamic_args,
-            callable_is_static=callable_is_static,  # type: ignore
+        args = cls._unpartition_args(argument_slots, static_args, dynamic_args)
+        callable_is_static = argument_slots[0]
+        static_argnums = tuple(
+            i - 1 for i, is_static in enumerate(argument_slots[1:], start=1) if is_static
         )
 
         return Partial[R](
             *args,
-            callable_is_static=callable_is_static,  # type: ignore
-            static_argnums=static_argnums,  # type: ignore
+            callable_is_static=callable_is_static,
+            static_argnums=static_argnums,
             static_kwargs=static_kwargs,
             **dynamic_kwargs,
         )
@@ -114,42 +124,16 @@ class Partial[R]:
         args.extend(f"{k}={v!r}" for (k, v) in self.dynamic_kwargs.items())
         return f"{qualname}({', '.join(args)})"
 
-    # Private methods ------------------------------------------------------------------------------
-    def _partition_args(self) -> tuple[tuple[Any, ...], tuple[Any, ...]]:
-        # Partition self.args into static and dynamic arguments.
-        static_args = []
-        dynamic_args = []
-
-        static_argnums = set(self.static_argnums)
-
-        def _append(value: object, *, is_static: bool) -> None:
-            if is_static:
-                static_args.append(value)
-            else:
-                dynamic_args.append(value)
-
-        _append(self.function, is_static=self.callable_is_static)
-        for i, value in enumerate(self.args):
-            _append(value, is_static=i in static_argnums)
-
-        return tuple(reversed(static_args)), tuple(reversed(dynamic_args))
-
     @classmethod
     def _unpartition_args(
         cls,
-        static_argnums: tuple[int, ...],
+        argument_slots: tuple[bool, ...],
         static_args: tuple[Any, ...],
         dynamic_args: tuple[Any, ...],
-        *,
-        callable_is_static: bool,
     ) -> tuple[Any, ...]:
-        static_arg_list = list(static_args)
-        dynamic_arg_list = list(dynamic_args)
-        args = []
-        for i in range(len(static_args) + len(dynamic_args)):
-            is_static = callable_is_static if i == 0 else i - 1 in static_argnums
-            if is_static:
-                args.append(static_arg_list.pop())
-            else:
-                args.append(dynamic_arg_list.pop())
+        static_iter = iter(static_args)
+        dynamic_iter = iter(dynamic_args)
+        args = [
+            next(static_iter) if is_static else next(dynamic_iter) for is_static in argument_slots
+        ]
         return tuple(args)
