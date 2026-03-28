@@ -79,7 +79,8 @@ Tjax also includes:
 - An improved version of :python:`jax.tree_util.Partial`.  (See `partial <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/partial.py>`_.)
 
 - A testing function :python:`assert_tree_allclose` that automatically produces testing code.  And, a related
-  function :python:`tree_allclose`.  (See `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/testing.py>`_.)
+  function :python:`tree_allclose`, which compares pytrees with matching structure.  (See
+  `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/testing.py>`_.)
 
 - Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/math_tools.py>`_.)
 
