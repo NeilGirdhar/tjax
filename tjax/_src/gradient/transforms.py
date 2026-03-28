@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import asdict
 from typing import Any, override
 
 from optax import (
@@ -26,7 +25,7 @@ from optax import (
     trace,
 )
 
-from tjax.dataclasses import dataclass, field
+from tjax.dataclasses import as_shallow_dict, dataclass, field
 
 from ..annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
 from .transform import GenericGradientState, GradientTransformation
@@ -117,7 +116,7 @@ class Ema[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None = None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *ema(**asdict(self)).update(gradient, state.data, parameters)
+            *ema(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
@@ -226,14 +225,14 @@ class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, 
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(scale_by_adam(**asdict(self)).init(parameters))
+        return GenericGradientState(scale_by_adam(**as_shallow_dict(self)).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *scale_by_adam(**asdict(self)).update(gradient, state.data, parameters)
+            *scale_by_adam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
@@ -249,14 +248,14 @@ class Scale[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(scale(**asdict(self)).init(parameters))
+        return GenericGradientState(scale(**as_shallow_dict(self)).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *scale(**asdict(self)).update(gradient, state.data, parameters)
+            *scale(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
@@ -444,14 +443,14 @@ class AddDecayedWeights[Weights: PyTree](GradientTransformation[GenericGradientS
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(add_decayed_weights(**asdict(self)).init(parameters))
+        return GenericGradientState(add_decayed_weights(**as_shallow_dict(self)).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *add_decayed_weights(**asdict(self)).update(gradient, state.data, parameters)
+            *add_decayed_weights(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
@@ -500,14 +499,14 @@ class ScaleByTrustRatio[Weights: PyTree](GradientTransformation[GenericGradientS
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(scale_by_trust_ratio(**asdict(self)).init(parameters))
+        return GenericGradientState(scale_by_trust_ratio(**as_shallow_dict(self)).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *scale_by_trust_ratio(**asdict(self)).update(gradient, state.data, parameters)
+            *scale_by_trust_ratio(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
@@ -530,14 +529,14 @@ class AddNoise[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(add_noise(**asdict(self)).init(parameters))
+        return GenericGradientState(add_noise(**as_shallow_dict(self)).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         return GenericGradientState.wrap(  # pyright: ignore # type: ignore
-            *add_noise(**asdict(self)).update(gradient, state.data, parameters)
+            *add_noise(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
 
