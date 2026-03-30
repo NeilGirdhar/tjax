@@ -75,7 +75,6 @@ def divide_where[T: Array](
     return xp.where(where, quotient, otherwise)
 
 
-# Remove when https://github.com/scipy/scipy/pull/18605 is released.
 def softplus[T: Array](x: T, /, *, xp: Namespace | None = None) -> T:
     """Softplus, which is log(1+exp(x)).
 
