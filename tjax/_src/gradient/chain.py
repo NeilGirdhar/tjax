@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, override
 
+from tjax._src.annotations import PyTree
 from tjax.dataclasses import dataclass
 
-from tjax._src.annotations import PyTree
 from .transform import GradientState, GradientTransformation
 
 

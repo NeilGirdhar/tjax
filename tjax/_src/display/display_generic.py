@@ -19,9 +19,9 @@ from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
+from tjax._src.annotations import NumpyArray
 from tjax.dataclasses import DataclassInstance
 
-from tjax._src.annotations import NumpyArray
 from .colors import solarized
 
 assert isinstance(PyTreeDef, type)

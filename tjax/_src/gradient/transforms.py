@@ -25,9 +25,9 @@ from optax import (
     trace,
 )
 
+from tjax._src.annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
-from tjax._src.annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
 from .transform import GenericGradientState, GradientTransformation
 
 

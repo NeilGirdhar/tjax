@@ -8,8 +8,7 @@ from functools import partial
 from typing import Any
 
 from jax import jit
-from optax import GradientTransformation as OptaxGradientTransformation
-from optax import adam
+from optax import GradientTransformation as OptaxGradientTransformation, adam
 
 from tjax.gradient import Adam, GradientTransformation
 

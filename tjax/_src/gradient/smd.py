@@ -6,9 +6,9 @@ from typing import override
 import jax.numpy as jnp
 from jax import tree
 
+from tjax._src.annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from tjax.dataclasses import dataclass
 
-from tjax._src.annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from .transform import GradientState, SecondOrderGradientTransformation
 
 

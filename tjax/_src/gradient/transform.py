@@ -6,10 +6,9 @@ from typing import Self, override
 import jax.numpy as jnp
 from jax import tree
 
-from tjax.dataclasses import dataclass
-
 from tjax._src.annotations import PyTree
 from tjax._src.math_tools import abs_square
+from tjax.dataclasses import dataclass
 
 
 # Gradient states ----------------------------------------------------------------------------------

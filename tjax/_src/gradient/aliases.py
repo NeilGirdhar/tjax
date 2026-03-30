@@ -33,9 +33,9 @@ from optax import (
 )
 from optax.contrib import dpsgd
 
+from tjax._src.annotations import IntegralNumeric, JaxArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
-from tjax._src.annotations import IntegralNumeric, JaxArray, PyTree, RealNumeric
 from .transform import GenericGradientState, GradientTransformation
 from .transforms import Schedule
 

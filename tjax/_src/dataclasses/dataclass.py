@@ -7,6 +7,7 @@ from typing import Any, ClassVar, Protocol, cast, dataclass_transform, overload,
 from jax.tree_util import register_dataclass
 
 from tjax._src.testing import get_relative_test_string, get_test_string, tree_allclose
+
 from .helpers import DataclassInstance, field
 
 
