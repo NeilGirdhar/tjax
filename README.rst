@@ -76,7 +76,6 @@ Tjax also includes:
 - Leaky integration :python:`leaky_integrate` and Ornstein-Uhlenbeck process iteration
   :python:`diffused_leaky_integrate`.  (See `leaky_integral <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/leaky_integral.py>`_.)
 
-- An improved version of :python:`jax.tree_util.Partial`.  (See `partial <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/partial.py>`_.)
 
 - A testing function :python:`assert_tree_allclose` that automatically produces testing code.  And, a related
   function :python:`tree_allclose`, which compares pytrees with matching structure.  (See

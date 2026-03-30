@@ -63,7 +63,6 @@ from ._src.math_tools import (
     stop_gradient,
     sublinear_softplus,
 )
-from ._src.partial import Partial
 from ._src.project_tree import Projectable, Projector
 from ._src.rng import RngStream, create_streams, fork_streams, sample_streams
 from ._src.shims import custom_jvp, custom_jvp_method, custom_vjp, custom_vjp_method, hessian, jit
@@ -103,7 +102,6 @@ __all__ = [
     "NumpyIntegralNumeric",
     "NumpyRealArray",
     "NumpyRealNumeric",
-    "Partial",
     "Projectable",
     "Projector",
     "PyTree",
