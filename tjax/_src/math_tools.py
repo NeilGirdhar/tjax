@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from typing import Literal
 
+import jax
+import jax.numpy as jnp
+import numpy as np
+import scipy.special as sc
 from array_api_compat import array_namespace, is_jax_namespace, is_torch_namespace
 
 from .annotations import Array, BooleanArray, Namespace
@@ -92,6 +96,67 @@ def log_softplus[T: Array](x: T, /, *, xp: Namespace | None = None) -> T:
         xp = array_namespace(x)
     z = xp.asarray(0.0)
     return xp.logaddexp(z, xp.logaddexp(z, x))
+
+
+def bessel_iv_ratio(v: jax.Array, x: jax.Array, /, *, iterations: int = 200) -> jax.Array:
+    """Return ``I_(v + 1)(x) / I_v(x)`` for nonnegative real ``x``.
+
+    The implementation uses a backward recurrence, which is stable for the ratio and remains fully
+    differentiable with respect to both ``v`` and ``x``.
+    """
+    v, x = jnp.broadcast_arrays(jnp.asarray(v), jnp.asarray(x))
+    q = jnp.zeros_like(v + x)
+
+    def body(i: int, q: jax.Array) -> jax.Array:
+        order = v + (iterations - i)
+        return x / (2.0 * order + x * q)
+
+    return jax.lax.fori_loop(0, iterations, body, q)
+
+
+def _scipy_log_bessel_ive(v: np.ndarray, x: np.ndarray) -> np.ndarray:
+    return np.log(sc.ive(v, x))
+
+
+def _log_bessel_ive_callback(v: jax.Array, x: jax.Array) -> jax.Array:
+    v, x = jnp.broadcast_arrays(jnp.asarray(v), jnp.asarray(x))
+    shape = v.shape
+    dtype = jnp.result_type(v, x, jnp.float32)
+
+    def callback(v_np: np.ndarray, x_np: np.ndarray) -> np.ndarray:
+        return _scipy_log_bessel_ive(v_np, x_np).astype(dtype, copy=False)
+
+    return jax.pure_callback(callback, jax.ShapeDtypeStruct(shape, dtype), v, x)
+
+
+@jax.custom_jvp
+def log_bessel_ive(v: jax.Array, x: jax.Array, /) -> jax.Array:
+    """Return ``log(ive(v, x))`` for nonnegative real ``x``.
+
+    The primal value is delegated to SciPy because JAX does not currently expose ``ive`` for
+    general real order. The custom JVP provides derivatives with respect to both ``v`` and ``x``.
+    """
+    return _log_bessel_ive_callback(v, x)
+
+
+@log_bessel_ive.defjvp
+def _log_bessel_ive_jvp(
+    primals: tuple[jax.Array, jax.Array], tangents: tuple[jax.Array, jax.Array]
+) -> tuple[jax.Array, jax.Array]:
+    v, x = primals
+    v_dot, x_dot = tangents
+    primal_out = log_bessel_ive(v, x)
+
+    safe_x = jnp.maximum(jnp.asarray(x), jnp.sqrt(jnp.finfo(jnp.result_type(x, jnp.float32)).eps))
+    x_tangent = x_dot * (bessel_iv_ratio(v, safe_x) + v / safe_x - 1.0)
+
+    step = jnp.cbrt(jnp.finfo(jnp.result_type(v, jnp.float32)).eps) * (1.0 + jnp.abs(v))
+    v_tangent = (
+        v_dot
+        * (_log_bessel_ive_callback(v + step, x) - _log_bessel_ive_callback(v - step, x))
+        / (2.0 * step)
+    )
+    return primal_out, v_tangent + x_tangent
 
 
 def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:

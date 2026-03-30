@@ -52,8 +52,10 @@ from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKe
 from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
 from ._src.math_tools import (
     abs_square,
+    bessel_iv_ratio,
     divide_where,
     inverse_softplus,
+    log_bessel_ive,
     log_softplus,
     matrix_dot_product,
     matrix_vector_mul,
@@ -117,6 +119,7 @@ __all__ = [
     "abstract_custom_jvp",
     "abstract_jit",
     "assert_tree_allclose",
+    "bessel_iv_ratio",
     "cast_to_result_type",
     "copy_cotangent",
     "cotangent_combinator",
@@ -144,6 +147,7 @@ __all__ = [
     "jit",
     "leaky_data_weight",
     "leaky_integrate",
+    "log_bessel_ive",
     "log_softplus",
     "matrix_dot_product",
     "matrix_vector_mul",
