@@ -99,7 +99,7 @@ def log_softplus[T: Array](x: T, /, *, xp: Namespace | None = None) -> T:
 
 
 def bessel_iv_ratio(v: jax.Array, x: jax.Array, /, *, iterations: int = 200) -> jax.Array:
-    """Return ``I_(v + 1)(x) / I_v(x)`` for nonnegative real ``x``.
+    """Return ``I_v(x) / I_(v - 1)(x)`` for nonnegative real ``x``.
 
     The implementation uses a backward recurrence, which is stable for the ratio and remains fully
     differentiable with respect to both ``v`` and ``x``.
@@ -108,7 +108,7 @@ def bessel_iv_ratio(v: jax.Array, x: jax.Array, /, *, iterations: int = 200) -> 
     q = jnp.zeros_like(v + x)
 
     def body(i: int, q: jax.Array) -> jax.Array:
-        order = v + (iterations - i)
+        order = v + (iterations - i) - 1.0
         return x / (2.0 * order + x * q)
 
     return jax.lax.fori_loop(0, iterations, body, q)
@@ -126,7 +126,13 @@ def _log_bessel_ive_callback(v: jax.Array, x: jax.Array) -> jax.Array:
     def callback(v_np: np.ndarray, x_np: np.ndarray) -> np.ndarray:
         return _scipy_log_bessel_ive(v_np, x_np).astype(dtype, copy=False)
 
-    return jax.pure_callback(callback, jax.ShapeDtypeStruct(shape, dtype), v, x)
+    return jax.pure_callback(
+        callback,
+        jax.ShapeDtypeStruct(shape, dtype),
+        v,
+        x,
+        vmap_method="broadcast_all",
+    )
 
 
 @jax.custom_jvp
@@ -148,7 +154,7 @@ def _log_bessel_ive_jvp(
     primal_out = log_bessel_ive(v, x)
 
     safe_x = jnp.maximum(jnp.asarray(x), jnp.sqrt(jnp.finfo(jnp.result_type(x, jnp.float32)).eps))
-    x_tangent = x_dot * (bessel_iv_ratio(v, safe_x) + v / safe_x - 1.0)
+    x_tangent = x_dot * (bessel_iv_ratio(v + 1.0, safe_x) + v / safe_x - 1.0)
 
     step = jnp.cbrt(jnp.finfo(jnp.result_type(v, jnp.float32)).eps) * (1.0 + jnp.abs(v))
     v_tangent = (

@@ -68,7 +68,7 @@ def test_divide_where(k: float) -> None:
     [(0.0, 0.1), (0.5, 2.0), (2.3, 3.0), (10.0, 5.0)],
 )
 def test_bessel_iv_ratio_value(v: float, x: float) -> None:
-    expected = sc.ive(v + 1.0, x) / sc.ive(v, x)
+    expected = sc.ive(v, x) / sc.ive(v - 1.0, x)
     assert_allclose(bessel_iv_ratio(jnp.asarray(v), jnp.asarray(x)), expected, rtol=1e-6)
 
 
@@ -79,12 +79,12 @@ def test_bessel_iv_ratio_value(v: float, x: float) -> None:
 def test_bessel_iv_ratio_derivatives(v: float, x: float) -> None:
     step = 1e-4
     expected_dv = (
-        sc.ive(v + step + 1.0, x) / sc.ive(v + step, x)
-        - sc.ive(v - step + 1.0, x) / sc.ive(v - step, x)
+        sc.ive(v + step, x) / sc.ive(v + step - 1.0, x)
+        - sc.ive(v - step, x) / sc.ive(v - step - 1.0, x)
     ) / (2.0 * step)
     expected_dx = (
-        sc.ive(v + 1.0, x + step) / sc.ive(v, x + step)
-        - sc.ive(v + 1.0, x - step) / sc.ive(v, x - step)
+        sc.ive(v, x + step) / sc.ive(v - 1.0, x + step)
+        - sc.ive(v, x - step) / sc.ive(v - 1.0, x - step)
     ) / (2.0 * step)
     actual_dv, actual_dx = jax.jacfwd(bessel_iv_ratio, argnums=(0, 1))(
         jnp.asarray(v), jnp.asarray(x)
