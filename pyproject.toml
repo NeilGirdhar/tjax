@@ -12,6 +12,7 @@ dev = [
   "pyright>=1.1.408",
   "pytest>=8",
   "ruff>=0.15",
+  "scipy>=1",
   "toml-sort>=0.24",
   "ty>=0.0.22"
 ]
@@ -41,14 +42,12 @@ classifiers = [
   "Typing :: Typed"
 ]
 dependencies = [
-  "array-api-extra>=0.6.0",
   "array_api_compat>=1.10",
   "jax>=0.8",
   "numpy>=2.0",
   "optax>=0.2.3",
   "optype[numpy]>=0.12.2",
-  "rich>=13.7",
-  "typing_extensions>=4.11"
+  "rich>=13.7"
 ]
 
 [project.urls]

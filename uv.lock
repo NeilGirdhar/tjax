@@ -91,18 +91,6 @@ wheels = [
 ]
 
 [[package]]
-name = "array-api-extra"
-version = "0.10.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "array-api-compat" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/25/77/2ef35219b7cf612366da9b26c95307d8b3b0bb0c0e9767314554a15f4117/array_api_extra-0.10.1.tar.gz", hash = "sha256:712ea45bd122d51c05085fc5fa30cdf66a10cc5d1af81d3e7beaff620ef1e1f2", size = 89510, upload-time = "2026-02-27T17:14:47.06Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/f7/9e14be985fd77ae26fee9136c9735e8987772e0ecf5f1f4e6e2b84cadc46/array_api_extra-0.10.1-py3-none-any.whl", hash = "sha256:9c2003079ccd2a0c92b1cf797b5867b9d7ea9428e75f70c7f78c1c0842d54368", size = 88377, upload-time = "2026-02-27T17:14:45.422Z" },
-]
-
-[[package]]
 name = "arrow"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2232,13 +2220,11 @@ version = "1.4.4"
 source = { editable = "." }
 dependencies = [
     { name = "array-api-compat" },
-    { name = "array-api-extra" },
     { name = "jax" },
     { name = "numpy" },
     { name = "optax" },
     { name = "optype", extra = ["numpy"] },
     { name = "rich" },
-    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -2251,6 +2237,7 @@ dev = [
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "scipy" },
     { name = "toml-sort" },
     { name = "ty" },
 ]
@@ -2258,13 +2245,11 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "array-api-compat", specifier = ">=1.10" },
-    { name = "array-api-extra", specifier = ">=0.6.0" },
     { name = "jax", specifier = ">=0.8" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "optax", specifier = ">=0.2.3" },
     { name = "optype", extras = ["numpy"], specifier = ">=0.12.2" },
     { name = "rich", specifier = ">=13.7" },
-    { name = "typing-extensions", specifier = ">=4.11" },
 ]
 
 [package.metadata.requires-dev]
@@ -2277,6 +2262,7 @@ dev = [
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.15" },
+    { name = "scipy", specifier = ">=1" },
     { name = "toml-sort", specifier = ">=0.24" },
     { name = "ty", specifier = ">=0.0.22" },
 ]
