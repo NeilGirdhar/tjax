@@ -124,11 +124,12 @@ def log_bessel_ive(v: jax.Array, x: jax.Array, /) -> jax.Array:
     v = v.astype(dtype)
     x = x.astype(dtype)
     safe_x = jnp.maximum(x, jnp.finfo(dtype).tiny)
-    terms = jnp.arange(200, dtype=dtype)
+    terms = jnp.arange(200, dtype=dtype).reshape((1,) * x.ndim + (200,))
+    v_expanded = v[..., None]
     log_terms = (
-        (2.0 * terms + v[..., None]) * jnp.log(safe_x[..., None] / 2.0)
+        (2.0 * terms + v_expanded) * jnp.log(safe_x[..., None] / 2.0)
         - gammaln(terms + 1.0)
-        - gammaln(terms + v[..., None] + 1.0)
+        - gammaln(terms + v_expanded + 1.0)
     )
     retval = logsumexp(log_terms, axis=-1) - x
     return jnp.where(x == 0, jnp.where(v == 0, 0.0, -jnp.inf), retval)
