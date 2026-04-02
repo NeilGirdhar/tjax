@@ -16,6 +16,7 @@ def dynamic_tree_all(x: object, /) -> JaxBooleanArray:
 
 
 def tree_sum(x: object, /) -> JaxArray:
+    """Return the scalar sum of all elements across every leaf array in the pytree ``x``."""
     retval = tree.reduce_associative(operator.add, tree.map(jnp.sum, x), identity=jnp.zeros(()))
     assert isinstance(retval, JaxArray)
     assert retval.ndim == 0
@@ -23,6 +24,8 @@ def tree_sum(x: object, /) -> JaxArray:
 
 
 def element_count(x: object, /) -> int:
+    """Return the total number of scalar elements across every leaf array in the pytree ``x``."""
+
     def array_element_count(x: object) -> int:
         if not isinstance(x, JaxArray):
             raise TypeError

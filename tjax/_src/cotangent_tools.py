@@ -15,6 +15,11 @@ from .shims import custom_jvp, custom_vjp
 
 
 def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
+    """Return a pytree of zeros with the same structure and dtypes as ``x``.
+
+    Thin wrapper around :func:`jax.custom_derivatives.zero_from_primal` that
+    preserves the type variable so callers get a typed zero rather than ``Any``.
+    """
     return jax_zero_from_primal(x, symbolic_zeros=symbolic_zeros)
 
 
@@ -115,7 +120,13 @@ copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
 # print_cotangent ----------------------------------------------------------------------------------
 @partial(custom_vjp, static_argnums=(1,))
 def print_cotangent[X](u: X, name: str | None = None) -> X:
-    """Print the cotangent of u."""
+    """Print the cotangent of ``u`` during the backward pass and return ``u`` unchanged.
+
+    Args:
+        u: The value whose cotangent will be printed.
+        name: Optional label passed as a keyword argument to :func:`print_generic`.
+            When ``None`` the cotangent is printed positionally.
+    """
     return u
 
 

@@ -8,6 +8,16 @@ else:
     from collections.abc import Iterator, Mapping
 
     class frozendict[K, V](Mapping[K, V]):  # noqa: N801
+        """An immutable, hashable dictionary backport for Python < 3.15.
+
+        On Python 3.15+ the builtin ``frozendict`` is used instead.  This
+        implementation stores items in an ordinary ``dict`` and computes the hash
+        lazily on first access.
+
+        Mutation attempts via ``__setattr__`` or ``__delattr__`` raise
+        ``AttributeError``.
+        """
+
         __slots__ = ("_data", "_hash")
 
         _data: dict[K, V]

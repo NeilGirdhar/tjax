@@ -8,7 +8,17 @@ from .shims import custom_jvp_method, jit
 
 
 class JaxAbstractClass:
-    """A class with abstract methods whose overrides need to be decorated with Jax decorators."""
+    """Base class that automatically applies JAX decorators to method overrides.
+
+    When a subclass overrides a method that was decorated with
+    :func:`abstract_jit` or :func:`abstract_custom_jvp`, the override is
+    automatically wrapped with the corresponding JAX decorator
+    (:func:`~tjax._src.shims.jit` or
+    :func:`~tjax._src.shims.custom_jvp_method`) at class creation time.
+
+    This removes boilerplate from concrete subclasses: they only need to
+    provide the implementation, not re-apply the decorator.
+    """
 
     @override
     def __init_subclass__(cls) -> None:
@@ -34,7 +44,11 @@ class JaxAbstractClass:
 
 
 def abstract_jit[F: Callable[..., Any]](fun: F, **kwargs: object) -> F:
-    """An abstract method whose override need to be jitted."""
+    """Mark an abstract method so that its overrides are automatically JIT-compiled.
+
+    Any keyword arguments are forwarded to :func:`~tjax._src.shims.jit` when
+    the override is registered by :class:`JaxAbstractClass`.
+    """
     setattr(fun, abstract_jit_marker, kwargs)
     return fun
 
@@ -42,7 +56,17 @@ def abstract_jit[F: Callable[..., Any]](fun: F, **kwargs: object) -> F:
 def abstract_custom_jvp[**P, R_co](
     jvp: Callable[..., tuple[R_co, R_co]], nondiff_argnums: tuple[int, ...] = ()
 ) -> Callable[[Callable[P, R_co]], Callable[P, R_co]]:
-    """An abstract method whose override need to be decorated with custom_jvp_method."""
+    """Mark an abstract method so that its overrides get a custom JVP rule.
+
+    Args:
+        jvp: The custom JVP function, called with ``(primals, tangents)`` and
+            returning ``(primal_out, tangent_out)``.
+        nondiff_argnums: Indices of arguments that should not be differentiated.
+
+    The decorated method will have :func:`~tjax._src.shims.custom_jvp_method`
+    applied automatically by :class:`JaxAbstractClass` when a subclass
+    provides an override.
+    """
 
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
         fun._abstract_custom_jvp = (  # type: ignore # pyright: ignore  # noqa: SLF001

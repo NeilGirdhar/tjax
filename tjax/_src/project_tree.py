@@ -10,14 +10,25 @@ from .annotations import JaxArray
 
 
 class Projectable:
-    """Base class to override how an element of a PyTree is projected."""
+    """Base class for objects that know how to project themselves via a :class:`Projector`.
+
+    Subclasses should override :meth:`project` to implement custom dimensionality reduction
+    instead of the default random-projection applied to leaf arrays.
+    """
 
     def project(self, projector: Projector) -> Self:
+        """Return a projected copy of this object using ``projector``."""
         raise NotImplementedError
 
 
 class Projector:
-    """A tool to project the arrays in a PyTree to fewer dimensions. This is useful for graphing."""
+    """Project the arrays in a pytree to a lower-dimensional space, useful for visualisation.
+
+    Arrays with more features than ``dimensions`` are mapped to ``dimensions``
+    dimensions via a random orthonormal projection matrix.  The same matrix is
+    reused for every array with the same number of features, so relative
+    distances are preserved across calls.
+    """
 
     @override
     def __init__(self, *, seed: int = 0, dimensions: int = 2) -> None:
@@ -31,7 +42,12 @@ class Projector:
         return tree.map(self._project, projectable, is_leaf=lambda x: isinstance(x, Projectable))
 
     def get_projection_matrix(self, features: int) -> JaxArray:
-        """Produce a projection matrix."""
+        """Return a ``(features, self.dimensions)`` projection matrix for arrays of that width.
+
+        Results are cached by ``features`` so the same matrix is reused across
+        multiple calls, ensuring consistency within a single :class:`Projector`
+        instance.
+        """
         if features <= self.dimensions:
             return jnp.eye(features)
         if features not in self._projection_matrices:

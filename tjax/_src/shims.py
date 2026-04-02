@@ -163,6 +163,21 @@ def hessian[U](
     holomorphic: bool = False,
     reverse_only: bool = False,
 ) -> Callable[..., U]:
+    """Compute the Hessian of ``fun``.
+
+    Wraps :func:`jax.hessian` (forward-over-reverse) by default, or uses
+    double reverse-mode (``jacrev(jacrev(...))`` when ``reverse_only=True``.
+
+    Args:
+        fun: The scalar-valued function to differentiate.
+        argnums: Which positional argument(s) to differentiate with respect to.
+        has_aux: If ``True``, ``fun`` returns ``(value, aux)`` and the Hessian
+            is computed only for ``value``.
+        holomorphic: If ``True``, assume ``fun`` is holomorphic.
+        reverse_only: If ``True``, use double reverse-mode instead of
+            forward-over-reverse.  This can be cheaper when the input
+            dimensionality is large.
+    """
     if not reverse_only:
         return jax.hessian(fun, argnums=argnums, has_aux=has_aux, holomorphic=holomorphic)
     return jax.jacrev(

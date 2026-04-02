@@ -217,6 +217,19 @@ class ScaleByStddev[Weights: PyTree](GradientTransformation[GenericGradientState
 
 @dataclass
 class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+    """Rescale updates according to the Adam algorithm (without a learning rate).
+
+    References:
+        [Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)
+
+    Args:
+        b1: Decay rate for the first moment of gradients.
+        b2: Decay rate for the second moment of gradients.
+        eps: Regularisation term for numerical stability.
+        eps_root: Term added inside the square-root for numerical stability.
+        mu_dtype: Optional dtype for the first moment accumulator.
+    """
+
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8

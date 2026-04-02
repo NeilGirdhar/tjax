@@ -11,6 +11,7 @@ from .annotations import Array, BooleanArray, Namespace
 
 
 def abs_square[T: Array](x: T) -> T:
+    """Return the squared absolute value ``|x|²``, supporting complex arrays."""
     xp = array_namespace(x)
     return xp.square(x.real) + xp.square(x.imag)  # pyright: ignore
 
@@ -148,6 +149,11 @@ def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = 
 
 
 def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
+    """Return ``x`` such that ``softplus(x) == y``.
+
+    Uses the stable formula ``log(expm1(y))`` for small ``y`` and the identity
+    approximation ``y`` for large values (``y > 80``) where ``expm1`` overflows.
+    """
     if xp is None:
         xp = array_namespace(y)
     return xp.where(
@@ -160,7 +166,19 @@ def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
 def normalize[T: Array](
     mode: Literal["l1", "l2", "max"], x: T, *, axis: tuple[int, ...] | int | None = None
 ) -> T:
-    """Returns the L1-normalized copy of x, assuming that x is nonnegative."""
+    """Return a normalized copy of ``x`` along the given axes.
+
+    When the norm is smaller than machine epsilon the output is set to a
+    uniform distribution (l1/l2) or ones (max) rather than dividing by zero.
+
+    Args:
+        mode: Normalization strategy — ``"l1"`` divides by the L1 norm,
+            ``"l2"`` divides by the L2 norm, ``"max"`` divides by the
+            maximum absolute value.
+        x: Input array.
+        axis: Axes over which the norm is computed.  ``None`` reduces over
+            all axes.
+    """
     xp = array_namespace(x)
     epsilon = 10 * xp.finfo(x.dtype).eps
     match mode:
@@ -178,6 +196,11 @@ def normalize[T: Array](
 
 
 def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
+    """Return ``x`` with its gradient detached, in a namespace-agnostic way.
+
+    Dispatches to ``jax.lax.stop_gradient`` for JAX arrays, ``Tensor.detach()``
+    for PyTorch tensors, and is a no-op for other namespaces.
+    """
     if xp is None:
         xp = array_namespace(x)
     if is_jax_namespace(xp):

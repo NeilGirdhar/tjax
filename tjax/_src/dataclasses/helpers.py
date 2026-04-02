@@ -8,6 +8,8 @@ from typing import Any, ClassVar, Never, Protocol, overload, runtime_checkable
 
 @runtime_checkable
 class DataclassInstance(Protocol):
+    """Protocol satisfied by any object created by :func:`dataclasses.dataclass`."""
+
     __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
 
 
@@ -95,4 +97,10 @@ def field(
 
 
 def as_shallow_dict(dcls: DataclassInstance) -> dict[str, Any]:
+    """Return a shallow ``{field_name: value}`` dict for a dataclass instance.
+
+    Unlike :func:`dataclasses.asdict`, this does **not** recurse into nested
+    dataclasses or containers, so the values are the live objects rather than
+    deep copies.
+    """
     return {field.name: getattr(dcls, field.name) for field in fields(dcls)}

@@ -10,6 +10,11 @@ from .transform import GradientState, GradientTransformation
 
 @dataclass
 class ChainedGradientState(GradientState):
+    """Gradient state for :class:`ChainedGradientTransformation`.
+
+    Stores the individual states of each transformation in the chain.
+    """
+
     sub_states: list[PyTree]
 
 
@@ -17,6 +22,16 @@ class ChainedGradientState(GradientState):
 class ChainedGradientTransformation[Weights: PyTree](
     GradientTransformation[ChainedGradientState, Weights]
 ):
+    """Apply a sequence of gradient transformations in order.
+
+    Equivalent to optax's ``chain``, but expressed as a pytree-compatible
+    dataclass so it can be passed through JIT boundaries and differentiated.
+
+    Args:
+        transforms: The ordered list of transformations to apply.  Each
+            transformation sees the output of the previous one as its gradient.
+    """
+
     transforms: list[GradientTransformation[Any, Weights]]
 
     @override
