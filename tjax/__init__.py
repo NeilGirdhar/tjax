@@ -46,6 +46,7 @@ from ._src.display.generic_string import GenericString
 from ._src.display.internal import internal_print_generic
 from ._src.display.print_generic import print_generic
 from ._src.dtype_tools import cast_to_result_type
+from ._src.frozendict import frozendict
 from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
@@ -136,6 +137,7 @@ __all__ = [
     "dynamic_tree_all",
     "element_count",
     "fork_streams",
+    "frozendict",
     "get_relative_test_string",
     "get_test_string",
     "gradient",
