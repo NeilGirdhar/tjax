@@ -73,6 +73,10 @@ Tjax also includes:
 - JAX tree registration for `NetworkX <https://networkx.github.io/>`_ graph types.  (See
   `graph <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/graph.py>`_.)
 
+- A hashable immutable mapping :python:`frozendict` that is registered as a JAX pytree, so it can be
+  passed through transforms like :python:`jit` and :python:`vmap`.  (See
+  `frozendict <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/frozendict.py>`_.)
+
 - Leaky integration :python:`leaky_integrate` and Ornstein-Uhlenbeck process iteration
   :python:`diffused_leaky_integrate`.  (See `leaky_integral <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/leaky_integral.py>`_.)
 

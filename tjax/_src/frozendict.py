@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Iterable
+
+import jax
 
 if sys.version_info >= (3, 15):
     from builtins import frozendict
@@ -45,8 +48,36 @@ else:
         def __repr__(self) -> str:
             return f"{type(self).__name__}({self._data!r})"
 
-        def __setattr__(self, name: str, value: object) -> None:
+        def __setattr__(self, _name: str, _value: object) -> None:
             raise AttributeError("frozendict is immutable")  # noqa: TRY003
 
-        def __delattr__(self, name: str) -> None:
+        def __delattr__(self, _name: str) -> None:
             raise AttributeError("frozendict is immutable")  # noqa: TRY003
+
+
+def _flatten_frozendict_with_keys[K, V](
+    d: frozendict[K, V],
+) -> tuple[Iterable[tuple[object, V]], tuple[K, ...]]:
+    keys = tuple(sorted(d))
+    values = tuple((jax.tree_util.DictKey(k), d[k]) for k in keys)
+    return values, keys
+
+
+def _flatten_frozendict[K, V](d: frozendict[K, V]) -> tuple[tuple[V, ...], tuple[K, ...]]:
+    keys = tuple(sorted(d))
+    values = tuple(d[k] for k in keys)
+    return values, keys
+
+
+def _unflatten_frozendict(keys: object, values: Iterable[object]) -> frozendict:
+    assert isinstance(keys, tuple)
+    return frozendict(zip(keys, values, strict=True))
+
+
+# Register frozendict as a JAX pytree container so it can be traced through jit/vmap.
+jax.tree_util.register_pytree_with_keys(
+    frozendict,
+    _flatten_frozendict_with_keys,
+    _unflatten_frozendict,
+    _flatten_frozendict,
+)
