@@ -64,14 +64,14 @@ Minor components
 Tjax also includes:
 
 - Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods:
-  :python:`custom_vjp_method` and :python:`custom_vjp_method`
+  :python:`custom_vjp_method` and :python:`custom_jvp_method`
   (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/shims.py>`_.)
 
 - Tools for working with cotangents.  (See
   `cotangent_tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/cotangent_tools.py>`_.)
 
 - JAX tree registration for `NetworkX <https://networkx.github.io/>`_ graph types.  (See
-  `graph <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/graph.py>`_.)
+  `graph <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/graph/>`_.)
 
 - A hashable immutable mapping :python:`frozendict` that is registered as a JAX pytree, so it can be
   passed through transforms like :python:`jit` and :python:`vmap`.  (See
