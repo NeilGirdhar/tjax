@@ -67,13 +67,18 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
 
 
 @dataclass
-class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
+class HvpGradientTransformation[State: GradientState, Weights: PyTree](
     GradientTransformation[State, Weights]
 ):
-    """A second order gradient transformation.
+    """A gradient transformation whose update rule accepts a Hessian-vector-product function.
 
-    This is a special case of a gradient transformation whose update rule accepts a
-    Hessian-vector-product function in its update.
+    Subclasses implement :meth:`hvp_update`, which receives a callable ``hvp`` that maps any
+    vector ``v`` to the Hessian-of-loss times ``v``.
+
+    The default :meth:`update` supplies ``hvp`` using the rank-1 outer-product approximation
+    ``H ≈ g gᵀ``, which is exact only when the gradient is a rank-1 vector.  Callers that have
+    access to a true HVP (e.g. via :func:`jax.linear_util.wrap_init` or forward-over-reverse AD)
+    should call :meth:`hvp_update` directly.
     """
 
     @override
@@ -91,16 +96,20 @@ class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
 
-        This uses the outer product approximation of the Hessian.
+        Note:
+            Approximates the Hessian-vector product using the rank-1 outer-product
+            ``H v ≈ (gᵀ v) g``.  This is exact only when the loss Hessian is rank-1
+            (i.e. the gradient is a scalar multiple of a fixed direction).  For a true
+            HVP, call :meth:`hvp_update` directly.
         """
 
         def hessian_vector_product(v: Weights) -> Weights:
             d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)  # type: ignore
             return tree.map(lambda x: x * d, gradient)
 
-        return self.second_order_update(gradient, state, parameters, hessian_vector_product)
+        return self.hvp_update(gradient, state, parameters, hessian_vector_product)
 
-    def second_order_update(
+    def hvp_update(
         self,
         gradient: Weights,
         state: State,
@@ -124,17 +133,21 @@ class SecondOrderGradientTransformation[State: GradientState, Weights: PyTree](
 
 
 @dataclass
-class ThirdOrderGradientTransformation[State: GradientState, Weights: PyTree](
-    SecondOrderGradientTransformation[State, Weights]
+class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
+    HvpGradientTransformation[State, Weights]
 ):
-    """A third order gradient transformation.
+    """A gradient transformation whose update rule accepts a diagonal Hessian estimate.
 
-    This is a special case of a second order gradient transformation whose update rule accepts the
-    diagonal entries of the Hessian.
+    Subclasses implement :meth:`diag_hessian_update`, which additionally receives the
+    element-wise diagonal of the Hessian.
+
+    The default :meth:`hvp_update` supplies the diagonal using the rank-1 outer-product
+    approximation ``diag(H) ≈ g²`` (element-wise square of the gradient), which is exact
+    only when the gradient is a rank-1 vector.
     """
 
     @override
-    def second_order_update(
+    def hvp_update(
         self,
         gradient: Weights,
         state: State,
@@ -154,14 +167,16 @@ class ThirdOrderGradientTransformation[State: GradientState, Weights: PyTree](
             new_gradient: The modified gradient.
             new_gradient_state: The new gradient state.
 
-        Uses the outer product approximation of the Hessian to provide the diagonal entries of the
-        Hessian.
+        Note:
+            Approximates the Hessian diagonal using the rank-1 outer-product
+            ``diag(H) ≈ g²`` (element-wise square of the gradient).  This is exact only
+            when the loss Hessian is rank-1.
         """
-        return self.third_order_update(
+        return self.diag_hessian_update(
             gradient, state, parameters, hessian_vector_product, tree.map(abs_square, gradient)
         )
 
-    def third_order_update(
+    def diag_hessian_update(
         self,
         gradient: Weights,
         state: State,

@@ -26,11 +26,11 @@ from tjax._src.gradient.aliases import (
 from tjax._src.gradient.chain import ChainedGradientState, ChainedGradientTransformation
 from tjax._src.gradient.smd import SMDGradient, SMDState
 from tjax._src.gradient.transform import (
+    DiagHessianGradientTransformation,
     GenericGradientState,
     GradientState,
     GradientTransformation,
-    SecondOrderGradientTransformation,
-    ThirdOrderGradientTransformation,
+    HvpGradientTransformation,
 )
 from tjax._src.gradient.transforms import (
     AddDecayedWeights,
@@ -104,8 +104,8 @@ __all__ = [
     "ScaleByTrustRatio",
     "ScaleByYogi",
     "Schedule",
-    "SecondOrderGradientTransformation",
-    "ThirdOrderGradientTransformation",
+    "DiagHessianGradientTransformation",
+    "HvpGradientTransformation",
     "Trace",
     "Yogi",
 ]

@@ -9,7 +9,7 @@ from jax import tree
 from tjax._src.annotations import ComplexNumeric, JaxComplexArray, PyTree, RealNumeric
 from tjax.dataclasses import dataclass
 
-from .transform import GradientState, SecondOrderGradientTransformation
+from .transform import GradientState, HvpGradientTransformation
 
 
 @dataclass
@@ -19,7 +19,7 @@ class SMDState[Weights: PyTree](GradientState):
 
 
 @dataclass
-class SMDGradient[Weights: PyTree](SecondOrderGradientTransformation[SMDState[Weights], Weights]):
+class SMDGradient[Weights: PyTree](HvpGradientTransformation[SMDState[Weights], Weights]):
     """Stochastic meta-descent.
 
     Schraudolph, N. N. (1999). Local gain adaptation in stochastic gradient descent. Artificial
@@ -35,7 +35,7 @@ class SMDGradient[Weights: PyTree](SecondOrderGradientTransformation[SMDState[We
         return SMDState[Weights](z, z)
 
     @override
-    def second_order_update(
+    def hvp_update(
         self,
         gradient: Weights,
         state: SMDState[Weights],
