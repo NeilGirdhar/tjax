@@ -9,7 +9,7 @@ import pytest
 from jax import Array, enable_custom_prng, jit, tree, vmap
 from rich.console import Console
 
-from tjax import KeyArray, RealArray, print_generic
+from tjax import KeyArray, RealArray, frozendict, print_generic
 from tjax.dataclasses import dataclass, field
 
 
@@ -134,6 +134,20 @@ def test_key_display(capsys: pytest.CaptureFixture[str], console: Console) -> No
            JaxKey[dataclass]
            └── key_data=Jax Array (2,) uint32
                └──  0 │ 123
+           """,
+    )
+
+
+def test_frozendict_display(capsys: pytest.CaptureFixture[str], console: Console) -> None:
+    print_generic(frozendict({"a": 1, "b": 2}), console=console)
+    assert isinstance(console.file, StringIO)
+    captured = console.file.getvalue()
+    verify(
+        captured,
+        """
+           frozendict
+           ├── a=1
+           └── b=2
            """,
     )
 
