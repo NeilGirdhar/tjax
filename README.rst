@@ -18,6 +18,9 @@
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :alt: Ruff
    :target: https://github.com/astral-sh/ruff
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json
+   :alt: ty
+   :target: https://github.com/astral-sh/ty
 .. image:: https://img.shields.io/pypi/pyversions/tjax
    :alt: PyPI - Python Version
    :align: center
