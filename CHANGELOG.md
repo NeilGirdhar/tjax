@@ -3,6 +3,14 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.4.10 - 2026-04-15
+
+- Added tests for the `HvpGradientTransformation`/`DiagHessianGradientTransformation`.
+- Renamed shim.
+- Tested `frozendict` display.
+- Fixed the README and added a PyPI badge.
+- Updated the GitHub release workflow.
+
 ## 1.4.0 - 2025-09-10
 
 - Supported Python 3.14 and dropped Python 3.11.
