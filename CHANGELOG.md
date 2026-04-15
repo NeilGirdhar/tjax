@@ -1,8 +1,7 @@
 # Changelog
 
-This changelog summarizes TJAX minor release lines inferred from version changes in
-`pyproject.toml`. Patch releases are folded into their minor release line, so each section covers
-changes since the previous minor release line.
+This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
+Each section covers changes since the previous release.
 
 ## 1.4.0 - 2025-09-10
 
