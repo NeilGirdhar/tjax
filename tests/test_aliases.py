@@ -5,6 +5,7 @@ from typing import Any
 
 import chex
 import jax.numpy as jnp
+import jax.random as jr
 import pytest
 from jax import tree
 
@@ -61,7 +62,7 @@ def _gradient() -> Params:
         lambda: Lamb[Params](1e-2),
         lambda: LARS[Params](1e-2),
         lambda: Lion[Params](1e-2),
-        lambda: NoisySGD[Params](1e-2),
+        lambda: NoisySGD[Params](1e-2, jr.key(123)),
         lambda: Novograd[Params](1e-2),
         lambda: OptimisticGradientDescent[Params](1e-2, 1e-2, 1e-2),
         lambda: RAdam[Params](1e-2),

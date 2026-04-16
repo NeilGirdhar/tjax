@@ -33,7 +33,7 @@ from optax import (
 )
 from optax.contrib import dpsgd
 
-from tjax._src.annotations import IntegralNumeric, JaxArray, PyTree, RealNumeric
+from tjax._src.annotations import IntegralNumeric, JaxArray, KeyArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
 from .transform import GenericGradientState, GradientTransformation
@@ -549,9 +549,9 @@ class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     """
 
     learning_rate: ScalarOrSchedule
+    key: KeyArray
     eta: RealNumeric = 0.01
     gamma: RealNumeric = 0.55
-    seed: IntegralNumeric = 0
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
