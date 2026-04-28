@@ -272,10 +272,10 @@ def _variables(value: object) -> dict[str, Any]:
         variables = (
             {
                 name: getattr(value, name)
-                for name in value.__slots__  # pyright: ignore  # type: ignore
+                for name in value.__slots__  # type: ignore
                 if hasattr(value, name)
             }  # Work around a Jax oddity.
-            if (hasattr(type(value), "__slots__") and isinstance(value.__slots__, Sequence))  # pyright: ignore  # type: ignore
+            if (hasattr(type(value), "__slots__") and isinstance(value.__slots__, Sequence))  # type: ignore
             else {}
         )
     return {

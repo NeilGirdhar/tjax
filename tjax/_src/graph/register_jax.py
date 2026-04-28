@@ -46,7 +46,7 @@ else:
         edge_keys, edge_values = edges_helper(graph)
         return node_values + edge_values, node_keys + edge_keys
 
-    def register_graph_as_jax_pytree(graph_type: type[nx.Graph[Any]]) -> None:  # pyright: ignore
+    def register_graph_as_jax_pytree(graph_type: type[nx.Graph[Any]]) -> None:
         def unflatten_tree(keys: GraphAuxData, values: Iterable[GraphData], /) -> nx.Graph[Any]:
             graph = graph_type()
             for key, value in zip(keys, values, strict=True):

@@ -20,7 +20,7 @@ class GraphNodeKey:
         return f".node[{self.key!r}]"
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
-        return not isinstance(value, GraphNodeKey) or self.key < value.key  # type: ignore # pyright: ignore
+        return not isinstance(value, GraphNodeKey) or self.key < value.key  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -55,8 +55,7 @@ class UndirectedGraphEdgeKey(GraphEdgeKey):
     @override
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
         return isinstance(value, GraphEdgeKey) and (
-            sorted((self.source, self.target))  # pyright: ignore
-            < sorted((value.source, value.target))  # pyright: ignore
+            sorted((self.source, self.target)) < sorted((value.source, value.target))
         )
 
 

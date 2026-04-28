@@ -44,7 +44,7 @@ class Timer(AbstractContextManager["Timer"]):
         exc_tb: TracebackType | None,
         /,
     ) -> None:
-        super().__exit__(exc_type, exc_val, exc_tb)  # pyright: ignore
+        super().__exit__(exc_type, exc_val, exc_tb)
         self.end = perf_counter_ns()
         log.info(f"{self.final_string} took {self.elapsed_str()}")
 

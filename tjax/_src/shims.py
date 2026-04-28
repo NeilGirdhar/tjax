@@ -15,10 +15,10 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
-    retval = jax.jit(func, **kwargs)  # pyright: ignore  # type: ignore
+    retval = jax.jit(func, **kwargs)  # type: ignore
     _ = update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
-    return retval  # pyright: ignore
+    return retval
 
 
 class custom_vjp[**P, R_co]:  # noqa: N801
@@ -36,7 +36,7 @@ class custom_vjp[**P, R_co]:  # noqa: N801
     def __init__(self, func: Callable[P, R_co], *, static_argnums: tuple[int, ...] = ()) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)  # pyright: ignore
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
         _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(self, fwd: Callable[P, tuple[R_co, Any]], bwd: Callable[..., Any]) -> None:
@@ -63,7 +63,7 @@ class custom_vjp_method[U, **P, R_co]:  # noqa: N801
     ) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
-        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)  # pyright: ignore
+        self.vjp = jax.custom_vjp(func, nondiff_argnums=static_argnums)
         _ = update_wrapper(self, func, all_wrapper_assignments)
 
     def defvjp(

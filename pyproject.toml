@@ -9,7 +9,6 @@ dev = [
   "lefthook>=2",
   "matplotlib>=3.10",
   "networkx>=3.3",
-  "pyright>=1.1.408",
   "pytest>=8",
   "ruff>=0.15",
   "scipy>=1",
@@ -51,15 +50,6 @@ dependencies = [
 
 [project.urls]
 source = "https://github.com/NeilGirdhar/tjax"
-
-[tool.pyright]
-include = ["tjax", "tests"]
-stubPath = ""
-venvPath = "."
-venv = ".venv"
-reportMatchNotExhaustive = true
-reportMissingParameterType = true
-reportMissingTypeArgument = true
 
 [tool.ruff]
 line-length = 100

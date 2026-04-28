@@ -73,7 +73,7 @@ class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, We
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adabelief(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -110,7 +110,7 @@ class AdaDelta[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adadelta(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -148,7 +148,7 @@ class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, We
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adafactor(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -178,7 +178,7 @@ class AdaGrad[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adagrad(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -217,7 +217,7 @@ class Adam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -262,7 +262,7 @@ class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adamw(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -296,7 +296,7 @@ class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weigh
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adamax(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -332,7 +332,7 @@ class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *adamaxw(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -363,7 +363,7 @@ class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *fromage(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -404,7 +404,7 @@ class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *lamb(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -451,7 +451,7 @@ class LARS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *lars(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -488,7 +488,7 @@ class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         # TODO: The update needs parameters.
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *lbfgs(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -527,7 +527,7 @@ class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *lion(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -561,7 +561,7 @@ class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *noisy_sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -600,7 +600,7 @@ class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *novograd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -637,7 +637,7 @@ class OptimisticGradientDescent[Weights: PyTree](
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *optimistic_gradient_descent(**as_shallow_dict(self)).update(
                 gradient, state.data, parameters
             )
@@ -675,7 +675,7 @@ class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, We
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
         # TODO: The update needs parameters.
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *polyak_sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -717,7 +717,7 @@ class RAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *radam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -766,7 +766,7 @@ class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *rmsprop(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -807,7 +807,7 @@ class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -838,7 +838,7 @@ class SM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *sm3(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -873,7 +873,7 @@ class Yogi[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *yogi(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -912,6 +912,6 @@ class DPSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *dpsgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )

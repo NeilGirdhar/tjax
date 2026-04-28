@@ -73,7 +73,7 @@ class Trace[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
             trace(
                 self.decay,
                 self.nesterov,
-                self.accumulator_dtype,  # pyright: ignore
+                self.accumulator_dtype,
             ).init(parameters)
         )
 
@@ -81,8 +81,8 @@ class Trace[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = trace(self.decay, self.nesterov, self.accumulator_dtype)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = trace(self.decay, self.nesterov, self.accumulator_dtype)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -108,14 +108,14 @@ class Ema[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = ema(self.decay, self.debias, self.accumulator_dtype)  # pyright: ignore
+        t = ema(self.decay, self.debias, self.accumulator_dtype)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None = None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *ema(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -138,15 +138,15 @@ class ScaleByRss[Weights: PyTree](GradientTransformation[GenericGradientState, W
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_rss(self.initial_accumulator_value, self.eps)  # pyright: ignore
+        t = scale_by_rss(self.initial_accumulator_value, self.eps)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None = None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_rss(self.initial_accumulator_value, self.eps)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_rss(self.initial_accumulator_value, self.eps)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -170,15 +170,15 @@ class ScaleByRms[Weights: PyTree](GradientTransformation[GenericGradientState, W
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_rms(self.decay, self.eps, self.initial_scale)  # pyright: ignore
+        t = scale_by_rms(self.decay, self.eps, self.initial_scale)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_rms(self.decay, self.eps, self.initial_scale)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_rms(self.decay, self.eps, self.initial_scale)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -202,15 +202,15 @@ class ScaleByStddev[Weights: PyTree](GradientTransformation[GenericGradientState
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)  # pyright: ignore
+        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -244,7 +244,7 @@ class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, 
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *scale_by_adam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -267,7 +267,7 @@ class Scale[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *scale(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -287,17 +287,15 @@ class ScaleByParamBlockNorm[Weights: PyTree](GradientTransformation[GenericGradi
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_param_block_norm(self.min_scale)  # pyright: ignore
+        t = scale_by_param_block_norm(self.min_scale)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_param_block_norm(self.min_scale)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore
-            *t.update(gradient, state.data, parameters)
-        )  # type: ignore
+        t = scale_by_param_block_norm(self.min_scale)
+        return GenericGradientState.wrap(*t.update(gradient, state.data, parameters))  # type: ignore
 
 
 @dataclass
@@ -315,15 +313,15 @@ class ScaleByParamBlockRMS[Weights: PyTree](GradientTransformation[GenericGradie
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_param_block_rms(self.min_scale).init(parameters)  # pyright: ignore
+        t = scale_by_param_block_rms(self.min_scale).init(parameters)
         return GenericGradientState(t)
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_param_block_rms(self.min_scale)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_param_block_rms(self.min_scale)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -350,15 +348,15 @@ class ScaleByBelief[Weights: PyTree](GradientTransformation[GenericGradientState
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
+        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -388,15 +386,15 @@ class ScaleByYogi[Weights: PyTree](GradientTransformation[GenericGradientState, 
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
+        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -425,15 +423,15 @@ class ScaleByRAdam[Weights: PyTree](GradientTransformation[GenericGradientState,
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
+        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -462,7 +460,7 @@ class AddDecayedWeights[Weights: PyTree](GradientTransformation[GenericGradientS
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *add_decayed_weights(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -480,15 +478,15 @@ class ScaleBySchedule[Weights: PyTree](GradientTransformation[GenericGradientSta
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_schedule(self.step_size_fn)  # pyright: ignore
+        t = scale_by_schedule(self.step_size_fn)
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_schedule(self.step_size_fn)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_schedule(self.step_size_fn)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
 
@@ -518,7 +516,7 @@ class ScaleByTrustRatio[Weights: PyTree](GradientTransformation[GenericGradientS
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *scale_by_trust_ratio(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -548,7 +546,7 @@ class AddNoise[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *add_noise(**as_shallow_dict(self)).update(gradient, state.data, parameters)
         )
 
@@ -577,7 +575,7 @@ class ApplyEvery[Weights: PyTree](GradientTransformation[GenericGradientState, W
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *apply_every(self.k).update(gradient, state.data, parameters)
         )
 
@@ -598,7 +596,7 @@ class Centralize[Weights: PyTree](GradientTransformation[GenericGradientState, W
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        return GenericGradientState.wrap(  # type: ignore
             *centralize().update(gradient, state.data, parameters)
         )
 
@@ -622,13 +620,13 @@ class ScaleBySM3[Weights: PyTree](GradientTransformation[GenericGradientState, W
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(scale_by_sm3(self.b1, self.b2, self.eps).init(parameters))  # pyright: ignore
+        return GenericGradientState(scale_by_sm3(self.b1, self.b2, self.eps).init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_sm3(self.b1, self.b2, self.eps)  # pyright: ignore
-        return GenericGradientState.wrap(  # pyright: ignore # type: ignore
+        t = scale_by_sm3(self.b1, self.b2, self.eps)
+        return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )

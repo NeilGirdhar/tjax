@@ -8,7 +8,7 @@ from rich.console import Console
 
 
 @pytest.fixture(autouse=True)
-def _jax_enable64() -> Generator[None]:  # pyright: ignore
+def _jax_enable64() -> Generator[None]:
     with enable_x64():
         yield
 

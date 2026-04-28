@@ -13,7 +13,7 @@ from .annotations import Array, BooleanArray, Namespace
 def abs_square[T: Array](x: T) -> T:
     """Return the squared absolute value ``|x|²``, supporting complex arrays."""
     xp = array_namespace(x)
-    return xp.square(x.real) + xp.square(x.imag)  # pyright: ignore
+    return xp.square(x.real) + xp.square(x.imag)
 
 
 # TODO: Remove when it's added to theArrayAPI:
@@ -208,8 +208,8 @@ def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
 
         return sg(x)
     if is_torch_namespace(xp):
-        from torch import Tensor  # noqa: PLC0415 # pyright: ignore # type: ignore
+        from torch import Tensor  # noqa: PLC0415  # type: ignore
 
         assert isinstance(x, Tensor)
-        return x.detach()  # pyright: ignore
+        return x.detach()
     return x

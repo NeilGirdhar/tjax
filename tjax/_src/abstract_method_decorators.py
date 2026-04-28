@@ -69,7 +69,7 @@ def abstract_custom_jvp[**P, R_co](
     """
 
     def decorator(fun: Callable[P, R_co]) -> Callable[P, R_co]:
-        fun._abstract_custom_jvp = (  # type: ignore # pyright: ignore  # noqa: SLF001
+        fun._abstract_custom_jvp = (  # type: ignore   # noqa: SLF001
             jvp,
             nondiff_argnums,
         )
