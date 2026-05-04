@@ -20,7 +20,7 @@ class GraphNodeKey:
         return f".node[{self.key!r}]"
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
-        return not isinstance(value, GraphNodeKey) or self.key < value.key  # type: ignore
+        return not isinstance(value, GraphNodeKey) or self.key < value.key  # ty: ignore
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ class GraphEdgeKey:
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
         return isinstance(value, GraphEdgeKey) and (
-            (self.source, self.target) < (value.source, value.target)  # type: ignore
+            (self.source, self.target) < (value.source, value.target)  # ty: ignore
         )
 
 

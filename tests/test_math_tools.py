@@ -51,7 +51,7 @@ def test_divide_where(k: float) -> None:
     def f(w: Array, x: Array, dummy: Array) -> Array:
         total_w = jnp.sum(w, axis=-1)
         return divide_where(
-            dividend=jnp.sum(w * x, axis=-1),  # type: ignore
+            dividend=jnp.sum(w * x, axis=-1),  # ty: ignore
             divisor=total_w,
             where=total_w > 0.0,
             otherwise=dummy,

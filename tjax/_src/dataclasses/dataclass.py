@@ -102,7 +102,7 @@ def dataclass(
     if cls is None:
 
         def f(x: type[Any], /) -> type[TDataclassInstance]:
-            return dataclass(x, init=init, repr=repr, eq=eq, order=order, frozen=frozen)  # type: ignore
+            return dataclass(x, init=init, repr=repr, eq=eq, order=order, frozen=frozen)  # ty: ignore
 
         return f  # Type checking support partial is poor.
 

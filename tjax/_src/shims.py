@@ -15,7 +15,7 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
 
     This ensures that abstract methods stay abstract, method overrides remain overrides.
     """
-    retval = jax.jit(func, **kwargs)  # type: ignore
+    retval = jax.jit(func, **kwargs)  # ty: ignore
     _ = update_wrapper(retval, func, all_wrapper_assignments)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval

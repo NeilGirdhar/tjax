@@ -260,7 +260,7 @@ def _(
         return get_relative_test_string(
             sub_actual,
             f"{original_name}[{key}]",
-            original[key],  # type: ignore
+            original[key],  # ty: ignore
             rtol,
             atol,
         )

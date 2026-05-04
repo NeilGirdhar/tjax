@@ -208,7 +208,7 @@ def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
 
         return sg(x)
     if is_torch_namespace(xp):
-        from torch import Tensor  # noqa: PLC0415  # type: ignore
+        from torch import Tensor  # noqa: PLC0415  # ty: ignore
 
         assert isinstance(x, Tensor)
         return x.detach()
