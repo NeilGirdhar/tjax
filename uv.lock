@@ -2195,7 +2195,7 @@ wheels = [
 
 [[package]]
 name = "tjax"
-version = "1.4.10"
+version = "1.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "array-api-compat" },

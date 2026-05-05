@@ -3,6 +3,13 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.5.0 - 2026-05-04
+
+- Added `negate_cotangent` and `scale_tree`.
+- Removed `cotangent_combinator` and `reverse_scale_cotangent`.
+- Moved `zero_from_primal` to `tree_tools`.
+- Updated to JAX 0.10 and migrated type-ignore comments from pyright/`type: ignore` to ty/`ty: ignore`.
+
 ## 1.4.10 - 2026-04-15
 
 - Added tests for the `HvpGradientTransformation`/`DiagHessianGradientTransformation`.
