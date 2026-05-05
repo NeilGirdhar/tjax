@@ -41,7 +41,7 @@ classifiers = [
 ]
 dependencies = [
   "array_api_compat>=1.10",
-  "jax>=0.8",
+  "jax>=0.10",
   "numpy>=2.0",
   "optax>=0.2.3",
   "optype[numpy]>=0.12.2",
