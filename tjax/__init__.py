@@ -34,6 +34,7 @@ from ._src.annotations import (
 )
 from ._src.cotangent_tools import (
     copy_cotangent,
+    negate_cotangent,
     print_cotangent,
     replace_cotangent,
     scale_cotangent,
@@ -149,6 +150,7 @@ __all__ = [
     "log_softplus",
     "matrix_dot_product",
     "matrix_vector_mul",
+    "negate_cotangent",
     "normalize",
     "outer_product",
     "print_cotangent",

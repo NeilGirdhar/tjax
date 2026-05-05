@@ -38,6 +38,12 @@ def _scale_cotangent_jvp[X](
 scale_cotangent.defjvp(_scale_cotangent_jvp)
 
 
+# negate_cotangent ---------------------------------------------------------------------------------
+def negate_cotangent[X](x: X) -> X:
+    """Return ``x`` while negating the cotangent sent back to ``x``."""
+    return scale_cotangent(x, scalar_scale=-1)
+
+
 # print_cotangent ----------------------------------------------------------------------------------
 @partial(custom_vjp, static_argnums=(1,))
 def print_cotangent[X](u: X, name: str | None = None) -> X:

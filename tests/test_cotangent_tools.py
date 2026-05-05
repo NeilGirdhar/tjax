@@ -11,6 +11,7 @@ from tjax import (
     JaxRealArray,
     assert_tree_allclose,
     copy_cotangent,
+    negate_cotangent,
     print_cotangent,
     replace_cotangent,
     scale_cotangent,
@@ -51,6 +52,15 @@ def test_scalar_tree_scale() -> None:
     assert_tree_allclose(x, x_out)
     (x_bar,) = vjp_f(X(4 * o, 5 * o))
     assert_tree_allclose(x_bar, X(3 * 24 * o, 3 * -35 * o))
+
+
+def test_negate_cotangent() -> None:
+    o = jnp.ones(())
+    x = X(2 * o, 3 * o)
+    x_out, vjp_f = vjp(negate_cotangent, x)
+    assert_tree_allclose(x_out, x)
+    (x_bar,) = vjp_f(X(4 * o, 5 * o))
+    assert_tree_allclose(x_bar, X(-4 * o, -5 * o))
 
 
 def test_replace_cotangent() -> None:
