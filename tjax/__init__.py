@@ -76,7 +76,7 @@ from ._src.testing import (
     tree_allclose,
 )
 from ._src.timer import Timer, display_time
-from ._src.tree_tools import dynamic_tree_all, element_count, tree_sum
+from ._src.tree_tools import dynamic_tree_all, element_count, scale_tree, tree_sum
 
 __all__ = [
     "Array",
@@ -162,6 +162,7 @@ __all__ = [
     "reverse_scale_cotangent",
     "sample_streams",
     "scale_cotangent",
+    "scale_tree",
     "softplus",
     "stop_gradient",
     "sublinear_softplus",

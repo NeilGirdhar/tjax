@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import operator
 from collections.abc import Callable
 from functools import partial
 from typing import Any, cast
@@ -12,6 +11,7 @@ from jax.custom_derivatives import zero_from_primal as jax_zero_from_primal
 from .annotations import JaxRealArray, RealNumeric
 from .display.print_generic import print_generic
 from .shims import custom_jvp, custom_vjp
+from .tree_tools import scale_tree
 
 
 def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
@@ -45,11 +45,7 @@ def _scale_cotangent_jvp[X](
 ) -> tuple[X, X]:
     (x,) = primals
     (x_dot,) = tangents
-    if scalar_scale is not None:
-        x_dot = tree.map(lambda x_dot_i: x_dot_i * scalar_scale, x_dot)
-    if tree_scale is not None:
-        x_dot = tree.map(operator.mul, x_dot, tree_scale)
-    return x, x_dot
+    return x, scale_tree(x_dot, scalar_scale=scalar_scale, tree_scale=tree_scale)
 
 
 scale_cotangent.defjvp(_scale_cotangent_jvp)
@@ -69,7 +65,7 @@ def _reverse_scale_cotangent_fwd[X](x: X) -> tuple[tuple[X, JaxRealArray], None]
 def _reverse_scale_cotangent_bwd[X](residuals: None, xy_bar: tuple[X, JaxRealArray]) -> tuple[X]:
     del residuals
     x_bar, y_bar = xy_bar
-    return (tree.map(lambda x_bar_i: x_bar_i * y_bar, x_bar),)
+    return (scale_tree(x_bar, scalar_scale=y_bar),)
 
 
 reverse_scale_cotangent.defvjp(_reverse_scale_cotangent_fwd, _reverse_scale_cotangent_bwd)
@@ -185,12 +181,12 @@ def _cotangent_combinator_bwd[Y, XT: tuple[Any, ...]](
     xs_bar, y_bar = xy_bar
     if aux_cotangent_scales is None:
         aux_cotangent_scales = tuple(1.0 for _ in xs_bar)
-    xs_zero = tuple(tree.map(jnp.zeros_like, x_bar) for x_bar in xs_bar)
+    xs_zero = tuple(zero_from_primal(x_bar) for x_bar in xs_bar)
     all_args_bar = []
     for i, (x_bar, aux_cotangent_scale) in enumerate(
         zip(xs_bar, aux_cotangent_scales, strict=True)
     ):
-        scaled_y_bar = tree.map(lambda y_bar_i, scale=aux_cotangent_scale: y_bar_i * scale, y_bar)
+        scaled_y_bar = scale_tree(y_bar, scalar_scale=aux_cotangent_scale)
         this_xs_bar = cast("XT", (*xs_zero[:i], x_bar, *xs_zero[i + 1 :]))
         this_result_bar = (this_xs_bar, scaled_y_bar)
         this_args_bar = f_vjp(this_result_bar)

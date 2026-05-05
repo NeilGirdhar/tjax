@@ -6,7 +6,7 @@ import operator
 import jax.numpy as jnp
 from jax import tree
 
-from .annotations import JaxArray, JaxBooleanArray
+from .annotations import JaxArray, JaxBooleanArray, RealNumeric
 
 
 def dynamic_tree_all(x: object, /) -> JaxBooleanArray:
@@ -34,3 +34,20 @@ def element_count(x: object, /) -> int:
     retval = tree.reduce_associative(operator.add, tree.map(array_element_count, x), identity=0)
     assert isinstance(retval, int)
     return retval
+
+
+def scale_tree[X](
+    x: X,
+    *,
+    scalar_scale: RealNumeric | None = None,
+    tree_scale: X | None = None,
+) -> X:
+    """Scale ``x`` by an optional global scalar and optional matching scale tree.
+
+    When both scales are provided, each leaf is multiplied by both.
+    """
+    if scalar_scale is not None:
+        x = tree.map(lambda x_i: x_i * scalar_scale, x)
+    if tree_scale is not None:
+        x = tree.map(operator.mul, x, tree_scale)
+    return x
