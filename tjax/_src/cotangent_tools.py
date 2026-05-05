@@ -6,21 +6,11 @@ from typing import Any, cast
 
 import jax.numpy as jnp
 from jax import tree, vjp
-from jax.custom_derivatives import zero_from_primal as jax_zero_from_primal
 
 from .annotations import JaxRealArray, RealNumeric
 from .display.print_generic import print_generic
 from .shims import custom_jvp, custom_vjp
-from .tree_tools import scale_tree
-
-
-def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
-    """Return a pytree of zeros with the same structure and dtypes as ``x``.
-
-    Thin wrapper around :func:`jax.custom_derivatives.zero_from_primal` that
-    preserves the type variable so callers get a typed zero rather than ``Any``.
-    """
-    return jax_zero_from_primal(x, symbolic_zeros=symbolic_zeros)
+from .tree_tools import scale_tree, zero_from_primal
 
 
 # scale_cotangent ----------------------------------------------------------------------------------

@@ -39,7 +39,6 @@ from ._src.cotangent_tools import (
     replace_cotangent,
     reverse_scale_cotangent,
     scale_cotangent,
-    zero_from_primal,
 )
 from ._src.display.display_generic import display_generic
 from ._src.display.generic_string import GenericString
@@ -76,7 +75,7 @@ from ._src.testing import (
     tree_allclose,
 )
 from ._src.timer import Timer, display_time
-from ._src.tree_tools import dynamic_tree_all, element_count, scale_tree, tree_sum
+from ._src.tree_tools import dynamic_tree_all, element_count, scale_tree, tree_sum, zero_from_primal
 
 __all__ = [
     "Array",

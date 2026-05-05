@@ -5,6 +5,7 @@ import operator
 
 import jax.numpy as jnp
 from jax import tree
+from jax.custom_derivatives import zero_from_primal as jax_zero_from_primal
 
 from .annotations import JaxArray, JaxBooleanArray, RealNumeric
 
@@ -51,3 +52,12 @@ def scale_tree[X](
     if tree_scale is not None:
         x = tree.map(operator.mul, x, tree_scale)
     return x
+
+
+def zero_from_primal[X](x: X, /, *, symbolic_zeros: bool = False) -> X:
+    """Return a pytree of zeros with the same structure and dtypes as ``x``.
+
+    Thin wrapper around :func:`jax.custom_derivatives.zero_from_primal` that
+    preserves the type variable so callers get a typed zero rather than ``Any``.
+    """
+    return jax_zero_from_primal(x, symbolic_zeros=symbolic_zeros)
