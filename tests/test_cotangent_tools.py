@@ -3,16 +3,16 @@ from __future__ import annotations
 from functools import partial
 
 import jax.numpy as jnp
-from jax import Array, vjp
+import pytest
+from jax import vjp
 from numpy.testing import assert_equal
 
 from tjax import (
     JaxRealArray,
     assert_tree_allclose,
     copy_cotangent,
-    cotangent_combinator,
+    print_cotangent,
     replace_cotangent,
-    reverse_scale_cotangent,
     scale_cotangent,
 )
 from tjax.dataclasses import dataclass
@@ -53,21 +53,23 @@ def test_scalar_tree_scale() -> None:
     assert_tree_allclose(x_bar, X(3 * 24 * o, 3 * -35 * o))
 
 
-def test_reverse_scale() -> None:
-    z = jnp.zeros(())
-    o = jnp.ones(())
-    x = X(2 * o, 3 * o)
-    (x_out, zero), vjp_f = vjp(reverse_scale_cotangent, x)
-    assert_tree_allclose(x, x_out)
-    assert_tree_allclose(z, zero)
-    (x_bar,) = vjp_f((X(4 * o, 5 * o), 2.0))
-    assert_tree_allclose(x_bar, X(8 * o, 10 * o))
-
-
 def test_replace_cotangent() -> None:
     primals, vjp_f = vjp(replace_cotangent, 1.0, 2.0)
     assert_equal(primals, 1.0)
     assert_equal(vjp_f(3.0), (2.0, 3.0))
+
+
+def test_replace_cotangent_pytree() -> None:
+    o = jnp.ones(())
+    x = X(2 * o, 3 * o)
+    new_cotangent = X(5 * o, 7 * o)
+    output_cotangent = X(11 * o, 13 * o)
+
+    primals, vjp_f = vjp(replace_cotangent, x, new_cotangent)
+    assert_tree_allclose(primals, x)
+    x_bar, new_cotangent_bar = vjp_f(output_cotangent)
+    assert_tree_allclose(x_bar, new_cotangent)
+    assert_tree_allclose(new_cotangent_bar, output_cotangent)
 
 
 def test_copy_cotangent() -> None:
@@ -76,15 +78,27 @@ def test_copy_cotangent() -> None:
     assert_equal(vjp_f(3.0), (3.0, 3.0))
 
 
-def test_combinator() -> None:
-    def f(x: float | Array) -> tuple[tuple[float | Array, float | Array], None]:
-        return (x**2, x**2), None
-
+def test_copy_cotangent_pytree() -> None:
     o = jnp.ones(())
+    x = X(2 * o, 3 * o)
+    y = X(5 * o, 7 * o)
+    output_cotangent = X(11 * o, 13 * o)
 
-    args = ((-1.0,), (-1.0,))
-    _, f_vjp = vjp(partial(cotangent_combinator, f, aux_cotangent_scales=None), args)
-    result_bar = (2 * o, 3 * o), None
-    (actual_args_bar,) = f_vjp(result_bar)
-    desired_args_bar = ((-4.0,), (-6.0,))
-    assert_tree_allclose(actual_args_bar, desired_args_bar)
+    primals, vjp_f = vjp(copy_cotangent, x, y)
+    assert_tree_allclose(primals, x)
+    x_bar, y_bar = vjp_f(output_cotangent)
+    assert_tree_allclose(x_bar, output_cotangent)
+    assert_tree_allclose(y_bar, output_cotangent)
+
+
+@pytest.mark.parametrize("name", [None, "cotangent"])
+def test_print_cotangent(capsys: pytest.CaptureFixture[str], name: str | None) -> None:
+    primals, vjp_f = vjp(partial(print_cotangent, name=name), 1.0)
+    assert_equal(primals, 1.0)
+    assert_equal(vjp_f(3.0), (3.0,))
+    captured = capsys.readouterr()
+    assert "3.0000" in captured.out
+    if name is None:
+        assert "cotangent" not in captured.out
+    else:
+        assert name in captured.out

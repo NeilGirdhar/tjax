@@ -34,10 +34,8 @@ from ._src.annotations import (
 )
 from ._src.cotangent_tools import (
     copy_cotangent,
-    cotangent_combinator,
     print_cotangent,
     replace_cotangent,
-    reverse_scale_cotangent,
     scale_cotangent,
 )
 from ._src.display.display_generic import display_generic
@@ -122,7 +120,6 @@ __all__ = [
     "bessel_iv_ratio",
     "cast_to_result_type",
     "copy_cotangent",
-    "cotangent_combinator",
     "create_streams",
     "custom_jvp",
     "custom_jvp_method",
@@ -158,7 +155,6 @@ __all__ = [
     "print_generic",
     "register_graph_as_jax_pytree",
     "replace_cotangent",
-    "reverse_scale_cotangent",
     "sample_streams",
     "scale_cotangent",
     "scale_tree",
