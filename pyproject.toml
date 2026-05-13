@@ -23,8 +23,16 @@ description = "Tools for JAX."
 readme = "README.rst"
 requires-python = ">=3.12, <3.15"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{name = "Neil Girdhar", email = "mistersheik@gmail.com"}]
 maintainers = [{name = "Neil Girdhar", email = "mistersheik@gmail.com"}]
+keywords = [
+  "dataclasses",
+  "jax",
+  "optax",
+  "pytrees",
+  "type-annotations"
+]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
@@ -49,7 +57,13 @@ dependencies = [
 ]
 
 [project.urls]
-source = "https://github.com/NeilGirdhar/tjax"
+Changelog = "https://github.com/NeilGirdhar/tjax/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/NeilGirdhar/tjax#readme"
+Issues = "https://github.com/NeilGirdhar/tjax/issues"
+Source = "https://github.com/NeilGirdhar/tjax"
+
+[tool.pytest]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
