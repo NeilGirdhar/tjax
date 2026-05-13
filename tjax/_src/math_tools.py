@@ -5,7 +5,7 @@ from typing import Literal
 import jax
 import jax.numpy as jnp
 from array_api_compat import array_namespace, is_jax_namespace, is_torch_namespace
-from jax.scipy.special import gammaln, logsumexp
+from jax.scipy.special import betaln, gammaln, loggamma, logsumexp, multigammaln
 
 from .annotations import Array, BooleanArray, Namespace
 
@@ -134,6 +134,89 @@ def log_bessel_ive(v: jax.Array, x: jax.Array, /) -> jax.Array:
     )
     retval = logsumexp(log_terms, axis=-1) - x
     return jnp.where(x == 0, jnp.where(v == 0, 0.0, -jnp.inf), retval)
+
+
+def complex_gammaln(a: jax.Array, /) -> jax.Array:
+    """Return ``log Gamma(a)`` for real or complex arguments.
+
+    For real ``a`` this defers to ``jax.scipy.special.gammaln``, which returns ``log|Gamma(a)|``
+    (well-defined on negative non-integer reals). For complex ``a`` it routes through
+    ``jax.scipy.special.loggamma``, the principal-branch complex log of Gamma. The two agree
+    on positive reals.
+    """
+    a_arr = jnp.asarray(a)
+    if jnp.iscomplexobj(a_arr):
+        return loggamma(a_arr)
+    return gammaln(a_arr)
+
+
+def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # noqa: PLR0914
+    """Return ``loggamma(b) - loggamma(a + b)`` via an asymptotic series in ``1/b``.
+
+    Complex generalization of scipy's ``algdiv``. Valid where ``|b|`` is not small and ``b``,
+    ``a + b`` stay away from the negative real axis (the ``loggamma`` branch cut). The series
+    has the same coefficients as the real version because it is derived from Stirling's
+    expansion for ``loggamma``, which is analytic on the same domain.
+    """
+    c0 = 0.833333333333333e-01
+    c1 = -0.277777777760991e-02
+    c2 = 0.793650666825390e-03
+    c3 = -0.595202931351870e-03
+    c4 = 0.837308034031215e-03
+    c5 = -0.165322962780713e-02
+    h = a / b
+    c = h / (1.0 + h)
+    x = c
+    d = b + (a - 0.5)
+    x2 = x * x
+    s3 = 1.0 + (x + x2)
+    s5 = 1.0 + (x + x2 * s3)
+    s7 = 1.0 + (x + x2 * s5)
+    s9 = 1.0 + (x + x2 * s7)
+    s11 = 1.0 + (x + x2 * s9)
+    t = (1.0 / b) ** 2
+    w = ((((c5 * s11 * t + c4 * s9) * t + c3 * s7) * t + c2 * s5) * t + c1 * s3) * t + c0
+    w *= c / b
+    u = d * jnp.log1p(a / b)
+    v = a * (jnp.log(b) - 1.0)
+    return jnp.where(jnp.abs(u) <= jnp.abs(v), (w - v) - u, (w - u) - v)
+
+
+def complex_betaln(a: jax.Array, b: jax.Array, /) -> jax.Array:
+    """Return ``log B(a, b)`` for real or complex arguments.
+
+    For real inputs this defers to ``jax.scipy.special.betaln``. For complex inputs it uses
+    ``jax.scipy.special.loggamma`` (which is defined on the complex plane), switching to an
+    asymptotic series in ``1/b`` when ``|b| >= 8`` to avoid the catastrophic cancellation
+    between ``loggamma(b)`` and ``loggamma(a + b)`` that the naive three-term formula suffers
+    when ``|b|`` is large and ``|a|`` is small.
+    """
+    a_arr = jnp.asarray(a)
+    b_arr = jnp.asarray(b)
+    if not (jnp.iscomplexobj(a_arr) or jnp.iscomplexobj(b_arr)):
+        return betaln(a_arr, b_arr)
+    swap = jnp.abs(a_arr) > jnp.abs(b_arr)
+    a_s = jnp.where(swap, b_arr, a_arr)
+    b_s = jnp.where(swap, a_arr, b_arr)
+    small_b = loggamma(a_s) + (loggamma(b_s) - loggamma(a_s + b_s))
+    large_b = loggamma(a_s) + _complex_algdiv(a_s, b_s)
+    return jnp.where(jnp.abs(b_s) < 8.0, small_b, large_b)  # noqa: PLR2004
+
+
+def complex_multigammaln(a: jax.Array, d: int, /) -> jax.Array:
+    """Return ``log Gamma_d(a) = (d(d-1)/4) log(pi) + sum_{i=0}^{d-1} loggamma(a - i/2)``.
+
+    For real ``a`` this defers to ``jax.scipy.special.multigammaln``. For complex ``a`` it
+    routes through ``jax.scipy.special.loggamma``. No cancellation issues arise because the
+    definition is a sum (not a difference) of ``loggamma`` values at the shifts ``a - i/2``.
+    """
+    a_arr = jnp.asarray(a)
+    if not jnp.iscomplexobj(a_arr):
+        return multigammaln(a_arr, d)
+    shifts = jnp.arange(d, dtype=a_arr.real.dtype) / 2.0
+    terms = loggamma(a_arr[..., None] - shifts)
+    constant = (0.25 * d * (d - 1)) * jnp.log(jnp.pi).astype(a_arr.dtype)
+    return jnp.sum(terms, axis=-1) + constant
 
 
 def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:

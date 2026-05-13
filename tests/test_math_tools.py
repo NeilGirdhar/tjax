@@ -8,7 +8,17 @@ import scipy.special as sc
 from jax import vjp
 from numpy.testing import assert_allclose
 
-from tjax import Array, JaxRealArray, bessel_iv_ratio, divide_where, log_bessel_ive, normalize
+from tjax import (
+    Array,
+    JaxRealArray,
+    bessel_iv_ratio,
+    complex_betaln,
+    complex_gammaln,
+    complex_multigammaln,
+    divide_where,
+    log_bessel_ive,
+    normalize,
+)
 
 
 @pytest.mark.parametrize(
@@ -115,3 +125,87 @@ def test_log_bessel_ive_derivatives(v: float, x: float) -> None:
     )
     assert_allclose(actual_dv, expected_dv, rtol=5e-3, atol=5e-4)
     assert_allclose(actual_dx, expected_dx, rtol=2e-5, atol=2e-6)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [(2.5, 3.7), (0.5, 1.5), (1.5, 1.0e6)],
+)
+def test_complex_betaln_real(a: float, b: float) -> None:
+    expected = sc.betaln(a, b)
+    assert_allclose(complex_betaln(jnp.asarray(a), jnp.asarray(b)), expected, rtol=1e-10)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (1.0 + 2.0j, 3.0 + 0.5j),
+        (0.5 + 0.1j, 2.0 - 0.3j),
+        (2.5 + 0.0j, 1.7 + 0.0j),
+    ],
+)
+def test_complex_betaln_small(a: complex, b: complex) -> None:
+    expected = sc.loggamma(a) + sc.loggamma(b) - sc.loggamma(a + b)
+    actual = complex_betaln(jnp.asarray(a), jnp.asarray(b))
+    assert_allclose(actual, expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (1.0 + 0.5j, 1000.0 + 200.0j),
+        (0.3 + 0.1j, 1.0e5 + 1.0e4j),
+        (0.5 + 0.0j, 5.0e6 + 0.0j),
+    ],
+)
+def test_complex_betaln_large_b(a: complex, b: complex) -> None:
+    # scipy's 3-term reference loses ~log10(|b|) digits; loosen tolerance accordingly.
+    expected = sc.loggamma(a) + sc.loggamma(b) - sc.loggamma(a + b)
+    actual = complex_betaln(jnp.asarray(a), jnp.asarray(b))
+    assert_allclose(actual, expected, rtol=1e-8)
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        (1.0 + 2.0j, 50.0 + 10.0j),
+        (0.5 + 0.1j, 1000.0 + 200.0j),
+    ],
+)
+def test_complex_betaln_symmetric(a: complex, b: complex) -> None:
+    forward = complex_betaln(jnp.asarray(a), jnp.asarray(b))
+    reversed_ = complex_betaln(jnp.asarray(b), jnp.asarray(a))
+    assert_allclose(forward, reversed_, rtol=1e-12)
+
+
+@pytest.mark.parametrize("a", [2.5, 0.5, 10.0, -2.5, -0.3])
+def test_complex_gammaln_real(a: float) -> None:
+    expected = sc.gammaln(a)
+    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize("a", [2.5 + 1.0j, 0.5 - 0.3j, 50.0 + 10.0j, 1000.0 + 200.0j])
+def test_complex_gammaln_complex(a: complex) -> None:
+    expected = sc.loggamma(a)
+    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize(("a", "d"), [(5.0, 3), (10.0, 5), (2.5, 2), (1.5, 1)])
+def test_complex_multigammaln_real(a: float, d: int) -> None:
+    expected = sc.multigammaln(a, d)  # ty: ignore
+    assert_allclose(complex_multigammaln(jnp.asarray(a), d), expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize(
+    ("a", "d"),
+    [
+        (5.0 + 1.0j, 3),
+        (10.0 + 2.0j, 5),
+        (2.5 - 0.5j, 2),
+        (50.0 + 10.0j, 4),
+    ],
+)
+def test_complex_multigammaln_complex(a: complex, d: int) -> None:
+    expected = (d * (d - 1) / 4) * math.log(math.pi) + sum(sc.loggamma(a - i / 2) for i in range(d))
+    actual = complex_multigammaln(jnp.asarray(a), d)
+    assert_allclose(actual, expected, rtol=1e-12)
