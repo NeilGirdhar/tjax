@@ -3,6 +3,12 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.5.1 - 2026-05-13
+
+- Added complex-valued implementations of `gammaln`, `betaln`, and `multigammaln`.
+- Optimized `pyproject.toml`.
+- Pinned the JAX dependency to 0.10.
+
 ## 1.5.0 - 2026-05-04
 
 - Added `negate_cotangent` and `scale_tree`.
