@@ -133,7 +133,7 @@ def test_log_bessel_ive_derivatives(v: float, x: float) -> None:
 )
 def test_complex_betaln_real(a: float, b: float) -> None:
     expected = sc.betaln(a, b)
-    assert_allclose(complex_betaln(jnp.asarray(a), jnp.asarray(b)), expected, rtol=1e-10)
+    assert_allclose(complex_betaln(jnp.asarray(a), jnp.asarray(b)), expected, rtol=1e-10)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize(
@@ -147,7 +147,7 @@ def test_complex_betaln_real(a: float, b: float) -> None:
 def test_complex_betaln_small(a: complex, b: complex) -> None:
     expected = sc.loggamma(a) + sc.loggamma(b) - sc.loggamma(a + b)
     actual = complex_betaln(jnp.asarray(a), jnp.asarray(b))
-    assert_allclose(actual, expected, rtol=1e-12)
+    assert_allclose(actual, expected, rtol=1e-12)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize(
@@ -162,7 +162,7 @@ def test_complex_betaln_large_b(a: complex, b: complex) -> None:
     # scipy's 3-term reference loses ~log10(|b|) digits; loosen tolerance accordingly.
     expected = sc.loggamma(a) + sc.loggamma(b) - sc.loggamma(a + b)
     actual = complex_betaln(jnp.asarray(a), jnp.asarray(b))
-    assert_allclose(actual, expected, rtol=1e-8)
+    assert_allclose(actual, expected, rtol=1e-8)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize(
@@ -175,25 +175,25 @@ def test_complex_betaln_large_b(a: complex, b: complex) -> None:
 def test_complex_betaln_symmetric(a: complex, b: complex) -> None:
     forward = complex_betaln(jnp.asarray(a), jnp.asarray(b))
     reversed_ = complex_betaln(jnp.asarray(b), jnp.asarray(a))
-    assert_allclose(forward, reversed_, rtol=1e-12)
+    assert_allclose(forward, reversed_, rtol=1e-12)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize("a", [2.5, 0.5, 10.0, -2.5, -0.3])
 def test_complex_gammaln_real(a: float) -> None:
     expected = sc.gammaln(a)
-    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)
+    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize("a", [2.5 + 1.0j, 0.5 - 0.3j, 50.0 + 10.0j, 1000.0 + 200.0j])
 def test_complex_gammaln_complex(a: complex) -> None:
     expected = sc.loggamma(a)
-    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)
+    assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize(("a", "d"), [(5.0, 3), (10.0, 5), (2.5, 2), (1.5, 1)])
 def test_complex_multigammaln_real(a: float, d: int) -> None:
     expected = sc.multigammaln(a, d)  # ty: ignore
-    assert_allclose(complex_multigammaln(jnp.asarray(a), d), expected, rtol=1e-12)
+    assert_allclose(complex_multigammaln(jnp.asarray(a), d), expected, rtol=1e-12)  # ty:ignore[no-matching-overload]
 
 
 @pytest.mark.parametrize(
@@ -208,4 +208,4 @@ def test_complex_multigammaln_real(a: float, d: int) -> None:
 def test_complex_multigammaln_complex(a: complex, d: int) -> None:
     expected = (d * (d - 1) / 4) * math.log(math.pi) + sum(sc.loggamma(a - i / 2) for i in range(d))
     actual = complex_multigammaln(jnp.asarray(a), d)
-    assert_allclose(actual, expected, rtol=1e-12)
+    assert_allclose(actual, expected, rtol=1e-12)  # ty:ignore[no-matching-overload]

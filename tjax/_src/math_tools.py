@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from types import ModuleType
 from typing import Literal
 
 import jax
 import jax.numpy as jnp
 from array_api_compat import array_namespace, is_jax_namespace, is_torch_namespace
-from jax.scipy.special import betaln, gammaln, loggamma, logsumexp, multigammaln
+from scipy.special import betaln, gammaln, loggamma, logsumexp, multigammaln  # ty: ignore
 
 from .annotations import Array, BooleanArray, Namespace
 
@@ -136,7 +137,7 @@ def log_bessel_ive(v: jax.Array, x: jax.Array, /) -> jax.Array:
     return jnp.where(x == 0, jnp.where(v == 0, 0.0, -jnp.inf), retval)
 
 
-def complex_gammaln(a: jax.Array, /) -> jax.Array:
+def complex_gammaln(a: Array, /) -> Array:
     """Return ``log Gamma(a)`` for real or complex arguments.
 
     For real ``a`` this defers to ``jax.scipy.special.gammaln``, which returns ``log|Gamma(a)|``
@@ -144,13 +145,13 @@ def complex_gammaln(a: jax.Array, /) -> jax.Array:
     ``jax.scipy.special.loggamma``, the principal-branch complex log of Gamma. The two agree
     on positive reals.
     """
-    a_arr = jnp.asarray(a)
-    if jnp.iscomplexobj(a_arr):
-        return loggamma(a_arr)
-    return gammaln(a_arr)
+    xp = array_namespace(a)
+    if xp.isdtype(a.dtype, "complex floating"):
+        return loggamma(a)
+    return gammaln(a)
 
 
-def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # noqa: PLR0914
+def _complex_algdiv(a: Array, b: Array, xp: ModuleType, /) -> Array:  # noqa: PLR0914
     """Return ``loggamma(b) - loggamma(a + b)`` via an asymptotic series in ``1/b``.
 
     Complex generalization of scipy's ``algdiv``. Valid where ``|b|`` is not small and ``b``,
@@ -164,25 +165,25 @@ def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # noqa: PLR091
     c3 = -0.595202931351870e-03
     c4 = 0.837308034031215e-03
     c5 = -0.165322962780713e-02
-    h = a / b
+    h = a / b  # ty:ignore[unsupported-operator]
     c = h / (1.0 + h)
     x = c
-    d = b + (a - 0.5)
+    d = b + (a - 0.5)  # ty:ignore[unsupported-operator]
     x2 = x * x
     s3 = 1.0 + (x + x2)
     s5 = 1.0 + (x + x2 * s3)
     s7 = 1.0 + (x + x2 * s5)
     s9 = 1.0 + (x + x2 * s7)
     s11 = 1.0 + (x + x2 * s9)
-    t = (1.0 / b) ** 2
+    t = (1.0 / b) ** 2  # ty:ignore[unsupported-operator]
     w = ((((c5 * s11 * t + c4 * s9) * t + c3 * s7) * t + c2 * s5) * t + c1 * s3) * t + c0
     w *= c / b
-    u = d * jnp.log1p(a / b)
-    v = a * (jnp.log(b) - 1.0)
-    return jnp.where(jnp.abs(u) <= jnp.abs(v), (w - v) - u, (w - u) - v)
+    u = d * xp.log1p(a / b)  # ty:ignore[unsupported-operator]
+    v = a * (xp.log(b) - 1.0)
+    return xp.where(xp.abs(u) <= xp.abs(v), (w - v) - u, (w - u) - v)
 
 
-def complex_betaln(a: jax.Array, b: jax.Array, /) -> jax.Array:
+def complex_betaln(a: Array, b: Array, /) -> Array:
     """Return ``log B(a, b)`` for real or complex arguments.
 
     For real inputs this defers to ``jax.scipy.special.betaln``. For complex inputs it uses
@@ -191,32 +192,31 @@ def complex_betaln(a: jax.Array, b: jax.Array, /) -> jax.Array:
     between ``loggamma(b)`` and ``loggamma(a + b)`` that the naive three-term formula suffers
     when ``|b|`` is large and ``|a|`` is small.
     """
-    a_arr = jnp.asarray(a)
-    b_arr = jnp.asarray(b)
-    if not (jnp.iscomplexobj(a_arr) or jnp.iscomplexobj(b_arr)):
-        return betaln(a_arr, b_arr)
-    swap = jnp.abs(a_arr) > jnp.abs(b_arr)
-    a_s = jnp.where(swap, b_arr, a_arr)
-    b_s = jnp.where(swap, a_arr, b_arr)
+    xp = array_namespace(a, b)
+    if all(not xp.isdtype(x.dtype, "complex floating") for x in (a, b)):
+        return betaln(a, b)
+    swap = xp.abs(a) > xp.abs(b)
+    a_s = xp.where(swap, b, a)
+    b_s = xp.where(swap, a, b)
     small_b = loggamma(a_s) + (loggamma(b_s) - loggamma(a_s + b_s))
-    large_b = loggamma(a_s) + _complex_algdiv(a_s, b_s)
-    return jnp.where(jnp.abs(b_s) < 8.0, small_b, large_b)  # noqa: PLR2004
+    large_b = loggamma(a_s) + _complex_algdiv(a_s, b_s, xp)
+    return xp.where(xp.abs(b_s) < 8.0, small_b, large_b)  # noqa: PLR2004
 
 
-def complex_multigammaln(a: jax.Array, d: int, /) -> jax.Array:
+def complex_multigammaln(a: Array, d: int, /) -> Array:
     """Return ``log Gamma_d(a) = (d(d-1)/4) log(pi) + sum_{i=0}^{d-1} loggamma(a - i/2)``.
 
     For real ``a`` this defers to ``jax.scipy.special.multigammaln``. For complex ``a`` it
     routes through ``jax.scipy.special.loggamma``. No cancellation issues arise because the
     definition is a sum (not a difference) of ``loggamma`` values at the shifts ``a - i/2``.
     """
-    a_arr = jnp.asarray(a)
-    if not jnp.iscomplexobj(a_arr):
-        return multigammaln(a_arr, d)
-    shifts = jnp.arange(d, dtype=a_arr.real.dtype) / 2.0
-    terms = loggamma(a_arr[..., None] - shifts)
-    constant = (0.25 * d * (d - 1)) * jnp.log(jnp.pi).astype(a_arr.dtype)
-    return jnp.sum(terms, axis=-1) + constant
+    xp = array_namespace(a)
+    if not xp.isdtype(a.dtype, "complex floating"):
+        return multigammaln(a, d)
+    shifts = xp.arange(d, dtype=a.real.dtype) / 2.0
+    terms = loggamma(a[..., None] - shifts)
+    constant = (0.25 * d * (d - 1)) * xp.log(xp.pi).astype(a.dtype)
+    return xp.sum(terms, axis=-1) + constant
 
 
 def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:
