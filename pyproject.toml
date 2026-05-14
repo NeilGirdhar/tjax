@@ -18,7 +18,7 @@ dev = [
 
 [project]
 name = "tjax"
-version = "1.5.2"
+version = "1.6.0"
 description = "Tools for JAX."
 readme = "README.rst"
 requires-python = ">=3.12, <3.15"

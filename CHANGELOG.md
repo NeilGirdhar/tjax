@@ -3,6 +3,15 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.6.0 - 2026-05-14
+
+- Preserved `abstract_jit` and `abstract_custom_jvp` markers through intermediate method overrides
+  so deeper subclasses still receive the automatic JAX decorators.
+- Fixed a circular import in the graph module.
+- Switched type-ignore comments back from `ty: ignore` to `type: ignore` and cleaned up related
+  errors.
+- Removed unnecessary `@override`s on `__init__`.
+
 ## 1.5.2 - 2026-05-13
 
 - Replaced `outer_product` with `bilinear_outer` and `sesquilinear_outer`.
