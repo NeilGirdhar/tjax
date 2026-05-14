@@ -14,6 +14,7 @@ from tjax import (
     bessel_iv_ratio,
     complex_betaln,
     complex_gammaln,
+    complex_logdet,
     complex_multigammaln,
     divide_where,
     log_bessel_ive,
@@ -188,6 +189,20 @@ def test_complex_gammaln_real(a: float) -> None:
 def test_complex_gammaln_complex(a: complex) -> None:
     expected = sc.loggamma(a)
     assert_allclose(complex_gammaln(jnp.asarray(a)), expected, rtol=1e-12)
+
+
+def test_complex_logdet_real_uses_log_abs_det() -> None:
+    z = jnp.asarray([[-2.0, 0.0], [0.0, 3.0]])
+    expected = jnp.linalg.slogdet(z).logabsdet
+    actual = complex_logdet(z)
+    assert_allclose(actual, expected, rtol=1e-12)
+
+
+def test_complex_logdet_complex_preserves_phase() -> None:
+    z = jnp.asarray([[-2.0 + 0.0j, 0.0 + 0.0j], [0.0 + 0.0j, 3.0 + 0.0j]])
+    expected = jnp.log(jnp.linalg.det(z))
+    actual = complex_logdet(z)
+    assert_allclose(actual, expected, rtol=1e-12)
 
 
 @pytest.mark.parametrize(("a", "d"), [(5.0, 3), (10.0, 5), (2.5, 2), (1.5, 1)])

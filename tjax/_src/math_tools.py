@@ -219,6 +219,15 @@ def complex_multigammaln(a: jax.Array, d: int, /) -> jax.Array:
     return jnp.sum(terms, axis=-1) + constant
 
 
+def complex_logdet(z: jax.Array) -> jax.Array:
+    """Return a real log determinant for real arrays and analytic log determinant for complex."""
+    xp = array_namespace(z)
+    if xp.isdtype(z.dtype, "complex floating"):
+        return xp.log(xp.linalg.det(z))
+    _, logdet = xp.linalg.slogdet(z)
+    return logdet
+
+
 def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = None) -> T:
     """Sublinear-softplus, which is softplus(x) / (1 + softplus(x) / maximum).
 
