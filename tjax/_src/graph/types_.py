@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Hashable
 from dataclasses import dataclass
 from typing import Any, override
+
+from _typeshed import SupportsRichComparison
 
 
 @dataclass(frozen=True)
@@ -13,14 +14,14 @@ class GraphNodeKey:
     fail when an ordered traversal is requested.
     """
 
-    key: Hashable
+    key: SupportsRichComparison
 
     @override
     def __str__(self) -> str:
         return f".node[{self.key!r}]"
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
-        return not isinstance(value, GraphNodeKey) or self.key < value.key  # ty: ignore
+        return not isinstance(value, GraphNodeKey) or self.key < value.key  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -31,8 +32,8 @@ class GraphEdgeKey:
     may therefore fail when an ordered traversal is requested.
     """
 
-    source: Hashable  # TODO: mark this as comparable
-    target: Hashable
+    source: SupportsRichComparison
+    target: SupportsRichComparison
 
     @override
     def __str__(self) -> str:
@@ -40,7 +41,7 @@ class GraphEdgeKey:
 
     def __lt__(self, value: GraphNodeKey | GraphEdgeKey, /) -> bool:
         return isinstance(value, GraphEdgeKey) and (
-            (self.source, self.target) < (value.source, value.target)  # ty: ignore
+            (self.source, self.target) < (value.source, value.target)  # type: ignore
         )
 
 

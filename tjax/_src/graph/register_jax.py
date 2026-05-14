@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable, Hashable, Iterable
 from typing import TYPE_CHECKING, Any, cast
 
+from _typeshed import SupportsRichComparison
 from jax.tree_util import register_pytree_with_keys
 
 from tjax._src.annotations import PyTree
@@ -34,7 +35,7 @@ else:
     def edges_helper(graph: nx.Graph[Any]) -> tuple[list[GraphEdgeKey], list[PyTree]]:
         directed = isinstance(graph, nx.DiGraph)
         edge_data = graph.edges.data()
-        edge_key: Callable[[Hashable, Hashable], GraphEdgeKey] = (
+        edge_key: Callable[[SupportsRichComparison, SupportsRichComparison], GraphEdgeKey] = (
             GraphEdgeKey if directed else UndirectedGraphEdgeKey
         )
         edge_keys = [edge_key(source, target) for source, target, _ in edge_data]

@@ -64,7 +64,7 @@ def test_divide_where(k: float) -> None:
     def f(w: Array, x: Array, dummy: Array) -> Array:
         total_w = jnp.sum(w, axis=-1)
         return divide_where(
-            dividend=jnp.sum(w * x, axis=-1),  # ty: ignore
+            dividend=jnp.sum(w * x, axis=-1),  # type: ignore
             divisor=total_w,
             where=total_w > 0.0,
             otherwise=dummy,
@@ -217,7 +217,7 @@ def test_complex_logdet_complex_preserves_phase() -> None:
 
 @pytest.mark.parametrize(("a", "d"), [(5.0, 3), (10.0, 5), (2.5, 2), (1.5, 1)])
 def test_complex_multigammaln_real(a: float, d: int) -> None:
-    expected = sc.multigammaln(a, d)  # ty: ignore
+    expected = sc.multigammaln(a, d)  # type: ignore
     assert_allclose(complex_multigammaln(jnp.asarray(a), d), expected, rtol=1e-12)
 
 

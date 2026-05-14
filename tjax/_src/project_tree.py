@@ -59,14 +59,14 @@ class Projector:
         if projectable is None:
             return projectable
         if isinstance(projectable, Projectable):
-            return projectable.project(self)  # ty: ignore
+            return projectable.project(self)  # type: ignore
 
         assert isinstance(projectable, JaxArray)
         features = projectable.shape[-1]
         if features <= self.dimensions:
             return projectable
         projection_matrix = self.get_projection_matrix(features)
-        return projectable @ projection_matrix  # ty: ignore
+        return projectable @ projection_matrix  # type: ignore
 
     def _random_directions(self, features: int) -> JaxArray:
         """Produce a random projection matrix.

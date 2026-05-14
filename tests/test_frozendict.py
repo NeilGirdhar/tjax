@@ -24,7 +24,7 @@ def test_frozendict_is_immutable() -> None:
         data.some_attr = 2
 
     with pytest.raises(AttributeError, match="frozendict is immutable"):
-        del data.some_attr  # ty: ignore
+        del data.some_attr  # type: ignore
 
 
 def test_frozendict_is_registered_as_pytree() -> None:

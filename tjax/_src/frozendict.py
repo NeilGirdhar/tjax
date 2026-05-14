@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 import jax
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRichComparison
 
 if sys.version_info >= (3, 15):
     from builtins import frozendict
@@ -55,7 +59,7 @@ else:
             raise AttributeError("frozendict is immutable")  # noqa: TRY003
 
 
-def _flatten_frozendict_with_keys[K, V](
+def _flatten_frozendict_with_keys[K: SupportsRichComparison, V](
     d: frozendict[K, V],
 ) -> tuple[Iterable[tuple[object, V]], tuple[K, ...]]:
     keys = tuple(sorted(d))
@@ -63,7 +67,9 @@ def _flatten_frozendict_with_keys[K, V](
     return values, keys
 
 
-def _flatten_frozendict[K, V](d: frozendict[K, V]) -> tuple[tuple[V, ...], tuple[K, ...]]:
+def _flatten_frozendict[K: SupportsRichComparison, V](
+    d: frozendict[K, V],
+) -> tuple[tuple[V, ...], tuple[K, ...]]:
     keys = tuple(sorted(d))
     values = tuple(d[k] for k in keys)
     return values, keys

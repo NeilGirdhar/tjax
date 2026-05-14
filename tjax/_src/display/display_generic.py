@@ -14,7 +14,7 @@ from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.interpreters.partial_eval import DynamicJaxprTracer
 from jax.tree_util import PyTreeDef
-from jaxlib._jax import PjitFunction  # noqa: PLC2701 # ty: ignore
+from jaxlib._jax import PjitFunction  # noqa: PLC2701 # type: ignore
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -121,7 +121,7 @@ def _(
     except TracerArrayConversionError:
         pass  # This happens when trying to print a tracer in immediate mode.
     else:
-        _show_array(retval, np_value)  # ty: ignore
+        _show_array(retval, np_value)  # type: ignore
     return retval
 
 
@@ -272,10 +272,10 @@ def _variables(value: object) -> dict[str, Any]:
         variables = (
             {
                 name: getattr(value, name)
-                for name in value.__slots__  # ty: ignore
+                for name in value.__slots__  # type: ignore
                 if hasattr(value, name)
             }  # Work around a Jax oddity.
-            if (hasattr(type(value), "__slots__") and isinstance(value.__slots__, Sequence))  # ty: ignore
+            if (hasattr(type(value), "__slots__") and isinstance(value.__slots__, Sequence))  # type: ignore
             else {}
         )
     return {
@@ -326,7 +326,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
     if 1 in array.shape:
         _show_array(
             tree,
-            array[  # ty: ignore
+            array[  # type: ignore
                 tuple[int | slice, ...](0 if s == 1 else slice(None) for s in array.shape)
             ],
         )

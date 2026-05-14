@@ -104,7 +104,7 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
         """
 
         def hessian_vector_product(v: Weights) -> Weights:
-            d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)  # ty: ignore
+            d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)  # type: ignore
             return tree.map(lambda x: x * d, gradient)
 
         return self.hvp_update(gradient, state, parameters, hessian_vector_product)
