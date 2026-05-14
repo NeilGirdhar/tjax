@@ -3,6 +3,11 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.5.2 - 2026-05-13
+
+- Replaced `outer_product` with `bilinear_outer` and `sesquilinear_outer`.
+- Added `complex_logdet`.
+
 ## 1.5.1 - 2026-05-13
 
 - Added complex-valued implementations of `gammaln`, `betaln`, and `multigammaln`.
