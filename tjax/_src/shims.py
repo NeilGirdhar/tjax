@@ -7,7 +7,7 @@ from typing import Any, Concatenate, Self, overload
 import jax
 from jax.tree_util import Partial
 
-from .function_markers import all_wrapper_assignments
+from .function_markers import all_wrapper_assignments, jit_marker
 
 
 def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
@@ -17,6 +17,7 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
     """
     retval = jax.jit(func, **kwargs)  # type: ignore
     _ = update_wrapper(retval, func, all_wrapper_assignments)
+    setattr(retval, jit_marker, kwargs)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
     return retval
 
