@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from functools import update_wrapper
-from typing import Any, Concatenate, Self, overload, override
+from typing import Any, Concatenate, Self, overload
 
 import jax
 from jax.tree_util import Partial
@@ -32,7 +32,6 @@ class custom_vjp[**P, R_co]:  # noqa: N801
 
     vjp: jax.custom_vjp[R_co]
 
-    @override
     def __init__(self, func: Callable[P, R_co], *, static_argnums: tuple[int, ...] = ()) -> None:
         super().__init__()
         static_argnums = tuple(sorted(static_argnums))
@@ -57,7 +56,6 @@ class custom_vjp_method[U, **P, R_co]:  # noqa: N801
 
     vjp: jax.custom_vjp[R_co]
 
-    @override
     def __init__(
         self, func: Callable[Concatenate[U, P], R_co], *, static_argnums: tuple[int, ...] = ()
     ) -> None:
@@ -95,7 +93,6 @@ class custom_jvp[**P, R_co]:  # noqa: N801
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
-    @override
     def __init__(self, func: Callable[P, R_co], *, nondiff_argnums: tuple[int, ...] = ()) -> None:
         super().__init__()
         nondiff_argnums = tuple(sorted(nondiff_argnums))
@@ -122,7 +119,6 @@ class custom_jvp_method[U, **P, R_co]:  # noqa: N801
         nondiff_argnums: The indices of the non-differentiated arguments.
     """
 
-    @override
     def __init__(
         self, func: Callable[Concatenate[U, P], R_co], *, nondiff_argnums: tuple[int, ...] = ()
     ) -> None:

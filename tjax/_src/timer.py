@@ -22,7 +22,6 @@ class Timer(AbstractContextManager["Timer"]):
             y = model(x)
     """
 
-    @override
     def __init__(self, final_string: str, precision: int = 3) -> None:
         super().__init__()
         self.start = 0
