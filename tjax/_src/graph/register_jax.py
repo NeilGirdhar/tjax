@@ -3,12 +3,14 @@ from __future__ import annotations
 from collections.abc import Callable, Hashable, Iterable
 from typing import TYPE_CHECKING, Any, cast
 
-from _typeshed import SupportsRichComparison
 from jax.tree_util import register_pytree_with_keys
 
 from tjax._src.annotations import PyTree
 
 from .types_ import GraphAuxData, GraphData, GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRichComparison
 
 try:
     import networkx as nx

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
-from _typeshed import SupportsRichComparison
+if TYPE_CHECKING:
+    from _typeshed import SupportsRichComparison
 
 
 @dataclass(frozen=True)
