@@ -12,6 +12,7 @@ from tjax import (
     Array,
     JaxRealArray,
     bessel_iv_ratio,
+    bilinear_outer,
     complex_betaln,
     complex_gammaln,
     complex_logdet,
@@ -19,6 +20,7 @@ from tjax import (
     divide_where,
     log_bessel_ive,
     normalize,
+    sesquilinear_outer,
 )
 
 
@@ -72,6 +74,14 @@ def test_divide_where(k: float) -> None:
     w_bar, x_bar = vjp_f(jnp.ones_like(y))
     assert_allclose(w_bar, k / s[-1] * jnp.tile(jnp.asarray([-1, 0, 1]), (*s[:-1], 1)), atol=1e-3)
     assert_allclose(x_bar, k / s[-1] * jnp.ones(s))
+
+
+def test_outer_products() -> None:
+    x = jnp.asarray([1.0 + 2.0j, 3.0 + 4.0j])
+    y = jnp.asarray([5.0 + 6.0j, 7.0 + 8.0j])
+
+    assert_allclose(bilinear_outer(x, y), x[:, None] * y[None, :])
+    assert_allclose(sesquilinear_outer(x, y), x[:, None] * jnp.conj(y)[None, :])
 
 
 @pytest.mark.parametrize(

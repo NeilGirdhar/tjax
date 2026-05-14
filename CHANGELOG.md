@@ -90,7 +90,7 @@ Each section covers changes since the previous release.
 - Made graph flatteners use proper JAX key types.
 - Switched dataclass field metadata from `pytree_node` to `static` (Equinox-compatible naming).
 - Removed `tjax.fixed_point` in favour of Optimistix.
-- Added matrix-tools helpers (`matrix_dot_product`, `matrix_vector_mul`, `outer_product`).
+- Added matrix-tools helpers (`matrix_dot_product`, `matrix_vector_mul`, `bilinear_outer`, `sesquilinear_outer`).
 - Fixed Flax object display in `display_generic`.
 - Switched packaging to uv/hatch.
 - Updated license to current metadata.

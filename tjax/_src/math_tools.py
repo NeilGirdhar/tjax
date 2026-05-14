@@ -16,16 +16,27 @@ def abs_square[T: Array](x: T) -> T:
     return xp.square(x.real) + xp.square(x.imag)
 
 
-# TODO: Remove when it's added to theArrayAPI:
+# TODO: Remove when it's added to the Array API:
 # https://github.com/data-apis/array-api/issues/242
-def outer_product[T: Array](x: T, y: T) -> T:
-    """Return the broadcasted outer product of a vector with itself.
+def bilinear_outer[T: Array](x: T, y: T) -> T:
+    """Return the broadcasted bilinear outer product ``x_i * y_j``.
 
     This is xp.einsum("...i,...j->...ij", x, y).
     """
     xp = array_namespace(x, y)
     xi = xp.reshape(x, (*x.shape, 1))
-    yj = xp.reshape(y.conjugate(), (*y.shape[:-1], 1, y.shape[-1]))
+    yj = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
+    return xi * yj
+
+
+def sesquilinear_outer[T: Array](x: T, y: T) -> T:
+    """Return the broadcasted sesquilinear outer product ``x_i * conj(y_j)``.
+
+    This is xp.einsum("...i,...j->...ij", x, xp.conj(y)).
+    """
+    xp = array_namespace(x, y)
+    xi = xp.reshape(x, (*x.shape, 1))
+    yj = xp.reshape(xp.conj(y), (*y.shape[:-1], 1, y.shape[-1]))
     return xi * yj
 
 
