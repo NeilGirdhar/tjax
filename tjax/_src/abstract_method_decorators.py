@@ -155,4 +155,4 @@ def abstract_custom_jvp[**P, R_co](
         setattr(fun, abstract_custom_jvp_marker, (jvp, nondiff_argnums))
         return fun
 
-    return decorator  # type: ignore
+    return decorator

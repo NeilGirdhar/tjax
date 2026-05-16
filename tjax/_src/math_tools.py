@@ -63,7 +63,7 @@ def matrix_dot_product[T: Array](x: T, y: T) -> T:
     # 3.87 µs: xp.linalg.trace(xp.moveaxis(x, -2, -1) @ y)
     """
     xp = array_namespace(x, y)
-    return xp.sum(x * y, axis=(-2, -1))
+    return xp.sum(x * y, axis=(-2, -1))  # type: ignore
 
 
 def divide_where[T: Array](
@@ -248,7 +248,7 @@ def sublinear_softplus[T: Array](x: T, maximum: T, /, *, xp: Namespace | None = 
         xp = array_namespace(x)
     o = xp.asarray(1.0)
     sp = softplus(x, xp=xp)
-    return sp / (o + sp / maximum)
+    return sp / (o + sp / maximum)  # type: ignore
 
 
 def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
@@ -260,7 +260,7 @@ def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
     return xp.where(
-        y > 80.0,  # noqa: PLR2004
+        y > 80.0,  # type: ignore # noqa: PLR2004
         y,
         xp.log(xp.expm1(y)),
     )

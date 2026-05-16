@@ -13,7 +13,7 @@ dev = [
   "ruff>=0.15",
   "scipy>=1",
   "toml-sort>=0.24",
-  "ty>=0.0.34"
+  "ty>=0.0.37"
 ]
 
 [project]
