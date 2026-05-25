@@ -292,8 +292,10 @@ def _verify(value: object, seen: MutableSet[int], key: str) -> Generator[Tree | 
         yield _assemble(key, Text(f"<seen {id(value)}>", style=_seen_color))
         return
     seen.add(id(value))
-    yield None
-    seen.remove(id(value))
+    try:
+        yield None
+    finally:
+        seen.remove(id(value))
 
 
 def _assemble(key: str, type_text: Text, separator: str = "=") -> Tree:
