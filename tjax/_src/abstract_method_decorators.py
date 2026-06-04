@@ -72,7 +72,7 @@ class JaxAbstractClass:
     @override
     def __init_subclass__(cls) -> None:
         super().__init_subclass__()
-        super_cls = super(cls, cls)
+        super_cls = super()
         wrapped_names: set[str] = set()
         for name, original_method in list(cls.__dict__.items()):
             if not hasattr(super_cls, name):

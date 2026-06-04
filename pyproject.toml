@@ -9,11 +9,12 @@ dev = [
   "lefthook>=2",
   "matplotlib>=3.10",
   "networkx>=3.3",
+  "pyrefly>=1.0",
   "pytest>=8",
   "ruff>=0.15",
   "scipy>=1",
   "toml-sort>=0.24",
-  "ty>=0.0.37"
+  "ty>=0.0.42"
 ]
 
 [project]
@@ -61,6 +62,12 @@ Changelog = "https://github.com/NeilGirdhar/tjax/blob/main/CHANGELOG.md"
 Documentation = "https://github.com/NeilGirdhar/tjax#readme"
 Issues = "https://github.com/NeilGirdhar/tjax/issues"
 Source = "https://github.com/NeilGirdhar/tjax"
+
+[tool.pyrefly]
+project-includes = [
+  "**/*.py*",
+  "**/*.ipynb"
+]
 
 [tool.pytest]
 testpaths = ["tests"]

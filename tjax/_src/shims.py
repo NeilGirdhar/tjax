@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from functools import update_wrapper
-from typing import Any, Concatenate, Self, overload
+from typing import Any, Concatenate, Self, cast, overload
 
 import jax
 from jax.tree_util import Partial
@@ -19,7 +19,7 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
     _ = update_wrapper(retval, func, all_wrapper_assignments)
     setattr(retval, jit_marker, kwargs)
     # Return type is fixed by https://github.com/NeilGirdhar/jax/tree/jit_annotation.
-    return retval
+    return cast("F", retval)
 
 
 class custom_vjp[**P, R_co]:  # noqa: N801
