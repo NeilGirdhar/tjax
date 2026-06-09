@@ -59,7 +59,7 @@ class Projector:
         if projectable is None:
             return projectable
         if isinstance(projectable, Projectable):
-            return projectable.project(self)  # type: ignore
+            return projectable.project(self)  # pyrefly: ignore
 
         assert isinstance(projectable, JaxArray)
         features = projectable.shape[-1]
