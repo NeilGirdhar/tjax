@@ -11,10 +11,10 @@ dev = [
   "networkx>=3.3",
   "pyrefly>=1.0",
   "pytest>=8",
-  "ruff>=0.15",
+  "ruff>=0.15.20",
   "scipy>=1",
   "toml-sort>=0.24",
-  "ty>=0.0.42"
+  "ty>=0.0.53"
 ]
 
 [project]
