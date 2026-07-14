@@ -68,14 +68,14 @@ if sys.version_info >= (3, 14):
     def field(
         *,
         static: bool = False,
-        default: Any = _MissingType.MISSING,
-        default_factory: Any = _MissingType.MISSING,
+        default: Any = dataclasses.MISSING,
+        default_factory: Any = dataclasses.MISSING,
         init: bool = True,
         repr: bool = True,  # noqa: A002
         hash: bool | None = None,  # noqa: A002
         compare: bool = True,
         metadata: Mapping[str, Any] | None = None,
-        kw_only: Any = _MissingType.MISSING,
+        kw_only: Any = dataclasses.MISSING,
         doc: str | None = None,
     ) -> Any:
         """A field creator with a static indicator.
@@ -85,7 +85,7 @@ if sys.version_info >= (3, 14):
         """
         metadata_dict: dict[str, Any] = {} if metadata is None else dict(metadata)
         metadata_dict["static"] = static
-        if default is _MissingType.MISSING:
+        if default is dataclasses.MISSING:
             return dataclasses.field(
                 default_factory=default_factory,
                 init=init,
@@ -150,14 +150,14 @@ else:
     def field(
         *,
         static: bool = False,
-        default: Any = _MissingType.MISSING,
-        default_factory: Any = _MissingType.MISSING,
+        default: Any = dataclasses.MISSING,
+        default_factory: Any = dataclasses.MISSING,
         init: bool = True,
         repr: bool = True,  # noqa: A002
         hash: bool | None = None,  # noqa: A002
         compare: bool = True,
         metadata: Mapping[str, Any] | None = None,
-        kw_only: Any = _MissingType.MISSING,
+        kw_only: Any = dataclasses.MISSING,
     ) -> Any:
         """A field creator with a static indicator.
 
@@ -166,7 +166,7 @@ else:
         """
         metadata_dict: dict[str, Any] = {} if metadata is None else dict(metadata)
         metadata_dict["static"] = static
-        if default is _MissingType.MISSING:
+        if default is dataclasses.MISSING:
             return dataclasses.field(
                 default_factory=default_factory,
                 init=init,
