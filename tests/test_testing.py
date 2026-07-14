@@ -51,7 +51,7 @@ def test_tree_allclose(actual: object, desired: object, *, result: bool | None) 
 
 
 def test_tree_allclose_structure_mismatch() -> None:
-    with pytest.raises(ValueError, match="Tuple arity mismatch"):
+    with pytest.raises(ValueError, match="different lengths of tuple"):
         tree_allclose((1, 2), (1, 2, 3))
 
 
