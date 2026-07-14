@@ -62,8 +62,9 @@ class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, We
     learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
-    eps: RealNumeric = 1e-8
+    eps: RealNumeric = 1e-16
     eps_root: RealNumeric = 1e-16
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -545,13 +546,13 @@ class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
         learning_rate: Global step-size schedule or scalar.
         eta: Base variance of the Gaussian noise.
         gamma: Decay exponent for the noise variance.
-        seed: Seed for random noise generation.
+        key: PRNG key for random noise generation.
     """
 
     learning_rate: ScalarOrSchedule
-    key: KeyArray
     eta: RealNumeric = 0.01
     gamma: RealNumeric = 0.55
+    key: KeyArray | None = None
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -624,8 +625,8 @@ class OptimisticGradientDescent[Weights: PyTree](
     """
 
     learning_rate: ScalarOrSchedule
-    alpha: ScalarOrSchedule
-    beta: ScalarOrSchedule
+    alpha: ScalarOrSchedule = 1.0
+    beta: ScalarOrSchedule = 1.0
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -665,6 +666,7 @@ class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, We
     scaling: ScalarOrSchedule = 1.0
     f_min: RealNumeric = 0.0
     eps: RealNumeric = 0.0
+    variant: str = field(default="sps", static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -753,6 +755,7 @@ class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     decay: RealNumeric = 0.9
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
+    eps_in_sqrt: bool = field(default=True, static=True)
     centered: bool = field(default=False, static=True)
     momentum: float | None = None
     nesterov: bool = field(default=False, static=True)

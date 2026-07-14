@@ -167,17 +167,19 @@ class ScaleByRms[Weights: PyTree](GradientTransformation[GenericGradientState, W
     decay: RealNumeric = 0.9
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
+    eps_in_sqrt: bool = field(default=True, static=True)
+    bias_correction: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_rms(self.decay, self.eps, self.initial_scale)
+        t = scale_by_rms(**as_shallow_dict(self))
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_rms(self.decay, self.eps, self.initial_scale)
+        t = scale_by_rms(**as_shallow_dict(self))
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
@@ -199,17 +201,19 @@ class ScaleByStddev[Weights: PyTree](GradientTransformation[GenericGradientState
     decay: RealNumeric = 0.9
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
+    eps_in_sqrt: bool = field(default=True, static=True)
+    bias_correction: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)
+        t = scale_by_stddev(**as_shallow_dict(self))
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_stddev(self.decay, self.eps, self.initial_scale)
+        t = scale_by_stddev(**as_shallow_dict(self))
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
@@ -235,6 +239,7 @@ class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, 
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     mu_dtype: Any = field(default=None, static=True)
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -343,19 +348,20 @@ class ScaleByBelief[Weights: PyTree](GradientTransformation[GenericGradientState
 
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
-    eps: RealNumeric = 0.0
+    eps: RealNumeric = 1e-16
     eps_root: RealNumeric = 1e-16
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_belief(**as_shallow_dict(self))
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_belief(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_belief(**as_shallow_dict(self))
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
@@ -420,17 +426,18 @@ class ScaleByRAdam[Weights: PyTree](GradientTransformation[GenericGradientState,
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     threshold: RealNumeric = 5.0
+    nesterov: bool = field(default=False, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_radam(**as_shallow_dict(self))
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_radam(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_radam(**as_shallow_dict(self))
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
@@ -531,12 +538,12 @@ class AddNoise[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     Args:
         eta: base variance of the gaussian noise added to the gradient.
         gamma: decay exponent for annealing of the variance.
-        seed: seed for random number generation.
+        key: PRNG key for random number generation.
     """
 
     eta: RealNumeric
     gamma: RealNumeric
-    rng: KeyArray
+    key: KeyArray | int | None = None
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
