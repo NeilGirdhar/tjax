@@ -3,6 +3,13 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.7.0 - 2026-07-14
+
+- Made `optax` shims consistent.
+- Fixed tjax field defaults to use `dataclasses.MISSING`.
+- Upgraded `ruff` and `ty`.
+- Standardized dependency names.
+
 ## 1.6.0 - 2026-05-14
 
 - Preserved `abstract_jit` and `abstract_custom_jvp` markers through intermediate method overrides
