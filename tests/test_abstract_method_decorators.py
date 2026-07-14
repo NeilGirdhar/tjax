@@ -151,6 +151,34 @@ def test_abstract_custom_jvp_marker_survives_intermediate_override() -> None:
     assert grad(Concrete().value)(jnp.asarray(2.0)) == EXPECTED_CUSTOM_GRADIENT
 
 
+def test_indirect_custom_jvp_override_saves_original_method() -> None:
+    def value_jvp(
+        primals: tuple[CustomJvpBase, jnp.ndarray],
+        tangents: tuple[CustomJvpBase, jnp.ndarray],
+    ) -> tuple[jnp.ndarray, jnp.ndarray]:
+        self, x = primals
+        _, x_dot = tangents
+        return self.value(x), 4.0 * x_dot
+
+    @dataclass
+    class CustomJvpBase(JaxAbstractClass):
+        @abstract_custom_jvp(value_jvp)
+        def value(self, x: jnp.ndarray) -> jnp.ndarray:
+            raise NotImplementedError
+
+    @dataclass
+    class Intermediate(CustomJvpBase):
+        pass
+
+    @dataclass
+    class Concrete(Intermediate):
+        def value(self, x: jnp.ndarray) -> jnp.ndarray:
+            return x**2
+
+    assert "_original_value" in Concrete.__dict__
+    assert grad(Concrete().value)(jnp.asarray(2.0)) == EXPECTED_CUSTOM_GRADIENT
+
+
 def test_concrete_custom_jvp_method_is_rewrapped_when_inherited() -> None:
     def value_jvp(
         primals: tuple[CustomJvpBase, jnp.ndarray],
