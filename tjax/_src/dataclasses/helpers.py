@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import dataclasses
-import enum
 import sys
 from collections.abc import Callable, Mapping
-from dataclasses import fields
-from typing import Any, ClassVar, Literal, Protocol, overload, runtime_checkable
+from dataclasses import _MISSING_TYPE, fields
+from typing import Any, ClassVar, Protocol, overload, runtime_checkable
 
 
 @runtime_checkable
@@ -13,10 +12,6 @@ class DataclassInstance(Protocol):
     """Protocol satisfied by any object created by :func:`dataclasses.dataclass`."""
 
     __dataclass_fields__: ClassVar[dict[str, dataclasses.Field[Any]]]
-
-
-class _MissingType(enum.Enum):
-    MISSING = enum.auto()
 
 
 # NOTE: Actual return type is 'Field[T]', but we want to help type checkers
@@ -28,41 +23,41 @@ if sys.version_info >= (3, 14):
         *,
         static: bool = False,
         default: T,
-        default_factory: Literal[_MissingType.MISSING] = ...,
+        default_factory: _MISSING_TYPE = ...,
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
         doc: str | None = None,
     ) -> T: ...
     @overload
     def field[T](
         *,
         static: bool = False,
-        default: Literal[_MissingType.MISSING] = ...,
+        default: _MISSING_TYPE = ...,
         default_factory: Callable[[], T],
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
         doc: str | None = None,
     ) -> T: ...
     @overload
     def field(
         *,
         static: bool = False,
-        default: Literal[_MissingType.MISSING] = ...,
-        default_factory: Literal[_MissingType.MISSING] = ...,
+        default: _MISSING_TYPE = ...,
+        default_factory: _MISSING_TYPE = ...,
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
         doc: str | None = None,
     ) -> Any: ...  # noqa: ANN401
     def field(
@@ -113,39 +108,39 @@ else:
         *,
         static: bool = False,
         default: T,
-        default_factory: Literal[_MissingType.MISSING] = ...,
+        default_factory: _MISSING_TYPE = ...,
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
     ) -> T: ...
     @overload
     def field[T](
         *,
         static: bool = False,
-        default: Literal[_MissingType.MISSING] = ...,
+        default: _MISSING_TYPE = ...,
         default_factory: Callable[[], T],
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
     ) -> T: ...
     @overload
     def field(
         *,
         static: bool = False,
-        default: Literal[_MissingType.MISSING] = ...,
-        default_factory: Literal[_MissingType.MISSING] = ...,
+        default: _MISSING_TYPE = ...,
+        default_factory: _MISSING_TYPE = ...,
         init: bool = True,
         repr: bool = True,
         hash: bool | None = None,
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
-        kw_only: bool | Literal[_MissingType.MISSING] = ...,
+        kw_only: bool | _MISSING_TYPE = ...,
     ) -> Any: ...  # noqa: ANN401
     def field(
         *,
