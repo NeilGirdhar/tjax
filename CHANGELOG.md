@@ -3,6 +3,12 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.7.1 - 2026-07-14
+
+- Fixed a bug in `JaxAbstractClass`.
+- Replaced the `_MissingType` enum sentinel in the `field()` to fix pyrefly errors.
+- Bumped the JAX requirement to 0.10.2.
+
 ## 1.7.0 - 2026-07-14
 
 - Made `optax` shims consistent.
