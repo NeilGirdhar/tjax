@@ -67,7 +67,7 @@ def display_time(elapsed_ns: float, *, precision: int = 3) -> str:
         precision: Number of significant digits in the formatted output.
     """
     elapsed = elapsed_ns
-    for unit in ["n", "μ", "m"]:  # noqa: B007
+    for unit in ["n", "μ", "m"]:  # ruff:ignore[unused-loop-control-variable]
         if elapsed < _metric_factor:
             break
         elapsed /= _metric_factor

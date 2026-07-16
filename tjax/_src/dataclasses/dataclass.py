@@ -45,7 +45,7 @@ def dataclass(
     /,
     *,
     init: bool = True,
-    repr: bool = True,  # noqa: A002
+    repr: bool = True,  # ruff:ignore[builtin-argument-shadowing]
     eq: bool = True,
     order: bool = False,
     frozen: bool = True,

@@ -161,7 +161,7 @@ def complex_gammaln(a: jax.Array, /) -> jax.Array:
     return gammaln(a_arr)
 
 
-def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # noqa: PLR0914
+def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # ruff:ignore[too-many-locals]
     """Return ``loggamma(b) - loggamma(a + b)`` via an asymptotic series in ``1/b``.
 
     Complex generalization of scipy's ``algdiv``. Valid where ``|b|`` is not small and ``b``,
@@ -211,7 +211,7 @@ def complex_betaln(a: jax.Array, b: jax.Array, /) -> jax.Array:
     b_s = jnp.where(swap, a_arr, b_arr)
     small_b = loggamma(a_s) + (loggamma(b_s) - loggamma(a_s + b_s))
     large_b = loggamma(a_s) + _complex_algdiv(a_s, b_s)
-    return jnp.where(jnp.abs(b_s) < 8.0, small_b, large_b)  # noqa: PLR2004
+    return jnp.where(jnp.abs(b_s) < 8.0, small_b, large_b)  # ruff:ignore[magic-value-comparison]
 
 
 def complex_multigammaln(a: jax.Array, d: int, /) -> jax.Array:
@@ -260,7 +260,7 @@ def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
     return xp.where(
-        y > 80.0,  # type: ignore # noqa: PLR2004
+        y > 80.0,  # type: ignore # ruff:ignore[magic-value-comparison]
         y,
         xp.log(xp.expm1(y)),
     )
@@ -307,11 +307,11 @@ def stop_gradient[U](x: U, *, xp: Namespace | None = None) -> U:
     if xp is None:
         xp = array_namespace(x)
     if is_jax_namespace(xp):
-        from jax.lax import stop_gradient as sg  # noqa: PLC0415
+        from jax.lax import stop_gradient as sg  # ruff:ignore[import-outside-top-level]
 
         return sg(x)
     if is_torch_namespace(xp):
-        from torch import Tensor  # noqa: PLC0415  # type: ignore
+        from torch import Tensor  # ruff:ignore[import-outside-top-level]  # type: ignore
 
         assert isinstance(x, Tensor)
         return x.detach()

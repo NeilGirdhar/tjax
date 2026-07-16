@@ -4,7 +4,7 @@ import jax.numpy as jnp
 import numpy as np
 from numpy.testing import assert_allclose
 
-from tjax._src.shims import hessian  # noqa: PLC2701
+from tjax._src.shims import hessian  # ruff:ignore[import-private-name]
 
 
 def _quad_with_aux(x: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:

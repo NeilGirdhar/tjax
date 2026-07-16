@@ -26,7 +26,7 @@ def internal_print_generic(
     root = Tree("", hide_root=True)
     for value in args:
         if as_leaves:
-            value = node_to_leaves(value)  # noqa: PLW2901
+            value = node_to_leaves(value)  # ruff:ignore[redefined-loop-name]
         _ = root.add(display_generic(value, seen=set()))
         found_nan = found_nan or raise_on_nan and "nan" in str(root)
     console.print(root)

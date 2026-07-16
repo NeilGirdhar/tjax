@@ -3,18 +3,18 @@ from __future__ import annotations
 import jax.numpy as jnp
 from jax import grad
 
-from tjax._src.abstract_method_decorators import (  # noqa: PLC2701
+from tjax._src.abstract_method_decorators import (  # ruff:ignore[import-private-name]
     JaxAbstractClass,
     abstract_custom_jvp,
     abstract_jit,
 )
-from tjax._src.dataclasses.dataclass import dataclass  # noqa: PLC2701
-from tjax._src.function_markers import (  # noqa: PLC2701
+from tjax._src.dataclasses.dataclass import dataclass  # ruff:ignore[import-private-name]
+from tjax._src.function_markers import (  # ruff:ignore[import-private-name]
     abstract_custom_jvp_marker,
     abstract_jit_marker,
     jit_marker,
 )
-from tjax._src.shims import jit  # noqa: PLC2701
+from tjax._src.shims import jit  # ruff:ignore[import-private-name]
 
 EXPECTED_JIT_VALUE = 3.0
 EXPECTED_CUSTOM_GRADIENT = 4.0

@@ -14,7 +14,7 @@ from jax import Array
 from jax.errors import TracerArrayConversionError
 from jax.interpreters.partial_eval import DynamicJaxprTracer
 from jax.tree_util import PyTreeDef
-from jaxlib._jax import PjitFunction  # noqa: PLC2701 # type: ignore
+from jaxlib._jax import PjitFunction  # ruff:ignore[import-private-name] # type: ignore
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
@@ -333,7 +333,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
             ],
         )
         return
-    if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # noqa: PLR2004
+    if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # ruff:ignore[magic-value-comparison]
         xarray = np.asarray(array)
         tree.children.append(display_generic(np.mean(xarray).item(), seen=set(), key="mean"))
         tree.children.append(display_generic(np.std(xarray).item(), seen=set(), key="deviation"))
@@ -346,7 +346,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
         table.add_column()
     if len(array.shape) == 1:
         table.add_row(*(_format_number(array[i]) for i in range(array.shape[0])))
-    elif len(array.shape) == 2:  # noqa: PLR2004
+    elif len(array.shape) == 2:  # ruff:ignore[magic-value-comparison]
         for j in range(array.shape[0]):
             table.add_row(*(_format_number(array[j, i]) for i in range(array.shape[1])))
     _ = tree.add(table)

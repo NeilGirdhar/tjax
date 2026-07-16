@@ -22,7 +22,7 @@ def jit[F: Callable[..., Any]](func: F, **kwargs: object) -> F:
     return cast("F", retval)
 
 
-class custom_vjp[**P, R_co]:  # noqa: N801
+class custom_vjp[**P, R_co]:  # ruff:ignore[invalid-class-name]
     """A shim class over jax.custom_vjp that uses ParamSpec.
 
     Args:
@@ -46,7 +46,7 @@ class custom_vjp[**P, R_co]:  # noqa: N801
         return self.vjp(*args, **kwargs)
 
 
-class custom_vjp_method[U, **P, R_co]:  # noqa: N801
+class custom_vjp_method[U, **P, R_co]:  # ruff:ignore[invalid-class-name]
     """A shim class over jax.custom_vjp that uses ParamSpec and works with methods.
 
     Args:
@@ -86,7 +86,7 @@ class custom_vjp_method[U, **P, R_co]:  # noqa: N801
         return Partial(self, instance)
 
 
-class custom_jvp[**P, R_co]:  # noqa: N801
+class custom_jvp[**P, R_co]:  # ruff:ignore[invalid-class-name]
     """A shim class over jax.custom_jvp that uses ParamSpec.
 
     Args:
@@ -112,7 +112,7 @@ class custom_jvp[**P, R_co]:  # noqa: N801
         return self.jvp(*args, **kwargs)
 
 
-class custom_jvp_method[U, **P, R_co]:  # noqa: N801
+class custom_jvp_method[U, **P, R_co]:  # ruff:ignore[invalid-class-name]
     """A shim class over jax.custom_jvp that uses ParamSpec and works with methods.
 
     Args:

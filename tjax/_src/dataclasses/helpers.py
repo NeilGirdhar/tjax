@@ -59,15 +59,15 @@ if sys.version_info >= (3, 14):
         metadata: Mapping[Any, Any] | None = None,
         kw_only: bool | _MISSING_TYPE = ...,
         doc: str | None = None,
-    ) -> Any: ...  # noqa: ANN401
+    ) -> Any: ...  # ruff:ignore[any-type]
     def field(
         *,
         static: bool = False,
         default: Any = dataclasses.MISSING,
         default_factory: Any = dataclasses.MISSING,
         init: bool = True,
-        repr: bool = True,  # noqa: A002
-        hash: bool | None = None,  # noqa: A002
+        repr: bool = True,  # ruff:ignore[builtin-argument-shadowing]
+        hash: bool | None = None,  # ruff:ignore[builtin-argument-shadowing]
         compare: bool = True,
         metadata: Mapping[str, Any] | None = None,
         kw_only: Any = dataclasses.MISSING,
@@ -141,15 +141,15 @@ else:
         compare: bool = True,
         metadata: Mapping[Any, Any] | None = None,
         kw_only: bool | _MISSING_TYPE = ...,
-    ) -> Any: ...  # noqa: ANN401
+    ) -> Any: ...  # ruff:ignore[any-type]
     def field(
         *,
         static: bool = False,
         default: Any = dataclasses.MISSING,
         default_factory: Any = dataclasses.MISSING,
         init: bool = True,
-        repr: bool = True,  # noqa: A002
-        hash: bool | None = None,  # noqa: A002
+        repr: bool = True,  # ruff:ignore[builtin-argument-shadowing]
+        hash: bool | None = None,  # ruff:ignore[builtin-argument-shadowing]
         compare: bool = True,
         metadata: Mapping[str, Any] | None = None,
         kw_only: Any = dataclasses.MISSING,

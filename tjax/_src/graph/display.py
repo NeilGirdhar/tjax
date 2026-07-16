@@ -8,7 +8,7 @@ from rich.tree import Tree
 from tjax._src.display.display_generic import _verify, display_class, display_generic
 
 
-def graph_arrow(directed: bool) -> str:  # noqa: FBT001
+def graph_arrow(directed: bool) -> str:  # ruff:ignore[boolean-type-hint-positional-argument]
     return "⟶" if directed else "↔"
 
 

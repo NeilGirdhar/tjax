@@ -15,12 +15,12 @@ from tjax.gradient import Adam, GradientTransformation
 
 @partial(jit, static_argnames=("optax_gt",))
 def try_model_optax(optax_gt: OptaxGradientTransformation) -> None:
-    print("Recompiling using optax!")  # noqa: T201
+    print("Recompiling using optax!")  # ruff:ignore[print]
 
 
 @jit
 def try_model_tjax(tjax_gt: GradientTransformation[Any, Any]) -> None:
-    print("Recompiling using tjax!")  # noqa: T201
+    print("Recompiling using tjax!")  # ruff:ignore[print]
 
 
 for learning_rate in [0.1, 0.2, 0.4, 0.8]:

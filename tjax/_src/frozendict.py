@@ -14,7 +14,7 @@ if sys.version_info >= (3, 15):
 else:
     from collections.abc import Iterator, Mapping
 
-    class frozendict[K, V](Mapping[K, V]):  # noqa: N801
+    class frozendict[K, V](Mapping[K, V]):  # ruff:ignore[invalid-class-name]
         """An immutable, hashable dictionary backport for Python < 3.15.
 
         On Python 3.15+ the builtin ``frozendict`` is used instead.  This
@@ -53,10 +53,10 @@ else:
             return f"{type(self).__name__}({self._data!r})"
 
         def __setattr__(self, _name: str, _value: object) -> None:
-            raise AttributeError("frozendict is immutable")  # noqa: TRY003
+            raise AttributeError("frozendict is immutable")  # ruff:ignore[raise-vanilla-args]
 
         def __delattr__(self, _name: str) -> None:
-            raise AttributeError("frozendict is immutable")  # noqa: TRY003
+            raise AttributeError("frozendict is immutable")  # ruff:ignore[raise-vanilla-args]
 
 
 def _flatten_frozendict_with_keys[K: SupportsRichComparison, V](

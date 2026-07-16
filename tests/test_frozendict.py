@@ -11,7 +11,7 @@ def test_frozendict_mapping_and_hash() -> None:
     data = frozendict({"a": 1, "b": 2})
 
     assert data["a"] == 1
-    assert len(data) == 2  # noqa: PLR2004
+    assert len(data) == 2  # ruff:ignore[magic-value-comparison]
     assert list(data) == ["a", "b"]
     assert hash(data) == hash(frozendict({"b": 2, "a": 1}))
     assert repr(data) == "frozendict({'a': 1, 'b': 2})"
@@ -58,5 +58,5 @@ def test_frozendict_can_flow_through_jit() -> None:
 
     assert isinstance(result, frozendict)
     assert list(result) == ["a", "b"]
-    assert int(result["a"]) == 2  # noqa: PLR2004
-    assert int(result["b"]) == 3  # noqa: PLR2004
+    assert int(result["a"]) == 2  # ruff:ignore[magic-value-comparison]
+    assert int(result["b"]) == 3  # ruff:ignore[magic-value-comparison]
