@@ -74,7 +74,7 @@ class JaxAbstractClass:
         super().__init_subclass__()
         # Start immediately after the class being initialized.  Bare ``super()`` would start after
         # JaxAbstractClass, where this method is defined, and skip the subclass's decorated bases.
-        super_cls = super(cls, cls)
+        super_cls = super(cls, cls)  # pyrefly: ignore[invalid-argument]
         wrapped_names: set[str] = set()
         for name, original_method in list(cls.__dict__.items()):
             if not hasattr(super_cls, name):
