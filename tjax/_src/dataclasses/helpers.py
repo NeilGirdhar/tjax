@@ -60,7 +60,7 @@ if sys.version_info >= (3, 14):
         kw_only: bool | _MISSING_TYPE = ...,
         doc: str | None = None,
     ) -> Any: ...  # ruff:ignore[any-type]
-    def field(
+    def field(  # ruff:ignore[too-many-arguments]
         *,
         static: bool = False,
         default: Any = dataclasses.MISSING,
@@ -142,7 +142,7 @@ else:
         metadata: Mapping[Any, Any] | None = None,
         kw_only: bool | _MISSING_TYPE = ...,
     ) -> Any: ...  # ruff:ignore[any-type]
-    def field(
+    def field(  # ruff:ignore[too-many-arguments]
         *,
         static: bool = False,
         default: Any = dataclasses.MISSING,
