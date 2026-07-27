@@ -485,14 +485,14 @@ class ScaleBySchedule[Weights: PyTree](GradientTransformation[GenericGradientSta
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_schedule(self.step_size_fn)  # pyrefly: ignore
+        t = scale_by_schedule(self.step_size_fn)  # pyrefly: ignore  # ty: ignore[invalid-argument-type]
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_schedule(self.step_size_fn)  # pyrefly: ignore
+        t = scale_by_schedule(self.step_size_fn)  # pyrefly: ignore  # ty: ignore[invalid-argument-type]
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )

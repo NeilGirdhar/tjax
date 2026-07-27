@@ -121,7 +121,7 @@ def _(
     except TracerArrayConversionError:
         pass  # This happens when trying to print a tracer in immediate mode.
     else:
-        _show_array(retval, np_value)  # type: ignore
+        _show_array(retval, np_value)
     return retval
 
 
@@ -328,9 +328,7 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
     if 1 in array.shape:
         _show_array(
             tree,
-            array[  # type: ignore
-                tuple[int | slice, ...](0 if s == 1 else slice(None) for s in array.shape)
-            ],
+            array[tuple[int | slice, ...](0 if s == 1 else slice(None) for s in array.shape)],
         )
         return
     if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # ruff:ignore[magic-value-comparison]

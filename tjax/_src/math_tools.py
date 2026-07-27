@@ -260,7 +260,7 @@ def inverse_softplus[T: Array](y: T, /, *, xp: Namespace | None = None) -> T:
     if xp is None:
         xp = array_namespace(y)
     return xp.where(
-        y > 80.0,  # type: ignore # ruff:ignore[magic-value-comparison]
+        y > 80.0,  # ruff:ignore[magic-value-comparison]
         y,
         xp.log(xp.expm1(y)),
     )
