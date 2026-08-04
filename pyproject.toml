@@ -14,7 +14,8 @@ dev = [
   "ruff>=0.15.20",
   "scipy>=1.15",
   "toml-sort>=0.24",
-  "ty>=0.0.53"
+  "ty>=0.0.66",
+  "types-networkx>=3.6.1.20260728"
 ]
 
 [project]
