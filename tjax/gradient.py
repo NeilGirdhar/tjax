@@ -1,4 +1,4 @@
-from tjax._src.gradient.aliases import (
+from ._src.gradient.aliases import (
     DPSGD,
     LARS,
     LBFGS,
@@ -23,16 +23,16 @@ from tjax._src.gradient.aliases import (
     RMSProp,
     Yogi,
 )
-from tjax._src.gradient.chain import ChainedGradientState, ChainedGradientTransformation
-from tjax._src.gradient.smd import SMDGradient, SMDState
-from tjax._src.gradient.transform import (
+from ._src.gradient.chain import ChainedGradientState, ChainedGradientTransformation
+from ._src.gradient.smd import SMDGradient, SMDState
+from ._src.gradient.transform import (
     DiagHessianGradientTransformation,
     GenericGradientState,
     GradientState,
     GradientTransformation,
     HvpGradientTransformation,
 )
-from tjax._src.gradient.transforms import (
+from ._src.gradient.transforms import (
     AddDecayedWeights,
     AddNoise,
     ApplyEvery,
