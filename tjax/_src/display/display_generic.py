@@ -331,7 +331,8 @@ def _show_array(tree: Tree, array: NumpyArray) -> None:
             array[tuple[int | slice, ...](0 if s == 1 else slice(None) for s in array.shape)],
         )
         return
-    if any(x > 12 for x in array.shape) or len(array.shape) > 2:  # ruff:ignore[magic-value-comparison]
+    # ruff:ignore[magic-value-comparison]
+    if any(x > 12 for x in array.shape) or len(array.shape) > 2:
         xarray = np.asarray(array)
         tree.children.append(display_generic(np.mean(xarray).item(), seen=set(), key="mean"))
         tree.children.append(display_generic(np.std(xarray).item(), seen=set(), key="deviation"))
