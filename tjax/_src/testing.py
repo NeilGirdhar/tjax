@@ -258,11 +258,7 @@ def _(
 
     def relative_string(key: object, sub_actual: str) -> str:
         return get_relative_test_string(
-            sub_actual,
-            f"{original_name}[{key}]",
-            original[key],  # type: ignore
-            rtol,
-            atol,
+            sub_actual, f"{original_name}[{key}]", original[key], rtol, atol
         )
 
     return (
