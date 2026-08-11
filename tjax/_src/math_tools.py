@@ -13,7 +13,7 @@ from .annotations import Array, BooleanArray, Namespace
 def abs_square[T: Array](x: T) -> T:
     """Return the squared absolute value ``|x|²``, supporting complex arrays."""
     xp = array_namespace(x)
-    return xp.square(x.real) + xp.square(x.imag)
+    return xp.square(x.real) + xp.square(x.imag)  # type: ignore
 
 
 # TODO: Remove when it's added to the Array API:
@@ -24,8 +24,8 @@ def bilinear_outer[T: Array](x: T, y: T) -> T:
     This is xp.einsum("...i,...j->...ij", x, y).
     """
     xp = array_namespace(x, y)
-    xi = xp.reshape(x, (*x.shape, 1))
-    yj = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
+    xi = xp.reshape(x, (*x.shape, 1))  # type: ignore
+    yj = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))  # type: ignore
     return xi * yj
 
 
@@ -35,8 +35,8 @@ def sesquilinear_outer[T: Array](x: T, y: T) -> T:
     This is xp.einsum("...i,...j->...ij", x, xp.conj(y)).
     """
     xp = array_namespace(x, y)
-    xi = xp.reshape(x, (*x.shape, 1))
-    yj = xp.reshape(xp.conj(y), (*y.shape[:-1], 1, y.shape[-1]))
+    xi = xp.reshape(x, (*x.shape, 1))  # type: ignore
+    yj = xp.reshape(xp.conj(y), (*y.shape[:-1], 1, y.shape[-1]))  # type: ignore
     return xi * yj
 
 
@@ -50,7 +50,7 @@ def matrix_vector_mul[T: Array](x: T, y: T) -> T:
     * 4.44 µs: np.einsum("...i,...ij,...j->...", x, m, x)
     """
     xp = array_namespace(x, y)
-    y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))
+    y = xp.reshape(y, (*y.shape[:-1], 1, y.shape[-1]))  # type: ignore
     return xp.sum(x * y, axis=-1)
 
 
@@ -283,15 +283,15 @@ def normalize[T: Array](
             all axes.
     """
     xp = array_namespace(x)
-    epsilon = 10 * xp.finfo(x.dtype).eps
+    epsilon = 10 * xp.finfo(x.dtype).eps  # type: ignore
     match mode:
         case "l1":
             sum_x = xp.sum(xp.abs(x), axis=axis, keepdims=True)
-            size = x.size / sum_x.size
+            size = x.size / sum_x.size  # type: ignore
             return xp.where(sum_x < epsilon, xp.ones_like(x) / size, x / sum_x)
         case "l2":
             sum_x = xp.sqrt(xp.sum(xp.square(x), axis=axis, keepdims=True))
-            size = x.size / sum_x.size
+            size = x.size / sum_x.size  # type: ignore
             return xp.where(sum_x < epsilon, xp.ones_like(x) * xp.pow(size, -0.5), x / sum_x)
         case "max":
             sum_x = xp.max(xp.abs(x), axis=axis, keepdims=True)
