@@ -7,7 +7,7 @@ from jax import enable_x64
 from rich.console import Console
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True)  # ruff: ignore[pytest-fixture-autouse]
 def _jax_enable64() -> Generator[None]:
     with enable_x64():
         yield
