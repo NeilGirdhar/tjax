@@ -52,7 +52,7 @@ dependencies = [
   "array-api-compat>=1.10",
   "jax>=0.10.2",
   "numpy>=2.2",
-  "optax>=0.2.3",
+  "optax>=0.2.5",
   "optype[numpy]>=0.12.2",
   "rich>=13.7"
 ]
