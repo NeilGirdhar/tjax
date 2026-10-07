@@ -3,6 +3,13 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.8.1 - 2026-10-07
+
+- Added a CI workflow that runs `ruff`, `ty`, and `pytest` on Python 3.13 and 3.14. Added a job that tests against the lowest allowed direct dependencies, and raised the `optax` lower bound to 0.2.5.
+- Tidied the release workflow so tests run before building, and bumped its GitHub Actions.
+- Upgraded `ty`.
+- Pointed the README links at `main` instead of `master`.
+
 ## 1.8.0 - 2026-10-07
 
 - Dropped Python 3.12 support, following SPEC 0, and bumped `uv_build` to 0.12.
