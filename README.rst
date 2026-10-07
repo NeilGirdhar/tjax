@@ -38,14 +38,14 @@ Major components
 
 Tjax's major components are:
 
-- A `dataclass <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/dataclasses>`_ decorator
+- A `dataclass <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/dataclasses>`_ decorator
   :python:`dataclass` that facilitates defining structured JAX objects (so-called "pytrees"), which
   benefits from:
 
   - the ability to mark fields as static (not available in `chex.dataclass`), and
   - a display method that produces formatted text according to the tree structure.
 
-- A `shim <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/gradient>`_ for the gradient
+- A `shim <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/gradient>`_ for the gradient
   transformation library `optax <https://github.com/deepmind/optax>`_ that supports:
 
 
@@ -54,7 +54,7 @@ Tjax's major components are:
   - generic type annotations.
 
 - A pretty printer :python:`print_generic` for aggregate and vector types, including dataclasses.  (See
-  `display <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/display>`_.)  It features:
+  `display <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/display>`_.)  It features:
 
   - support for traced values,
   - colorized tree output for aggregate structures, and
@@ -68,27 +68,27 @@ Tjax also includes:
 
 - Versions of :python:`custom_vjp` and :python:`custom_jvp` that support being used on methods:
   :python:`custom_vjp_method` and :python:`custom_jvp_method`
-  (See `shims <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/shims.py>`_.)
+  (See `shims <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/shims.py>`_.)
 
 - Tools for working with cotangents.  (See
-  `cotangent_tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/cotangent_tools.py>`_.)
+  `cotangent_tools <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/cotangent_tools.py>`_.)
 
 - JAX tree registration for `NetworkX <https://networkx.github.io/>`_ graph types.  (See
-  `graph <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/graph/>`_.)
+  `graph <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/graph/>`_.)
 
 - A hashable immutable mapping :python:`frozendict` that is registered as a JAX pytree, so it can be
   passed through transforms like :python:`jit` and :python:`vmap`.  (See
-  `frozendict <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/frozendict.py>`_.)
+  `frozendict <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/frozendict.py>`_.)
 
 - Leaky integration :python:`leaky_integrate` and Ornstein-Uhlenbeck process iteration
-  :python:`diffused_leaky_integrate`.  (See `leaky_integral <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/leaky_integral.py>`_.)
+  :python:`diffused_leaky_integrate`.  (See `leaky_integral <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/leaky_integral.py>`_.)
 
 
 - A testing function :python:`assert_tree_allclose` that automatically produces testing code.  And, a related
   function :python:`tree_allclose`, which compares pytrees with matching structure.  (See
-  `testing <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/testing.py>`_.)
+  `testing <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/testing.py>`_.)
 
-- Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/master/tjax/_src/math_tools.py>`_.)
+- Basic tools like :python:`divide_where`.  (See `tools <https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/math_tools.py>`_.)
 
 -----------------------
 Contribution guidelines
