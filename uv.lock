@@ -2050,7 +2050,7 @@ dev = [
     { name = "ruff", specifier = ">=0.16.5" },
     { name = "scipy", specifier = ">=1.15" },
     { name = "toml-sort", specifier = ">=0.24" },
-    { name = "ty", specifier = ">=0.0.70" },
+    { name = "ty", specifier = ">=0.0.85" },
     { name = "types-networkx", specifier = ">=3.6.1.20260728" },
 ]
 
