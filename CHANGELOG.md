@@ -3,6 +3,12 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.8.0 - 2026-10-07
+
+- Dropped Python 3.12 support, following SPEC 0, and bumped `uv_build` to 0.12.
+- Upgraded `ruff` and `ty`, and enabled Ruff's too-many-arguments checks.
+- Simplified imports and sorted `pyproject.toml`.
+
 ## 1.7.1 - 2026-07-14
 
 - Fixed a bug in `JaxAbstractClass`.
