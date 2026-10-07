@@ -29,17 +29,22 @@ license-files = ["LICENSE"]
 authors = [{ name = "Neil Girdhar", email = "mistersheik@gmail.com" }]
 maintainers = [{ name = "Neil Girdhar", email = "mistersheik@gmail.com" }]
 keywords = [
+  "custom-vjp",
   "dataclasses",
+  "gradient-transformations",
   "jax",
   "optax",
+  "pretty-printing",
   "pytrees",
-  "type-annotations"
+  "typing"
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python",
