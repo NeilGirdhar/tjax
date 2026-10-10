@@ -3,6 +3,11 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 1.9.0 - 2026-10-09
+
+- Added Python 3.15 support.
+- Improved the package keywords and classifiers, and moved the development status to Production/Stable.
+
 ## 1.8.1 - 2026-10-07
 
 - Added a CI workflow that runs `ruff`, `ty`, and `pytest` on Python 3.13 and 3.14. Added a job that tests against the lowest allowed direct dependencies, and raised the `optax` lower bound to 0.2.5.
