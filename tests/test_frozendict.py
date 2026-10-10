@@ -20,10 +20,10 @@ def test_frozendict_mapping_and_hash() -> None:
 def test_frozendict_is_immutable() -> None:
     data = frozendict({"a": 1})
 
-    with pytest.raises(AttributeError, match="frozendict is immutable"):
+    with pytest.raises(AttributeError):
         data.some_attr = 2
 
-    with pytest.raises(AttributeError, match="frozendict is immutable"):
+    with pytest.raises(AttributeError):
         del data.some_attr  # type: ignore
 
 

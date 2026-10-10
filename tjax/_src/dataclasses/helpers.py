@@ -3,8 +3,13 @@ from __future__ import annotations
 import dataclasses
 import sys
 from collections.abc import Callable, Mapping
-from dataclasses import _MISSING_TYPE, fields
-from typing import Any, ClassVar, Protocol, overload, runtime_checkable
+from dataclasses import fields
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, overload, runtime_checkable
+
+if TYPE_CHECKING:
+    # Python 3.15 replaced the runtime `_MISSING_TYPE` class with a PEP 661 sentinel, but typeshed
+    # still declares it.
+    from dataclasses import _MISSING_TYPE
 
 
 @runtime_checkable

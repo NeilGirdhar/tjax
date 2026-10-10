@@ -58,32 +58,29 @@ else:
         def __delattr__(self, _name: str) -> None:
             raise AttributeError("frozendict is immutable")  # ruff:ignore[raise-vanilla-args]
 
+    def _flatten_frozendict_with_keys[K: SupportsRichComparison, V](
+        d: frozendict[K, V],
+    ) -> tuple[Iterable[tuple[object, V]], tuple[K, ...]]:
+        keys = tuple(sorted(d))
+        values = tuple((jax.tree_util.DictKey(k), d[k]) for k in keys)
+        return values, keys
 
-def _flatten_frozendict_with_keys[K: SupportsRichComparison, V](
-    d: frozendict[K, V],
-) -> tuple[Iterable[tuple[object, V]], tuple[K, ...]]:
-    keys = tuple(sorted(d))
-    values = tuple((jax.tree_util.DictKey(k), d[k]) for k in keys)
-    return values, keys
+    def _flatten_frozendict[K: SupportsRichComparison, V](
+        d: frozendict[K, V],
+    ) -> tuple[tuple[V, ...], tuple[K, ...]]:
+        keys = tuple(sorted(d))
+        values = tuple(d[k] for k in keys)
+        return values, keys
 
+    def _unflatten_frozendict(keys: object, values: Iterable[object]) -> frozendict:
+        assert isinstance(keys, tuple)
+        return frozendict(zip(keys, values, strict=True))
 
-def _flatten_frozendict[K: SupportsRichComparison, V](
-    d: frozendict[K, V],
-) -> tuple[tuple[V, ...], tuple[K, ...]]:
-    keys = tuple(sorted(d))
-    values = tuple(d[k] for k in keys)
-    return values, keys
-
-
-def _unflatten_frozendict(keys: object, values: Iterable[object]) -> frozendict:
-    assert isinstance(keys, tuple)
-    return frozendict(zip(keys, values, strict=True))
-
-
-# Register frozendict as a JAX pytree container so it can be traced through jit/vmap.
-jax.tree_util.register_pytree_with_keys(
-    frozendict,
-    _flatten_frozendict_with_keys,
-    _unflatten_frozendict,
-    _flatten_frozendict,
-)
+    # Register frozendict as a JAX pytree container so it can be traced through jit/vmap.  Recent
+    # versions of JAX already register the builtin frozendict on Python 3.15+.
+    jax.tree_util.register_pytree_with_keys(
+        frozendict,
+        _flatten_frozendict_with_keys,
+        _unflatten_frozendict,
+        _flatten_frozendict,
+    )
