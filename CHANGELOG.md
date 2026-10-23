@@ -6,11 +6,13 @@ Each section covers changes since the previous release.
 ## 1.9.0 - 2026-10-09
 
 - Added Python 3.15 support.
-- Improved the package keywords and classifiers, and moved the development status to Production/Stable.
+- Improved the package keywords and classifiers, and moved the development status to
+  Production/Stable.
 
 ## 1.8.1 - 2026-10-07
 
-- Added a CI workflow that runs `ruff`, `ty`, and `pytest` on Python 3.13 and 3.14. Added a job that tests against the lowest allowed direct dependencies, and raised the `optax` lower bound to 0.2.5.
+- Added a CI workflow that runs `ruff`, `ty`, and `pytest` on Python 3.13 and 3.14. Added a job that
+  tests against the lowest allowed direct dependencies, and raised the `optax` lower bound to 0.2.5.
 - Tidied the release workflow so tests run before building, and bumped its GitHub Actions.
 - Upgraded `ty`.
 - Pointed the README links at `main` instead of `master`.
@@ -59,7 +61,8 @@ Each section covers changes since the previous release.
 - Added `negate_cotangent` and `scale_tree`.
 - Removed `cotangent_combinator` and `reverse_scale_cotangent`.
 - Moved `zero_from_primal` to `tree_tools`.
-- Updated to JAX 0.10 and migrated type-ignore comments from pyright/`type: ignore` to ty/`ty: ignore`.
+- Updated to JAX 0.10 and migrated type-ignore comments from pyright/`type: ignore` to
+  ty/`ty: ignore`.
 
 ## 1.4.10 - 2026-04-15
 
@@ -135,7 +138,8 @@ Each section covers changes since the previous release.
 - Made graph flatteners use proper JAX key types.
 - Switched dataclass field metadata from `pytree_node` to `static` (Equinox-compatible naming).
 - Removed `tjax.fixed_point` in favour of Optimistix.
-- Added matrix-tools helpers (`matrix_dot_product`, `matrix_vector_mul`, `bilinear_outer`, `sesquilinear_outer`).
+- Added matrix-tools helpers (`matrix_dot_product`, `matrix_vector_mul`, `bilinear_outer`,
+  `sesquilinear_outer`).
 - Fixed Flax object display in `display_generic`.
 - Switched packaging to uv/hatch.
 - Updated license to current metadata.
