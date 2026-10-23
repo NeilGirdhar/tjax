@@ -22,7 +22,7 @@ dev = [
 name = "tjax"
 version = "1.9.0"
 description = "Tools for JAX."
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.13, <3.16"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
