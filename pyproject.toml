@@ -12,6 +12,7 @@ dev = [
   "pyrefly>=1.0",
   "pytest>=8",
   "ruff>=0.16.5",
+  "rumdl>=0.3",
   "scipy>=1.15",
   "toml-sort>=0.24",
   "ty>=0.0.85",
