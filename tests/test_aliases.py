@@ -4,6 +4,7 @@ from collections.abc import Callable
 from typing import Any
 
 import chex
+import jax
 import jax.numpy as jnp
 import jax.random as jr
 import pytest
@@ -24,6 +25,7 @@ from tjax.gradient import (
     AdamaxW,
     AdamW,
     Fromage,
+    GradientTransformation,
     Lamb,
     Lion,
     NoisySGD,
@@ -46,33 +48,33 @@ def _gradient() -> Params:
     return {"w": jnp.array([0.1, 0.2])}
 
 
-@pytest.mark.parametrize(
-    "constructor",
-    [
-        lambda: AdaBelief[Params](1e-2),
-        AdaDelta[Params],
-        AdaFactor[Params],
-        lambda: AdaGrad[Params](1e-2),
-        lambda: Adam[Params](1e-2),
-        lambda: Adam[Params](Schedule(lambda _: 1e-2)),
-        lambda: AdamW[Params](1e-2),
-        lambda: Adamax[Params](1e-2),
-        lambda: AdamaxW[Params](1e-2),
-        lambda: Fromage[Params](1e-2),
-        lambda: Lamb[Params](1e-2),
-        lambda: LARS[Params](1e-2),
-        lambda: Lion[Params](1e-2),
-        lambda: NoisySGD[Params](1e-2, key=jr.key(123)),
-        lambda: Novograd[Params](1e-2),
-        lambda: OptimisticGradientDescent[Params](1e-2, 1e-2, 1e-2),
-        lambda: RAdam[Params](1e-2),
-        lambda: RMSProp[Params](1e-2),
-        lambda: SGD[Params](1e-2),
-        lambda: SM3[Params](1e-2),
-        lambda: Yogi[Params](1e-2),
-        lambda: DPSGD[Params](1e-2, 1.0, 0.0, 0),
-    ],
-)
+CONSTRUCTORS: list[Callable[[], Any]] = [
+    lambda: AdaBelief[Params](1e-2),
+    AdaDelta[Params],
+    AdaFactor[Params],
+    lambda: AdaGrad[Params](1e-2),
+    lambda: Adam[Params](1e-2),
+    lambda: Adam[Params](Schedule(lambda _: 1e-2)),
+    lambda: AdamW[Params](1e-2),
+    lambda: Adamax[Params](1e-2),
+    lambda: AdamaxW[Params](1e-2),
+    lambda: Fromage[Params](1e-2),
+    lambda: Lamb[Params](1e-2),
+    lambda: LARS[Params](1e-2),
+    lambda: Lion[Params](1e-2),
+    lambda: NoisySGD[Params](1e-2, key=jr.key(123)),
+    lambda: Novograd[Params](1e-2),
+    lambda: OptimisticGradientDescent[Params](1e-2, 1e-2, 1e-2),
+    lambda: RAdam[Params](1e-2),
+    lambda: RMSProp[Params](1e-2),
+    lambda: SGD[Params](1e-2),
+    lambda: SM3[Params](1e-2),
+    lambda: Yogi[Params](1e-2),
+    lambda: DPSGD[Params](1e-2, 1.0, 0.0, 0),
+]
+
+
+@pytest.mark.parametrize("constructor", CONSTRUCTORS)
 def test_aliases_smoke(
     constructor: Callable[[], Any],
 ) -> None:
@@ -85,6 +87,20 @@ def test_aliases_smoke(
     chex.assert_tree_all_finite(updates)
     assert type(new_state) is type(state)
     assert tree.structure(updates) == tree.structure(gradient)
+
+
+@pytest.mark.parametrize("constructor", CONSTRUCTORS)
+def test_aliases_jit(
+    constructor: Callable[[], Any],
+) -> None:
+    @jax.jit
+    def step(tx: GradientTransformation[Any, Params], gradient: Params, params: Params) -> Params:
+        state = tx.init(params)
+        updates, _ = tx.update(gradient, state, params)
+        return updates
+
+    updates = step(constructor(), _gradient(), _params())
+    chex.assert_tree_all_finite(updates)
 
 
 def test_lbfgs_init() -> None:

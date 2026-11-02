@@ -127,10 +127,10 @@ class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, We
     """
 
     learning_rate: ScalarOrSchedule | None = None
-    min_dim_size_to_factor: IntegralNumeric = 128
+    min_dim_size_to_factor: int = field(default=128, static=True)
     decay_rate: RealNumeric = 0.8
     decay_offset: IntegralNumeric = 0
-    multiply_by_parameter_scale: RealNumeric = True
+    multiply_by_parameter_scale: bool = field(default=True, static=True)
     clipping_threshold: float | None = 1.0
     momentum: float | None = None
     dtype_momentum: Any = field(default=jnp.float32, static=True)
