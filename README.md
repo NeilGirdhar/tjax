@@ -19,17 +19,81 @@ Tjax's major components are:
   benefits from:
     - the ability to mark fields as static (not available in `chex.dataclass`), and
     - a display method that produces formatted text according to the tree structure.
-- A [shim](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/gradient) for the gradient
-  transformation library [optax](https://github.com/deepmind/optax) that supports:
-    - easy differentiation and vectorization of “gradient transformation” (learning rule)
-      parameters,
-    - gradient transformation objects that can be passed *dynamically* to jitted functions, and
-    - generic type annotations.
+- A [gradient package](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/gradient) that
+  provides every transformation in [optax](https://github.com/google-deepmind/optax) as a pytree.
+  (See [Gradient transformations](#gradient-transformations).)
 - A pretty printer `print_generic` for aggregate and vector types, including dataclasses. (See
   [display](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/display).) It features:
     - support for traced values,
     - colorized tree output for aggregate structures, and
     - formatted tabular output for arrays (or statistics when there's no room for tabular output).
+
+## Gradient transformations
+
+`tjax.gradient` provides every optax transformation as a dataclass whose fields are the
+transformation's arguments. Each transformation is a pytree, so JAX traces its hyperparameters like
+any other array.
+
+This matters because an optax transformation is a pair of functions that close over their
+hyperparameters, which JAX can't see. You can't pass an optax transformation to a jitted function;
+you construct it inside the traced function or wrap it with `optax.inject_hyperparams`. A tjax
+transformation instead behaves like data:
+
+- **Jit.** A transformation can be an argument of a jitted function, and a new value of a numeric
+  hyperparameter, such as the learning rate, reuses the compiled function.
+- **Differentiation.** `jax.grad` differentiates through an update with respect to its
+  hyperparameters, for example to tune a learning rate by gradient descent.
+- **Vectorization.** `jax.vmap` maps an update over hyperparameter values, for example to sweep
+  learning rates in one call.
+- **Static options.** Structural arguments, such as `nesterov` and weight-decay masks, are static
+  fields, so jit compiles a specialized function for each setting.
+- **Types.** `GradientTransformation[State, Weights]` is generic in its state and weight types, so a
+  type checker can check what you pass to `update`.
+- **Display.** A transformation prints with its hyperparameters, for example
+  `Adam(learning_rate=0.01, b1=0.9, ...)`.
+
+For example, this code compiles one Adam step for two learning rates, then differentiates and maps
+the loss after one SGD step over the learning rate:
+
+```python
+import jax
+import jax.numpy as jnp
+import optax
+
+import tjax.gradient as tg
+
+params = {"w": jnp.array([1.0, -2.0])}
+
+
+def loss(params):
+    return jnp.sum(params["w"] ** 2)
+
+
+@jax.jit
+def loss_after_step(transform, params):
+    gradient = jax.grad(loss)(params)
+    updates, _ = transform.update(gradient, transform.init(params), params)
+    return loss(optax.apply_updates(params, updates))
+
+
+loss_after_step(tg.Adam(1e-2), params)  # Compiles.
+loss_after_step(tg.Adam(3e-2), params)  # Reuses the compiled function.
+
+# Differentiate with respect to the learning rate.
+jax.grad(lambda lr: loss_after_step(tg.SGD(lr), params))(0.1)
+
+# Take one step at each of three learning rates.
+jax.vmap(lambda lr: loss_after_step(tg.SGD(lr), params))(jnp.array([0.01, 0.1, 0.4]))
+```
+
+The package also extends optax's interface:
+
+- `HvpGradientTransformation` and `DiagHessianGradientTransformation` define update rules that
+  receive a Hessian-vector product or the Hessian's diagonal. `SMDGradient` (stochastic
+  meta-descent) builds on them.
+- Combinators, such as `ChainedGradientTransformation`, combine tjax transformations.
+- `to_optax` converts a tjax transformation into an optax one.
+- `Schedule` wraps an optax schedule so that it can be passed as a learning rate.
 
 ## Minor components
 
