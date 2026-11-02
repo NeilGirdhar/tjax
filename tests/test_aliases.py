@@ -103,6 +103,28 @@ def test_aliases_jit(
     chex.assert_tree_all_finite(updates)
 
 
+def _mask(params: Params) -> dict[str, bool]:
+    return {"w": True, "b": False}
+
+
+@pytest.mark.parametrize("constructor", [AdamW[Params], AdamaxW[Params], Lion[Params]])
+@pytest.mark.parametrize("mask", [_mask, {"w": True, "b": False}])
+def test_mask_jit(constructor: Callable[..., Any], mask: object) -> None:
+    @jax.jit
+    def step(tx: GradientTransformation[Any, Params], gradient: Params, params: Params) -> Params:
+        state = tx.init(params)
+        updates, _ = tx.update(gradient, state, params)
+        return updates
+
+    params = {"w": jnp.array([1.0, 2.0]), "b": jnp.array([3.0])}
+    gradient = {"w": jnp.array([0.1, 0.2]), "b": jnp.array([0.3])}
+    masked = step(constructor(1e-2, weight_decay=1e2, mask=mask), gradient, params)
+    unmasked = step(constructor(1e-2, weight_decay=1e2, mask=False), gradient, params)
+    decayed = step(constructor(1e-2, weight_decay=1e2), gradient, params)
+    chex.assert_trees_all_close(masked["w"], decayed["w"])
+    chex.assert_trees_all_close(masked["b"], unmasked["b"])
+
+
 def test_lbfgs_init() -> None:
     state = LBFGS[Params]().init(_params())
     assert state is not None

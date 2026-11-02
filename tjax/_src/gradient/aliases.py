@@ -251,7 +251,7 @@ class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     eps_root: RealNumeric = 0.0
     mu_dtype: Any | None = field(default=None, static=True)
     weight_decay: RealNumeric = 1e-4
-    mask: Any | Callable[[Any], Any] | None = None
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
     _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
@@ -323,7 +323,7 @@ class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
     weight_decay: RealNumeric = 1e-4
-    mask: Any | Callable[[Any], Any] | None = None
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -518,7 +518,7 @@ class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     b2: RealNumeric = 0.99
     mu_dtype: Any | None = field(default=None, static=True)
     weight_decay: RealNumeric = 1e-3
-    mask: Any | Callable[[Any], Any] | None = None
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
