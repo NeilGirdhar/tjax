@@ -76,15 +76,3 @@ class SMDGradient[Weights: PyTree](HvpGradientTransformation[SMDState[Weights], 
         )
 
         return gradient, SMDState[Weights](new_log_learning_rate, new_v)
-
-
-# got
-# Union[ndarray[Any, dtype[complexfloating[Any, Any]]],
-#       ndarray[Any, dtype[floating[Any]]],
-#       ndarray[Any, dtype[signedinteger[Any]]],
-#       Array,
-#       complex]
-# , expected
-# Union[ndarray[Any, dtype[Union[floating[Any], complexfloating[Any, Any]]]],
-#       Array,
-#       complex, float, int]
