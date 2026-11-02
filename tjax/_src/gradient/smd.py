@@ -30,9 +30,9 @@ class SMDState[Weights: PyTree](GradientState):
 class SMDGradient[Weights: PyTree](HvpGradientTransformation[SMDState[Weights], Weights]):
     """Stochastic meta-descent.
 
-    Schraudolph, N. N. (1999). Local gain adaptation in stochastic gradient descent. Artificial
-    Neural Networks, 1999. ICANN 99. Ninth International Conference on (Conf. Publ. No. 470), 2,
-    569-574. https://doi.org/10.1049/cp:19991170.
+    References:
+        Schraudolph, 1999,
+            [Local gain adaptation in stochastic gradient descent](https://doi.org/10.1049/cp:19991170)
 
     Args:
         meta_learning_rate: The step size for adapting the log learning rates.

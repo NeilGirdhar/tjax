@@ -40,8 +40,9 @@ class ACProp[Weights: PyTree](OptaxWrapper[Weights]):
     """The ACProp optimizer.
 
     References:
-        Zuhang et al, `Momentum Centering and Asynchronous Update for Adaptive Gradient Methods
-            <https://arxiv.org/abs/2110.05454>`_, 2021
+        Zhuang et al., 2021,
+            [Momentum Centering and Asynchronous Update for Adaptive Gradient
+            Methods](https://arxiv.org/abs/2110.05454)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -103,8 +104,8 @@ class AdEMAMix[Weights: PyTree](OptaxWrapper[Weights]):
     """AdEMAMix.
 
     References:
-        Pagliardini et al, `The AdEMAMix Optimizer: Better, Faster, Older
-            <https://arxiv.org/abs/2409.03137>`_, 2024
+        Pagliardini et al., 2024,
+            [The AdEMAMix Optimizer: Better, Faster, Older](https://arxiv.org/abs/2409.03137)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -151,8 +152,8 @@ class ScaleByAdEMAMix[Weights: PyTree](OptaxWrapper[Weights]):
     """Scale updates according to the Ademamix algorithm.
 
     References:
-        Pagliardini et al, `The AdEMAMix Optimizer: Better, Faster, Older
-            <https://arxiv.org/abs/2409.03137>`_, 2024
+        Pagliardini et al., 2024,
+            [The AdEMAMix Optimizer: Better, Faster, Older](https://arxiv.org/abs/2409.03137)
 
     Args:
         b1: Exponential decay rate to track the fast EMA.
@@ -186,8 +187,9 @@ class SimplifiedAdEMAMix[Weights: PyTree](OptaxWrapper[Weights]):
     """Simplified AdEMAMix.
 
     References:
-        Morwani et al, `Connections between Schedule-Free Optimizers, AdEMAMix, and Accelerated SGD
-            Variants <https://arxiv.org/abs/2502.02431>`_, 2025
+        Morwani et al., 2025,
+            [Connections between Schedule-Free Optimizers, AdEMAMix, and Accelerated SGD
+            Variants](https://arxiv.org/abs/2502.02431)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -229,8 +231,9 @@ class ScaleBySimplifiedAdEMAMix[Weights: PyTree](OptaxWrapper[Weights]):
     """Scale updates according to the Simplified AdEMAMix optimizer.
 
     References:
-        Morwani et al, `Connections between Schedule-Free Optimizers, AdEMAMix, and Accelerated SGD
-            Variants <https://arxiv.org/abs/2502.02431>`_, 2025
+        Morwani et al., 2025,
+            [Connections between Schedule-Free Optimizers, AdEMAMix, and Accelerated SGD
+            Variants](https://arxiv.org/abs/2502.02431)
 
     Args:
         b1: Exponential decay rate to track the EMA.
@@ -259,8 +262,9 @@ class ADOPT[Weights: PyTree](OptaxWrapper[Weights]):
     """ADOPT (Adaptive Optimization with Provable Theoretical guarantees).
 
     References:
-        Taniguchi et al, `ADOPT: Modified Adam Can Converge with Any beta2 with the Optimal Rate
-            <https://arxiv.org/abs/2403.00855>`_, NeurIPS 2024
+        Taniguchi et al., 2024,
+            [ADOPT: Modified Adam Can Converge with Any β₂ with the Optimal
+            Rate](https://arxiv.org/abs/2411.02853)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -329,8 +333,9 @@ class COCOB[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the COntinuous COin Betting algorithm.
 
     References:
-        Orabana et al, `Training Deep Networks without Learning Rates Through Coin Betting
-            <https://arxiv.org/pdf/1705.07795.pdf>`_, 2017
+        Orabona and Tommasi, 2017,
+            [Training Deep Networks without Learning Rates Through Coin
+            Betting](https://arxiv.org/abs/1705.07795)
 
     Args:
         learning_rate: Optional learning rate to e.g. inject some scheduler
@@ -373,8 +378,8 @@ class DAdaptAdamW[Weights: PyTree](OptaxWrapper[Weights]):
     """Learning rate free AdamW by D-Adaptation.
 
     References:
-        Defazio et al, `Learning-Rate-Free Learning by D-Adaptation
-            <https://arxiv.org/abs/2301.07733>`_, 2023
+        Defazio and Mishchenko, 2023,
+            [Learning-Rate-Free Learning by D-Adaptation](https://arxiv.org/abs/2301.07733)
 
     Args:
         learning_rate: Learning rate scheduling parameter. The recommended schedule is a
@@ -403,8 +408,8 @@ class DifferentiallyPrivateAggregate[Weights: PyTree](OptaxWrapper[Weights]):
     """Aggregates gradients based on the DPSGD algorithm.
 
     References:
-        Abadi et al, 2016 `Deep Learning with Differential Privacy
-            <https://arxiv.org/abs/1607.00133>`_, 2016
+        Abadi et al., 2016,
+            [Deep Learning with Differential Privacy](https://arxiv.org/abs/1607.00133)
 
     Args:
         l2_norm_clip: Maximum L2 norm of the per-example gradients.
@@ -426,8 +431,9 @@ class DoG[Weights: PyTree](OptaxWrapper[Weights]):
     r"""Distance over Gradients (DoG) optimizer.
 
     References:
-        Ivgi et al., `DoG is SGD's Best Friend: A Parameter-Free Dynamic Step Size Schedule
-            <https://arxiv.org/abs/2302.12022>`_, 2023.
+        Ivgi et al., 2023,
+            [DoG is SGD's Best Friend: A Parameter-Free Dynamic Step Size
+            Schedule](https://arxiv.org/abs/2302.12022)
 
     Args:
         learning_rate: Optional learning rate (potentially varying according to some predetermined
@@ -468,8 +474,9 @@ class DoWG[Weights: PyTree](OptaxWrapper[Weights]):
     """Distance over weighted Gradients optimizer.
 
     References:
-        Khaled et al., `DoWG Unleashed: An Efficient Universal Parameter-Free Gradient Descent
-            Method <https://arxiv.org/pdf/2305.16284>`_, 2023.
+        Khaled et al., 2023,
+            [DoWG Unleashed: An Efficient Universal Parameter-Free Gradient Descent
+            Method](https://arxiv.org/abs/2305.16284)
 
     Args:
         learning_rate: Optional learning rate (potentially varying according to some predetermined
@@ -504,7 +511,8 @@ class DPSGD[Weights: PyTree](OptaxWrapper[Weights]):
     noise to provide (ε, δ)-differential privacy guarantees.
 
     References:
-        [Abadi et al, 2016](https://arxiv.org/abs/1607.00133)
+        Abadi et al., 2016,
+            [Deep Learning with Differential Privacy](https://arxiv.org/abs/1607.00133)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -532,8 +540,9 @@ class GaLore[Weights: PyTree](OptaxWrapper[Weights]):
     """GaLore: Memory-efficient training via gradient lowrank projection.
 
     References:
-        Zhao et al., `GaLore: Memory-Efficient LLM Training by Gradient Low-Rank Projection
-            <https://arxiv.org/abs/2403.03507>`_, 2024
+        Zhao et al., 2024,
+            [GaLore: Memory-Efficient LLM Training by Gradient Low-Rank
+            Projection](https://arxiv.org/abs/2403.03507)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -580,8 +589,9 @@ class ScaleByGaLore[Weights: PyTree](OptaxWrapper[Weights]):
     """Scale updates using GaLore (Gradient Low-Rank Projection).
 
     References:
-        Zhao et al., `GaLore: Memory-Efficient LLM Training by Gradient Low-Rank Projection
-            <https://arxiv.org/abs/2403.03507>`_, 2024
+        Zhao et al., 2024,
+            [GaLore: Memory-Efficient LLM Training by Gradient Low-Rank
+            Projection](https://arxiv.org/abs/2403.03507)
 
     Args:
         rank: Target rank for the low-rank projection. Lower rank = less memory but potentially
@@ -634,8 +644,9 @@ class MADGRAD[Weights: PyTree](OptaxWrapper[Weights]):
     """The MADGRAD optimizer.
 
     References:
-        Defazio et al, `Adaptivity without Compromise: A Momentumized, Adaptive, Dual Averaged
-            Gradient Method for Stochastic Optimization <https://arxiv.org/abs/2101.11075>`_, 2021.
+        Defazio and Jelassi, 2021,
+            [Adaptivity without Compromise: A Momentumized, Adaptive, Dual Averaged Gradient Method
+            for Stochastic Optimization](https://arxiv.org/abs/2101.11075)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -660,8 +671,9 @@ class ScaleByMADGRAD[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the MADGRAD algorithm.
 
     References:
-        Defazio et al, `Adaptivity without Compromise: A Momentumized, Adaptive, Dual Averaged
-            Gradient Method for Stochastic Optimization <https://arxiv.org/abs/2101.11075>`_, 2021.
+        Defazio and Jelassi, 2021,
+            [Adaptivity without Compromise: A Momentumized, Adaptive, Dual Averaged Gradient Method
+            for Stochastic Optimization](https://arxiv.org/abs/2101.11075)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -684,8 +696,7 @@ class Mechanize[Weights: PyTree](OptaxWrapper[Weights]):
     """Mechanic - a black box learning rate tuner/optimizer.
 
     References:
-        Cutkosky et al, `Mechanic: A Learning Rate Tuner <https://arxiv.org/pdf/2306.00144.pdf>`_
-            2023
+        Cutkosky et al., 2023, [Mechanic: A Learning Rate Tuner](https://arxiv.org/abs/2306.00144)
 
     Args:
         base_optimizer: Base optimizer to compute updates from.
@@ -721,8 +732,8 @@ class Momo[Weights: PyTree](OptaxWrapper[Weights]):
     """Adaptive Learning Rates for SGD with momentum.
 
     References:
-        Schaipp et al., `MoMo: Momentum Models for Adaptive Learning Rates
-            <https://arxiv.org/abs/2305.07583>`_, 2023
+        Schaipp et al., 2023,
+            [MoMo: Momentum Models for Adaptive Learning Rates](https://arxiv.org/abs/2305.07583)
 
     Args:
         learning_rate: User-specified learning rate. Recommended to be chosen rather large, by
@@ -750,8 +761,8 @@ class MomoAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """Adaptive Learning Rates for Adam(W).
 
     References:
-        Schaipp et al., `MoMo: Momentum Models for Adaptive Learning Rates
-            <https://arxiv.org/abs/2305.07583>`_, 2023
+        Schaipp et al., 2023,
+            [MoMo: Momentum Models for Adaptive Learning Rates](https://arxiv.org/abs/2305.07583)
 
     Args:
         learning_rate: User-specified learning rate. Recommended to be chosen rather large, by
@@ -784,19 +795,23 @@ class Muon[Weights: PyTree](OptaxWrapper[Weights]):
     """Muon: Momentum Orthogonalized by Newton-schulz.
 
     References:
-        Jordan, `modded-nanogpt: Speedrunning the NanoGPT baseline
-            <https://github.com/KellerJordan/modded-nanogpt>`_, 2024
-        Bernstein et al., `Old Optimizer, New Norm: An Anthology
-            <https://arxiv.org/abs/2409.20325>`_, 2024
-        Liu et al., `Muon is Scalable for LLM Training`, <https://arxiv.org/abs/2502.16982>`_, 2025
-        Boissin et al., `Turbo-Muon: Accelerating Orthogonality-Based Optimization with
-            Pre-Conditioning`, <https://arxiv.org/abs/2512.04632>`_, 2025
-        Ahn et al., `Dion: Distributed Orthonormalized Updates`,
-            <https://arxiv.org/abs/2504.05295>`_, 2025
-        Grishina et al., `Accelerating Newton-Schulz Iteration for Orthogonalization via
-            Chebyshev-type Polynomials`, <https://arxiv.org/abs/2506.10935>`_, 2025
-        Amsel et al., `The Polar Express: Optimal Matrix Sign Methods and Their Application to the
-            Muon Algorithm`, <https://arxiv.org/pdf/2505.16932>`, 2025
+        Jordan, 2024,
+            [modded-nanogpt: Speedrunning the NanoGPT
+            baseline](https://github.com/KellerJordan/modded-nanogpt)
+        Bernstein and Newhouse, 2024,
+            [Old Optimizer, New Norm: An Anthology](https://arxiv.org/abs/2409.20325)
+        Liu et al., 2025, [Muon is Scalable for LLM Training](https://arxiv.org/abs/2502.16982)
+        Boissin et al., 2025,
+            [Turbo-Muon: Almost-Orthogonal Pre-Conditioning for Fast Muon
+            Updates](https://arxiv.org/abs/2512.04632)
+        Ahn et al., 2025,
+            [Dion: Distributed Orthonormalized Updates](https://arxiv.org/abs/2504.05295)
+        Grishina et al., 2025,
+            [Accelerating Newton-Schulz Iteration for Orthogonalization via Chebyshev-type
+            Polynomials](https://arxiv.org/abs/2506.10935)
+        Amsel et al., 2025,
+            [The Polar Express: Optimal Matrix Sign Methods and Their Application to the Muon
+            Algorithm](https://arxiv.org/abs/2505.16932)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -816,17 +831,18 @@ class Muon[Weights: PyTree](OptaxWrapper[Weights]):
             for those you want to skip.
         mu_dtype: Data type of the momentum accumulator.
         nesterov: Whether to use Nesterov momentum.
-        adaptive: Whether to scale the updates by the dual norm of the original updates. See
-            <https://arxiv.org/abs/2409.20325>
-        preconditioning: What type of preconditioning to use before NS iterations. Available options
-            are: - 'frobenius' (default): Use Frobenius rescaling before NS: safe, standard, but
-            degrades orthogonalization quality when using less than 5 NS steps. - 'spectral' : Use
-            Spectral norm rescaling before NS: much more computationally intensive, but better
-            orthogonalization quality. - 'aol': Use AOL rescalings to improve orthogonality with
-            little to no overhead, usually allows the user to remove one iterative NS step. See
-            <https://arxiv.org/abs/2512.04632>. - 'schatten': Use the Schatten-4 norm for rescaling,
-            allows for better performance with little to no extra cost. See
-            <https://arxiv.org/abs/2506.10935>.
+        adaptive: Whether to scale the updates by the dual norm of the original updates
+            ([Bernstein and Newhouse, 2024](https://arxiv.org/abs/2409.20325)).
+        preconditioning: The preconditioning to apply before the Newton-Schulz iterations:
+
+            - `"frobenius"` (default): Frobenius rescaling.  It is safe and standard, but degrades
+              orthogonalization when using fewer than 5 Newton-Schulz steps.
+            - `"spectral"`: Spectral-norm rescaling.  It costs much more computation but
+              orthogonalizes better.
+            - `"aol"`: AOL rescaling, which improves orthogonality with little overhead and usually
+              saves one Newton-Schulz step ([Boissin et al., 2025](https://arxiv.org/abs/2512.04632)).
+            - `"schatten"`: Schatten-4-norm rescaling, which improves performance at little extra
+              cost ([Grishina et al., 2025](https://arxiv.org/abs/2506.10935)).
         adam_b1: Exponential decay rate for Adam's first moment estimates.
         adam_b2: Exponential decay rate for Adam's second moment estimates.
         adam_eps_root: Epsilon to stabilize division in Adam, square root version.
@@ -841,9 +857,9 @@ class Muon[Weights: PyTree](OptaxWrapper[Weights]):
             to all 2D parameters.
         consistent_rms: An optional float to activate consistent RMS scaling. Scales updates by
             `sqrt(max(fan_in, fan_out)) * consistent_rms` to make root mean square (RMS)
-            shape-independent, like AdamW. `0.2` is recommended to match AdamW's empirical RMS. See
-            <https://arxiv.org/abs/2502.16982>. If `None`, uses width scaling `sqrt(max(1, fan_out /
-            fan_in))`.
+            shape-independent, like AdamW ([Liu et al., 2025](https://arxiv.org/abs/2502.16982)).
+            `0.2` is recommended to match AdamW's empirical RMS. If `None`, uses width scaling
+            `sqrt(max(1, fan_out / fan_in))`.
     """
 
     learning_rate: ScalarOrSchedule
@@ -884,19 +900,23 @@ class ScaleByMuon[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the Muon algorithm.
 
     References:
-        Jordan, `modded-nanogpt: Speedrunning the NanoGPT baseline
-            <https://github.com/KellerJordan/modded-nanogpt>`_, 2024
-        Bernstein et al., `Old Optimizer, New Norm: An Anthology
-            <https://arxiv.org/abs/2409.20325>`_, 2024
-        Liu et al., `Muon is Scalable for LLM Training`, <https://arxiv.org/abs/2502.16982>`_, 2025
-        Boissin et al., `Turbo-Muon: Accelerating Orthogonality-Based Optimization with
-            Pre-Conditioning`, <https://arxiv.org/abs/2512.04632>`_, 2025
-        Ahn et al., `Dion: Distributed Orthonormalized Updates`,
-            <https://arxiv.org/abs/2504.05295>`_, 2025
-        Grishina et al., `Accelerating Newton-Schulz Iteration for Orthogonalization via
-            Chebyshev-type Polynomials`, <https://arxiv.org/abs/2506.10935>`_, 2025
-        Amsel et al., `The Polar Express: Optimal Matrix Sign Methods and Their Application to the
-            Muon Algorithm`, <https://arxiv.org/pdf/2505.16932>`, 2025
+        Jordan, 2024,
+            [modded-nanogpt: Speedrunning the NanoGPT
+            baseline](https://github.com/KellerJordan/modded-nanogpt)
+        Bernstein and Newhouse, 2024,
+            [Old Optimizer, New Norm: An Anthology](https://arxiv.org/abs/2409.20325)
+        Liu et al., 2025, [Muon is Scalable for LLM Training](https://arxiv.org/abs/2502.16982)
+        Boissin et al., 2025,
+            [Turbo-Muon: Almost-Orthogonal Pre-Conditioning for Fast Muon
+            Updates](https://arxiv.org/abs/2512.04632)
+        Ahn et al., 2025,
+            [Dion: Distributed Orthonormalized Updates](https://arxiv.org/abs/2504.05295)
+        Grishina et al., 2025,
+            [Accelerating Newton-Schulz Iteration for Orthogonalization via Chebyshev-type
+            Polynomials](https://arxiv.org/abs/2506.10935)
+        Amsel et al., 2025,
+            [The Polar Express: Optimal Matrix Sign Methods and Their Application to the Muon
+            Algorithm](https://arxiv.org/abs/2505.16932)
 
     Args:
         ns_coeffs: Coefficients for the Newton-schulz method.
@@ -905,12 +925,14 @@ class ScaleByMuon[Weights: PyTree](OptaxWrapper[Weights]):
         eps: Term added to denominators to improve numerical stability.
         mu_dtype: Data type of the momentum accumulator.
         nesterov: Whether to use Nesterov momentum.
-        adaptive: Whether to scale the updates by the dual norm of the original updates. See
-            <https://arxiv.org/abs/2409.20325>
-        preconditioning: What type of preconditioning to use before NS iterations. Available options
-            are: - 'frobenius' (default): Use Frobenius rescaling before NS. - 'spectral' : Use
-            Spectral norm rescaling before NS. - 'aol': Use AOL rescaling to improve orthogonality.
-            - 'schatten': Use the Schatten-4 norm for rescaling.
+        adaptive: Whether to scale the updates by the dual norm of the original updates
+            ([Bernstein and Newhouse, 2024](https://arxiv.org/abs/2409.20325)).
+        preconditioning: The preconditioning to apply before the Newton-Schulz iterations:
+
+            - `"frobenius"` (default): Frobenius rescaling.
+            - `"spectral"`: Spectral-norm rescaling.
+            - `"aol"`: AOL rescaling, which improves orthogonality.
+            - `"schatten"`: Schatten-4-norm rescaling.
         weight_dimension_numbers: An optional tree with the same structure as the params of
             `MuonDimensionNumbers`s, specifying how to reshape the parameters before and after the
             orthogonalization OR a callable returning such a tree. None implies that all parameters
@@ -953,8 +975,9 @@ class Prodigy[Weights: PyTree](OptaxWrapper[Weights]):
     """Learning rate free AdamW with Prodigy.
 
     References:
-        Mishchenko et al, `Prodigy: An Expeditiously Adaptive Parameter-Free Learner
-            <https://arxiv.org/abs/2306.06101>`_, 2023
+        Mishchenko and Defazio, 2023,
+            [Prodigy: An Expeditiously Adaptive Parameter-Free
+            Learner](https://arxiv.org/abs/2306.06101)
 
     Args:
         learning_rate: Learning rate scheduling parameter. The recommended schedule is a
@@ -1022,8 +1045,9 @@ class SAM[Weights: PyTree](OptaxWrapper[Weights]):
     """Implementation of SAM (Sharpness Aware Minimization).
 
     References:
-        Foret et al., `Sharpness-Aware Minimization for Efficiently Improving Generalization
-            <https://arxiv.org/abs/2010.01412>`_, 2021
+        Foret et al., 2020,
+            [Sharpness-Aware Minimization for Efficiently Improving
+            Generalization](https://arxiv.org/abs/2010.01412)
 
     Args:
         optimizer: The outer optimizer.
@@ -1068,9 +1092,10 @@ class ScheduleFree[Weights: PyTree](OptaxWrapper[Weights]):
     """Turn base_optimizer schedule_free.
 
     References:
-        Defazio et al, `The Road Less Scheduled <https://arxiv.org/abs/2405.15682>`_, 2024
-        Defazio et al, `Schedule-Free Learning - A New Way to Train
-            <https://github.com/facebookresearch/schedule_free/tree/main>`_, 2024
+        Defazio et al., 2024, [The Road Less Scheduled](https://arxiv.org/abs/2405.15682)
+        Defazio et al., 2024,
+            [Schedule-Free Learning: A New Way to
+            Train](https://github.com/facebookresearch/schedule_free)
 
     Args:
         base_optimizer: Base optimizer to compute updates from.
@@ -1159,9 +1184,10 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
     """Sophia optimizer.
 
     References:
-        Liu et al., `Sophia: A Scalable Stochastic Second-order Optimizer for Language Model
-            Pre-training <https://arxiv.org/abs/2305.14342>`_, 2023
-        `Levanter <https://www.github.com/stanford-crfm/levanter>`_
+        Liu et al., 2023,
+            [Sophia: A Scalable Stochastic Second-order Optimizer for Language Model
+            Pre-training](https://arxiv.org/abs/2305.14342)
+        [Levanter](https://github.com/marin-community/levanter)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a

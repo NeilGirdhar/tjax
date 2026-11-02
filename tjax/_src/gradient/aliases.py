@@ -33,7 +33,9 @@ class AdaBelief[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaBelief optimiser.
 
     References:
-        [Zhuang et al, 2020](https://arxiv.org/abs/2010.07468)
+        Zhuang et al., 2020,
+            [AdaBelief Optimizer: Adapting Stepsizes by the Belief in Observed
+            Gradients](https://arxiv.org/abs/2010.07468)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -63,7 +65,7 @@ class AdaDelta[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaDelta optimiser.
 
     References:
-        [Zeiler, 2012](https://arxiv.org/abs/1212.5701)
+        Zeiler, 2012, [ADADELTA: An Adaptive Learning Rate Method](https://arxiv.org/abs/1212.5701)
 
     Args:
         learning_rate: Optional global scaling factor.
@@ -94,7 +96,9 @@ class AdaFactor[Weights: PyTree](OptaxWrapper[Weights]):
     AdaFactor reduces memory usage by factoring the second-moment estimate.
 
     References:
-        [Shazeer and Stern, 2018](https://arxiv.org/abs/1805.09843)
+        Shazeer and Stern, 2018,
+            [Adafactor: Adaptive Learning Rates with Sublinear Memory
+            Cost](https://arxiv.org/abs/1804.04235)
 
     Args:
         learning_rate: Optional global step-size schedule or scalar.  AdaFactor's natural
@@ -142,7 +146,9 @@ class AdaGrad[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaGrad optimiser.
 
     References:
-        [Duchi et al, 2011](https://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf)
+        Duchi et al., 2011,
+            [Adaptive Subgradient Methods for Online Learning and Stochastic
+            Optimization](https://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -164,7 +170,8 @@ class Adam[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Adam optimiser.
 
     References:
-        [Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)
+        Kingma and Ba, 2014,
+            [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -197,7 +204,8 @@ class AdamW[Weights: PyTree](OptaxWrapper[Weights]):
     AdamW decouples the weight decay from the gradient-based update.
 
     References:
-        [Loshchilov and Hutter, 2019](https://arxiv.org/abs/1711.05101)
+        Loshchilov and Hutter, 2017,
+            [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -236,7 +244,8 @@ class Adamax[Weights: PyTree](OptaxWrapper[Weights]):
     Adamax is a variant of Adam based on the infinity norm.
 
     References:
-        [Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)
+        Kingma and Ba, 2014,
+            [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -290,8 +299,9 @@ class Adan[Weights: PyTree](OptaxWrapper[Weights]):
     """The ADAptive Nesterov momentum algorithm (Adan).
 
     References:
-        Xie et al, `Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep Models
-            <https://arxiv.org/abs/2208.06677>`_, 2022
+        Xie et al., 2022,
+            [Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep
+            Models](https://arxiv.org/abs/2208.06677)
 
     Args:
         learning_rate: This is a fixed global scaling factor.
@@ -327,8 +337,8 @@ class AMSGrad[Weights: PyTree](OptaxWrapper[Weights]):
     """The AMSGrad optimizer.
 
     References:
-        Reddi et al, `On the Convergence of Adam and Beyond
-            <https://openreview.net/forum?id=ryQu7f-RZ>`_, 2023
+        Reddi et al., 2018,
+            [On the Convergence of Adam and Beyond](https://openreview.net/forum?id=ryQu7f-RZ)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -371,7 +381,9 @@ class Fromage[Weights: PyTree](OptaxWrapper[Weights]):
     relative distance in function space.
 
     References:
-        [Bernstein et al, 2020](https://arxiv.org/abs/2002.03432)
+        Bernstein et al., 2020,
+            [On the distance between two neural networks and the stability of
+            learning](https://arxiv.org/abs/2002.03432)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -395,7 +407,9 @@ class LAMB[Weights: PyTree](OptaxWrapper[Weights]):
     norm, which enables large-batch training.
 
     References:
-        [You et al, 2020](https://arxiv.org/abs/1904.00962)
+        You et al., 2019,
+            [Large Batch Optimization for Deep Learning: Training BERT in 76
+            minutes](https://arxiv.org/abs/1904.00962)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -430,7 +444,8 @@ class LARS[Weights: PyTree](OptaxWrapper[Weights]):
     on the ratio of the parameter norm to the gradient norm.
 
     References:
-        [You et al, 2017](https://arxiv.org/abs/1708.03888)
+        You et al., 2017,
+            [Large Batch Training of Convolutional Networks](https://arxiv.org/abs/1708.03888)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -498,7 +513,8 @@ class Lion[Weights: PyTree](OptaxWrapper[Weights]):
     magnitude, reducing memory by eliminating the second-moment accumulator.
 
     References:
-        [Chen et al, 2023](https://arxiv.org/abs/2302.06675)
+        Chen et al., 2023,
+            [Symbolic Discovery of Optimization Algorithms](https://arxiv.org/abs/2302.06675)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -529,8 +545,9 @@ class NAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """The NAdam optimizer.
 
     References:
-        Dozat, `Incorporating Nesterov Momentum into Adam
-            <https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ>`_, 2016
+        Dozat, 2016,
+            [Incorporating Nesterov Momentum into
+            Adam](https://openreview.net/forum?id=OM0jvwB8jIp57ZJjtNEZ)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -566,10 +583,11 @@ class NAdamW[Weights: PyTree](OptaxWrapper[Weights]):
     """NAdamW optimizer, implemented as part of the AdamW optimizer.
 
     References:
-        Loshchilov et al, `Decoupled Weight Decay Regularization
-            <https://arxiv.org/abs/1711.05101>`_, 2019
-        Dozat, `Incorporating Nesterov Momentum into Adam
-            <https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ>`_, 2016
+        Loshchilov and Hutter, 2017,
+            [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101)
+        Dozat, 2016,
+            [Incorporating Nesterov Momentum into
+            Adam](https://openreview.net/forum?id=OM0jvwB8jIp57ZJjtNEZ)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -617,7 +635,9 @@ class NoisySGD[Weights: PyTree](OptaxWrapper[Weights]):
     Adds annealed Gaussian noise to the gradient at each step.
 
     References:
-        [Neelakantan et al, 2015](https://arxiv.org/abs/1511.06807)
+        Neelakantan et al., 2015,
+            [Adding Gradient Noise Improves Learning for Very Deep
+            Networks](https://arxiv.org/abs/1511.06807)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -645,7 +665,9 @@ class Novograd[Weights: PyTree](OptaxWrapper[Weights]):
     and uses a first moment similar to Adam.
 
     References:
-        [Ginsburg et al, 2019](https://arxiv.org/abs/1905.11286)
+        Ginsburg et al., 2019,
+            [Stochastic Gradient Methods with Layer-wise Adaptive Moments for Training of Deep
+            Networks](https://arxiv.org/abs/1905.11286)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -673,7 +695,7 @@ class OptimisticAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """The Optimistic Adam optimizer.
 
     References:
-        Daskalakis et al, `Training GANs with Optimism <https://arxiv.org/abs/1711.00141>`_, 2017
+        Daskalakis et al., 2017, [Training GANs with Optimism](https://arxiv.org/abs/1711.00141)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -716,7 +738,7 @@ class OptimisticGradientDescent[Weights: PyTree](OptaxWrapper[Weights]):
     ``(alpha + beta) * g_t - beta * g_{t-1}``.
 
     References:
-        [Daskalakis et al, 2017](https://arxiv.org/abs/1711.00141)
+        Daskalakis et al., 2017, [Training GANs with Optimism](https://arxiv.org/abs/1711.00141)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -741,9 +763,13 @@ class PolyakSGD[Weights: PyTree](OptaxWrapper[Weights]):
     ``max_learning_rate``.  Pass the loss at the current parameters to ``update`` as ``value``.
 
     References:
-        [Polyak, 1987](https://doi.org/10.1016/C2013-0-03970-5)
-        [Loizou et al, 2021](https://arxiv.org/abs/2002.10542)
-        [Garrigos et al, 2023](https://arxiv.org/abs/2307.14528)
+        Polyak, 1987, Introduction to Optimization
+        Loizou et al., 2020,
+            [Stochastic Polyak Step-size for SGD: An Adaptive Learning Rate for Fast
+            Convergence](https://arxiv.org/abs/2002.10542)
+        Garrigos et al., 2023,
+            [Function Value Learning: Adaptive Learning Rates Based on the Polyak Stepsize and
+            Function Splitting in ERM](https://arxiv.org/abs/2307.14528)
 
     Args:
         max_learning_rate: Upper bound on the computed step size.
@@ -773,7 +799,9 @@ class RAdam[Weights: PyTree](OptaxWrapper[Weights]):
     of the adaptive learning rate.
 
     References:
-        [Liu et al, 2020](https://arxiv.org/abs/1908.03265)
+        Liu et al., 2019,
+            [On the Variance of the Adaptive Learning Rate and
+            Beyond](https://arxiv.org/abs/1908.03265)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -810,8 +838,11 @@ class RMSProp[Weights: PyTree](OptaxWrapper[Weights]):
     optimiser that can be used to switch between several of these variants.
 
     References:
-        [Tieleman and Hinton, 2012](http://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf)
-        [Graves, 2013](https://arxiv.org/abs/1308.0850)
+        Tieleman and Hinton, 2012,
+            [Lecture 6.5: RMSprop, Neural Networks for Machine
+            Learning](https://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf)
+        Graves, 2013,
+            [Generating Sequences With Recurrent Neural Networks](https://arxiv.org/abs/1308.0850)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -850,10 +881,12 @@ class Rprop[Weights: PyTree](OptaxWrapper[Weights]):
     """The Rprop optimizer.
 
     References:
-        Riedmiller et al. `A direct adaptive method for faster backpropagation learning: the RPROP
-            algorithm <https://ieeexplore.ieee.org/document/298623>`_, 1993
-        Igel et al. `Empirical evaluation of the improved Rprop learning algorithms
-            <https://www.sciencedirect.com/science/article/abs/pii/S0925231201007007>`_, 2003
+        Riedmiller and Braun, 1993,
+            [A direct adaptive method for faster backpropagation learning: the RPROP
+            algorithm](https://doi.org/10.1109/ICNN.1993.298623)
+        Igel and Hüsken, 2003,
+            [Empirical evaluation of the improved Rprop learning
+            algorithms](https://doi.org/10.1016/S0925-2312(01)00700-7)
 
     Args:
         learning_rate: The initial step size.
@@ -885,7 +918,9 @@ class SGD[Weights: PyTree](OptaxWrapper[Weights]):
     using stochastic gradient descent to train deep neural networks.
 
     References:
-        [Sutskever et al, 2013](http://proceedings.mlr.press/v28/sutskever13.pdf)
+        Sutskever et al., 2013,
+            [On the importance of initialization and momentum in deep
+            learning](https://proceedings.mlr.press/v28/sutskever13.pdf)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
@@ -910,10 +945,11 @@ class SignSGD[Weights: PyTree](OptaxWrapper[Weights]):
     """A variant of SGD using only the signs of the gradient components.
 
     References:
-        Bernstein et al., `signSGD: Compressed optimization for Non-Convex Problems
-            <https://arxiv.org/abs/1802.04434>`_, 2018
-        Balles et al., `The Geometry of Sign Gradient Descent <https://arxiv.org/abs/2002.08056>`_,
-            2020
+        Bernstein et al., 2018,
+            [signSGD: Compressed Optimisation for Non-Convex
+            Problems](https://arxiv.org/abs/1802.04434)
+        Balles et al., 2020,
+            [The Geometry of Sign Gradient Descent](https://arxiv.org/abs/2002.08056)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -932,10 +968,12 @@ class Signum[Weights: PyTree](OptaxWrapper[Weights]):
     """A variant of SGD using signs of the components of an EMA of the gradient.
 
     References:
-        Bernstein et al., `signSGD: Compressed optimization for Non-Convex Problems
-            <https://arxiv.org/abs/1802.04434>`_, 2018
-        Zhao et al., 'Deconstructing What Makes a Good Optimizer for Language Models
-            <https://arxiv.org/abs/2407.07972>`_, 2024
+        Bernstein et al., 2018,
+            [signSGD: Compressed Optimisation for Non-Convex
+            Problems](https://arxiv.org/abs/1802.04434)
+        Zhao et al., 2024,
+            [Deconstructing What Makes a Good Optimizer for Language
+            Models](https://arxiv.org/abs/2407.07972)
 
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
@@ -961,7 +999,8 @@ class SM3[Weights: PyTree](OptaxWrapper[Weights]):
     suitable for very large parameter matrices.
 
     References:
-        [Anil et al, 2019](https://arxiv.org/abs/1901.11150)
+        Anil et al., 2019,
+            [Memory-Efficient Adaptive Optimization](https://arxiv.org/abs/1901.11150)
 
     Args:
         learning_rate: Global step-size scalar.
@@ -984,7 +1023,9 @@ class Yogi[Weights: PyTree](OptaxWrapper[Weights]):
     update to prevent the accumulator from growing too fast.
 
     References:
-        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html)
+        Zaheer et al., 2018,
+            [Adaptive Methods for Nonconvex
+            Optimization](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html)
 
     Args:
         learning_rate: Global step-size schedule or scalar.

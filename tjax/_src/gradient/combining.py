@@ -224,7 +224,8 @@ class Lookahead[Weights: PyTree](OptaxWrapper[Weights]):
     the gradient must be with respect to the fast weights.
 
     References:
-        [Zhang et al, 2019](https://arxiv.org/abs/1907.08610)
+        Zhang et al., 2019,
+            [Lookahead Optimizer: k steps forward, 1 step back](https://arxiv.org/abs/1907.08610)
 
     Args:
         fast_optimizer: The transformation that updates the fast weights.

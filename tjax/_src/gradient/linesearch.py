@@ -25,9 +25,11 @@ class ScaleByBacktrackingLinesearch[Weights: PyTree](OptaxWrapper[Weights]):
     """Backtracking line-search ensuring sufficient decrease (Armijo criterion).
 
     References:
-        Vaswani et al., `Painless Stochastic Gradient <https://arxiv.org/abs/1905.09997>`_, 2019
-        Nocedal & Wright, `Numerical Optimization <https://doi.org/10.1007/978-0-387-40065-5>`_,
-            1999
+        Vaswani et al., 2019,
+            [Painless Stochastic Gradient: Interpolation, Line-Search, and Convergence
+            Rates](https://arxiv.org/abs/1905.09997)
+        Nocedal and Wright, 2006,
+            [Numerical Optimization](https://doi.org/10.1007/978-0-387-40065-5)
 
     Args:
         max_backtracking_steps: Maximum number of iterations for the line-search.
@@ -68,10 +70,11 @@ class ScaleByZoomLinesearch[Weights: PyTree](OptaxWrapper[Weights]):
     """Linesearch ensuring sufficient decrease and small curvature.
 
     References:
-        Algorithms 3.5 3.6 of Nocedal and Wright, `Numerical Optimization
-            <https://doi.org/10.1007/978-0-387-40065-5>`_, 1999
-        Hager and Zhang `Algorithm 851: CG_DESCENT, a Conjugate Gradient Method with Guaranteed
-            Descent <https://doi.org/10.1145/1132973.1132979>`_, 2006
+        Nocedal and Wright, 2006 (algorithms 3.5 and 3.6),
+            [Numerical Optimization](https://doi.org/10.1007/978-0-387-40065-5)
+        Hager and Zhang, 2006,
+            [Algorithm 851: CG_DESCENT, a Conjugate Gradient Method with Guaranteed
+            Descent](https://doi.org/10.1145/1132973.1132979)
 
     Args:
         max_linesearch_steps: Maximum number of linesearch iterations.

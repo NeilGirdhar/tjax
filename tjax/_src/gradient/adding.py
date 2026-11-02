@@ -48,7 +48,9 @@ class AddNoise[Weights: PyTree](OptaxWrapper[Weights]):
     """Add gradient noise.
 
     References:
-        [Neelakantan et al, 2014](https://arxiv.org/abs/1511.06807)
+        Neelakantan et al., 2015,
+            [Adding Gradient Noise Improves Learning for Very Deep
+            Networks](https://arxiv.org/abs/1511.06807)
 
     Args:
         eta: base variance of the gaussian noise added to the gradient.

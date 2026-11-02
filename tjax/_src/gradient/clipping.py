@@ -40,8 +40,9 @@ class ClipByGlobalNorm[Weights: PyTree](OptaxWrapper[Weights]):
     """Clips updates using their global norm.
 
     References:
-        Pascanu et al., `On the difficulty of training Recurrent Neural Networks
-            <https://arxiv.org/abs/1211.5063>`_, 2012
+        Pascanu et al., 2012,
+            [On the difficulty of training Recurrent Neural
+            Networks](https://arxiv.org/abs/1211.5063)
 
     Args:
         max_norm: The maximum global norm for an update.
@@ -74,8 +75,9 @@ class AdaptiveGradClip[Weights: PyTree](OptaxWrapper[Weights]):
     """Clips updates to be at most ``clipping * parameter_norm``, unit-wise.
 
     References:
-        Brock et al., `High-Performance Large-Scale Image Recognition Without Normalization
-            <https://arxiv.org/abs/2102.06171>`_, 2021
+        Brock et al., 2021,
+            [High-Performance Large-Scale Image Recognition Without
+            Normalization](https://arxiv.org/abs/2102.06171)
 
     Args:
         clipping: The maximum allowed ratio of update norm to parameter norm.

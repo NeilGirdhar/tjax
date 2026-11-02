@@ -103,7 +103,8 @@ class ScaleByAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the Adam algorithm (without a learning rate).
 
     References:
-        [Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)
+        Kingma and Ba, 2014,
+            [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
     Args:
         b1: Decay rate for the first moment of gradients.
@@ -207,7 +208,9 @@ class ScaleByBelief[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the AdaBelief algorithm.
 
     References:
-        [Zhuang et al, 2020](https://arxiv.org/abs/2010.07468)
+        Zhuang et al., 2020,
+            [AdaBelief Optimizer: Adapting Stepsizes by the Belief in Observed
+            Gradients](https://arxiv.org/abs/2010.07468)
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -236,8 +239,9 @@ class ScaleByDistanceOverGradients[Weights: PyTree](OptaxWrapper[Weights]):
     """Distance-over-gradients learning rate-free optimizer.
 
     References:
-        Ivgi et al, `DoG is SGD's Best Friend: A Parameter-Free Dynamic Step Size Schedule
-            <https://arxiv.org/pdf/2302.12022.pdf>`_, 2023
+        Ivgi et al., 2023,
+            [DoG is SGD's Best Friend: A Parameter-Free Dynamic Step Size
+            Schedule](https://arxiv.org/abs/2302.12022)
 
     Args:
         reps_rel: Used to compute initial learning rate. Recommended values are 1e-4 for models
@@ -262,9 +266,10 @@ class ScaleByFactoredRMS[Weights: PyTree](OptaxWrapper[Weights]):
     """Scaling by a factored estimate of the gradient rms (as in Adafactor).
 
     References:
-        Shazeer et al, `Adafactor: Adaptive Learning Rates with Sublinear Memory Cost
-            <https://arxiv.org/abs/1804.04235>`_, 2018
-        Zhai et al, `Scaling Vision Transformers <https://arxiv.org/abs/2106.04560>`_, 2021
+        Shazeer and Stern, 2018,
+            [Adafactor: Adaptive Learning Rates with Sublinear Memory
+            Cost](https://arxiv.org/abs/1804.04235)
+        Zhai et al., 2021, [Scaling Vision Transformers](https://arxiv.org/abs/2106.04560)
 
     Args:
         factored: Boolean: whether to use factored second-moment estimates..
@@ -301,10 +306,11 @@ class ScaleByLBFGS[Weights: PyTree](OptaxWrapper[Weights]):
     r"""Scales updates by L-BFGS.
 
     References:
-        Algorithms 7.4, 7.5 (page 199) of Nocedal et al, `Numerical Optimization
-            <https://www.math.uci.edu/~qnie/Publications/NumericalOptimization.pdf>`_, 1999
-        Liu et al., `On the limited memory BFGS method for large scale optimization
-            <https://users.iems.northwestern.edu/~nocedal/PDFfiles/limited-memory.pdf>`_, 1989.
+        Nocedal and Wright, 2006 (algorithms 7.4 and 7.5),
+            [Numerical Optimization](https://doi.org/10.1007/978-0-387-40065-5)
+        Liu and Nocedal, 1989,
+            [On the limited memory BFGS method for large scale
+            optimization](https://doi.org/10.1007/BF01589116)
 
     Args:
         memory_size: Number of past parameters, gradients/updates to keep in memory to approximate
@@ -456,7 +462,9 @@ class ScaleByRAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the Rectified Adam algorithm.
 
     References:
-        [Liu et al, 2020](https://arxiv.org/abs/1908.03265)
+        Liu et al., 2019,
+            [On the Variance of the Adaptive Learning Rate and
+            Beyond](https://arxiv.org/abs/1908.03265)
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -486,7 +494,9 @@ class ScaleByRMS[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates by the root of the exp. moving avg of the square.
 
     References:
-        [Hinton](www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf)
+        Tieleman and Hinton, 2012,
+            [Lecture 6.5: RMSprop, Neural Networks for Machine
+            Learning](https://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf)
 
     Args:
         decay: decay rate for the exponentially weighted average of squared grads.
@@ -539,8 +549,12 @@ class ScaleByRss[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates by the root of the sum of all squared gradients to date.
 
     References:
-        [Duchi et al, 2011](https://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf)
-        [McMahan et al., 2010](https://arxiv.org/abs/1002.4908)
+        Duchi et al., 2011,
+            [Adaptive Subgradient Methods for Online Learning and Stochastic
+            Optimization](https://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf)
+        McMahan and Streeter, 2010,
+            [Adaptive Bound Optimization for Online Convex
+            Optimization](https://arxiv.org/abs/1002.4908)
 
     Args:
         initial_accumulator_value: Starting value for accumulators, must be >= 0.
@@ -569,7 +583,8 @@ class ScaleBySM3[Weights: PyTree](OptaxWrapper[Weights]):
     """Scale updates by SM3.
 
     References:
-        [Anil et. al 2019](https://arxiv.org/abs/1901.11150)
+        Anil et al., 2019,
+            [Memory-Efficient Adaptive Optimization](https://arxiv.org/abs/1901.11150)
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -591,7 +606,9 @@ class ScaleByStddev[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates by the root of the centered exp. moving average of squares.
 
     References:
-        [Hinton](www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf)
+        Tieleman and Hinton, 2012,
+            [Lecture 6.5: RMSprop, Neural Networks for Machine
+            Learning](https://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf)
 
     Args:
         decay: decay rate for the exponentially weighted average of squared grads.
@@ -618,7 +635,9 @@ class ScaleByTrustRatio[Weights: PyTree](OptaxWrapper[Weights]):
     """Scale updates by the trust ratio.
 
     References:
-        [You et. al 2020](https://arxiv.org/abs/1904.00962)
+        You et al., 2019,
+            [Large Batch Optimization for Deep Learning: Training BERT in 76
+            minutes](https://arxiv.org/abs/1904.00962)
 
     Args:
         min_norm: minimum norm for params and gradient norms; by default is zero.
@@ -640,7 +659,9 @@ class ScaleByYogi[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates according to the Yogi algorithm.
 
     References:
-        [Zaheer et al, 2018](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html)
+        Zaheer et al., 2018,
+            [Adaptive Methods for Nonconvex
+            Optimization](https://papers.nips.cc/paper/2018/hash/90365351ccc7437a1309dc64e4db32a3-Abstract.html)
 
     Args:
         b1: decay rate for the exponentially weighted average of grads.
@@ -668,7 +689,9 @@ class Centralize[Weights: PyTree](OptaxWrapper[Weights]):
     """Centralize gradients by subtracting their mean along the leading dimension.
 
     References:
-        [Yong et al, 2020](https://arxiv.org/abs/2004.01461)
+        Yong et al., 2020,
+            [Gradient Centralization: A New Optimization Technique for Deep Neural
+            Networks](https://arxiv.org/abs/2004.01461)
     """
 
     @override
