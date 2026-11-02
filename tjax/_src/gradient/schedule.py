@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from tjax._src.annotations import (
-    IntegralNumeric,
-    JaxArray,
-    RealNumeric,
-)
+from jax.typing import ArrayLike
+
+from tjax._src.annotations import IntegralNumeric, JaxArray
 from tjax.dataclasses import dataclass, field
 
 
@@ -21,12 +19,13 @@ class Schedule:
     ScalarOrSchedule.
 
     Args:
-        step_size_fn: A function from the update count to the step size.
+        step_size_fn: A function from the update count to the step size, such as an optax
+            schedule.
     """
 
-    step_size_fn: Callable[[IntegralNumeric], RealNumeric] = field(static=True)
+    step_size_fn: Callable[[IntegralNumeric], ArrayLike] = field(static=True)
 
-    def __call__(self, count: IntegralNumeric) -> RealNumeric:
+    def __call__(self, count: IntegralNumeric) -> ArrayLike:
         return self.step_size_fn(count)
 
 

@@ -7,6 +7,7 @@ import chex
 import jax
 import jax.numpy as jnp
 import jax.random as jr
+import optax
 import pytest
 from jax import tree
 
@@ -60,6 +61,7 @@ CONSTRUCTORS: list[Callable[[], Any]] = [
     lambda: AdaGrad[Params](1e-2),
     lambda: Adam[Params](1e-2),
     lambda: Adam[Params](Schedule(lambda _: 1e-2)),
+    lambda: Adam[Params](Schedule(optax.linear_schedule(1e-2, 0.0, 10))),
     lambda: AdamW[Params](1e-2),
     lambda: AdamW[Params](Schedule(lambda _: 1e-2), weight_decay=Schedule(lambda _: 1e-4)),
     lambda: Adamax[Params](1e-2),
