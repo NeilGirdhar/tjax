@@ -24,6 +24,8 @@ from tjax.gradient import (
     Adamax,
     AdamaxW,
     AdamW,
+    ChainedGradientState,
+    ChainedGradientTransformation,
     Fromage,
     GenericGradientState,
     GradientTransformation,
@@ -35,6 +37,7 @@ from tjax.gradient import (
     PolyakSGD,
     RAdam,
     RMSProp,
+    Scale,
     Schedule,
     Yogi,
 )
@@ -172,3 +175,29 @@ def test_polyak_sgd_requires_value() -> None:
     tx = PolyakSGD[Params]()
     with pytest.raises(ValueError, match="loss value"):
         tx.update(_gradient(), tx.init(_params()), _params())
+
+
+@pytest.mark.parametrize(
+    "transforms",
+    [
+        [LBFGS[Params]()],
+        [PolyakSGD[Params](), Scale[Params](1.0)],
+        [ChainedGradientTransformation[Params]([PolyakSGD[Params]()])],
+    ],
+    ids=["lbfgs", "polyak-sgd-then-scale", "nested"],
+)
+def test_chain_forwards_extra_args(transforms: list[GradientTransformation[Any, Params]]) -> None:
+    @jax.jit
+    def step(
+        tx: ChainedGradientTransformation[Params], params: Params, state: ChainedGradientState
+    ) -> tuple[Params, ChainedGradientState]:
+        value, grad = jax.value_and_grad(_loss)(params)
+        updates, state = tx.update(grad, state, params, value=value, grad=grad, value_fn=_loss)
+        return tree.map(jnp.add, params, updates), state
+
+    tx = ChainedGradientTransformation[Params](transforms)
+    params = _params()
+    state = tx.init(params)
+    for _ in range(10):
+        params, state = step(tx, params, state)
+    assert _loss(params) < CONVERGED_LOSS
