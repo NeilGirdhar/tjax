@@ -14,7 +14,8 @@ from .transform import GradientState, GradientTransformation
 class ChainedGradientState(GradientState):
     """Gradient state for :class:`ChainedGradientTransformation`.
 
-    Stores the individual states of each transformation in the chain.
+    Args:
+        sub_states: The states of the transformations in the chain, in order.
     """
 
     sub_states: list[PyTree]

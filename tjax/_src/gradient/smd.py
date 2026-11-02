@@ -14,6 +14,14 @@ from .transform import GradientState, HvpGradientTransformation
 
 @dataclass
 class SMDState[Weights: PyTree](GradientState):
+    """Gradient state for :class:`SMDGradient`.
+
+    Args:
+        log_learning_rate: The logarithm of each weight's learning rate.
+        v: The running estimate of the derivative of the weights with respect to the log
+            learning rates.
+    """
+
     log_learning_rate: Weights
     v: Weights
 
@@ -25,6 +33,9 @@ class SMDGradient[Weights: PyTree](HvpGradientTransformation[SMDState[Weights], 
     Schraudolph, N. N. (1999). Local gain adaptation in stochastic gradient descent. Artificial
     Neural Networks, 1999. ICANN 99. Ninth International Conference on (Conf. Publ. No. 470), 2,
     569-574. https://doi.org/10.1049/cp:19991170.
+
+    Args:
+        meta_learning_rate: The step size for adapting the log learning rates.
     """
 
     meta_learning_rate: RealNumeric = 1e-2

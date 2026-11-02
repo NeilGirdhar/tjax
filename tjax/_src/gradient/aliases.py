@@ -54,7 +54,9 @@ class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, We
         b1: Decay rate for the first moment (mean) of gradients.
         b2: Decay rate for the second moment (variance) of gradients.
         eps: Regularisation term for numerical stability.
-        eps_root: Term added inside the square-root for numerical stability.
+        eps_root: Term added to the second moment of the prediction error for numerical
+            stability.  It must be nonzero when backpropagating through the optimiser.
+        nesterov: Whether to use Nesterov momentum.
     """
 
     learning_rate: ScalarOrSchedule
@@ -123,6 +125,26 @@ class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, We
 
     References:
         [Shazeer and Stern, 2018](https://arxiv.org/abs/1805.09843)
+
+    Args:
+        learning_rate: Optional global step-size schedule or scalar.  AdaFactor's natural
+            learning-rate scale differs markedly from Adam's.
+        min_dim_size_to_factor: Factor the statistics only if two array dimensions have at
+            least this size.
+        decay_rate: Controls the second-moment exponential decay schedule.
+        decay_offset: For fine-tuning, the step number at which fine-tuning starts.
+        multiply_by_parameter_scale: Whether to scale the learning rate by the parameter norm;
+            if false, the learning rate is the absolute step size.
+        clipping_threshold: Optional clipping threshold, at least 1; ``None`` disables
+            clipping.
+        momentum: Optional momentum decay rate between 0 and 1; ``None`` disables momentum,
+            which otherwise uses extra memory.
+        dtype_momentum: Data type of the momentum buffers.
+        weight_decay_rate: Optional weight decay rate, or a schedule of it.
+        eps: Regularisation constant for the root mean squared gradient.
+        factored: Whether to use factored second-moment estimates.
+        weight_decay_mask: Optional mask, or a function of the parameters returning one,
+            selecting which parameters receive weight decay.
     """
 
     learning_rate: ScalarOrSchedule | None = None
@@ -163,7 +185,7 @@ class AdaGrad[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     Args:
         learning_rate: Global step-size schedule or scalar.
         initial_accumulator_value: Starting value for the sum-of-squares accumulator.
-        eps: Regularisation term added to the denominator.
+        eps: Small constant added inside the square root of the denominator.
     """
 
     learning_rate: ScalarOrSchedule
@@ -232,14 +254,16 @@ class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
         [Loshchilov and Hutter, 2019](https://arxiv.org/abs/1711.05101)
 
     Args:
-        learning_rate: Global step-size scalar.
+        learning_rate: Global step-size schedule or scalar.
         b1: Decay rate for the first moment of gradients.
         b2: Decay rate for the second moment of gradients.
         eps: Regularisation term for numerical stability.
         eps_root: Term added inside the square-root for numerical stability.
         mu_dtype: Optional dtype for the first moment accumulator.
-        weight_decay: Coefficient for decoupled weight decay.
-        mask: Optional mask for which parameters receive weight decay.
+        weight_decay: Strength of the decoupled weight decay, or a schedule of it.  As in
+            PyTorch, it is multiplied by the learning rate.
+        mask: Optional mask, or a function of the parameters returning one, selecting
+            which parameters receive weight decay.
         nesterov: Whether to use Nesterov momentum.
     """
 
@@ -277,7 +301,7 @@ class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weigh
         [Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)
 
     Args:
-        learning_rate: Global step-size scalar.
+        learning_rate: Global step-size schedule or scalar.
         b1: Decay rate for the first moment of gradients.
         b2: Decay rate for the infinity norm of gradients.
         eps: Regularisation term for numerical stability.
@@ -309,12 +333,14 @@ class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     decay from AdamW.
 
     Args:
-        learning_rate: Global step-size scalar.
+        learning_rate: Global step-size schedule or scalar.
         b1: Decay rate for the first moment of gradients.
         b2: Decay rate for the infinity norm of gradients.
         eps: Regularisation term for numerical stability.
-        weight_decay: Coefficient for decoupled weight decay.
-        mask: Optional mask for which parameters receive weight decay.
+        weight_decay: Strength of the decoupled weight decay, or a schedule of it.  As in
+            PyTorch, it is multiplied by the learning rate.
+        mask: Optional mask, or a function of the parameters returning one, selecting
+            which parameters receive weight decay.
     """
 
     learning_rate: ScalarOrSchedule
@@ -348,8 +374,9 @@ class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
         [Bernstein et al, 2020](https://arxiv.org/abs/2002.03432)
 
     Args:
-        learning_rate: Global step-size scalar.
-        min_norm: Minimum norm used in the trust-region constraint.
+        learning_rate: Global step-size schedule or scalar.
+        min_norm: Lower bound on the norms of the updates and parameters, which avoids
+            dividing by zero in the trust ratio.
     """
 
     learning_rate: ScalarOrSchedule
@@ -384,8 +411,10 @@ class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
         b2: Decay rate for the second moment of gradients.
         eps: Regularisation term for numerical stability.
         eps_root: Term added inside the square-root for numerical stability.
-        weight_decay: Coefficient for L2 regularisation.
-        mask: Optional mask for which parameters receive weight decay.
+        weight_decay: Strength of the decoupled weight decay, applied after the Adam
+            scaling and before the trust ratio.
+        mask: Optional mask, or a function of the parameters returning one, selecting
+            which parameters receive weight decay.
     """
 
     learning_rate: ScalarOrSchedule
@@ -529,11 +558,14 @@ class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
 
     Args:
         learning_rate: Global step-size schedule or scalar.
-        b1: Decay rate for the update momentum.
-        b2: Decay rate for the second moment used to compute the update sign.
+        b1: Rate at which to combine the momentum and the current gradient before taking
+            the sign.
+        b2: Decay rate for the momentum of past gradients.
         mu_dtype: Optional dtype for the momentum accumulator.
-        weight_decay: Coefficient for decoupled weight decay.
-        mask: Optional mask for which parameters receive weight decay.
+        weight_decay: Strength of the decoupled weight decay, or a schedule of it.  As in
+            PyTorch, it is multiplied by the learning rate.
+        mask: Optional mask, or a function of the parameters returning one, selecting
+            which parameters receive weight decay.
     """
 
     learning_rate: ScalarOrSchedule
@@ -568,7 +600,8 @@ class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     Args:
         learning_rate: Global step-size schedule or scalar.
         eta: Base variance of the Gaussian noise.
-        gamma: Decay exponent for the noise variance.
+        gamma: Decay exponent for the noise variance, which decays as
+            ``(1 + t) ** -gamma`` at step ``t``.
         key: PRNG key for random noise generation.
     """
 
@@ -606,7 +639,7 @@ class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
         b2: Decay rate for the second moment of gradients.
         eps: Regularisation term for numerical stability.
         eps_root: Term added inside the square-root for numerical stability.
-        weight_decay: Coefficient for L2 regularisation.
+        weight_decay: Strength of the weight decay.
     """
 
     learning_rate: ScalarOrSchedule
@@ -635,16 +668,17 @@ class OptimisticGradientDescent[Weights: PyTree](
 ):
     """Pytree-compatible wrapper for the optax Optimistic Gradient Descent optimiser.
 
-    Optimistic GD uses a prediction step to reduce variance and improve
-    convergence in adversarial settings.
+    Optimistic gradient descent extrapolates from the previous gradient, which stabilises
+    training in min-max games.  Before the learning rate, the update is
+    ``(alpha + beta) * g_t - beta * g_{t-1}``.
 
     References:
         [Daskalakis et al, 2017](https://arxiv.org/abs/1711.00141)
 
     Args:
         learning_rate: Global step-size schedule or scalar.
-        alpha: Step-size for the gradient descent update.
-        beta: Step-size for the optimistic gradient correction.
+        alpha: Coefficient of the current gradient.
+        beta: Coefficient of the negative momentum, which subtracts the previous gradient.
     """
 
     learning_rate: ScalarOrSchedule
@@ -672,17 +706,21 @@ class OptimisticGradientDescent[Weights: PyTree](
 class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
     """Pytree-compatible wrapper for the optax Polyak SGD optimiser.
 
-    Uses a step size derived from the Polyak step rule, which aims to reach
-    the minimum in one step under a quadratic loss assumption.
+    The step size is ``scaling * (f(x) - f_min) / (||grad f(x)||^2 + eps)``, capped at
+    ``max_learning_rate``.  Its update needs the loss value; see :meth:`update`.
 
     References:
         [Polyak, 1987](https://doi.org/10.1016/C2013-0-03970-5)
+        [Loizou et al, 2021](https://arxiv.org/abs/2002.10542)
+        [Garrigos et al, 2023](https://arxiv.org/abs/2307.14528)
 
     Args:
         max_learning_rate: Upper bound on the computed step size.
         scaling: Optional schedule or scalar to scale the Polyak step.
         f_min: Known or estimated minimum value of the loss.
         eps: Regularisation term added to the gradient norm denominator.
+        variant: Either ``'sps'``, or ``'sps+'``, which uses only the nonnegative part of
+            ``f(x) - f_min``.
     """
 
     max_learning_rate: RealNumeric = 1.0
@@ -775,20 +813,24 @@ class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     optimiser that can be used to switch between several of these variants.
 
     References:
-        Tieleman and Hinton, 2012: http://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf
-        Graves, 2013: https://arxiv.org/abs/1308.0850
+        [Tieleman and Hinton, 2012](http://www.cs.toronto.edu/~hinton/coursera/lecture6/lec6.pdf)
+        [Graves, 2013](https://arxiv.org/abs/1308.0850)
+
     Args:
-        learning_rate: this is a fixed global scaling factor.
-        decay: the decay used to track the magnitude of previous gradients.
-        eps: a small numerical constant to avoid dividing by zero when rescaling.
-        initial_scale: (default `0.`), initialisation of accumulators tracking the
-        magnitude of previous updates. PyTorch uses `0`, TF1 uses `1`. When
-        reproducing results from a paper, verify the value used by the authors.
-        centered: (default `False`), whether the second moment or the variance of
-        the past gradients is used to rescale the latest gradients.
-        momentum: (default `None`), the `decay` rate used by the momentum term,
-        when it is set to `None`, then momentum is not used at all.
-        nesterov (default `False`): whether nesterov momentum is used.
+        learning_rate: Global step-size schedule or scalar.
+        decay: The decay used to track the magnitude of previous gradients.
+        eps: A small numerical constant to avoid dividing by zero when rescaling.
+        initial_scale: Initial value of the accumulators tracking the magnitude of previous
+            updates.  PyTorch uses 0 and TF1 uses 1; when reproducing results from a paper,
+            verify the value the authors used.
+        eps_in_sqrt: Whether to add ``eps`` inside the square root of the denominator or
+            outside it.
+        centered: Whether to rescale by the variance of past gradients instead of their
+            second moment.
+        momentum: The decay rate of the momentum term; ``None`` disables momentum.
+        nesterov: Whether to use Nesterov momentum.
+        bias_correction: Whether to apply bias correction to the second-moment estimate, and
+            to the first-moment estimate when ``centered`` is true.
     """
 
     learning_rate: ScalarOrSchedule
@@ -823,18 +865,14 @@ class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     using stochastic gradient descent to train deep neural networks.
 
     References:
-        Sutskever et al, 2013: http://proceedings.mlr.press/v28/sutskever13.pdf
+        [Sutskever et al, 2013](http://proceedings.mlr.press/v28/sutskever13.pdf)
 
     Args:
-        learning_rate: this is a fixed global scaling factor.
-        momentum: (default `None`), the `decay` rate used by the momentum term,
-        when it is set to `None`, then momentum is not used at all.
-        nesterov (default `False`): whether nesterov momentum is used.
-        accumulator_dtype: optional `dtype` to be used for the accumulator; if
-        `None` then the `dtype` is inferred from `params` and `updates`.
-
-    Returns:
-        A `GradientTransformation`.
+        learning_rate: Global step-size schedule or scalar.
+        momentum: The decay rate of the momentum term; ``None`` disables momentum.
+        nesterov: Whether to use Nesterov momentum.
+        accumulator_dtype: Optional dtype for the accumulator; if ``None``, the dtype is
+            inferred from the parameters and updates.
     """
 
     learning_rate: ScalarOrSchedule
@@ -863,7 +901,7 @@ class SM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     suitable for very large parameter matrices.
 
     References:
-        [Rohan and McMahan, 2019](https://arxiv.org/abs/1901.11150)
+        [Anil et al, 2019](https://arxiv.org/abs/1901.11150)
 
     Args:
         learning_rate: Global step-size scalar.

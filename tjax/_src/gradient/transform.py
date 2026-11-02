@@ -22,6 +22,9 @@ class GenericGradientState(GradientState):
     """A simple container for gradient states.
 
     Optax doesn't provide a suitable base class.
+
+    Args:
+        data: The wrapped optax state.
     """
 
     data: PyTree
@@ -36,7 +39,7 @@ class GenericGradientState(GradientState):
 # all, these must be compatible pytrees.
 @dataclass
 class GradientTransformation[State: GradientState, Weights: PyTree]:
-    """A class that transforms weight cotangents into into weight deltas.
+    """A class that transforms weight cotangents into weight deltas.
 
     The delta are added to the weights.  The typical goal of a gradient transformation is for the
     weights to converge quickly and stably.
@@ -75,10 +78,10 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
     Subclasses implement :meth:`hvp_update`, which receives a callable ``hvp`` that maps any
     vector ``v`` to the Hessian-of-loss times ``v``.
 
-    The default :meth:`update` supplies ``hvp`` using the rank-1 outer-product approximation
-    ``H ≈ g gᵀ``, which is exact only when the gradient is a rank-1 vector.  Callers that have
-    access to a true HVP (e.g. via :func:`jax.linear_util.wrap_init` or forward-over-reverse AD)
-    should call :meth:`hvp_update` directly.
+    The default :meth:`update` supplies ``hvp`` using the outer-product approximation
+    ``H ≈ g gᵀ``, which is crude in general.  Callers that can compute a true HVP, for example
+    by forward-over-reverse differentiation (``jax.jvp`` of ``jax.grad``), should call
+    :meth:`hvp_update` directly.
     """
 
     @override
@@ -97,10 +100,9 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
             new_gradient_state: The new gradient state.
 
         Note:
-            Approximates the Hessian-vector product using the rank-1 outer-product
-            ``H v ≈ (gᵀ v) g``.  This is exact only when the loss Hessian is rank-1
-            (i.e. the gradient is a scalar multiple of a fixed direction).  For a true
-            HVP, call :meth:`hvp_update` directly.
+            Approximates the Hessian-vector product by ``H v ≈ (gᵀ v) g``, which is exact
+            only when the loss Hessian equals the outer product ``g gᵀ``.  For a true HVP,
+            call :meth:`hvp_update` directly.
         """
 
         def hessian_vector_product(v: Weights) -> Weights:
@@ -141,9 +143,9 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
     Subclasses implement :meth:`diag_hessian_update`, which additionally receives the
     element-wise diagonal of the Hessian.
 
-    The default :meth:`hvp_update` supplies the diagonal using the rank-1 outer-product
-    approximation ``diag(H) ≈ g²`` (element-wise square of the gradient), which is exact
-    only when the gradient is a rank-1 vector.
+    The default :meth:`hvp_update` supplies the diagonal using the outer-product
+    approximation ``diag(H) ≈ g²`` (the element-wise square of the gradient), which is crude
+    in general.
     """
 
     @override
@@ -168,9 +170,9 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
             new_gradient_state: The new gradient state.
 
         Note:
-            Approximates the Hessian diagonal using the rank-1 outer-product
-            ``diag(H) ≈ g²`` (element-wise square of the gradient).  This is exact only
-            when the loss Hessian is rank-1.
+            Approximates the Hessian diagonal by ``diag(H) ≈ g²``, the element-wise square
+            of the gradient, which is exact only when the loss Hessian's diagonal equals
+            that of ``g gᵀ``.
         """
         return self.diag_hessian_update(
             gradient, state, parameters, hessian_vector_product, tree.map(abs_square, gradient)

@@ -40,6 +40,9 @@ class Schedule:
     This class differs from optax.Schedule in that it's a pytree.  It can therefore be passed
     dynamically (since it marks the callable as static).  This allows it to participate in the union
     ScalarOrSchedule.
+
+    Args:
+        step_size_fn: A function from the update count to the step size.
     """
 
     step_size_fn: Callable[[IntegralNumeric], RealNumeric] = field(static=True)
@@ -102,7 +105,7 @@ class Ema[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     Args:
         decay: the decay rate for the exponential moving average.
         debias: whether to debias the transformed gradient.
-        accumulator_dtype: optional `dtype` to used for the accumulator; if `None`
+        accumulator_dtype: optional `dtype` to be used for the accumulator; if `None`
             then the `dtype` is inferred from `params` and `updates`.
     """
 
@@ -165,7 +168,11 @@ class ScaleByRms[Weights: PyTree](GradientTransformation[GenericGradientState, W
     Args:
         decay: decay rate for the exponentially weighted average of squared grads.
         eps: term added to the denominator to improve numerical stability.
-        initial_scale: initial value for second moment
+        initial_scale: initial value for second moment.
+        eps_in_sqrt: whether to add `eps` inside the square root of the denominator or
+            outside it.
+        bias_correction: whether to apply bias correction to the exponentially weighted
+            average of squared grads.
     """
 
     decay: RealNumeric = 0.9
@@ -199,7 +206,10 @@ class ScaleByStddev[Weights: PyTree](GradientTransformation[GenericGradientState
     Args:
         decay: decay rate for the exponentially weighted average of squared grads.
         eps: term added to the denominator to improve numerical stability.
-        initial_scale: initial value for second moment
+        initial_scale: initial value for second moment.
+        eps_in_sqrt: whether to add `eps` inside the square root of the denominator or
+            outside it.
+        bias_correction: whether to apply bias correction to the first and second moments.
     """
 
     decay: RealNumeric = 0.9
@@ -236,6 +246,7 @@ class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, 
         eps: Regularisation term for numerical stability.
         eps_root: Term added inside the square-root for numerical stability.
         mu_dtype: Optional dtype for the first moment accumulator.
+        nesterov: Whether to use Nesterov momentum.
     """
 
     b1: RealNumeric = 0.9
@@ -341,14 +352,16 @@ class ScaleByBelief[Weights: PyTree](GradientTransformation[GenericGradientState
     """Rescale updates according to the AdaBelief algorithm.
 
     References:
-      [Zhuang et al, 2020](https://arxiv.org/abs/2010.07468)
+        [Zhuang et al, 2020](https://arxiv.org/abs/2010.07468)
 
     Args:
-      b1: decay rate for the exponentially weighted average of grads.
-      b2: decay rate for the exponentially weighted average of variance of grads.
-      eps: term added to the denominator to improve numerical stability.
-      eps_root: term added to the denominator inside the square-root to improve
-        numerical stability when backpropagating gradients through the rescaling.
+        b1: decay rate for the exponentially weighted average of grads.
+        b2: decay rate for the exponentially weighted average of variance of grads.
+        eps: term added to the denominator to improve numerical stability.
+        eps_root: term added to the second moment of the prediction error to improve
+            numerical stability.  It must be nonzero when backpropagating gradients through
+            the rescaling, as in meta-learning.
+        nesterov: whether to use Nesterov momentum.
     """
 
     b1: RealNumeric = 0.9
@@ -424,7 +437,8 @@ class ScaleByRAdam[Weights: PyTree](GradientTransformation[GenericGradientState,
         eps: term added to the denominator to improve numerical stability.
         eps_root: term added to the denominator inside the square-root to improve
             numerical stability when backpropagating gradients through the rescaling.
-        threshold: Threshold for variance tractability
+        threshold: Threshold for variance tractability.
+        nesterov: whether to use Nesterov momentum.
     """
 
     b1: RealNumeric = 0.9
@@ -455,12 +469,11 @@ class AddDecayedWeights[Weights: PyTree](GradientTransformation[GenericGradientS
     """Add parameter scaled by `weight_decay`.
 
     Args:
-        weight_decay: a scalar weight decay rate.
+        weight_decay: a scalar weight decay rate, or a schedule of rates.
         mask: a tree with same structure as (or a prefix of) the params PyTree,
             or a Callable that returns such a pytree given the params/updates.
             The leaves should be booleans, `True` for leaves/subtrees you want to
             apply the transformation to, and `False` for those you want to skip.
-        weight_decay: RealNumeric = 0.0
     """
 
     weight_decay: ScalarOrSchedule = 0.0
@@ -507,7 +520,7 @@ class ScaleBySchedule[Weights: PyTree](GradientTransformation[GenericGradientSta
 
 @dataclass
 class ScaleByTrustRatio[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
-    """Scale updates by trust ratio`.
+    """Scale updates by the trust ratio.
 
     References:
         [You et. al 2020](https://arxiv.org/abs/1904.00962)
@@ -596,7 +609,7 @@ class ApplyEvery[Weights: PyTree](GradientTransformation[GenericGradientState, W
 
 @dataclass
 class Centralize[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
-    """Centralize gradients.
+    """Centralize gradients by subtracting their mean along the leading dimension.
 
     References:
         [Yong et al, 2020](https://arxiv.org/abs/2004.01461)
@@ -617,7 +630,7 @@ class Centralize[Weights: PyTree](GradientTransformation[GenericGradientState, W
 
 @dataclass
 class ScaleBySM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
-    """Scale updates by sm3`.
+    """Scale updates by SM3.
 
     References:
         [Anil et. al 2019](https://arxiv.org/abs/1901.11150)
