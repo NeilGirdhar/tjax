@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+import inspect
+from collections.abc import Callable, Mapping
 from typing import Self, override
 
 import jax.numpy as jnp
@@ -9,6 +10,21 @@ from jax import tree
 from tjax._src.annotations import PyTree
 from tjax._src.math_tools import abs_square
 from tjax.dataclasses import dataclass
+
+
+# Extra arguments ----------------------------------------------------------------------------------
+def accepted_extra_args(
+    update: Callable[..., object], extra_args: Mapping[str, object]
+) -> dict[str, object]:
+    """Return the subset of extra_args that update accepts as keyword arguments."""
+    parameters = inspect.signature(update).parameters
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()):
+        return dict(extra_args)
+    return {
+        name: value
+        for name, value in extra_args.items()
+        if name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
+    }
 
 
 # Gradient states ----------------------------------------------------------------------------------

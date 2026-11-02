@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import inspect
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from typing import Any, cast, override
 
 from tjax._src.annotations import PyTree
 from tjax.dataclasses import dataclass
 
-from .transform import GradientState, GradientTransformation
+from .transform import GradientState, GradientTransformation, accepted_extra_args
 
 
 @dataclass
@@ -19,20 +18,6 @@ class ChainedGradientState(GradientState):
     """
 
     sub_states: list[PyTree]
-
-
-def _accepted_extra_args(
-    update: Callable[..., object], extra_args: Mapping[str, object]
-) -> dict[str, object]:
-    """Return the subset of extra_args that update accepts as keyword arguments."""
-    parameters = inspect.signature(update).parameters
-    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in parameters.values()):
-        return dict(extra_args)
-    return {
-        name: value
-        for name, value in extra_args.items()
-        if name in parameters and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
-    }
 
 
 @dataclass
@@ -76,7 +61,7 @@ class ChainedGradientTransformation[Weights: PyTree](
         for sub_state, transform in zip(state.sub_states, self.transforms, strict=True):
             update = cast("Callable[..., tuple[Weights, PyTree]]", transform.update)
             gradient, new_sub_state = update(
-                gradient, sub_state, parameters, **_accepted_extra_args(update, extra_args)
+                gradient, sub_state, parameters, **accepted_extra_args(update, extra_args)
             )
             new_state.append(new_sub_state)
         return gradient, ChainedGradientState(new_state)
