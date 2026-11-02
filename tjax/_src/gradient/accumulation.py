@@ -49,7 +49,7 @@ class Trace[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class Ema[Weights: PyTree](OptaxWrapper[Weights]):
+class EMA[Weights: PyTree](OptaxWrapper[Weights]):
     """Compute an exponential moving average of past updates.
 
     Note: `trace` and `ema` have very similar but distinct updates;

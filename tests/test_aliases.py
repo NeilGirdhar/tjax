@@ -12,6 +12,7 @@ from jax import tree
 
 from tjax.gradient import (
     DPSGD,
+    LAMB,
     LARS,
     LBFGS,
     SGD,
@@ -29,7 +30,6 @@ from tjax.gradient import (
     Fromage,
     GenericGradientState,
     GradientTransformation,
-    Lamb,
     Lion,
     NoisySGD,
     Novograd,
@@ -65,7 +65,7 @@ CONSTRUCTORS: list[Callable[[], Any]] = [
     lambda: Adamax[Params](1e-2),
     lambda: AdamaxW[Params](1e-2),
     lambda: Fromage[Params](1e-2),
-    lambda: Lamb[Params](1e-2),
+    lambda: LAMB[Params](1e-2),
     lambda: LARS[Params](1e-2),
     lambda: Lion[Params](1e-2),
     lambda: NoisySGD[Params](1e-2, key=jr.key(123)),

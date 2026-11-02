@@ -1,6 +1,6 @@
 from ._src.gradient.accumulation import (
+    EMA,
     ApplyEvery,
-    Ema,
     MultiSteps,
     Trace,
 )
@@ -9,6 +9,7 @@ from ._src.gradient.adding import (
     AddNoise,
 )
 from ._src.gradient.aliases import (
+    LAMB,
     LARS,
     LBFGS,
     SGD,
@@ -24,7 +25,6 @@ from ._src.gradient.aliases import (
     Adan,
     AMSGrad,
     Fromage,
-    Lamb,
     Lion,
     NAdam,
     NAdamW,
@@ -49,7 +49,7 @@ from ._src.gradient.basic import (
 from ._src.gradient.clipping import (
     AdaptiveGradClip,
     Clip,
-    ClipByBlockRms,
+    ClipByBlockRMS,
     ClipByGlobalNorm,
 )
 from ._src.gradient.combining import (
@@ -114,7 +114,7 @@ from ._src.gradient.linesearch import (
     ScaleByZoomLinesearch,
 )
 from ._src.gradient.monitoring import (
-    MeasureWithEma,
+    MeasureWithEMA,
     Monitor,
     Snapshot,
 )
@@ -129,7 +129,7 @@ from ._src.gradient.scaling import (
     ScaleByAMSGrad,
     ScaleByBelief,
     ScaleByDistanceOverGradients,
-    ScaleByFactoredRms,
+    ScaleByFactoredRMS,
     ScaleByLBFGS,
     ScaleByLearningRate,
     ScaleByLion,
@@ -139,7 +139,7 @@ from ._src.gradient.scaling import (
     ScaleByParamBlockRMS,
     ScaleByPolyak,
     ScaleByRAdam,
-    ScaleByRms,
+    ScaleByRMS,
     ScaleByRprop,
     ScaleByRss,
     ScaleBySchedule,
@@ -170,6 +170,8 @@ __all__ = [
     "ADOPT",
     "COCOB",
     "DPSGD",
+    "EMA",
+    "LAMB",
     "LARS",
     "LBFGS",
     "MADGRAD",
@@ -197,7 +199,7 @@ __all__ = [
     "ChainedGradientState",
     "ChainedGradientTransformation",
     "Clip",
-    "ClipByBlockRms",
+    "ClipByBlockRMS",
     "ClipByGlobalNorm",
     "ConditionallyMask",
     "ConditionallyTransform",
@@ -206,7 +208,6 @@ __all__ = [
     "DifferentiallyPrivateAggregate",
     "DoG",
     "DoWG",
-    "Ema",
     "Flatten",
     "Freeze",
     "Fromage",
@@ -218,11 +219,10 @@ __all__ = [
     "HvpGradientTransformation",
     "Identity",
     "KeepParamsNonnegative",
-    "Lamb",
     "Lion",
     "Lookahead",
     "Masked",
-    "MeasureWithEma",
+    "MeasureWithEMA",
     "Mechanize",
     "Momo",
     "MomoAdam",
@@ -262,7 +262,7 @@ __all__ = [
     "ScaleByBelief",
     "ScaleByCOCOB",
     "ScaleByDistanceOverGradients",
-    "ScaleByFactoredRms",
+    "ScaleByFactoredRMS",
     "ScaleByGaLore",
     "ScaleByLBFGS",
     "ScaleByLearningRate",
@@ -275,7 +275,7 @@ __all__ = [
     "ScaleByParamBlockRMS",
     "ScaleByPolyak",
     "ScaleByRAdam",
-    "ScaleByRms",
+    "ScaleByRMS",
     "ScaleByRprop",
     "ScaleByRss",
     "ScaleBySM3",

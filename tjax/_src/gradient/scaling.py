@@ -258,7 +258,7 @@ class ScaleByDistanceOverGradients[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class ScaleByFactoredRms[Weights: PyTree](OptaxWrapper[Weights]):
+class ScaleByFactoredRMS[Weights: PyTree](OptaxWrapper[Weights]):
     """Scaling by a factored estimate of the gradient rms (as in Adafactor).
 
     References:
@@ -482,7 +482,7 @@ class ScaleByRAdam[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class ScaleByRms[Weights: PyTree](OptaxWrapper[Weights]):
+class ScaleByRMS[Weights: PyTree](OptaxWrapper[Weights]):
     """Rescale updates by the root of the exp. moving avg of the square.
 
     References:

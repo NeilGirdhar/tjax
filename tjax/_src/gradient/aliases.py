@@ -388,7 +388,7 @@ class Fromage[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class Lamb[Weights: PyTree](OptaxWrapper[Weights]):
+class LAMB[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax LAMB optimiser.
 
     LAMB scales Adam updates by the ratio of the parameter norm to the update

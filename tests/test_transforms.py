@@ -12,18 +12,18 @@ from optax import apply_updates
 
 from tjax import RealArray
 from tjax.gradient import (
+    EMA,
     SGD,
     AddDecayedWeights,
     ApplyEvery,
     Centralize,
     ChainedGradientTransformation,
-    Ema,
     GradientTransformation,
     Scale,
     ScaleByAdam,
     ScaleByParamBlockNorm,
     ScaleByParamBlockRMS,
-    ScaleByRms,
+    ScaleByRMS,
     ScaleByStddev,
     ScaleByTrustRatio,
     ScaleByYogi,
@@ -44,7 +44,7 @@ def variant[T](x: T) -> T:
     "constructor",
     [
         ScaleByAdam,
-        ScaleByRms,
+        ScaleByRMS,
         ScaleByStddev,
         ScaleByTrustRatio,
         ScaleByParamBlockNorm,
@@ -100,7 +100,7 @@ def test_ema() -> None:
     decay = 0.9
     d = decay
 
-    ema = Ema[Any](decay=decay, debias=False)
+    ema = EMA[Any](decay=decay, debias=False)
     state = ema.init(values[0])  # init to zeroes
 
     transform_fn = variant(ema.update)
@@ -116,7 +116,7 @@ def test_ema_debias() -> None:
     decay = 0.9
     d = decay
 
-    ema = Ema[Any](decay=decay)
+    ema = EMA[Any](decay=decay)
     state = ema.init(values[0])
 
     transform_fn = variant(ema.update)

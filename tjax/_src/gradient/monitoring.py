@@ -41,7 +41,7 @@ class Snapshot[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class MeasureWithEma[Weights: PyTree](OptaxWrapper[Weights]):
+class MeasureWithEMA[Weights: PyTree](OptaxWrapper[Weights]):
     """Store an exponential moving average of a measurement of the updates in the state.
 
     The updates pass through unchanged.

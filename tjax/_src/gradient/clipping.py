@@ -55,7 +55,7 @@ class ClipByGlobalNorm[Weights: PyTree](OptaxWrapper[Weights]):
 
 
 @dataclass
-class ClipByBlockRms[Weights: PyTree](OptaxWrapper[Weights]):
+class ClipByBlockRMS[Weights: PyTree](OptaxWrapper[Weights]):
     """Clips updates to a max rms for the gradient of each param vector or matrix.
 
     Args:
