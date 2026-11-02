@@ -26,6 +26,7 @@ from tjax.gradient import (
     ScaleByRms,
     ScaleByStddev,
     ScaleByTrustRatio,
+    ScaleByYogi,
     Trace,
 )
 
@@ -209,3 +210,14 @@ def test_centralize(inputs: object, outputs: object) -> None:
     empty_state = centralizer.init(inputs)
     centralized_inputs, _ = centralizer.update(inputs, empty_state, None)
     chex.assert_trees_all_close(centralized_inputs, outputs)
+
+
+def test_scale_by_yogi_initial_accumulator_value() -> None:
+    yogi = ScaleByYogi[Any](initial_accumulator_value=0.5)
+    state = yogi.init(init_params)
+    chex.assert_trees_all_close(
+        state.data.mu, tree.map(lambda x: jnp.full_like(x, 0.5), init_params)
+    )
+    chex.assert_trees_all_close(
+        state.data.nu, tree.map(lambda x: jnp.full_like(x, 0.5), init_params)
+    )

@@ -392,14 +392,14 @@ class ScaleByYogi[Weights: PyTree](GradientTransformation[GenericGradientState, 
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
-        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_yogi(**as_shallow_dict(self))
         return GenericGradientState(t.init(parameters))
 
     @override
     def update(
         self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
     ) -> tuple[Weights, GenericGradientState]:
-        t = scale_by_yogi(self.b1, self.b2, self.eps, self.eps_root)
+        t = scale_by_yogi(**as_shallow_dict(self))
         return GenericGradientState.wrap(  # type: ignore
             *t.update(gradient, state.data, parameters)
         )
