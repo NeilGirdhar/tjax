@@ -65,6 +65,7 @@ class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, We
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-16
     eps_root: RealNumeric = 1e-16
+    _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
     @override

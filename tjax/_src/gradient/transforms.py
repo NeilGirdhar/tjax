@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import KW_ONLY
 from typing import Any, override
 
 from optax import (
@@ -239,6 +240,7 @@ class ScaleByAdam[Weights: PyTree](GradientTransformation[GenericGradientState, 
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     mu_dtype: Any = field(default=None, static=True)
+    _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
     @override
@@ -350,6 +352,7 @@ class ScaleByBelief[Weights: PyTree](GradientTransformation[GenericGradientState
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-16
     eps_root: RealNumeric = 1e-16
+    _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
     @override
@@ -426,6 +429,7 @@ class ScaleByRAdam[Weights: PyTree](GradientTransformation[GenericGradientState,
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     threshold: RealNumeric = 5.0
+    _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
     @override
