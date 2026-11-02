@@ -3,6 +3,23 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.0.0 - 2026-11-02
+
+- Wrapped every remaining `optax` transformation, including the optimizers, scaling, clipping,
+  constraining, line-search, and monitoring transformations, `optax.contrib`, and the combinators
+  (`masked`, `partition`/`MultiTransform`, `MultiSteps`, `lookahead`, and others).
+- Split the gradient package into modules that mirror `optax`'s layout.
+- Made `LBFGS` and `PolyakSGD` work under `jit` and with values.
+- Made the `optax` branch options static in `AdaFactor`, `ScaleBySM3`, `ReduceOnPlateau`, and the
+  weight-decay masks of `AdamW`, `AdamaxW`, and `Lion`.
+- Made `nesterov` keyword-only, fixed `ScaleByYogi` so it passes `initial_accumulator_value`
+  through, forwarded extra update arguments through chained transforms, and completed the gradient
+  docstrings.
+- Accepted schedules everywhere `optax` does, and widened `Schedule` to accept `optax` schedules.
+- Raised the minimums to `jax` 0.11.1, `chex` 0.1.84, `optax` 0.2.8, `ruff` 0.17.3, and `ty` 0.0.95.
+- Converted the README to Markdown, formatted Markdown with `rumdl` and TOML with `pyproject-fmt`
+  and `taplo`, and aligned `.editorconfig`.
+
 ## 1.9.0 - 2026-10-09
 
 - Added Python 3.15 support.
