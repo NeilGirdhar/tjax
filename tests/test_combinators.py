@@ -27,6 +27,7 @@ from tjax.gradient import (
     Lookahead,
     Masked,
     MeasureWithEma,
+    Monitor,
     MultiSteps,
     MultiTransform,
     NamedChain,
@@ -195,6 +196,15 @@ CASES: list[tuple[str, Callable[[], GradientTransformation[Any, Any]], Callable[
         "snapshot",
         lambda: Snapshot[Params]("norm", optax.tree.norm),
         lambda: optax.snapshot("norm", optax.tree.norm),
+    ),
+    (
+        "monitor",
+        lambda: Monitor[Params](
+            {"ema": MeasureWithEma(optax.tree.norm, 0.9)}, {"norm": optax.tree.norm}
+        ),
+        lambda: optax.monitor(
+            {"ema": optax.measure_with_ema(optax.tree.norm, 0.9), "norm": optax.tree.norm}
+        ),
     ),
     (
         "measure-with-ema",

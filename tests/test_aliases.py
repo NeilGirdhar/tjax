@@ -173,7 +173,7 @@ def test_value_transforms_jit(tx: LBFGS[Params] | PolyakSGD[Params]) -> None:
 
 def test_polyak_sgd_requires_value() -> None:
     tx = PolyakSGD[Params]()
-    with pytest.raises(ValueError, match="loss value"):
+    with pytest.raises(TypeError, match="value"):
         tx.update(_gradient(), tx.init(_params()), _params())
 
 

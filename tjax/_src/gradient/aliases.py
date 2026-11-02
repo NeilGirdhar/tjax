@@ -1,3 +1,5 @@
+"""Complete optimizers, wrapping those in ``optax._src.alias``."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -5,45 +7,29 @@ from dataclasses import KW_ONLY
 from typing import Any, override
 
 import jax.numpy as jnp
+import optax
 from optax import (
     GradientTransformation as OptaxGradientTransformation,
     GradientTransformationExtraArgs,
-    adabelief,
-    adadelta,
-    adafactor,
-    adagrad,
-    adam,
-    adamax,
-    adamaxw,
-    adamw,
-    fromage,
-    lamb,
-    lars,
-    lbfgs,
-    lion,
-    noisy_sgd,
-    novograd,
-    optimistic_gradient_descent,
-    polyak_sgd,
-    radam,
-    rmsprop,
     scale_by_zoom_linesearch,
-    sgd,
-    sm3,
-    yogi,
 )
-from optax.contrib import dpsgd
 
-from tjax._src.annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
+from tjax._src.annotations import (
+    IntegralNumeric,
+    KeyArray,
+    PyTree,
+    RealNumeric,
+)
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
-from .transform import GenericGradientState, GradientTransformation
-from .transforms import ScalarOrSchedule
+from .schedule import ScalarOrSchedule
+from .transform import (
+    OptaxWrapper,
+)
 
 
-# Transforms from optax._src.alias.py --------------------------------------------------------------
 @dataclass
-class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdaBelief[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaBelief optimiser.
 
     References:
@@ -68,20 +54,12 @@ class AdaBelief[Weights: PyTree](GradientTransformation[GenericGradientState, We
     nesterov: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adabelief(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adabelief(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adabelief(**as_shallow_dict(self))
 
 
 @dataclass
-class AdaDelta[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdaDelta[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaDelta optimiser.
 
     References:
@@ -105,20 +83,12 @@ class AdaDelta[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     )
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adadelta(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adadelta(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adadelta(**as_shallow_dict(self))
 
 
 @dataclass
-class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdaFactor[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaFactor optimiser.
 
     AdaFactor reduces memory usage by factoring the second-moment estimate.
@@ -163,20 +133,12 @@ class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, We
     )
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adafactor(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adafactor(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adafactor(**as_shallow_dict(self))
 
 
 @dataclass
-class AdaGrad[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdaGrad[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdaGrad optimiser.
 
     References:
@@ -193,20 +155,12 @@ class AdaGrad[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     eps: RealNumeric = 1e-7
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adagrad(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adagrad(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adagrad(**as_shallow_dict(self))
 
 
 @dataclass
-class Adam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Adam[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Adam optimiser.
 
     References:
@@ -232,20 +186,12 @@ class Adam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     nesterov: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adam(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adam(**as_shallow_dict(self))
 
 
 @dataclass
-class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdamW[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdamW optimiser.
 
     AdamW decouples the weight decay from the gradient-based update.
@@ -279,20 +225,12 @@ class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     nesterov: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adamw(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adamw(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adamw(**as_shallow_dict(self))
 
 
 @dataclass
-class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Adamax[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Adamax optimiser.
 
     Adamax is a variant of Adam based on the infinity norm.
@@ -313,20 +251,12 @@ class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weigh
     eps: RealNumeric = 1e-8
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adamax(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adamax(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adamax(**as_shallow_dict(self))
 
 
 @dataclass
-class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class AdamaxW[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax AdamaxW optimiser.
 
     AdamaxW combines the infinity-norm update of Adamax with decoupled weight
@@ -351,20 +281,90 @@ class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(adamaxw(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *adamaxw(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adamaxw(**as_shallow_dict(self))
 
 
 @dataclass
-class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Adan[Weights: PyTree](OptaxWrapper[Weights]):
+    """The ADAptive Nesterov momentum algorithm (Adan).
+
+    References:
+        Xie et al, `Adan: Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep Models
+            <https://arxiv.org/abs/2208.06677>`_, 2022
+
+    Args:
+        learning_rate: This is a fixed global scaling factor.
+        b1: Decay rate for the EWMA of gradients.
+        b2: Decay rate for the EWMA of differences of gradients.
+        b3: Decay rate for the EMWA of the algorithm's squared term.
+        eps: Term added to the denominator to improve numerical stability.
+        eps_root: Term added to the denominator inside the square-root to improve numerical
+            stability when backpropagating gradients through the rescaling.
+        weight_decay: Strength of the weight decay regularization.
+        mask: A tree with same structure as (or a prefix of) the params PyTree, or a Callable that
+            returns such a pytree given the params/updates. The leaves should be booleans, `True`
+            for leaves/subtrees you want to apply the weight decay to, and `False` for those you
+            want to skip.
+    """
+
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.98
+    b2: RealNumeric = 0.92
+    b3: RealNumeric = 0.99
+    eps: RealNumeric = 1e-08
+    eps_root: RealNumeric = 1e-08
+    weight_decay: ScalarOrSchedule = 0.0
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.adan(**as_shallow_dict(self))
+
+
+@dataclass
+class AMSGrad[Weights: PyTree](OptaxWrapper[Weights]):
+    """The AMSGrad optimizer.
+
+    References:
+        Reddi et al, `On the Convergence of Adam and Beyond
+            <https://openreview.net/forum?id=ryQu7f-RZ>`_, 2023
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+        b1: Exponential decay rate to track the first moment of past gradients.
+        b2: Exponential decay rate to track the second moment of past gradients.
+        eps: A small constant applied to denominator outside of the square root (as in the Adam
+            paper) to avoid dividing by zero when rescaling.
+        eps_root: A small constant applied to denominator inside the square root (as in RMSProp), to
+            avoid dividing by zero when rescaling. This is needed for instance when computing
+            (meta-)gradients through Adam.
+        mu_dtype: Optional `dtype` to be used for the first order accumulator; if `None` then the
+            `dtype` is inferred from `params` and `updates`.
+        bias_correction_mu: Whether to apply bias correction to the first moment estimate. Set to
+            ``False`` to match the original AMSGrad paper.
+        bias_correction_nu: Whether to apply bias correction to the second moment estimate before
+            taking the elementwise maximum (``nu_max``). Set to ``False`` to match the original
+            AMSGrad paper.
+    """
+
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-08
+    eps_root: RealNumeric = 0.0
+    mu_dtype: Any = field(default=None, static=True)
+    bias_correction_mu: bool = field(default=True, static=True)
+    bias_correction_nu: bool = field(default=True, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.amsgrad(**as_shallow_dict(self))
+
+
+@dataclass
+class Fromage[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Fromage optimiser.
 
     Fromage keeps parameter updates within a trust region defined by the
@@ -383,20 +383,12 @@ class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     min_norm: RealNumeric = 1e-6
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(fromage(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *fromage(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.fromage(**as_shallow_dict(self))
 
 
 @dataclass
-class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Lamb[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax LAMB optimiser.
 
     LAMB scales Adam updates by the ratio of the parameter norm to the update
@@ -426,20 +418,12 @@ class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(lamb(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *lamb(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.lamb(**as_shallow_dict(self))
 
 
 @dataclass
-class LARS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class LARS[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax LARS optimiser.
 
     Layer-wise Adaptive Rate Scaling adapts the learning rate per layer based
@@ -473,24 +457,17 @@ class LARS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     nesterov: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(lars(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *lars(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.lars(**as_shallow_dict(self))
 
 
 @dataclass
-class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class LBFGS[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax L-BFGS optimiser.
 
     Limited-memory BFGS approximates the inverse Hessian using a fixed-size
-    history of gradient and parameter differences.
+    history of gradient and parameter differences.  With a linesearch, pass the loss, its
+    gradient and the loss function to ``update`` as ``value``, ``grad`` and ``value_fn``.
 
     Args:
         learning_rate: Optional step-size schedule or scalar.  When ``None``
@@ -509,45 +486,12 @@ class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     )
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(lbfgs(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self,
-        gradient: Weights,
-        state: GenericGradientState,
-        parameters: Weights | None,
-        *,
-        value: RealNumeric | None = None,
-        grad: Weights | None = None,
-        value_fn: Callable[[Weights], RealNumeric] | None = None,
-    ) -> tuple[Weights, GenericGradientState]:
-        """Transform the weight gradient and update the gradient state.
-
-        The linesearch needs ``value``, ``grad`` and ``value_fn``; they are ignored when
-        ``linesearch`` is ``None``.
-
-        Args:
-            gradient: The derivative of the loss with respect to the weights.
-            state: The gradient state.
-            parameters: The weights.
-            value: The loss at ``parameters``.
-            grad: The gradient of the loss at ``parameters``.
-            value_fn: The loss as a function of the weights.
-        """
-        extra_args = {
-            name: arg
-            for name, arg in (("value", value), ("grad", grad), ("value_fn", value_fn))
-            if arg is not None
-        }
-        return GenericGradientState.wrap(  # type: ignore
-            *lbfgs(**as_shallow_dict(self)).update(gradient, state.data, parameters, **extra_args)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.lbfgs(**as_shallow_dict(self))
 
 
 @dataclass
-class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Lion[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Lion optimiser.
 
     Lion (Evolved Sign Momentum) uses the sign of the update rather than the
@@ -576,20 +520,98 @@ class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(lion(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *lion(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.lion(**as_shallow_dict(self))
 
 
 @dataclass
-class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class NAdam[Weights: PyTree](OptaxWrapper[Weights]):
+    """The NAdam optimizer.
+
+    References:
+        Dozat, `Incorporating Nesterov Momentum into Adam
+            <https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ>`_, 2016
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+        b1: Exponential decay rate to track the first moment of past gradients.
+        b2: Exponential decay rate to track the second moment of past gradients.
+        eps: A small constant applied to denominator outside of the square root (as in the Adam
+            paper) to avoid dividing by zero when rescaling.
+        eps_root: A small constant applied to denominator inside the square root (as in RMSProp), to
+            avoid dividing by zero when rescaling. This is needed for example when computing
+            (meta-)gradients through Adam.
+        mu_dtype: Optional `dtype` to be used for the first order accumulator; if `None` then the
+            `dtype` is inferred from `params` and `updates`.
+        nesterov: Whether to use Nesterov momentum.
+    """
+
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-08
+    eps_root: RealNumeric = 0.0
+    mu_dtype: Any = field(default=None, static=True)
+    _: KW_ONLY
+    nesterov: bool = field(default=True, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.nadam(**as_shallow_dict(self))
+
+
+@dataclass
+class NAdamW[Weights: PyTree](OptaxWrapper[Weights]):
+    """NAdamW optimizer, implemented as part of the AdamW optimizer.
+
+    References:
+        Loshchilov et al, `Decoupled Weight Decay Regularization
+            <https://arxiv.org/abs/1711.05101>`_, 2019
+        Dozat, `Incorporating Nesterov Momentum into Adam
+            <https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ>`_, 2016
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+        b1: Exponential decay rate to track the first moment of past gradients.
+        b2: Exponential decay rate to track the second moment of past gradients.
+        eps: A small constant applied to denominator outside of the square root (as in the Adam
+            paper) to avoid dividing by zero when rescaling.
+        eps_root: A small constant applied to denominator inside the square root (as in RMSProp), to
+            avoid dividing by zero when rescaling. This is needed for instance when computing
+            (meta-)gradients through Adam.
+        mu_dtype: Optional `dtype` to be used for the first order accumulator; if `None` then the
+            `dtype` is inferred from `params` and `updates`.
+        weight_decay: Strength of the weight decay regularization. Note that this weight decay is
+            multiplied with the learning rate. This is consistent with other frameworks such as
+            PyTorch, but different from (Loshchilov et al, 2019) where the weight decay is only
+            multiplied with the "schedule multiplier", but not the base learning rate.
+        mask: A tree with same structure as (or a prefix of) the params PyTree, or a Callable that
+            returns such a pytree given the params/updates. The leaves should be booleans, `True`
+            for leaves/subtrees you want to apply the weight decay to, and `False` for those you
+            want to skip. Note that the Adam gradient transformations are applied to all parameters.
+        nesterov: Whether to use Nesterov momentum.
+    """
+
+    learning_rate: ScalarOrSchedule
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-08
+    eps_root: RealNumeric = 0.0
+    mu_dtype: Any = field(default=None, static=True)
+    weight_decay: ScalarOrSchedule = 0.0001
+    mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
+    _: KW_ONLY
+    nesterov: bool = field(default=True, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.nadamw(**as_shallow_dict(self))
+
+
+@dataclass
+class NoisySGD[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Noisy SGD optimiser.
 
     Adds annealed Gaussian noise to the gradient at each step.
@@ -611,20 +633,12 @@ class NoisySGD[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     key: KeyArray | None = None
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(noisy_sgd(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *noisy_sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.noisy_sgd(**as_shallow_dict(self))
 
 
 @dataclass
-class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Novograd[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax NovoGrad optimiser.
 
     NovoGrad normalises gradients layer-wise using the second moment,
@@ -650,22 +664,51 @@ class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     weight_decay: ScalarOrSchedule = 0.0
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(novograd(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *novograd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.novograd(**as_shallow_dict(self))
 
 
 @dataclass
-class OptimisticGradientDescent[Weights: PyTree](
-    GradientTransformation[GenericGradientState, Weights]
-):
+class OptimisticAdam[Weights: PyTree](OptaxWrapper[Weights]):
+    """The Optimistic Adam optimizer.
+
+    References:
+        Daskalakis et al, `Training GANs with Optimism <https://arxiv.org/abs/1711.00141>`_, 2017
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+        alpha: One of two scalar optimism parameters in optimistic gradient descent.
+        beta: One of two scalar optimism parameters in optimistic gradient descent.
+        b1: Exponential decay rate to track the first moment of past gradients.
+        b2: Exponential decay rate to track the second moment of past gradients.
+        eps: Term added to the denominator to improve numerical stability.
+        eps_root: Term added to the second moment of the prediction error to improve numerical
+            stability. If backpropagating gradients through the gradient transformation (e.g. for
+            meta-learning), this must be non-zero.
+        mu_dtype: Optional `dtype` to be used for the first order accumulator; if `None` then the
+            `dtype` is inferred from `params` and `updates`.
+        nesterov: Whether to use Nesterov momentum.
+    """
+
+    learning_rate: ScalarOrSchedule
+    _: KW_ONLY
+    alpha: RealNumeric = 1.0
+    beta: RealNumeric = 1.0
+    b1: RealNumeric = 0.9
+    b2: RealNumeric = 0.999
+    eps: RealNumeric = 1e-08
+    eps_root: RealNumeric = 0.0
+    mu_dtype: Any = field(default=None, static=True)
+    nesterov: bool = field(default=True, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.optimistic_adam_v2(**as_shallow_dict(self))
+
+
+@dataclass
+class OptimisticGradientDescent[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Optimistic Gradient Descent optimiser.
 
     Optimistic gradient descent extrapolates from the previous gradient, which stabilises
@@ -686,28 +729,16 @@ class OptimisticGradientDescent[Weights: PyTree](
     beta: ScalarOrSchedule = 1.0
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(
-            optimistic_gradient_descent(**as_shallow_dict(self)).init(parameters)
-        )
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *optimistic_gradient_descent(**as_shallow_dict(self)).update(
-                gradient, state.data, parameters
-            )
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.optimistic_gradient_descent(**as_shallow_dict(self))
 
 
 @dataclass
-class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class PolyakSGD[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Polyak SGD optimiser.
 
     The step size is ``scaling * (f(x) - f_min) / (||grad f(x)||^2 + eps)``, capped at
-    ``max_learning_rate``.  Its update needs the loss value; see :meth:`update`.
+    ``max_learning_rate``.  Pass the loss at the current parameters to ``update`` as ``value``.
 
     References:
         [Polyak, 1987](https://doi.org/10.1016/C2013-0-03970-5)
@@ -730,38 +761,12 @@ class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, We
     variant: str = field(default="sps", static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(polyak_sgd(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self,
-        gradient: Weights,
-        state: GenericGradientState,
-        parameters: Weights | None,
-        *,
-        value: RealNumeric | None = None,
-    ) -> tuple[Weights, GenericGradientState]:
-        """Transform the weight gradient and update the gradient state.
-
-        Args:
-            gradient: The derivative of the loss with respect to the weights.
-            state: The gradient state.
-            parameters: The weights.
-            value: The loss at ``parameters``; required by the Polyak step size.
-        """
-        if value is None:
-            msg = "PolyakSGD.update requires the loss value."
-            raise ValueError(msg)
-        return GenericGradientState.wrap(  # type: ignore
-            *polyak_sgd(**as_shallow_dict(self)).update(
-                gradient, state.data, parameters, value=value
-            )
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.polyak_sgd(**as_shallow_dict(self))
 
 
 @dataclass
-class RAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class RAdam[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax RAdam optimiser.
 
     Rectified Adam stabilises Adam's warm-up phase by rectifying the variance
@@ -790,20 +795,12 @@ class RAdam[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     nesterov: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(radam(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *radam(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.radam(**as_shallow_dict(self))
 
 
 @dataclass
-class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class RMSProp[Weights: PyTree](OptaxWrapper[Weights]):
     """A flexible RMSProp optimiser.
 
     RMSProp is an SGD variant with learning rate adaptation. The `learning_rate`
@@ -844,20 +841,43 @@ class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
     bias_correction: bool = field(default=False, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(rmsprop(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *rmsprop(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.rmsprop(**as_shallow_dict(self))
 
 
 @dataclass
-class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Rprop[Weights: PyTree](OptaxWrapper[Weights]):
+    """The Rprop optimizer.
+
+    References:
+        Riedmiller et al. `A direct adaptive method for faster backpropagation learning: the RPROP
+            algorithm <https://ieeexplore.ieee.org/document/298623>`_, 1993
+        Igel et al. `Empirical evaluation of the improved Rprop learning algorithms
+            <https://www.sciencedirect.com/science/article/abs/pii/S0925231201007007>`_, 2003
+
+    Args:
+        learning_rate: The initial step size.
+        eta_minus: Multiplicative factor for decreasing step size. This is applied when the gradient
+            changes sign from one step to the next.
+        eta_plus: Multiplicative factor for increasing step size. This is applied when the gradient
+            has the same sign from one step to the next.
+        min_step_size: Minimum allowed step size. Smaller steps will be clipped to this value.
+        max_step_size: Maximum allowed step size. Larger steps will be clipped to this value.
+    """
+
+    learning_rate: RealNumeric
+    eta_minus: RealNumeric = 0.5
+    eta_plus: RealNumeric = 1.2
+    min_step_size: RealNumeric = 1e-06
+    max_step_size: RealNumeric = 50.0
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.rprop(**as_shallow_dict(self))
+
+
+@dataclass
+class SGD[Weights: PyTree](OptaxWrapper[Weights]):
     """A canonical Stochastic Gradient Descent optimiser.
 
     This implements stochastic gradient descent. It also includes support for
@@ -881,20 +901,60 @@ class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     accumulator_dtype: Any | None = field(default=None, static=True)
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(sgd(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.sgd(**as_shallow_dict(self))
 
 
 @dataclass
-class SM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class SignSGD[Weights: PyTree](OptaxWrapper[Weights]):
+    """A variant of SGD using only the signs of the gradient components.
+
+    References:
+        Bernstein et al., `signSGD: Compressed optimization for Non-Convex Problems
+            <https://arxiv.org/abs/1802.04434>`_, 2018
+        Balles et al., `The Geometry of Sign Gradient Descent <https://arxiv.org/abs/2002.08056>`_,
+            2020
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+    """
+
+    learning_rate: ScalarOrSchedule
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.sign_sgd(**as_shallow_dict(self))
+
+
+@dataclass
+class Signum[Weights: PyTree](OptaxWrapper[Weights]):
+    """A variant of SGD using signs of the components of an EMA of the gradient.
+
+    References:
+        Bernstein et al., `signSGD: Compressed optimization for Non-Convex Problems
+            <https://arxiv.org/abs/1802.04434>`_, 2018
+        Zhao et al., 'Deconstructing What Makes a Good Optimizer for Language Models
+            <https://arxiv.org/abs/2407.07972>`_, 2024
+
+    Args:
+        learning_rate: A global scaling factor, either fixed or evolving along iterations with a
+            scheduler, see :func:`optax.scale_by_learning_rate`.
+        beta: Exponential moving average decay rate.
+        accumulator_dtype: Data type for the EMA accumulator.
+    """
+
+    learning_rate: ScalarOrSchedule
+    beta: RealNumeric = 0.9
+    accumulator_dtype: Any = field(default=None, static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.signum(**as_shallow_dict(self))
+
+
+@dataclass
+class SM3[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax SM3 optimiser.
 
     SM3 reduces memory by sharing accumulators across dimensions, making it
@@ -912,20 +972,12 @@ class SM3[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
     momentum: RealNumeric = 0.9
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(sm3(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *sm3(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.sm3(**as_shallow_dict(self))
 
 
 @dataclass
-class Yogi[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+class Yogi[Weights: PyTree](OptaxWrapper[Weights]):
     """Pytree-compatible wrapper for the optax Yogi optimiser.
 
     Yogi replaces Adam's additive second-moment update with a sign-based
@@ -947,52 +999,5 @@ class Yogi[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     eps: RealNumeric = 1e-3
 
     @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(yogi(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *yogi(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
-
-
-@dataclass
-class DPSGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
-    """Pytree-compatible wrapper for the optax DP-SGD optimiser.
-
-    Differentially Private SGD clips per-example gradients and adds Gaussian
-    noise to provide (ε, δ)-differential privacy guarantees.
-
-    References:
-        [Abadi et al, 2016](https://arxiv.org/abs/1607.00133)
-
-    Args:
-        learning_rate: Global step-size schedule or scalar.
-        l2_norm_clip: Per-example gradient clipping threshold.
-        noise_multiplier: Ratio of noise standard deviation to ``l2_norm_clip``.
-        seed: Seed for the noise RNG.
-        momentum: Optional momentum decay rate.
-        nesterov: Whether to use Nesterov momentum.
-    """
-
-    learning_rate: ScalarOrSchedule
-    l2_norm_clip: RealNumeric
-    noise_multiplier: RealNumeric
-    seed: IntegralNumeric
-    momentum: float | None = None
-    nesterov: bool = field(default=False, static=True)
-
-    @override
-    def init(self, parameters: Weights) -> GenericGradientState:
-        return GenericGradientState(dpsgd(**as_shallow_dict(self)).init(parameters))
-
-    @override
-    def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
-    ) -> tuple[Weights, GenericGradientState]:
-        return GenericGradientState.wrap(  # type: ignore
-            *dpsgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
-        )
+    def _optax(self) -> OptaxGradientTransformation:
+        return optax.yogi(**as_shallow_dict(self))

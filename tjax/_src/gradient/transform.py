@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Callable, Mapping
-from typing import Self, override
+from typing import Any, Self, cast, override
 
 import jax.numpy as jnp
 from jax import tree
+from optax import (
+    GradientTransformation as OptaxGradientTransformation,
+    GradientTransformationExtraArgs,
+)
 
 from tjax._src.annotations import PyTree
 from tjax._src.math_tools import abs_square
@@ -218,3 +222,76 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
             new_gradient_state: The new gradient state.
         """
         raise NotImplementedError
+
+
+# Optax interoperation -----------------------------------------------------------------------------
+type _Update = Callable[..., tuple[Any, PyTree]]
+
+
+def to_optax(transform: GradientTransformation[Any, Any]) -> GradientTransformationExtraArgs:
+    """Convert a tjax gradient transformation into an optax one.
+
+    The optax update forwards to ``transform.update`` only the extra keyword arguments that it
+    declares.
+
+    Args:
+        transform: The tjax transformation to convert.
+    """
+
+    def init_fn(params: PyTree) -> PyTree:
+        return transform.init(params)
+
+    def update_fn(
+        updates: PyTree, state: PyTree, params: PyTree = None, **extra_args: object
+    ) -> tuple[PyTree, PyTree]:
+        update = cast("_Update", transform.update)
+        return update(updates, state, params, **accepted_extra_args(update, extra_args))
+
+    return GradientTransformationExtraArgs(init_fn, update_fn)
+
+
+def to_optax_or_none(
+    transform: GradientTransformation[Any, Any] | None,
+) -> GradientTransformationExtraArgs | None:
+    """Convert a tjax gradient transformation into an optax one, passing ``None`` through."""
+    return None if transform is None else to_optax(transform)
+
+
+@dataclass
+class OptaxWrapper[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]):
+    """A transformation that delegates to the optax transformation returned by ``_optax``.
+
+    Subclasses are dataclasses whose fields are the arguments of an optax transformation.  Since
+    they are pytrees, they can pass through jit, and their numeric hyperparameters can be
+    replaced or differentiated without recompilation.
+    """
+
+    def _optax(self) -> OptaxGradientTransformation:
+        raise NotImplementedError
+
+    @override
+    def init(self, parameters: Weights) -> GenericGradientState:
+        return GenericGradientState(self._optax().init(parameters))
+
+    @override
+    def update(
+        self,
+        gradient: Weights,
+        state: GenericGradientState,
+        parameters: Weights | None = None,
+        **extra_args: object,
+    ) -> tuple[Weights, GenericGradientState]:
+        """Transform the weight gradient and update the gradient state.
+
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                The optax transformation receives them if its update accepts them.
+        """
+        update = cast("_Update", self._optax().update)
+        new_gradient, new_state = update(
+            gradient, state.data, parameters, **accepted_extra_args(update, extra_args)
+        )
+        return new_gradient, GenericGradientState(new_state)
