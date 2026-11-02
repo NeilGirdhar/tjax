@@ -26,7 +26,7 @@ from optax import (
     trace,
 )
 
-from tjax._src.annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
+from tjax._src.annotations import IntegralNumeric, JaxArray, KeyArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
 from .transform import GenericGradientState, GradientTransformation
@@ -46,6 +46,9 @@ class Schedule:
 
     def __call__(self, count: IntegralNumeric) -> RealNumeric:
         return self.step_size_fn(count)
+
+
+ScalarOrSchedule = float | JaxArray | Schedule
 
 
 # Transforms from optax._src.transform.py ----------------------------------------------------------
@@ -460,7 +463,7 @@ class AddDecayedWeights[Weights: PyTree](GradientTransformation[GenericGradientS
         weight_decay: RealNumeric = 0.0
     """
 
-    weight_decay: RealNumeric = 0.0
+    weight_decay: ScalarOrSchedule = 0.0
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override

@@ -34,14 +34,11 @@ from optax import (
 )
 from optax.contrib import dpsgd
 
-from tjax._src.annotations import IntegralNumeric, JaxArray, KeyArray, PyTree, RealNumeric
+from tjax._src.annotations import IntegralNumeric, KeyArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
 from .transform import GenericGradientState, GradientTransformation
-from .transforms import Schedule
-
-# Types --------------------------------------------------------------------------------------------
-ScalarOrSchedule = float | JaxArray | Schedule
+from .transforms import ScalarOrSchedule
 
 
 # Transforms from optax._src.alias.py --------------------------------------------------------------
@@ -100,7 +97,7 @@ class AdaDelta[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     learning_rate: ScalarOrSchedule | None = None
     rho: RealNumeric = 0.9
     eps: RealNumeric = 1e-6
-    weight_decay: RealNumeric = 0.0
+    weight_decay: ScalarOrSchedule = 0.0
     weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
         default=None, static=True
     )
@@ -136,7 +133,7 @@ class AdaFactor[Weights: PyTree](GradientTransformation[GenericGradientState, We
     clipping_threshold: float | None = 1.0
     momentum: float | None = None
     dtype_momentum: Any = field(default=jnp.float32, static=True)
-    weight_decay_rate: float | None = None
+    weight_decay_rate: ScalarOrSchedule | None = None
     eps: RealNumeric = 1e-30
     factored: bool = field(default=True, static=True)
     weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
@@ -246,13 +243,13 @@ class AdamW[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
         nesterov: Whether to use Nesterov momentum.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
     eps_root: RealNumeric = 0.0
     mu_dtype: Any | None = field(default=None, static=True)
-    weight_decay: RealNumeric = 1e-4
+    weight_decay: ScalarOrSchedule = 1e-4
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
     _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
@@ -286,7 +283,7 @@ class Adamax[Weights: PyTree](GradientTransformation[GenericGradientState, Weigh
         eps: Regularisation term for numerical stability.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
@@ -320,11 +317,11 @@ class AdamaxW[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
         mask: Optional mask for which parameters receive weight decay.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-8
-    weight_decay: RealNumeric = 1e-4
+    weight_decay: ScalarOrSchedule = 1e-4
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
@@ -355,7 +352,7 @@ class Fromage[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
         min_norm: Minimum norm used in the trust-region constraint.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     min_norm: RealNumeric = 1e-6
 
     @override
@@ -396,7 +393,7 @@ class Lamb[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-6
     eps_root: RealNumeric = 0.0
-    weight_decay: RealNumeric = 0.0
+    weight_decay: ScalarOrSchedule = 0.0
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
@@ -434,7 +431,7 @@ class LARS[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     """
 
     learning_rate: ScalarOrSchedule
-    weight_decay: RealNumeric = 0.0
+    weight_decay: ScalarOrSchedule = 0.0
     weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
         default=True, static=True
     )
@@ -543,7 +540,7 @@ class Lion[Weights: PyTree](GradientTransformation[GenericGradientState, Weights
     b1: RealNumeric = 0.9
     b2: RealNumeric = 0.99
     mu_dtype: Any | None = field(default=None, static=True)
-    weight_decay: RealNumeric = 1e-3
+    weight_decay: ScalarOrSchedule = 1e-3
     mask: bool | Weights | Callable[[Weights], Any] | None = field(default=None, static=True)
 
     @override
@@ -617,7 +614,7 @@ class Novograd[Weights: PyTree](GradientTransformation[GenericGradientState, Wei
     b2: RealNumeric = 0.25
     eps: RealNumeric = 1e-6
     eps_root: RealNumeric = 0.0
-    weight_decay: RealNumeric = 0.0
+    weight_decay: ScalarOrSchedule = 0.0
 
     @override
     def init(self, parameters: Weights) -> GenericGradientState:
@@ -794,7 +791,7 @@ class RMSProp[Weights: PyTree](GradientTransformation[GenericGradientState, Weig
         nesterov (default `False`): whether nesterov momentum is used.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     decay: RealNumeric = 0.9
     eps: RealNumeric = 1e-8
     initial_scale: RealNumeric = 0.0
@@ -840,7 +837,7 @@ class SGD[Weights: PyTree](GradientTransformation[GenericGradientState, Weights]
         A `GradientTransformation`.
     """
 
-    learning_rate: RealNumeric
+    learning_rate: ScalarOrSchedule
     momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
     accumulator_dtype: Any | None = field(default=None, static=True)

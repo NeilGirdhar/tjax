@@ -58,6 +58,7 @@ CONSTRUCTORS: list[Callable[[], Any]] = [
     lambda: Adam[Params](1e-2),
     lambda: Adam[Params](Schedule(lambda _: 1e-2)),
     lambda: AdamW[Params](1e-2),
+    lambda: AdamW[Params](Schedule(lambda _: 1e-2), weight_decay=Schedule(lambda _: 1e-4)),
     lambda: Adamax[Params](1e-2),
     lambda: AdamaxW[Params](1e-2),
     lambda: Fromage[Params](1e-2),
