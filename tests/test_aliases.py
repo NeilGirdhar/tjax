@@ -25,12 +25,14 @@ from tjax.gradient import (
     AdamaxW,
     AdamW,
     Fromage,
+    GenericGradientState,
     GradientTransformation,
     Lamb,
     Lion,
     NoisySGD,
     Novograd,
     OptimisticGradientDescent,
+    PolyakSGD,
     RAdam,
     RMSProp,
     Schedule,
@@ -128,3 +130,44 @@ def test_mask_jit(constructor: Callable[..., Any], mask: object) -> None:
 def test_lbfgs_init() -> None:
     state = LBFGS[Params]().init(_params())
     assert state is not None
+
+
+CONVERGED_LOSS = 1e-4
+
+
+def _loss(params: Params) -> jax.Array:
+    return jnp.sum(jnp.square(params["w"] - 3.0))
+
+
+@pytest.mark.parametrize(
+    "tx",
+    [
+        LBFGS[Params](),
+        LBFGS[Params](learning_rate=0.5, linesearch=None),
+        PolyakSGD[Params](),
+    ],
+    ids=["lbfgs-linesearch", "lbfgs-no-linesearch", "polyak-sgd"],
+)
+def test_value_transforms_jit(tx: LBFGS[Params] | PolyakSGD[Params]) -> None:
+    @jax.jit
+    def step(
+        tx: LBFGS[Params] | PolyakSGD[Params], params: Params, state: GenericGradientState
+    ) -> tuple[Params, GenericGradientState]:
+        value, grad = jax.value_and_grad(_loss)(params)
+        if isinstance(tx, LBFGS):
+            updates, state = tx.update(grad, state, params, value=value, grad=grad, value_fn=_loss)
+        else:
+            updates, state = tx.update(grad, state, params, value=value)
+        return tree.map(jnp.add, params, updates), state
+
+    params = _params()
+    state = tx.init(params)
+    for _ in range(10):
+        params, state = step(tx, params, state)
+    assert _loss(params) < CONVERGED_LOSS
+
+
+def test_polyak_sgd_requires_value() -> None:
+    tx = PolyakSGD[Params]()
+    with pytest.raises(ValueError, match="loss value"):
+        tx.update(_gradient(), tx.init(_params()), _params())

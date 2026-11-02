@@ -6,6 +6,7 @@ from typing import Any, override
 
 import jax.numpy as jnp
 from optax import (
+    GradientTransformation as OptaxGradientTransformation,
     GradientTransformationExtraArgs,
     adabelief,
     adadelta,
@@ -476,8 +477,8 @@ class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
     learning_rate: ScalarOrSchedule | None = None
     memory_size: int = field(default=10, static=True)
     scale_init_precond: bool = field(default=True, static=True)
-    linesearch: GradientTransformationExtraArgs | None = scale_by_zoom_linesearch(
-        max_linesearch_steps=15
+    linesearch: GradientTransformationExtraArgs | OptaxGradientTransformation | None = field(
+        default=scale_by_zoom_linesearch(max_linesearch_steps=15), static=True
     )
 
     @override
@@ -486,11 +487,35 @@ class LBFGS[Weights: PyTree](GradientTransformation[GenericGradientState, Weight
 
     @override
     def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
+        self,
+        gradient: Weights,
+        state: GenericGradientState,
+        parameters: Weights | None,
+        *,
+        value: RealNumeric | None = None,
+        grad: Weights | None = None,
+        value_fn: Callable[[Weights], RealNumeric] | None = None,
     ) -> tuple[Weights, GenericGradientState]:
-        # TODO: The update needs parameters.
+        """Transform the weight gradient and update the gradient state.
+
+        The linesearch needs ``value``, ``grad`` and ``value_fn``; they are ignored when
+        ``linesearch`` is ``None``.
+
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+            value: The loss at ``parameters``.
+            grad: The gradient of the loss at ``parameters``.
+            value_fn: The loss as a function of the weights.
+        """
+        extra_args = {
+            name: arg
+            for name, arg in (("value", value), ("grad", grad), ("value_fn", value_fn))
+            if arg is not None
+        }
         return GenericGradientState.wrap(  # type: ignore
-            *lbfgs(**as_shallow_dict(self)).update(gradient, state.data, parameters)
+            *lbfgs(**as_shallow_dict(self)).update(gradient, state.data, parameters, **extra_args)
         )
 
 
@@ -674,11 +699,28 @@ class PolyakSGD[Weights: PyTree](GradientTransformation[GenericGradientState, We
 
     @override
     def update(
-        self, gradient: Weights, state: GenericGradientState, parameters: Weights | None
+        self,
+        gradient: Weights,
+        state: GenericGradientState,
+        parameters: Weights | None,
+        *,
+        value: RealNumeric | None = None,
     ) -> tuple[Weights, GenericGradientState]:
-        # TODO: The update needs parameters.
+        """Transform the weight gradient and update the gradient state.
+
+        Args:
+            gradient: The derivative of the loss with respect to the weights.
+            state: The gradient state.
+            parameters: The weights.
+            value: The loss at ``parameters``; required by the Polyak step size.
+        """
+        if value is None:
+            msg = "PolyakSGD.update requires the loss value."
+            raise ValueError(msg)
         return GenericGradientState.wrap(  # type: ignore
-            *polyak_sgd(**as_shallow_dict(self)).update(gradient, state.data, parameters)
+            *polyak_sgd(**as_shallow_dict(self)).update(
+                gradient, state.data, parameters, value=value
+            )
         )
 
 
