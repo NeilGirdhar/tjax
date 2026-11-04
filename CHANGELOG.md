@@ -3,6 +3,13 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.0.1 - 2026-11-04
+
+- Added `divide_or_zero`, which returns zero where the divisor is zero, with zero derivatives for
+  both operands even when the dividend is nonfinite.
+- Expanded the README with the gradient package’s advantages over `optax`, examples of JIT,
+  differentiation, and vectorization over hyperparameters, and its interface extensions.
+
 ## 2.0.0 - 2026-11-02
 
 - Wrapped every remaining `optax` transformation, including the optimizers, scaling, clipping,
