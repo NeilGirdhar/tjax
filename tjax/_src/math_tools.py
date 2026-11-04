@@ -66,6 +66,19 @@ def matrix_dot_product[T: Array](x: T, y: T) -> T:
     return xp.sum(x * y, axis=(-2, -1))
 
 
+def divide_or_zero[T: Array](dividend: T, divisor: T) -> T:
+    """Return the quotient, or zero wherever the divisor is zero.
+
+    Mask both operands before division so that zero divisors produce zero derivatives
+    with respect to both operands, even when the dividend is nonfinite.
+    """
+    xp = array_namespace(dividend, divisor)
+    where = divisor != 0.0
+    dividend = xp.where(where, dividend, 0.0)
+    divisor = xp.where(where, divisor, 1.0)
+    return xp.divide(dividend, divisor)
+
+
 def divide_where[T: Array](
     dividend: T, divisor: T, *, where: BooleanArray | None = None, otherwise: T | None = None
 ) -> T:

@@ -1,8 +1,10 @@
 import math
 from functools import partial
+from types import ModuleType
 
 import jax
 import jax.numpy as jnp
+import numpy as np
 import pytest
 import scipy.special as sc
 from jax import vjp
@@ -17,6 +19,7 @@ from tjax import (
     complex_gammaln,
     complex_logdet,
     complex_multigammaln,
+    divide_or_zero,
     divide_where,
     log_bessel_ive,
     normalize,
@@ -52,6 +55,32 @@ def test_l2(
     result: JaxRealArray,
 ) -> None:
     assert_allclose(normalize("l2", jnp.asarray(x), axis=axis), jnp.asarray(result))
+
+
+@pytest.mark.parametrize("xp", [np, jnp])
+def test_divide_or_zero(xp: ModuleType) -> None:
+    dividend = xp.asarray([[6.0], [0.0], [np.inf], [np.nan]])
+    divisor = xp.asarray([2.0, -3.0, 0.0, -0.0])
+    expected = xp.asarray(
+        [
+            [3.0, -2.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [np.inf, -np.inf, 0.0, 0.0],
+            [np.nan, np.nan, 0.0, 0.0],
+        ]
+    )
+    assert_allclose(divide_or_zero(dividend, divisor), expected)
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_divide_or_zero_derivatives(*, reverse: bool) -> None:
+    dividend = jnp.asarray([6.0, 6.0, 0.0, jnp.inf, jnp.nan])
+    divisor = jnp.asarray([2.0, -3.0, 0.0, 0.0, -0.0])
+    jacobian = jax.jacrev if reverse else jax.jacfwd
+    derivative = jax.jit(jacobian(divide_or_zero, argnums=(0, 1)))
+    dividend_derivative, divisor_derivative = derivative(dividend, divisor)
+    assert_allclose(dividend_derivative, jnp.diag(jnp.asarray([0.5, -1 / 3, 0.0, 0.0, 0.0])))
+    assert_allclose(divisor_derivative, jnp.diag(jnp.asarray([-1.5, -2 / 3, 0.0, 0.0, 0.0])))
 
 
 @pytest.mark.parametrize("k", [0.0, 1.0])
