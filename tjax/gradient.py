@@ -133,6 +133,9 @@ from ._src.gradient.multi_loss import (
     GradientCombiner,
     MultiLossGradientTransformation,
 )
+from ._src.gradient.pcgrad import (
+    PCGrad,
+)
 from ._src.gradient.scaling import (
     Centralize,
     NormalizeByUpdateNorm,
@@ -264,6 +267,7 @@ __all__ = [
     "OptaxWrapper",
     "OptimisticAdam",
     "OptimisticGradientDescent",
+    "PCGrad",
     "Partition",
     "PolyakSGD",
     "Prodigy",
