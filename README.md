@@ -115,6 +115,9 @@ These have no optax equivalent:
 - `MTAdam` is Adam for several losses. It balances them automatically, so you don't need to tune
   loss weights. `MultiLossGradientTransformation` is the base class for such transformations,
   which receive each loss's gradient separately.
+- `GradientCombiner` is the base class for multi-loss methods that decide only how to combine
+  gradients, and it passes the result to an optimizer of your choice. Its subclasses are:
+    - `GradientStatisticsAnnealing`, which weights each loss against a reference gradient.
 - `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
   rules that receive a Hessian-vector product or the Hessian's diagonal.
 

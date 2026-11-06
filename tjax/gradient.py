@@ -109,6 +109,9 @@ from ._src.gradient.contrib import (
     Sophia,
     SplitRealAndImaginary,
 )
+from ._src.gradient.gradient_statistics_annealing import (
+    GradientStatisticsAnnealing,
+)
 from ._src.gradient.linesearch import (
     ScaleByBacktrackingLinesearch,
     ScaleByZoomLinesearch,
@@ -123,6 +126,8 @@ from ._src.gradient.mtadam import (
     MTAdamState,
 )
 from ._src.gradient.multi_loss import (
+    CombinedGradientState,
+    GradientCombiner,
     MultiLossGradientTransformation,
 )
 from ._src.gradient.scaling import (
@@ -209,6 +214,7 @@ __all__ = [
     "Clip",
     "ClipByBlockRMS",
     "ClipByGlobalNorm",
+    "CombinedGradientState",
     "ConditionallyMask",
     "ConditionallyTransform",
     "DAdaptAdamW",
@@ -222,7 +228,9 @@ __all__ = [
     "Fromage",
     "GaLore",
     "GenericGradientState",
+    "GradientCombiner",
     "GradientState",
+    "GradientStatisticsAnnealing",
     "GradientTransformation",
     "HutchinsonEstimatorDiagHessian",
     "HvpGradientTransformation",

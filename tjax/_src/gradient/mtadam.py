@@ -14,7 +14,7 @@ from tjax._src.annotations import JaxArray, JaxIntegralArray, PyTree, RealNumeri
 from tjax._src.math_tools import abs_square
 from tjax.dataclasses import dataclass, field
 
-from .multi_loss import MultiLossGradientTransformation
+from .multi_loss import MultiLossGradientTransformation, check_gradients, check_loss_ids
 from .schedule import ScalarOrSchedule, Schedule
 from .transform import GradientState
 
@@ -83,9 +83,7 @@ class MTAdam[Parameters: PyTree](
             parameters: The weights.
             loss_ids: The distinct IDs of the losses, with the anchor loss first.
         """
-        if not loss_ids or len(set(loss_ids)) != len(loss_ids):
-            msg = f"loss_ids must be nonempty and distinct: {loss_ids}"
-            raise ValueError(msg)
+        check_loss_ids(loss_ids)
         return MTAdamState[Parameters](
             loss_ids,
             jnp.zeros((), jnp.int32),
@@ -121,9 +119,7 @@ class MTAdam[Parameters: PyTree](
             parameters: The weights.
         """
         loss_ids = state.loss_ids
-        if set(gradients_by_loss) != set(loss_ids):
-            msg = f"Expected gradients for {loss_ids}, got {tuple(gradients_by_loss)}"
-            raise ValueError(msg)
+        check_gradients(gradients_by_loss, loss_ids)
 
         def running_norm(norm: JaxArray, gradient: JaxArray) -> JaxArray:
             current = jnp.linalg.vector_norm(gradient)
