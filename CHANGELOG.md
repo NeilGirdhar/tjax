@@ -3,6 +3,25 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.1.0 - 2026-11-06
+
+- Added multi-loss gradient transformations:
+    - `MultiLossGradientTransformation` and `GradientCombiner`, the base classes.
+    - `MTAdam`, `GradientStatisticsAnnealing`, `IMTLG`, `PCGrad`, `CAGrad`, and `GradVac`.
+    - `AveragedGradients`, for losses that arrive at different times.
+    - A benchmark comparing them.
+- Changed the gradient interface:
+    - Random keys are required.
+    - `NoisySGD` takes `key` second, and `eta` and `gamma` are keyword-only.
+    - `Sophia` requires `hessian_diagonal_fn`, as its second argument.
+    - `LBFGS` and `Sophia` take tjax transforms; `FromOptax` wraps an `optax` one.
+    - Every update method takes extra arguments, and `parameters` defaults to `None`.
+    - `OptaxWrapper` is internal.
+- Added `MultiSteps.has_updated`.
+- Moved the gradient documentation to `docs/gradient.md` and the contribution guidelines to
+  `CONTRIBUTING.md`.
+- Added Python 3.15 to CI.
+
 ## 2.0.1 - 2026-11-04
 
 - Added `divide_or_zero`, which returns zero where the divisor is zero, with zero derivatives for
