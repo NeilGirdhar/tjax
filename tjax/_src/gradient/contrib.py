@@ -417,7 +417,7 @@ class DifferentiallyPrivateAggregate[Weights: PyTree](OptaxWrapper[Weights]):
 
     l2_norm_clip: RealNumeric
     noise_multiplier: RealNumeric
-    key: KeyArray | int | None = None
+    key: KeyArray | int
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
@@ -630,7 +630,7 @@ class HutchinsonEstimatorDiagHessian[Weights: PyTree](OptaxWrapper[Weights]):
         random_seed: Key used to generate random vectors.
     """
 
-    random_seed: KeyArray | None = None
+    random_seed: KeyArray
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
@@ -1190,6 +1190,9 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
     Args:
         learning_rate: A global scaling factor, either fixed or evolving along iterations with a
             scheduler, see :func:`optax.scale_by_learning_rate`.
+        hessian_diagonal_fn: Transformation that computes the diagonal of the Hessian, typically
+            ``HutchinsonEstimatorDiagHessian`` (sophia-h). If using more than one device, be sure
+            this function properly averages the hessian diagonal across devices.
         b1: Exponential decay rate for the first moment estimates.
         b2: Exponential decay rate for the hessian diagonal estimates. Keep in mind effective `b2`
             is `1 - (1 - b2) / update_interval`, e.g. default `b2` of 0.99 is effectively 0.999
@@ -1203,9 +1206,6 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
         gamma: Normalizing constant for the hessian diagonal.
         clip_threshold: Threshold for clipping updates.
         update_interval: Interval for updating the hessian diagonal.
-        hessian_diagonal_fn: Transformation that computes the diagonal of the Hessian. Default is
-            ``HutchinsonEstimatorDiagHessian`` (sophia-h). If using more than one device, be sure
-            this function properly averages the hessian diagonal across devices.
         mu_dtype: Dtype of the first moment estimates.
         verbose: If True, print win rate every n steps.
         print_win_rate_every_n_steps: Print sophia win rate every n steps for diagnostic purposes.
@@ -1214,6 +1214,7 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
     """
 
     learning_rate: ScalarOrSchedule
+    hessian_diagonal_fn: GradientTransformation[Any, Weights]
     b1: RealNumeric = 0.965
     b2: RealNumeric = 0.99
     eps: RealNumeric = 1e-08
@@ -1224,9 +1225,6 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
     gamma: RealNumeric = 0.01
     clip_threshold: RealNumeric | None = 1.0
     update_interval: RealNumeric = 10
-    hessian_diagonal_fn: GradientTransformation[Any, Weights] = field(
-        default_factory=HutchinsonEstimatorDiagHessian
-    )
     mu_dtype: Any = field(default=None, static=True)
     verbose: bool = field(default=False, static=True)
     print_win_rate_every_n_steps: int = field(default=0, static=True)

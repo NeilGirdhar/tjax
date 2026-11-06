@@ -33,6 +33,18 @@ DEPRECATED = {
     ("noisy_sgd", "seed"),
     ("differentially_private_aggregate", "seed"),
 }
+# Parameters that the wrappers require although optax gives them a default.  Omitting them would
+# silently use key 0, so that every run gets the same randomness.
+MADE_REQUIRED = {
+    ("add_noise", "key"),
+    ("noisy_sgd", "key"),
+    ("differentially_private_aggregate", "key"),
+    ("hutchinson_estimator_diag_hessian", "random_seed"),
+    ("sophia", "hessian_diagonal_fn"),
+}
+# Parameters that the wrappers make keyword-only, as https://github.com/google-deepmind/optax/issues/1858
+# proposes.
+MADE_KEYWORD_ONLY = {("noisy_sgd", "eta"), ("noisy_sgd", "gamma")}
 
 
 type Wrapper = type[OptaxWrapper[Any]]
@@ -83,11 +95,16 @@ def test_signature_matches_optax(cls: Wrapper, path: str) -> None:
         if (function_name, name) not in DEPRECATED
     }
     ours = {f.name: f for f in dataclasses.fields(cls) if f.name != "_"}
-    assert list(ours) == list(theirs)
+    made_required = {name for function, name in MADE_REQUIRED if function == function_name}
+    assert set(ours) == set(theirs)
+    assert [n for n in ours if n not in made_required] == [
+        n for n in theirs if n not in made_required
+    ]
     for name, p in theirs.items():
         f = ours[name]
-        assert f.kw_only == (p.kind is p.KEYWORD_ONLY), name
-        if p.default is inspect.Parameter.empty:
+        keyword_only = p.kind is p.KEYWORD_ONLY or (function_name, name) in MADE_KEYWORD_ONLY
+        assert f.kw_only == keyword_only, name
+        if p.default is inspect.Parameter.empty or name in made_required:
             assert f.default is dataclasses.MISSING, name
             assert f.default_factory is dataclasses.MISSING, name
         else:
@@ -118,11 +135,12 @@ REQUIRED: dict[str, object] = {
     "optimizer": tg.SGD(0.1),
     "adv_optimizer": tg.SGD(0.1),
     "inner": tg.Identity(),
+    "key": jr.key(1),
+    "random_seed": jr.key(2),
+    "hessian_diagonal_fn": tg.HutchinsonEstimatorDiagHessian(jr.key(2)),
 }
 # Values for optional numeric arguments whose default is None.
 OPTIONAL: dict[str, object] = {
-    "key": jr.key(1),
-    "random_seed": jr.key(2),
     "momentum": 0.9,
     "weight_decay": 1e-3,
     "weight_decay_rate": 1e-3,
@@ -245,3 +263,18 @@ def test_matches_optax_under_jit(cls: Wrapper, path: str, *, optional: bool) -> 
     chex.assert_trees_all_close(
         _run_tjax(tx), _run_optax(cls.__name__, _to_optax(tx, path)), rtol=1e-5, atol=1e-6
     )
+
+
+@pytest.mark.parametrize(
+    ("cls", "args"),
+    [
+        (tg.AddNoise, (0.01, 0.55)),
+        (tg.NoisySGD, (1e-2,)),
+        (tg.DifferentiallyPrivateAggregate, (1.0, 0.1)),
+        (tg.HutchinsonEstimatorDiagHessian, ()),
+        (tg.Sophia, (1e-2,)),
+    ],
+)
+def test_randomness_must_be_explicit(cls: Callable[..., object], args: tuple[float, ...]) -> None:
+    with pytest.raises(TypeError, match="missing"):
+        cls(*args)

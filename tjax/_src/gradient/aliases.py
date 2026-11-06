@@ -638,16 +638,18 @@ class NoisySGD[Weights: PyTree](OptaxWrapper[Weights]):
 
     Args:
         learning_rate: Global step-size schedule or scalar.
+        key: PRNG key or integer seed for random noise generation.
         eta: Base variance of the Gaussian noise.
         gamma: Decay exponent for the noise variance, which decays as
             ``(1 + t) ** -gamma`` at step ``t``.
-        key: PRNG key or integer seed for random noise generation.
     """
 
+    # This order differs from optax's: https://github.com/google-deepmind/optax/issues/1858
     learning_rate: ScalarOrSchedule
+    key: KeyArray | int
+    _: KW_ONLY
     eta: RealNumeric = 0.01
     gamma: RealNumeric = 0.55
-    key: KeyArray | int | None = None
 
     @override
     def _optax(self) -> OptaxGradientTransformation:

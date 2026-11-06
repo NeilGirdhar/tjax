@@ -60,7 +60,7 @@ class AddNoise[Weights: PyTree](OptaxWrapper[Weights]):
 
     eta: RealNumeric
     gamma: RealNumeric
-    key: KeyArray | int | None = None
+    key: KeyArray | int
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
