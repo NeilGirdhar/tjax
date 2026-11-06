@@ -10,29 +10,76 @@
 This repository implements a variety of tools for the differential programming library
 [JAX](https://github.com/google/jax).
 
-## Major components
+## Dataclasses
 
-Tjax's major components are:
+The [`dataclass`](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/dataclasses) decorator
+defines a frozen dataclass that is also a JAX pytree, so you can pass your own structured objects to
+JAX transformations. Fields are dynamic by default: JAX traces them, and new values reuse compiled
+code. `field(static=True)` marks a field as static instead, which makes it part of the compiled
+function, so Python can branch on it, and changing it recompiles.
 
-- A [dataclass](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/dataclasses) decorator
-  `dataclass` that facilitates defining structured JAX objects (so-called "pytrees"), which
-  benefits from:
-    - the ability to mark fields as static (not available in `chex.dataclass`), and
-    - a display method that produces formatted text according to the tree structure.
-- A [gradient package](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/gradient) that
-  provides every transformation in [optax](https://github.com/google-deepmind/optax) as a pytree.
-  (See [Gradient transformations](#gradient-transformations).)
-- A pretty printer `print_generic` for aggregate and vector types, including dataclasses. (See
-  [display](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/display).) It features:
-    - support for traced values,
-    - colorized tree output for aggregate structures, and
-    - formatted tabular output for arrays (or statistics when there's no room for tabular output).
+```python
+import copy
+
+import jax
+import jax.numpy as jnp
+from jax import Array
+
+from tjax.dataclasses import dataclass, field
+
+
+@dataclass
+class Line:
+    slope: Array
+    intercept: Array
+    clip: bool = field(default=False, static=True)
+
+    def __call__(self, x: Array) -> Array:
+        y = self.slope * x + self.intercept
+        return jnp.clip(y, 0.0, 1.0) if self.clip else y
+
+
+@jax.jit
+def loss(line: Line, x: Array, y: Array) -> Array:
+    return jnp.sum(jnp.square(line(x) - y))
+
+
+x = jnp.array([0.0, 1.0])
+y = jnp.array([1.0, 3.0])
+line = Line(jnp.asarray(1.0), jnp.asarray(0.0))
+
+loss(line, x, y)  # Compiles.
+loss(copy.replace(line, slope=jnp.asarray(2.0)), x, y)  # Reuses the compiled function.
+loss(copy.replace(line, clip=True), x, y)  # Recompiles.
+
+# Differentiating gives a Line of derivatives: slope=-4 and intercept=-6.
+jax.grad(loss)(line, x, y)
+```
+
+### Alternatives
+
+Several libraries offer dataclass-like pytrees. Compared with them, `tjax.dataclass`:
+
+- **vs `chex.dataclass`:** chex can't mark fields static, which rules out a huge class of
+  designs: flags, shapes, dtypes, mode strings, callable options, anything that should drive
+  recompilation rather than live in the trace. Tjax marks them inline with `field(static=True)`.
+- **vs `jax.tree_util.register_dataclass`:** the primitive forces a second call per class and
+  wants the static and dynamic partition as parallel name lists at the registration site —
+  awkward, duplicative, and easy to desync from the fields. Tjax does it in the decorator with
+  `field(static=True)` on the field itself.
+- **vs `flax.struct.dataclass`:** near-equivalent in capability; the win is not dragging Flax in
+  for one decorator.
+- **vs `equinox.Module`:** too heavyweight for just wanting a pytree dataclass. The `Module`
+  base and metaclass constrain inheritance, and the idiomatic path pushes you into
+  `eqx.filter_jit` / `eqx.partition` at every call site instead of declaring the static and
+  dynamic boundary once on the class.
 
 ## Gradient transformations
 
-`tjax.gradient` provides every optax transformation as a dataclass whose fields are the
-transformation's arguments. Each transformation is a pytree, so JAX traces its hyperparameters like
-any other array.
+The [gradient package](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/gradient) provides
+every transformation in [optax](https://github.com/google-deepmind/optax) as a dataclass whose
+fields are the transformation's arguments. Each transformation is a pytree, so JAX traces its
+hyperparameters like any other array.
 
 This matters because an optax transformation is a pair of functions that close over their
 hyperparameters, which JAX can't see. You can't pass an optax transformation to a jitted function;
@@ -86,79 +133,35 @@ jax.grad(lambda lr: loss_after_step(tg.SGD(lr), params))(0.1)
 jax.vmap(lambda lr: loss_after_step(tg.SGD(lr), params))(jnp.array([0.01, 0.1, 0.4]))
 ```
 
-### Coverage of optax
+See the [gradient documentation](https://github.com/NeilGirdhar/tjax/blob/main/docs/gradient.md)
+for its coverage of optax, the multi-loss transformations it adds, and its base classes.
 
-`tjax.gradient` has everything optax offers for transforming gradients: every optimizer,
-transformation, and combinator, including those in `optax.contrib`. Each wrapper takes the same
-arguments as its optax counterpart, so `optax.adam(1e-2)` becomes `tg.Adam(1e-2)`. The test suite
-checks every wrapper's parameters against optax's signatures, and its updates against optax's under
-jit.
+## Pretty printing
 
-The remaining differences are deliberate:
+[`print_generic`](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/display) displays
+aggregate and vector types, including dataclasses, as a colorized tree, and it works on traced
+values inside jitted functions. It formats small arrays as tables, and summarizes arrays that don't
+fit:
 
-- `optax.chain` is `ChainedGradientTransformation`, which takes a list of transformations.
-- `optax.inject_hyperparams` has no wrapper because it isn't needed: hyperparameters are already
-  traced, so you can replace or differentiate them directly.
-- `optax.with_extra_args_support` has no wrapper because every `update` method accepts extra keyword
-  arguments, such as `value`.
-- `optax.optimistic_adam` is deprecated, so `OptimisticAdam` wraps its replacement,
-  `optimistic_adam_v2`.
+```python
+from tjax import print_generic
 
-Everything else in optax works alongside tjax, such as `optax.apply_updates`.
+print_generic({"weights": jnp.arange(6.0).reshape(2, 3), "large": jnp.ones((200, 200))})
+```
 
-### Transformations beyond optax
+```text
+dict
+├── large=Jax Array (200, 200) float32
+│   ├── mean=1.0
+│   └── deviation=0.0
+└── weights=Jax Array (2, 3) float32
+    └──  0.0000 │ 1.0000 │ 2.0000
+         3.0000 │ 4.0000 │ 5.0000
+```
 
-These have no optax equivalent. `SMDGradient` implements stochastic meta-descent, which adapts a
-learning rate for each weight using Hessian-vector products.
+`display_generic` returns the same tree for you to format yourself.
 
-The others balance several losses, and receive each loss's gradient separately:
-
-- `MTAdam` is Adam with each loss's gradient rescaled to match the first loss's.
-- `GradientStatisticsAnnealing` weights each loss against a reference gradient.
-- `IMTLG` chooses weights so that the result favours no loss.
-- `PCGrad` removes the components of each gradient that conflict with the others.
-- `CAGrad` improves the worst-off loss while staying near the average gradient.
-- `GradVac` steers each pair of gradients toward the similarity they usually have.
-
-All but `MTAdam` decide only how to combine gradients, so they take an optimizer of your choice,
-such as `tg.PCGrad(tg.Adam(1e-3), key)`.
-
-### Base classes
-
-To write your own transformation, subclass one of these:
-
-- `GradientTransformation` is the counterpart of `optax.GradientTransformation`, and the base class
-  of every transformation of a single gradient.
-- `HvpGradientTransformation` defines an update rule that receives a Hessian-vector product.
-- `DiagHessianGradientTransformation` defines one that also receives the Hessian's diagonal.
-- `MultiLossGradientTransformation` defines one that receives each loss's gradient separately.
-- `GradientCombiner` is a multi-loss transformation that combines the gradients and passes the
-  result to an inner transformation.
-
-### Interoperating with optax
-
-- `to_optax` converts a tjax transformation into an optax one, and `FromOptax` does the reverse.
-- `Schedule` wraps an optax schedule so that it can be passed as a learning rate.
-
-## Dataclass alternatives
-
-Several libraries offer dataclass-like pytrees. Compared with them, `tjax.dataclass`:
-
-- **vs `chex.dataclass`:** chex can't mark fields static, which rules out a huge class of
-  designs: flags, shapes, dtypes, mode strings, callable options, anything that should drive
-  recompilation rather than live in the trace. Tjax marks them inline with `field(static=True)`.
-- **vs `jax.tree_util.register_dataclass`:** the primitive forces a second call per class and
-  wants the static and dynamic partition as parallel name lists at the registration site —
-  awkward, duplicative, and easy to desync from the fields. Tjax does it in the decorator with
-  `field(static=True)` on the field itself.
-- **vs `flax.struct.dataclass`:** near-equivalent in capability; the win is not dragging Flax in
-  for one decorator.
-- **vs `equinox.Module`:** too heavyweight for just wanting a pytree dataclass. The `Module`
-  base and metaclass constrain inheritance, and the idiomatic path pushes you into
-  `eqx.filter_jit` / `eqx.partition` at every call site instead of declaring the static and
-  dynamic boundary once on the class.
-
-## Minor components
+## Other tools
 
 Tjax also includes:
 
@@ -181,15 +184,7 @@ Tjax also includes:
 - Basic tools like `divide_or_zero` and `divide_where`. (See
   [tools](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/math_tools.py).)
 
-## Contribution guidelines
+## Contributing
 
-The implementation should be consistent with the surrounding style, be type annotated, and pass the
-linters below.
-
-To run tests: `uv run pytest`
-
-There are a few tools to clean and check the source:
-
-- `uv run ruff check`
-- `uv run ruff format`
-- `uv run ty check`
+Contributions are welcome. See the
+[contribution guidelines](https://github.com/NeilGirdhar/tjax/blob/main/CONTRIBUTING.md).
