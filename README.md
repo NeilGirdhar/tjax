@@ -86,12 +86,37 @@ jax.grad(lambda lr: loss_after_step(tg.SGD(lr), params))(0.1)
 jax.vmap(lambda lr: loss_after_step(tg.SGD(lr), params))(jnp.array([0.01, 0.1, 0.4]))
 ```
 
-The package also extends optax's interface:
+### Coverage of optax
 
-- `HvpGradientTransformation` and `DiagHessianGradientTransformation` define update rules that
-  receive a Hessian-vector product or the Hessian's diagonal. `SMDGradient` (stochastic
-  meta-descent) builds on them.
-- Combinators, such as `ChainedGradientTransformation`, combine tjax transformations.
+`tjax.gradient` has everything optax offers for transforming gradients: every optimizer,
+transformation, and combinator, including those in `optax.contrib`. Each wrapper takes the same
+arguments as its optax counterpart, so `optax.adam(1e-2)` becomes `tg.Adam(1e-2)`. The test suite
+checks every wrapper's parameters against optax's signatures, and its updates against optax's under
+jit.
+
+The remaining differences are deliberate:
+
+- `optax.chain` is `ChainedGradientTransformation`, which takes a list of transformations.
+- `optax.inject_hyperparams` has no wrapper because it isn't needed: hyperparameters are already
+  traced, so you can replace or differentiate them directly.
+- `optax.with_extra_args_support` has no wrapper because every `update` method accepts extra keyword
+  arguments, such as `value`.
+- `optax.optimistic_adam` is deprecated, so `OptimisticAdam` wraps its replacement,
+  `optimistic_adam_v2`.
+
+Everything else in optax works alongside tjax, such as `optax.apply_updates`.
+
+### Transformations beyond optax
+
+These have no optax equivalent:
+
+- `SMDGradient` implements stochastic meta-descent, which adapts a learning rate for each weight
+  using Hessian-vector products.
+- `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
+  rules that receive a Hessian-vector product or the Hessian's diagonal.
+
+### Interoperating with optax
+
 - `to_optax` converts a tjax transformation into an optax one, and `FromOptax` does the reverse.
 - `Schedule` wraps an optax schedule so that it can be passed as a learning rate.
 
