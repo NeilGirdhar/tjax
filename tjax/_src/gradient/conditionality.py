@@ -30,7 +30,8 @@ class ConditionallyMask[Weights: PyTree](OptaxWrapper[Weights]):
     Args:
         inner: The transformation to apply.
         should_transform_fn: A function from the step count to whether to apply ``inner``.
-        forward_extra_args: Whether to pass the step count's extra arguments on to ``inner``.
+        forward_extra_args: Whether to also pass the extra update arguments to
+            ``should_transform_fn``.  ``inner`` always receives those it declares.
     """
 
     inner: GradientTransformation[Any, Weights]
@@ -51,7 +52,8 @@ class ConditionallyTransform[Weights: PyTree](OptaxWrapper[Weights]):
     Args:
         inner: The transformation to apply.
         should_transform_fn: A function from the step count to whether to apply ``inner``.
-        forward_extra_args: Whether to pass the step count's extra arguments on to ``inner``.
+        forward_extra_args: Whether to also pass the extra update arguments to
+            ``should_transform_fn``.  ``inner`` always receives those it declares.
     """
 
     inner: GradientTransformation[Any, Weights]
