@@ -24,8 +24,8 @@ from jax import tree
 
 import tjax.gradient as tg
 from tjax import JaxArray, PyTree
+from tjax._src.gradient.transform import OptaxWrapper  # ruff: ignore[import-private-name]
 from tjax.dataclasses import as_shallow_dict
-from tjax.gradient import OptaxWrapper
 
 STEPS = 4
 # Parameters that optax deprecates, which the wrappers deliberately omit.
@@ -100,9 +100,7 @@ def test_every_wrapper_is_compared() -> None:
     exported = {
         cls
         for name in tg.__all__
-        if isinstance(cls := getattr(tg, name), type)
-        and issubclass(cls, OptaxWrapper)
-        and cls is not OptaxWrapper
+        if isinstance(cls := getattr(tg, name), type) and issubclass(cls, OptaxWrapper)
     }
     compared = {cls for cls, _ in WRAPPERS} | {cls for cls, _ in COMBINATORS}
     assert exported == compared | NOT_COMPARED

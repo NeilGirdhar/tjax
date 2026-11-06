@@ -108,22 +108,32 @@ Everything else in optax works alongside tjax, such as `optax.apply_updates`.
 
 ### Transformations beyond optax
 
-These have no optax equivalent:
+These have no optax equivalent. `SMDGradient` implements stochastic meta-descent, which adapts a
+learning rate for each weight using Hessian-vector products.
 
-- `SMDGradient` implements stochastic meta-descent, which adapts a learning rate for each weight
-  using Hessian-vector products.
-- `MTAdam` is Adam for several losses. It balances them automatically, so you don't need to tune
-  loss weights. `MultiLossGradientTransformation` is the base class for such transformations,
-  which receive each loss's gradient separately.
-- `GradientCombiner` is the base class for multi-loss methods that decide only how to combine
-  gradients, and it passes the result to an optimizer of your choice. Its subclasses are:
-    - `GradientStatisticsAnnealing`, which weights each loss against a reference gradient.
-    - `IMTLG`, which chooses weights so that the result favours no loss.
-    - `PCGrad`, which removes the components of each gradient that conflict with the others.
-    - `CAGrad`, which improves the worst-off loss while staying near the average gradient.
-    - `GradVac`, which steers each pair of gradients toward the similarity they usually have.
-- `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
-  rules that receive a Hessian-vector product or the Hessian's diagonal.
+The others balance several losses, and receive each loss's gradient separately:
+
+- `MTAdam` is Adam with each loss's gradient rescaled to match the first loss's.
+- `GradientStatisticsAnnealing` weights each loss against a reference gradient.
+- `IMTLG` chooses weights so that the result favours no loss.
+- `PCGrad` removes the components of each gradient that conflict with the others.
+- `CAGrad` improves the worst-off loss while staying near the average gradient.
+- `GradVac` steers each pair of gradients toward the similarity they usually have.
+
+All but `MTAdam` decide only how to combine gradients, so they take an optimizer of your choice,
+such as `tg.PCGrad(tg.Adam(1e-3), key)`.
+
+### Base classes
+
+To write your own transformation, subclass one of these:
+
+- `GradientTransformation` is the counterpart of `optax.GradientTransformation`, and the base class
+  of every transformation of a single gradient.
+- `HvpGradientTransformation` defines an update rule that receives a Hessian-vector product.
+- `DiagHessianGradientTransformation` defines one that also receives the Hessian's diagonal.
+- `MultiLossGradientTransformation` defines one that receives each loss's gradient separately.
+- `GradientCombiner` is a multi-loss transformation that combines the gradients and passes the
+  result to an inner transformation.
 
 ### Interoperating with optax
 

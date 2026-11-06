@@ -188,7 +188,6 @@ from ._src.gradient.transform import (
     GradientState,
     GradientTransformation,
     HvpGradientTransformation,
-    OptaxWrapper,
     to_optax,
 )
 
@@ -274,7 +273,6 @@ __all__ = [
     "Normalize",
     "NormalizeByUpdateNorm",
     "Novograd",
-    "OptaxWrapper",
     "OptimisticAdam",
     "OptimisticGradientDescent",
     "PCGrad",
