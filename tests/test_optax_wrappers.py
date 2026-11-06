@@ -1,8 +1,9 @@
-"""Tests that every simple optax wrapper matches its optax counterpart.
+"""Tests that the optax wrappers match their optax counterparts.
 
 A simple wrapper is an ``OptaxWrapper`` whose ``_optax`` method passes its fields as keyword
 arguments to one optax function.  Each such wrapper must have the same parameters as that function,
-and must produce the same updates under jit.
+and must produce the same updates under jit.  Each combinator must have the same parameters as its
+optax combinator, and ``test_combinators.py`` compares their updates.
 """
 
 from __future__ import annotations
@@ -73,10 +74,38 @@ WRAPPERS = sorted(
     key=lambda pair: pair[0].__name__,
 )
 IDS = [cls.__name__ for cls, _ in WRAPPERS]
+# Wrappers that convert their fields before calling optax, so they are not found automatically.
+COMBINATORS: list[tuple[Wrapper, str]] = [
+    (tg.ApplyIfFinite, "optax.apply_if_finite"),
+    (tg.ConditionallyMask, "optax.conditionally_mask"),
+    (tg.ConditionallyTransform, "optax.conditionally_transform"),
+    (tg.Flatten, "optax.flatten"),
+    (tg.Freeze, "optax.freeze"),
+    (tg.Lookahead, "optax.lookahead"),
+    (tg.Masked, "optax.masked"),
+    (tg.MeasureWithEMA, "optax.measure_with_ema"),
+    (tg.MultiSteps, "optax.MultiSteps"),
+    (tg.Partition, "optax.partition"),
+    (tg.SelectiveTransform, "optax.selective_transform"),
+    (tg.Snapshot, "optax.snapshot"),
+    (tg.Stateless, "optax.stateless"),
+    (tg.StatelessWithTreeMap, "optax.stateless_with_tree_map"),
+]
+# Wrappers whose fields deliberately differ from the parameters of what they wrap.  FromOptax holds
+# any transformation, Monitor splits optax's measures by kind, and NamedChain replaces *args.
+NOT_COMPARED: set[Wrapper] = {tg.FromOptax, tg.Monitor, tg.NamedChain}
 
 
-def test_every_wrapper_is_found() -> None:
-    assert len(WRAPPERS) > 90  # ruff: ignore[magic-value-comparison]
+def test_every_wrapper_is_compared() -> None:
+    exported = {
+        cls
+        for name in tg.__all__
+        if isinstance(cls := getattr(tg, name), type)
+        and issubclass(cls, OptaxWrapper)
+        and cls is not OptaxWrapper
+    }
+    compared = {cls for cls, _ in WRAPPERS} | {cls for cls, _ in COMBINATORS}
+    assert exported == compared | NOT_COMPARED
 
 
 # Signatures ---------------------------------------------------------------------------------------
@@ -86,7 +115,9 @@ def _same_default(ours: object, theirs: object) -> bool:
     return repr(ours) == repr(theirs)
 
 
-@pytest.mark.parametrize(("cls", "path"), WRAPPERS, ids=IDS)
+@pytest.mark.parametrize(
+    ("cls", "path"), WRAPPERS + COMBINATORS, ids=[cls.__name__ for cls, _ in WRAPPERS + COMBINATORS]
+)
 def test_signature_matches_optax(cls: Wrapper, path: str) -> None:
     function_name = path.rsplit(".", 1)[1]
     theirs = {
