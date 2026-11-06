@@ -112,6 +112,9 @@ from ._src.gradient.contrib import (
 from ._src.gradient.gradient_statistics_annealing import (
     GradientStatisticsAnnealing,
 )
+from ._src.gradient.imtlg import (
+    IMTLG,
+)
 from ._src.gradient.linesearch import (
     ScaleByBacktrackingLinesearch,
     ScaleByZoomLinesearch,
@@ -184,6 +187,7 @@ __all__ = [
     "COCOB",
     "DPSGD",
     "EMA",
+    "IMTLG",
     "LAMB",
     "LARS",
     "LBFGS",
