@@ -95,6 +95,24 @@ The package also extends optax's interface:
 - `to_optax` converts a tjax transformation into an optax one.
 - `Schedule` wraps an optax schedule so that it can be passed as a learning rate.
 
+## Dataclass alternatives
+
+Several libraries offer dataclass-like pytrees. Compared with them, `tjax.dataclass`:
+
+- **vs `chex.dataclass`:** chex can't mark fields static, which rules out a huge class of
+  designs: flags, shapes, dtypes, mode strings, callable options, anything that should drive
+  recompilation rather than live in the trace. Tjax marks them inline with `field(static=True)`.
+- **vs `jax.tree_util.register_dataclass`:** the primitive forces a second call per class and
+  wants the static and dynamic partition as parallel name lists at the registration site —
+  awkward, duplicative, and easy to desync from the fields. Tjax does it in the decorator with
+  `field(static=True)` on the field itself.
+- **vs `flax.struct.dataclass`:** near-equivalent in capability; the win is not dragging Flax in
+  for one decorator.
+- **vs `equinox.Module`:** too heavyweight for just wanting a pytree dataclass. The `Module`
+  base and metaclass constrain inheritance, and the idiomatic path pushes you into
+  `eqx.filter_jit` / `eqx.partition` at every call site instead of declaring the static and
+  dynamic boundary once on the class.
+
 ## Minor components
 
 Tjax also includes:
