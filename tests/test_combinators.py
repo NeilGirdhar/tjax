@@ -196,6 +196,13 @@ CASES: list[tuple[str, Callable[[], GradientTransformation[Any, Any]], Callable[
         lambda: optax.MultiSteps(optax.adam(1e-2), 3).gradient_transformation(),
     ),
     (
+        "multi-steps-sum",
+        lambda: MultiSteps[Params](Adam(1e-2), 3, use_grad_mean=False),
+        lambda: optax.MultiSteps(
+            optax.adam(1e-2), 3, use_grad_mean=False
+        ).gradient_transformation(),
+    ),
+    (
         "snapshot",
         lambda: Snapshot[Params]("norm", optax.tree.norm),
         lambda: optax.snapshot("norm", optax.tree.norm),
@@ -235,11 +242,12 @@ def test_apply_if_finite() -> None:
     )
 
 
-def test_lookahead() -> None:
+@pytest.mark.parametrize("reset_state", [False, True])
+def test_lookahead(*, reset_state: bool) -> None:
     params = optax.LookaheadParams.init_synced(_params())
     _assert_match(
-        Lookahead[Any](SGD(1e-1), sync_period=3, slow_step_size=0.5),
-        optax.lookahead(optax.sgd(1e-1), sync_period=3, slow_step_size=0.5),
+        Lookahead[Any](SGD(1e-1, momentum=0.9), 3, 0.5, reset_state=reset_state),
+        optax.lookahead(optax.sgd(1e-1, momentum=0.9), 3, 0.5, reset_state=reset_state),
         params=params,
     )
 

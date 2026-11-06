@@ -296,6 +296,61 @@ def test_matches_optax_under_jit(cls: Wrapper, path: str, *, optional: bool) -> 
     )
 
 
+# Static options -----------------------------------------------------------------------------------
+# These are chosen by name and default rather than by the field's static marker, so that a field
+# that should be static but isn't still gets compared, and fails under jit.
+def _matrices_only(params: PyTree) -> PyTree:
+    return tree.map(lambda x: x.ndim > 1, params)
+
+
+# Non-default values for static fields that are not booleans or dtypes.
+STATIC_OPTIONS: dict[str, list[object]] = {
+    "axis": [0],
+    "init_step": [("distance", 1e-3), ("learning_rate", 1e-3)],
+    "initial_guess_strategy": ["one"],
+    "mask": [_matrices_only],
+    "mode": ["smooth", "refined"],
+    "preconditioning": ["spectral", "aol", "schatten"],
+    "trust_ratio_mask": [_matrices_only],
+    "variant": ["sps+"],
+    "warmup_steps": [2],
+    "weight_decay_mask": [_matrices_only],
+}
+# SAM's opaque mode needs a gradient function that this comparison does not supply.
+NO_STATIC_OPTIONS = {("SAM", "opaque_mode")}
+
+
+def _static_options(f: dataclasses.Field[Any]) -> list[object]:
+    if isinstance(f.default, bool):
+        return [not f.default]
+    if f.name.endswith("dtype"):
+        return [jnp.float32]
+    if f.name == "ns_coeffs" and "str" in str(f.type):
+        return ["standard"]
+    return STATIC_OPTIONS.get(f.name, [])
+
+
+STATIC_CASES = [
+    pytest.param(cls, path, f.name, value, id=f"{cls.__name__}-{f.name}-{i}")
+    for cls, path in WRAPPERS
+    for f in dataclasses.fields(cls)
+    if f.name != "_" and (cls.__name__, f.name) not in NO_STATIC_OPTIONS
+    for i, value in enumerate(_static_options(f))
+]
+
+
+def test_static_options_are_found() -> None:
+    assert len(STATIC_CASES) > 100  # ruff: ignore[magic-value-comparison]
+
+
+@pytest.mark.parametrize(("cls", "path", "name", "value"), STATIC_CASES)
+def test_static_option_matches_optax(cls: Wrapper, path: str, name: str, value: object) -> None:
+    tx = dataclasses.replace(_construct(cls, optional=False), **{name: value})
+    chex.assert_trees_all_close(
+        _run_tjax(tx), _run_optax(cls.__name__, _to_optax(tx, path)), rtol=1e-5, atol=1e-6
+    )
+
+
 @pytest.mark.parametrize(
     ("cls", "args"),
     [
