@@ -644,13 +644,13 @@ class NoisySGD[Weights: PyTree](OptaxWrapper[Weights]):
         eta: Base variance of the Gaussian noise.
         gamma: Decay exponent for the noise variance, which decays as
             ``(1 + t) ** -gamma`` at step ``t``.
-        key: PRNG key for random noise generation.
+        key: PRNG key or integer seed for random noise generation.
     """
 
     learning_rate: ScalarOrSchedule
     eta: RealNumeric = 0.01
     gamma: RealNumeric = 0.55
-    key: KeyArray | None = None
+    key: KeyArray | int | None = None
 
     @override
     def _optax(self) -> OptaxGradientTransformation:

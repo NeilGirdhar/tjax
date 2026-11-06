@@ -71,6 +71,7 @@ CONSTRUCTORS: list[Callable[[], Any]] = [
     lambda: LARS[Params](1e-2),
     lambda: Lion[Params](1e-2),
     lambda: NoisySGD[Params](1e-2, key=jr.key(123)),
+    lambda: NoisySGD[Params](1e-2, key=123),
     lambda: Novograd[Params](1e-2),
     lambda: OptimisticGradientDescent[Params](1e-2, 1e-2, 1e-2),
     lambda: RAdam[Params](1e-2),
