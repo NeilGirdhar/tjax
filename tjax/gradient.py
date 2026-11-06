@@ -115,6 +115,10 @@ from ._src.gradient.contrib import (
 from ._src.gradient.gradient_statistics_annealing import (
     GradientStatisticsAnnealing,
 )
+from ._src.gradient.gradvac import (
+    GradVac,
+    GradVacStatistics,
+)
 from ._src.gradient.imtlg import (
     IMTLG,
 )
@@ -239,6 +243,8 @@ __all__ = [
     "Fromage",
     "GaLore",
     "GenericGradientState",
+    "GradVac",
+    "GradVacStatistics",
     "GradientCombiner",
     "GradientState",
     "GradientStatisticsAnnealing",

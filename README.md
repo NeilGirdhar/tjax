@@ -121,6 +121,7 @@ These have no optax equivalent:
     - `IMTLG`, which chooses weights so that the result favours no loss.
     - `PCGrad`, which removes the components of each gradient that conflict with the others.
     - `CAGrad`, which improves the worst-off loss while staying near the average gradient.
+    - `GradVac`, which steers each pair of gradients toward the similarity they usually have.
 - `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
   rules that receive a Hessian-vector product or the Hessian's diagonal.
 
