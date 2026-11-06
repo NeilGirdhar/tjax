@@ -624,7 +624,10 @@ class ScaleByGaLore[Weights: PyTree](OptaxWrapper[Weights]):
 
 @dataclass
 class HutchinsonEstimatorDiagHessian[Weights: PyTree](OptaxWrapper[Weights]):
-    """Returns a GradientTransformationExtraArgs computing the Hessian diagonal.
+    """Estimate the Hessian diagonal with Hutchinson's estimator.
+
+    The estimator is unbiased but has high variance.  Pass the parameters and the loss function to
+    ``update``, the latter as ``obj_fn``.
 
     Args:
         random_seed: Key used to generate random vectors.

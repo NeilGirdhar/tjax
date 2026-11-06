@@ -40,7 +40,7 @@ class SetToZero[Weights: PyTree](OptaxWrapper[Weights]):
 
 @dataclass
 class Stateless[Weights: PyTree](OptaxWrapper[Weights]):
-    """Create a stateless transformation from a function of the updates and parameters.
+    """A stateless transformation defined by a function of the updates and parameters.
 
     Args:
         f: A function from the updates and parameters (or ``None``) to new updates.
@@ -55,7 +55,7 @@ class Stateless[Weights: PyTree](OptaxWrapper[Weights]):
 
 @dataclass
 class StatelessWithTreeMap[Weights: PyTree](OptaxWrapper[Weights]):
-    """Create a stateless transformation that maps a function over the update leaves.
+    """A stateless transformation that maps a function over the update leaves.
 
     Args:
         f: A function from an update leaf and its parameter leaf (or ``None``) to a new update
