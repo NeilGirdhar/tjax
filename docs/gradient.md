@@ -41,6 +41,10 @@ The others balance several losses, and receive each loss's gradient separately:
 All but `MTAdam` decide only how to combine gradients, so they take an optimizer of your choice,
 such as `tg.PCGrad(tg.Adam(1e-3), key)`.
 
+The
+[multi-loss benchmark](https://github.com/NeilGirdhar/tjax/blob/main/docs/multi-loss-benchmark.md)
+compares these on the Helmholtz problem.
+
 ## Using a multi-loss transformation
 
 A multi-loss transformation differs from a single-gradient one in two ways. `init` also takes the
@@ -89,6 +93,8 @@ transform = tg.AveragedGradients(tg.PCGrad(tg.SGD(1e-3), key), decay=0.95)
 ```
 
 The decay should keep an arrival present for longer than the slowest loss's gap between arrivals.
+Averaging adds lag, so a larger decay needs a smaller learning rate: with both large, the parameters
+can overshoot while acting on old gradients.
 `MTAdam` doesn't need this wrapper, since its first moments are already such averages.
 
 ## Base classes
