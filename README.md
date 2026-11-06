@@ -112,6 +112,9 @@ These have no optax equivalent:
 
 - `SMDGradient` implements stochastic meta-descent, which adapts a learning rate for each weight
   using Hessian-vector products.
+- `MTAdam` is Adam for several losses. It balances them automatically, so you don't need to tune
+  loss weights. `MultiLossGradientTransformation` is the base class for such transformations,
+  which receive each loss's gradient separately.
 - `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
   rules that receive a Hessian-vector product or the Hessian's diagonal.
 

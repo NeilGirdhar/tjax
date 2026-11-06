@@ -118,6 +118,13 @@ from ._src.gradient.monitoring import (
     Monitor,
     Snapshot,
 )
+from ._src.gradient.mtadam import (
+    MTAdam,
+    MTAdamState,
+)
+from ._src.gradient.multi_loss import (
+    MultiLossGradientTransformation,
+)
 from ._src.gradient.scaling import (
     Centralize,
     NormalizeByUpdateNorm,
@@ -223,12 +230,15 @@ __all__ = [
     "KeepParamsNonnegative",
     "Lion",
     "Lookahead",
+    "MTAdam",
+    "MTAdamState",
     "Masked",
     "MeasureWithEMA",
     "Mechanize",
     "Momo",
     "MomoAdam",
     "Monitor",
+    "MultiLossGradientTransformation",
     "MultiSteps",
     "MultiTransform",
     "Muon",
