@@ -1025,6 +1025,8 @@ class ReduceOnPlateau[Weights: PyTree](OptaxWrapper[Weights]):
         min_scale: Scale at which the learning rate decay stops.
     """
 
+    # factor, rtol and atol are static because optax validates them in Python:
+    # https://github.com/google-deepmind/optax/issues/1850
     factor: float = field(default=0.1, static=True)
     patience: IntegralNumeric = 10
     rtol: float = field(default=0.0001, static=True)

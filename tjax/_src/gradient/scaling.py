@@ -593,6 +593,8 @@ class ScaleBySM3[Weights: PyTree](OptaxWrapper[Weights]):
     """
 
     b1: RealNumeric = 0.9
+    # Static because optax branches on it in Python:
+    # https://github.com/google-deepmind/optax/issues/1850
     b2: float = field(default=1.0, static=True)
     eps: RealNumeric = 1e-8
 
