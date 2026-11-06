@@ -78,6 +78,19 @@ The order of the loss IDs matters to `MTAdam` and `GradientStatisticsAnnealing`,
 loss as their reference. Pass gradients with respect to the parameters that the losses share, since
 `IMTLG`, `PCGrad`, and `CAGrad` treat those parameters as a single vector.
 
+## Losses that arrive at different times
+
+A loss that hasn't arrived has a zero gradient, which some methods can't work with, and no method
+can compare losses that never coincide. `AveragedGradients` wraps a multi-loss transformation and
+gives it a decaying average of each loss's gradient, so that later arrivals meet earlier ones:
+
+```python
+transform = tg.AveragedGradients(tg.PCGrad(tg.SGD(1e-3), key), decay=0.95)
+```
+
+The decay should keep an arrival present for longer than the slowest loss's gap between arrivals.
+`MTAdam` doesn't need this wrapper, since its first moments are already such averages.
+
 ## Base classes
 
 To write your own transformation, subclass one of these:

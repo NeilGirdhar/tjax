@@ -136,6 +136,8 @@ from ._src.gradient.mtadam import (
     MTAdamState,
 )
 from ._src.gradient.multi_loss import (
+    AveragedGradients,
+    AveragedGradientsState,
     CombinedGradientState,
     GradientCombiner,
     MultiLossGradientTransformation,
@@ -221,6 +223,8 @@ __all__ = [
     "AddNoise",
     "ApplyEvery",
     "ApplyIfFinite",
+    "AveragedGradients",
+    "AveragedGradientsState",
     "CAGrad",
     "Centralize",
     "ChainedGradientState",

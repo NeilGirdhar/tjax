@@ -6,7 +6,10 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from typing import Any, override
 
-from tjax._src.annotations import PyTree
+import jax.numpy as jnp
+from jax import tree
+
+from tjax._src.annotations import PyTree, RealNumeric
 from tjax.dataclasses import dataclass, field
 
 from .transform import GradientState, GradientTransformation
@@ -125,3 +128,67 @@ class GradientCombiner[Statistics: PyTree, Parameters: PyTree](
         gradient, statistics = self.combine(gradients, state.statistics)
         updates, inner_state = self.inner.update(gradient, state.inner_state, parameters)
         return updates, CombinedGradientState[Statistics](state.loss_ids, inner_state, statistics)
+
+
+@dataclass
+class AveragedGradientsState[Parameters: PyTree](GradientState):
+    """Gradient state for :class:`AveragedGradients`.
+
+    Args:
+        averages: The decaying average of each loss's gradient.
+        inner_state: The state of the inner transformation.
+    """
+
+    averages: Mapping[str, Parameters]
+    inner_state: PyTree
+
+
+@dataclass
+class AveragedGradients[Parameters: PyTree](
+    MultiLossGradientTransformation[AveragedGradientsState[Parameters], Parameters]
+):
+    """Pass a decaying average of each loss's gradient to a multi-loss transformation.
+
+    Losses can arrive at different times, and a loss that hasn't arrived has a zero gradient, so a
+    multi-loss transformation would otherwise never see the losses together.  Averaging keeps each
+    arrival present for later ones to meet.  It also reduces noise, without which two gradient
+    estimates in many dimensions have a cosine near zero whether or not their losses conflict.
+
+    An average is zero until its loss first arrives.  The decay should keep an arrival present for
+    longer than the gap between arrivals of the slowest loss.  ``MTAdam`` doesn't need this, since
+    its first moments are already such averages.
+
+    Args:
+        inner: The transformation applied to the averages.
+        decay: The fraction of each average that carries over to the next step.
+    """
+
+    inner: MultiLossGradientTransformation[Any, Parameters]
+    decay: RealNumeric = 0.9
+
+    @override
+    def init(
+        self, parameters: Parameters, loss_ids: tuple[str, ...]
+    ) -> AveragedGradientsState[Parameters]:
+        check_loss_ids(loss_ids)
+        averages = {loss_id: tree.map(jnp.zeros_like, parameters) for loss_id in loss_ids}
+        return AveragedGradientsState[Parameters](averages, self.inner.init(parameters, loss_ids))
+
+    @override
+    def update(
+        self,
+        gradients_by_loss: Mapping[str, Parameters],
+        state: AveragedGradientsState[Parameters],
+        parameters: Parameters,
+    ) -> tuple[Parameters, AveragedGradientsState[Parameters]]:
+        check_gradients(gradients_by_loss, tuple(state.averages))
+        averages = {
+            loss_id: tree.map(
+                lambda average, g: self.decay * average + (1.0 - self.decay) * g,
+                state.averages[loss_id],
+                gradient,
+            )
+            for loss_id, gradient in gradients_by_loss.items()
+        }
+        updates, inner_state = self.inner.update(averages, state.inner_state, parameters)
+        return updates, AveragedGradientsState[Parameters](averages, inner_state)
