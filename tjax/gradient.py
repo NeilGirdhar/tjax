@@ -46,6 +46,9 @@ from ._src.gradient.basic import (
     Stateless,
     StatelessWithTreeMap,
 )
+from ._src.gradient.cagrad import (
+    CAGrad,
+)
 from ._src.gradient.clipping import (
     AdaptiveGradClip,
     Clip,
@@ -215,6 +218,7 @@ __all__ = [
     "AddNoise",
     "ApplyEvery",
     "ApplyIfFinite",
+    "CAGrad",
     "Centralize",
     "ChainedGradientState",
     "ChainedGradientTransformation",

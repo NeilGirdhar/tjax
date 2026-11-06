@@ -120,6 +120,7 @@ These have no optax equivalent:
     - `GradientStatisticsAnnealing`, which weights each loss against a reference gradient.
     - `IMTLG`, which chooses weights so that the result favours no loss.
     - `PCGrad`, which removes the components of each gradient that conflict with the others.
+    - `CAGrad`, which improves the worst-off loss while staying near the average gradient.
 - `HvpGradientTransformation` and `DiagHessianGradientTransformation` are base classes for update
   rules that receive a Hessian-vector product or the Hessian's diagonal.
 
