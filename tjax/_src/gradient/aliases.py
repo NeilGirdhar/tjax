@@ -8,11 +8,7 @@ from typing import Any, override
 
 import jax.numpy as jnp
 import optax
-from optax import (
-    GradientTransformation as OptaxGradientTransformation,
-    GradientTransformationExtraArgs,
-    scale_by_zoom_linesearch,
-)
+from optax import GradientTransformation as OptaxGradientTransformation
 
 from tjax._src.annotations import (
     IntegralNumeric,
@@ -22,10 +18,9 @@ from tjax._src.annotations import (
 )
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
+from .linesearch import ScaleByZoomLinesearch
 from .schedule import ScalarOrSchedule
-from .transform import (
-    OptaxWrapper,
-)
+from .transform import GradientTransformation, OptaxWrapper, to_optax_or_none
 
 
 @dataclass
@@ -489,20 +484,22 @@ class LBFGS[Weights: PyTree](OptaxWrapper[Weights]):
             the linesearch determines the step size.
         memory_size: Number of past gradient/step pairs to retain.
         scale_init_precond: Whether to scale the initial preconditioner.
-        linesearch: Optional linesearch transformation; defaults to zoom
-            linesearch with 15 maximum steps.
+        linesearch: Optional linesearch transformation; defaults to
+            ``ScaleByZoomLinesearch`` with 15 maximum steps.
     """
 
     learning_rate: ScalarOrSchedule | None = None
     memory_size: int = field(default=10, static=True)
     scale_init_precond: bool = field(default=True, static=True)
-    linesearch: GradientTransformationExtraArgs | OptaxGradientTransformation | None = field(
-        default=scale_by_zoom_linesearch(max_linesearch_steps=15), static=True
+    linesearch: GradientTransformation[Any, Weights] | None = field(
+        default_factory=lambda: ScaleByZoomLinesearch(max_linesearch_steps=15)
     )
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
-        return optax.lbfgs(**as_shallow_dict(self))
+        kwargs = as_shallow_dict(self)
+        kwargs["linesearch"] = to_optax_or_none(self.linesearch)
+        return optax.lbfgs(**kwargs)
 
 
 @dataclass

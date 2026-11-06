@@ -9,9 +9,7 @@ from typing import Any, Literal, override
 import optax.contrib
 from optax import (
     GradientTransformation as OptaxGradientTransformation,
-    GradientTransformationExtraArgs,
 )
-from optax.contrib import hutchinson_estimator_diag_hessian
 
 from tjax._src.annotations import (
     IntegralNumeric,
@@ -1205,8 +1203,8 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
         gamma: Normalizing constant for the hessian diagonal.
         clip_threshold: Threshold for clipping updates.
         update_interval: Interval for updating the hessian diagonal.
-        hessian_diagonal_fn: GradientTransformation that computes the diagonal of the Hessian.
-            Default is Hutchinson's estimator (sophia-h). If using more than one device, be sure
+        hessian_diagonal_fn: Transformation that computes the diagonal of the Hessian. Default is
+            ``HutchinsonEstimatorDiagHessian`` (sophia-h). If using more than one device, be sure
             this function properly averages the hessian diagonal across devices.
         mu_dtype: Dtype of the first moment estimates.
         verbose: If True, print win rate every n steps.
@@ -1226,8 +1224,8 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
     gamma: RealNumeric = 0.01
     clip_threshold: RealNumeric | None = 1.0
     update_interval: RealNumeric = 10
-    hessian_diagonal_fn: GradientTransformationExtraArgs | OptaxGradientTransformation = field(
-        default=hutchinson_estimator_diag_hessian(), static=True
+    hessian_diagonal_fn: GradientTransformation[Any, Weights] = field(
+        default_factory=HutchinsonEstimatorDiagHessian
     )
     mu_dtype: Any = field(default=None, static=True)
     verbose: bool = field(default=False, static=True)
@@ -1235,7 +1233,9 @@ class Sophia[Weights: PyTree](OptaxWrapper[Weights]):
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
-        return optax.contrib.sophia(**as_shallow_dict(self))
+        kwargs = as_shallow_dict(self)
+        kwargs["hessian_diagonal_fn"] = to_optax_or_none(self.hessian_diagonal_fn)
+        return optax.contrib.sophia(**kwargs)
 
 
 @dataclass

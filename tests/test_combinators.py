@@ -23,6 +23,7 @@ from tjax.gradient import (
     ConditionallyTransform,
     Flatten,
     Freeze,
+    FromOptax,
     GenericGradientState,
     GradientTransformation,
     Lookahead,
@@ -167,6 +168,7 @@ CASES: list[tuple[str, Callable[[], GradientTransformation[Any, Any]], Callable[
         lambda: NamedChain[Params](("trace", "scale"), [Trace(0.9), Scale(-0.1)]),
         lambda: optax.named_chain(("trace", optax.trace(0.9)), ("scale", optax.scale(-0.1))),
     ),
+    ("from-optax", lambda: FromOptax[Params](optax.adam(1e-2)), lambda: optax.adam(1e-2)),
     ("flatten", lambda: Flatten[Params](Adam(1e-2)), lambda: optax.flatten(optax.adam(1e-2))),
     (
         "stateless",

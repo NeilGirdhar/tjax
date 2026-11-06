@@ -29,6 +29,7 @@ from tjax.gradient import (
     ChainedGradientState,
     ChainedGradientTransformation,
     Fromage,
+    FromOptax,
     GenericGradientState,
     GradientTransformation,
     Lion,
@@ -39,6 +40,8 @@ from tjax.gradient import (
     RAdam,
     RMSProp,
     Scale,
+    ScaleByBacktrackingLinesearch,
+    ScaleByZoomLinesearch,
     Schedule,
     Yogi,
 )
@@ -151,9 +154,17 @@ def _loss(params: Params) -> jax.Array:
     [
         LBFGS[Params](),
         LBFGS[Params](learning_rate=0.5, linesearch=None),
+        LBFGS[Params](linesearch=ScaleByBacktrackingLinesearch(15)),
+        LBFGS[Params](linesearch=FromOptax(optax.scale_by_zoom_linesearch(15))),
         PolyakSGD[Params](),
     ],
-    ids=["lbfgs-linesearch", "lbfgs-no-linesearch", "polyak-sgd"],
+    ids=[
+        "lbfgs-linesearch",
+        "lbfgs-no-linesearch",
+        "lbfgs-tjax-linesearch",
+        "lbfgs-from-optax",
+        "polyak-sgd",
+    ],
 )
 def test_value_transforms_jit(tx: LBFGS[Params] | PolyakSGD[Params]) -> None:
     @jax.jit
@@ -210,3 +221,31 @@ def test_chain_update_without_parameters() -> None:
     tx = ChainedGradientTransformation[Params]([Scale[Params](2.0)])
     updates, _ = tx.update(_gradient(), tx.init(_params()))
     chex.assert_trees_all_close(updates, tree.map(lambda x: 2.0 * x, _gradient()))
+
+
+def test_linesearch_hyperparameters_do_not_recompile() -> None:
+    traces = 0
+
+    @jax.jit
+    def step(tx: LBFGS[Params], params: Params) -> Params:
+        nonlocal traces
+        traces += 1
+        value, grad = jax.value_and_grad(_loss)(params)
+        updates, _ = tx.update(
+            grad, tx.init(params), params, value=value, grad=grad, value_fn=_loss
+        )
+        return updates
+
+    for increase_factor in (2.0, 3.0):
+        linesearch = ScaleByZoomLinesearch[Params](15, increase_factor=increase_factor)
+        step(LBFGS[Params](linesearch=linesearch), _params())
+    assert traces == 1
+
+
+def test_value_and_grad_from_state_finds_linesearch_state() -> None:
+    tx = LBFGS[Params]()
+    params = _params()
+    value, grad = jax.value_and_grad(_loss)(params)
+    _, state = tx.update(grad, tx.init(params), params, value=value, grad=grad, value_fn=_loss)
+    cached_value, _ = optax.value_and_grad_from_state(_loss)(params, state=state)
+    assert jnp.isfinite(cached_value)

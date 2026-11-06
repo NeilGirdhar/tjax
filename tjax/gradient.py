@@ -158,6 +158,7 @@ from ._src.gradient.smd import (
 )
 from ._src.gradient.transform import (
     DiagHessianGradientTransformation,
+    FromOptax,
     GenericGradientState,
     GradientState,
     GradientTransformation,
@@ -210,6 +211,7 @@ __all__ = [
     "DoWG",
     "Flatten",
     "Freeze",
+    "FromOptax",
     "Fromage",
     "GaLore",
     "GenericGradientState",

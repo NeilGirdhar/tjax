@@ -13,7 +13,7 @@ from optax import (
 
 from tjax._src.annotations import PyTree
 from tjax._src.math_tools import abs_square
-from tjax.dataclasses import dataclass
+from tjax.dataclasses import dataclass, field
 
 
 # Extra arguments ----------------------------------------------------------------------------------
@@ -295,3 +295,22 @@ class OptaxWrapper[Weights: PyTree](GradientTransformation[GenericGradientState,
             gradient, state.data, parameters, **accepted_extra_args(update, extra_args)
         )
         return new_gradient, GenericGradientState(new_state)
+
+
+@dataclass
+class FromOptax[Weights: PyTree](OptaxWrapper[Weights]):
+    """A tjax transformation that holds an optax transformation.
+
+    This lets an optax transformation that tjax doesn't wrap be used wherever a tjax transformation
+    is required.  Its closures hide its hyperparameters from JAX, so they cannot be traced, and
+    replacing the transformation causes recompilation.  Prefer a tjax wrapper when one exists.
+
+    Args:
+        transform: The optax transformation.
+    """
+
+    transform: OptaxGradientTransformation = field(static=True)
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return self.transform
