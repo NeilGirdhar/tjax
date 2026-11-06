@@ -11,17 +11,10 @@ from optax import (
 )
 from optax.transforms import ShouldSkipUpdateFunction
 
-from tjax._src.annotations import (
-    PyTree,
-    RealNumeric,
-)
+from tjax._src.annotations import JaxBooleanArray, PyTree, RealNumeric
 from tjax.dataclasses import as_shallow_dict, dataclass, field
 
-from .transform import (
-    GradientTransformation,
-    OptaxWrapper,
-    to_optax,
-)
+from .transform import GenericGradientState, GradientTransformation, OptaxWrapper, to_optax
 
 
 @dataclass
@@ -115,12 +108,26 @@ class MultiSteps[Weights: PyTree](OptaxWrapper[Weights]):
     should_skip_update_fn: ShouldSkipUpdateFunction | None = field(default=None, static=True)
     accumulator_dtype: Any = field(default=jnp.float32, static=True)
 
-    @override
-    def _optax(self) -> OptaxGradientTransformation:
+    def _multi_steps(self) -> optax.MultiSteps:
         return optax.MultiSteps(
             to_optax(self.opt),
             self.every_k_schedule,
             use_grad_mean=self.use_grad_mean,
             should_skip_update_fn=self.should_skip_update_fn,
             accumulator_dtype=self.accumulator_dtype,
-        ).gradient_transformation()
+        )
+
+    @override
+    def _optax(self) -> OptaxGradientTransformation:
+        return self._multi_steps().gradient_transformation()
+
+    def has_updated(self, state: GenericGradientState) -> JaxBooleanArray:
+        """Return whether the update that produced this state applied the inner transformation.
+
+        Between applications the updates are zero, so this tells a training loop when the
+        parameters actually changed.
+
+        Args:
+            state: The gradient state returned by ``update``.
+        """
+        return jnp.asarray(self._multi_steps().has_updated(state.data))

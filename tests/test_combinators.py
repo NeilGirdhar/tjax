@@ -23,6 +23,7 @@ from tjax.gradient import (
     ConditionallyTransform,
     Flatten,
     Freeze,
+    GenericGradientState,
     GradientTransformation,
     Lookahead,
     Masked,
@@ -247,6 +248,29 @@ def test_extra_args_reach_inner_transform() -> None:
         optax.masked(optax.polyak_sgd(), MASK),
         extra_args={"value": jnp.asarray(2.0)},
     )
+
+
+def test_multi_steps_has_updated() -> None:
+    every_k = 3
+    params = _params()
+    tx = MultiSteps[Params](Adam(1e-2), every_k)
+    reference = optax.MultiSteps(optax.adam(1e-2), every_k)
+
+    @jax.jit
+    def step(
+        tx: MultiSteps[Params], gradient: Params, state: GenericGradientState
+    ) -> tuple[GenericGradientState, JaxArray]:
+        _, state = tx.update(gradient, state, params)
+        return state, tx.has_updated(state)
+
+    state = tx.init(params)
+    reference_state = reference.init(params)
+    assert not tx.has_updated(state)
+    for i, gradient in enumerate(_gradients(), start=1):
+        state, has_updated = step(tx, gradient, state)
+        _, reference_state = reference.update(gradient, reference_state, params)
+        assert bool(has_updated) == (i % every_k == 0)
+        assert bool(has_updated) == bool(reference.has_updated(reference_state))
 
 
 def test_named_chain_state_keys() -> None:
