@@ -17,7 +17,7 @@ from tjax.dataclasses import dataclass, field
 
 
 # Extra arguments ----------------------------------------------------------------------------------
-def accepted_extra_args(
+def _accepted_extra_args(
     update: Callable[..., object], extra_args: Mapping[str, object]
 ) -> dict[str, object]:
     """Return the subset of extra_args that update accepts as keyword arguments."""
@@ -73,7 +73,11 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
         raise NotImplementedError
 
     def update(
-        self, gradient: Weights, state: State, parameters: Weights | None = None
+        self,
+        gradient: Weights,
+        state: State,
+        parameters: Weights | None = None,
+        **extra_args: object,
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -81,6 +85,8 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
 
         Returns:
             new_gradient: The modified gradient.
@@ -106,7 +112,11 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
 
     @override
     def update(
-        self, gradient: Weights, state: State, parameters: Weights | None = None
+        self,
+        gradient: Weights,
+        state: State,
+        parameters: Weights | None = None,
+        **extra_args: object,
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -114,6 +124,8 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
 
         Returns:
             new_gradient: The modified gradient.
@@ -129,7 +141,7 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
             d = tree.reduce_associative(jnp.add, tree.map(jnp.vdot, gradient, v), identity=0.0)
             return tree.map(lambda x: x * d, gradient)
 
-        return self.hvp_update(gradient, state, parameters, hessian_vector_product)
+        return self.hvp_update(gradient, state, parameters, hessian_vector_product, **extra_args)
 
     def hvp_update(
         self,
@@ -137,6 +149,7 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
         state: State,
         parameters: Weights | None,
         hessian_vector_product: Callable[[Weights], Weights],
+        **extra_args: object,
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -146,6 +159,8 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
             parameters: The weights.
             hessian_vector_product: A function that maps v to the Hessian of the loss with respect
                 to the weights times v.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
 
         Returns:
             new_gradient: The modified gradient.
@@ -175,6 +190,7 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
         state: State,
         parameters: Weights | None,
         hessian_vector_product: Callable[[Weights], Weights],
+        **extra_args: object,
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -184,6 +200,8 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
             parameters: The weights.
             hessian_vector_product: A function that maps v to the Hessian of the loss with respect
                 to the weights times v.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
 
         Returns:
             new_gradient: The modified gradient.
@@ -195,7 +213,12 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
             that of ``g gᵀ``.
         """
         return self.diag_hessian_update(
-            gradient, state, parameters, hessian_vector_product, tree.map(abs_square, gradient)
+            gradient,
+            state,
+            parameters,
+            hessian_vector_product,
+            tree.map(abs_square, gradient),
+            **extra_args,
         )
 
     def diag_hessian_update(
@@ -205,6 +228,7 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
         parameters: Weights | None,
         hessian_vector_product: Callable[[Weights], Weights],
         hessian_diagonal: Weights,
+        **extra_args: object,
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -216,6 +240,8 @@ class DiagHessianGradientTransformation[State: GradientState, Weights: PyTree](
                 to the weights times v.
             hessian_diagonal: The diagonal entries of the Hessian of the loss with respect to the
                 weights.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
 
         Returns:
             new_gradient: The modified gradient.
@@ -231,9 +257,6 @@ type _Update = Callable[..., tuple[Any, PyTree]]
 def to_optax(transform: GradientTransformation[Any, Any]) -> GradientTransformationExtraArgs:
     """Convert a tjax gradient transformation into an optax one.
 
-    The optax update forwards to ``transform.update`` only the extra keyword arguments that it
-    declares.
-
     Args:
         transform: The tjax transformation to convert.
     """
@@ -244,8 +267,7 @@ def to_optax(transform: GradientTransformation[Any, Any]) -> GradientTransformat
     def update_fn(
         updates: PyTree, state: PyTree, params: PyTree = None, **extra_args: object
     ) -> tuple[PyTree, PyTree]:
-        update = cast("_Update", transform.update)
-        return update(updates, state, params, **accepted_extra_args(update, extra_args))
+        return transform.update(updates, state, params, **extra_args)
 
     return GradientTransformationExtraArgs(init_fn, update_fn)
 
@@ -292,7 +314,7 @@ class OptaxWrapper[Weights: PyTree](GradientTransformation[GenericGradientState,
         """
         update = cast("_Update", self._optax().update)
         new_gradient, new_state = update(
-            gradient, state.data, parameters, **accepted_extra_args(update, extra_args)
+            gradient, state.data, parameters, **_accepted_extra_args(update, extra_args)
         )
         return new_gradient, GenericGradientState(new_state)
 

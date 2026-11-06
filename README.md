@@ -92,7 +92,7 @@ The package also extends optax's interface:
   receive a Hessian-vector product or the Hessian's diagonal. `SMDGradient` (stochastic
   meta-descent) builds on them.
 - Combinators, such as `ChainedGradientTransformation`, combine tjax transformations.
-- `to_optax` converts a tjax transformation into an optax one.
+- `to_optax` converts a tjax transformation into an optax one, and `FromOptax` does the reverse.
 - `Schedule` wraps an optax schedule so that it can be passed as a learning rate.
 
 ## Dataclass alternatives

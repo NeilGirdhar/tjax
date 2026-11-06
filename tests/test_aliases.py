@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast, override
 
 import chex
 import jax
@@ -11,6 +11,7 @@ import optax
 import pytest
 from jax import tree
 
+from tjax.dataclasses import dataclass
 from tjax.gradient import (
     DPSGD,
     LAMB,
@@ -28,11 +29,14 @@ from tjax.gradient import (
     AdamW,
     ChainedGradientState,
     ChainedGradientTransformation,
+    DiagHessianGradientTransformation,
     Fromage,
     FromOptax,
     GenericGradientState,
+    GradientState,
     GradientTransformation,
     Lion,
+    Masked,
     NoisySGD,
     Novograd,
     OptimisticGradientDescent,
@@ -43,6 +47,7 @@ from tjax.gradient import (
     ScaleByBacktrackingLinesearch,
     ScaleByZoomLinesearch,
     Schedule,
+    SMDGradient,
     Yogi,
 )
 
@@ -249,3 +254,60 @@ def test_value_and_grad_from_state_finds_linesearch_state() -> None:
     _, state = tx.update(grad, tx.init(params), params, value=value, grad=grad, value_fn=_loss)
     cached_value, _ = optax.value_and_grad_from_state(_loss)(params, state=state)
     assert jnp.isfinite(cached_value)
+
+
+@dataclass
+class _RecordingState(GradientState):
+    value: jax.Array
+
+
+@dataclass
+class _ValueScaledDescent(DiagHessianGradientTransformation[_RecordingState, Params]):
+    """A transformation that uses an extra argument at the bottom of the class hierarchy."""
+
+    @override
+    def init(self, parameters: Params) -> _RecordingState:
+        return _RecordingState(jnp.zeros(()))
+
+    @override
+    def diag_hessian_update(
+        self,
+        gradient: Params,
+        state: _RecordingState,
+        parameters: Params | None,
+        hessian_vector_product: Callable[[Params], Params],
+        hessian_diagonal: Params,
+        **extra_args: object,
+    ) -> tuple[Params, _RecordingState]:
+        value = cast("jax.Array", extra_args["value"])
+        return tree.map(lambda g: value * g, gradient), _RecordingState(value)
+
+
+def _update_with_value(
+    tx: GradientTransformation[Any, Params], state: GradientState, value: jax.Array
+) -> Params:
+    # This is typed against the base class, which must accept extra arguments.
+    updates, _ = tx.update(_gradient(), state, _params(), value=value)
+    return updates
+
+
+@pytest.mark.parametrize(
+    "tx",
+    [
+        Scale[Params](2.0),
+        PolyakSGD[Params](),
+        SMDGradient[Params](),
+        ChainedGradientTransformation[Params]([SMDGradient[Params](), PolyakSGD[Params]()]),
+        Masked[Params](SMDGradient[Params](), {"w": True}),
+    ],
+    ids=["ignored", "used", "hvp-ignored", "chain", "through-optax"],
+)
+def test_every_transformation_accepts_extra_args(tx: GradientTransformation[Any, Params]) -> None:
+    updates = _update_with_value(tx, tx.init(_params()), jnp.asarray(2.0))
+    chex.assert_tree_all_finite(updates)
+
+
+def test_extra_args_reach_diag_hessian_update() -> None:
+    tx = _ValueScaledDescent()
+    updates = _update_with_value(tx, tx.init(_params()), jnp.asarray(2.0))
+    chex.assert_trees_all_close(updates, tree.map(lambda g: 2.0 * g, _gradient()))

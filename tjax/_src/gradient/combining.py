@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Mapping, Sequence
 from dataclasses import KW_ONLY
-from typing import Any, cast, override
+from typing import Any, override
 
 import optax
 from optax import (
@@ -21,7 +21,6 @@ from .transform import (
     GradientState,
     GradientTransformation,
     OptaxWrapper,
-    accepted_extra_args,
     to_optax,
 )
 
@@ -71,14 +70,13 @@ class ChainedGradientTransformation[Weights: PyTree](
             gradient: The derivative of the loss with respect to the weights.
             state: The gradient state.
             parameters: The weights.
-            extra_args: Keyword arguments, such as ``value``, that some transformations need.  Each
-                transformation receives only those that its ``update`` declares.
+            extra_args: Keyword arguments, such as ``value``, that some transformations need.
+                Transformations ignore those they don't use.
         """
         new_state: list[PyTree] = []
         for sub_state, transform in zip(state.sub_states, self.transforms, strict=True):
-            update = cast("Callable[..., tuple[Weights, PyTree]]", transform.update)
-            gradient, new_sub_state = update(
-                gradient, sub_state, parameters, **accepted_extra_args(update, extra_args)
+            gradient, new_sub_state = transform.update(
+                gradient, sub_state, parameters, **extra_args
             )
             new_state.append(new_sub_state)
         return gradient, ChainedGradientState(new_state)

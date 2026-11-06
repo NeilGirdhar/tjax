@@ -52,6 +52,7 @@ class SMDGradient[Weights: PyTree](HvpGradientTransformation[SMDState[Weights], 
         state: SMDState[Weights],
         parameters: Weights | None,
         hessian_vector_product: Callable[[Weights], Weights],
+        **extra_args: object,
     ) -> tuple[Weights, SMDState[Weights]]:
         negative_gradient = tree.map(jnp.negative, gradient)  # delta
 
