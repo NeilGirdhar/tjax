@@ -24,8 +24,8 @@ uv run pytest
 The hook runs `ruff check`, `ruff format`, and `ty check` on Python files, `rumdl` on Markdown, and
 `pyproject-fmt` and `taplo` on TOML.
 
-Continuous integration runs the linters and the tests on Python 3.13 and 3.14. It also runs the
-tests with the lowest allowed versions of the direct dependencies, so code that needs a newer
+Continuous integration runs the linters, and the tests on Python 3.13, 3.14, and 3.15. It also runs
+the tests with the lowest allowed versions of the direct dependencies, so code that needs a newer
 version of a dependency must raise that minimum in `pyproject.toml`.
 
 The tests run in double precision, which `tests/conftest.py` sets up. Check numerically delicate
