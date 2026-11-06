@@ -31,10 +31,12 @@ class GradientStatisticsAnnealing[Parameters: PyTree](GradientCombiner[JaxRealAr
 
     Args:
         inner: The transformation applied to the combined gradient.
-        alpha: The weight of each new estimate in the running weights.
+        alpha: The weight of each new estimate in the running weights.  The default matches the
+            authors' code.  Equation 41 of the paper instead gives the new estimate a weight of 0.9,
+            which was less reliable on the paper's Helmholtz benchmark.
     """
 
-    alpha: RealNumeric = 0.9
+    alpha: RealNumeric = 0.1
 
     @override
     def init_statistics(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> JaxRealArray:
@@ -47,16 +49,26 @@ class GradientStatisticsAnnealing[Parameters: PyTree](GradientCombiner[JaxRealAr
         """Return the weighted sum of the gradients and the next weights.
 
         Each loss's new estimate is the largest gradient magnitude of the reference loss divided by
-        the mean gradient magnitude of that loss.  A loss with a zero gradient keeps its weight.
+        the mean gradient magnitude of that weighted loss.  A loss with a zero gradient keeps its
+        weight.
+
+        Measuring the weighted loss follows the authors' code, and makes the weight self-correcting.
+        Equation 40 of the paper measures the unweighted gradient instead, which diverges: as a loss
+        is satisfied, its gradient shrinks and its weight grows without bound.  Unlike that code,
+        this uses means over all parameters and updates every step, which did as well or better on
+        the paper's Helmholtz benchmark.
         """
         reference, *others = gradients
         if not others:
             return reference, statistics
         peak = jnp.max(jnp.abs(ravel_pytree(reference)[0]))
         means = jnp.stack([jnp.mean(jnp.abs(ravel_pytree(g)[0])) for g in others])
-        estimates = peak / jnp.where(means > 0.0, means, 1.0)
+        weighted_means = statistics * means
+        estimates = peak / jnp.where(weighted_means > 0.0, weighted_means, 1.0)
         weights = jnp.where(
-            means > 0.0, (1.0 - self.alpha) * statistics + self.alpha * estimates, statistics
+            weighted_means > 0.0,
+            (1.0 - self.alpha) * statistics + self.alpha * estimates,
+            statistics,
         )
         combined = tree.map(
             lambda r, *o: r + sum(w * g for w, g in zip(weights, o, strict=True)),

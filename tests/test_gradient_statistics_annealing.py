@@ -58,13 +58,16 @@ def _flat(gradient: Params) -> np.ndarray:
 
 
 def _reference(gradients: list[dict[str, Params]], alpha: float) -> list[dict[str, np.ndarray]]:
-    """Follow equations 40 to 42 of Wang et al. with plain gradient descent."""
+    """Follow algorithm 1 of Wang et al. with plain gradient descent.
+
+    As in the authors' code, the mean is of the gradient of the weighted loss.
+    """
     weights = dict.fromkeys(LOSS_IDS[1:], 1.0)
     result = []
     for gradient in gradients:
         peak = np.max(np.abs(_flat(gradient[LOSS_IDS[0]])))
         for i in LOSS_IDS[1:]:
-            estimate = peak / np.mean(np.abs(_flat(gradient[i])))
+            estimate = peak / np.mean(np.abs(weights[i] * _flat(gradient[i])))
             weights[i] = (1 - alpha) * weights[i] + alpha * estimate
         result.append(
             {
@@ -79,18 +82,11 @@ def _reference(gradients: list[dict[str, Params]], alpha: float) -> list[dict[st
     return result
 
 
-@pytest.mark.parametrize("alpha", [0.9, 0.1])
+@pytest.mark.parametrize("alpha", [0.1, 0.9])
 def test_matches_the_algorithm(alpha: float) -> None:
     gradients = _gradients()
     tx = GradientStatisticsAnnealing[Params](SGD(LR), alpha=alpha)
     chex.assert_trees_all_close(_run(tx, gradients), _reference(gradients, alpha), rtol=1e-5)
-
-
-def test_rescaling_a_weighted_loss_has_no_effect_when_alpha_is_one() -> None:
-    gradients = _gradients()
-    rescaled = [{**g, "initial": tree.map(lambda x: 1e3 * x, g["initial"])} for g in gradients]
-    tx = GradientStatisticsAnnealing[Params](SGD(LR), alpha=1.0)
-    chex.assert_trees_all_close(_run(tx, gradients), _run(tx, rescaled), rtol=1e-5)
 
 
 def test_single_loss_is_the_inner_transformation() -> None:
