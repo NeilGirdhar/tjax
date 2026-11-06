@@ -683,6 +683,7 @@ class Novograd[Weights: PyTree](OptaxWrapper[Weights]):
     b2: RealNumeric = 0.25
     eps: RealNumeric = 1e-6
     eps_root: RealNumeric = 0.0
+    # optax crashes on a schedule here: https://github.com/google-deepmind/optax/issues/1857
     weight_decay: ScalarOrSchedule = 0.0
 
     @override
@@ -747,6 +748,7 @@ class OptimisticGradientDescent[Weights: PyTree](OptaxWrapper[Weights]):
     """
 
     learning_rate: ScalarOrSchedule
+    # optax crashes on a schedule for these: https://github.com/google-deepmind/optax/issues/1857
     alpha: ScalarOrSchedule = 1.0
     beta: ScalarOrSchedule = 1.0
 
