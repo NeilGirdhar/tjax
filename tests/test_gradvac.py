@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import dataclasses
+import copy
 
 import chex
 import jax
@@ -120,8 +120,8 @@ def test_adjustment_reaches_the_target_similarity(target: float) -> None:
     state = tx.init(params, tuple(gradient))
     # Only the first gradient has a target that it falls short of.
     similarities = {"w": jnp.array([[0.0, target], [-1.0, 0.0]])}
-    statistics = dataclasses.replace(state.statistics, similarities=similarities)
-    state = dataclasses.replace(state, statistics=statistics)
+    statistics = copy.replace(state.statistics, similarities=similarities)
+    state = copy.replace(state, statistics=statistics)
     updates, _ = tx.update(gradient, state, params)
     adjusted = -updates["w"] / LR - second
     cosine = jnp.vecdot(adjusted, second) / (
@@ -184,8 +184,8 @@ def test_extreme_targets_stay_finite() -> None:
     tx = GradVac[Params](SGD(LR), jr.key(0))
     state = tx.init(params, LOSS_IDS)
     similarities = tree.map(jnp.ones_like, state.statistics.similarities)
-    statistics = dataclasses.replace(state.statistics, similarities=similarities)
-    updates, _ = tx.update(gradient, dataclasses.replace(state, statistics=statistics), params)
+    statistics = copy.replace(state.statistics, similarities=similarities)
+    updates, _ = tx.update(gradient, copy.replace(state, statistics=statistics), params)
     chex.assert_tree_all_finite(updates)
 
 

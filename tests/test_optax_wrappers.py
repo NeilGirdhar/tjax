@@ -8,6 +8,7 @@ optax combinator, and ``test_combinators.py`` compares their updates.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import inspect
 import re
@@ -343,7 +344,7 @@ def test_static_options_are_found() -> None:
 
 @pytest.mark.parametrize(("cls", "path", "name", "value"), STATIC_CASES)
 def test_static_option_matches_optax(cls: Wrapper, path: str, name: str, value: object) -> None:
-    tx = dataclasses.replace(_construct(cls, optional=False), **{name: value})
+    tx = copy.replace(_construct(cls, optional=False), **{name: value})
     chex.assert_trees_all_close(
         _run_tjax(tx), _run_optax(cls.__name__, _to_optax(tx, path)), rtol=1e-5, atol=1e-6
     )
