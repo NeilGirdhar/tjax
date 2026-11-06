@@ -73,7 +73,7 @@ class GradientTransformation[State: GradientState, Weights: PyTree]:
         raise NotImplementedError
 
     def update(
-        self, gradient: Weights, state: State, parameters: Weights | None
+        self, gradient: Weights, state: State, parameters: Weights | None = None
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 
@@ -106,7 +106,7 @@ class HvpGradientTransformation[State: GradientState, Weights: PyTree](
 
     @override
     def update(
-        self, gradient: Weights, state: State, parameters: Weights | None
+        self, gradient: Weights, state: State, parameters: Weights | None = None
     ) -> tuple[Weights, State]:
         """Transform the weight gradient and update the gradient state.
 

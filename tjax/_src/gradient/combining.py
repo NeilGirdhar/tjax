@@ -62,7 +62,7 @@ class ChainedGradientTransformation[Weights: PyTree](
         self,
         gradient: Weights,
         state: ChainedGradientState,
-        parameters: Weights | None,
+        parameters: Weights | None = None,
         **extra_args: object,
     ) -> tuple[Weights, ChainedGradientState]:
         """Transform the weight gradient and update the gradient state.

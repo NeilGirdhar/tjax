@@ -204,3 +204,9 @@ def test_chain_forwards_extra_args(transforms: list[GradientTransformation[Any, 
     for _ in range(10):
         params, state = step(tx, params, state)
     assert _loss(params) < CONVERGED_LOSS
+
+
+def test_chain_update_without_parameters() -> None:
+    tx = ChainedGradientTransformation[Params]([Scale[Params](2.0)])
+    updates, _ = tx.update(_gradient(), tx.init(_params()))
+    chex.assert_trees_all_close(updates, tree.map(lambda x: 2.0 * x, _gradient()))
