@@ -60,7 +60,7 @@ class GradVac[Parameters: PyTree](GradientCombiner[GradVacStatistics, Parameters
         self, parameters: Parameters, loss_ids: tuple[str, ...]
     ) -> GradVacStatistics:
         n_losses = len(loss_ids)
-        similarities = tree.map(lambda _: jnp.zeros((n_losses, n_losses)), parameters)
+        similarities = tree.map(lambda x: jnp.zeros((n_losses, n_losses), x.dtype), parameters)
         return GradVacStatistics(self.key, similarities)
 
     def _combine_block(

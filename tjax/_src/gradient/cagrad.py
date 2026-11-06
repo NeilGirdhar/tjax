@@ -65,7 +65,10 @@ def conflict_averse_weights(gram: JaxRealArray, radius: JaxRealArray) -> JaxReal
         values = jax.vmap(lambda step: barrier_objective(weights + step * direction, barrier))(
             steps
         )
-        return weights + steps[jnp.nanargmin(values)] * direction, _BARRIER_DECAY * barrier
+        candidate = weights + steps[jnp.nanargmin(values)] * direction
+        # Parallel gradients can make the Newton system singular, in which case keep the weights.
+        new_weights = jnp.where(jnp.all(jnp.isfinite(candidate)), candidate, weights)
+        return new_weights, _BARRIER_DECAY * barrier
 
     initial = (mean_weights, jnp.ones((), gram.dtype))
     return jax.lax.fori_loop(0, _NEWTON_STEPS, newton_step, initial)[0]

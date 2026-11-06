@@ -203,3 +203,13 @@ def test_beta_does_not_recompile() -> None:
     step(GradVac[Params](SGD(LR), jr.key(0), beta=0.1))
     step(GradVac[Params](SGD(LR), jr.key(1), beta=0.2))
     assert traces == 1
+
+
+def test_statistics_follow_the_parameter_dtype() -> None:
+    params = {"w": jnp.zeros(3, jnp.float32)}
+    gradient = {i: {"w": jnp.ones(3, jnp.float32)} for i in ("first", "second")}
+    tx = GradVac[Params](SGD(LR), jr.key(0))
+    state = tx.init(params, tuple(gradient))
+    updates, new_state = tx.update(gradient, state, params)
+    assert updates["w"].dtype == jnp.float32
+    assert new_state.statistics.similarities["w"].dtype == jnp.float32

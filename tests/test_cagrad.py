@@ -166,3 +166,14 @@ def test_c_does_not_recompile() -> None:
     step(CAGrad[Params](SGD(LR), c=0.2))
     step(CAGrad[Params](SGD(LR), c=0.8))
     assert traces == 1
+
+
+@pytest.mark.parametrize("scale", [1e-6, 1e-3, 1.0, 1e3])
+@pytest.mark.parametrize("factor", [1.0, 2.0, -1.0])
+def test_parallel_gradients_stay_finite_in_single_precision(scale: float, factor: float) -> None:
+    base = jr.normal(jr.key(0), (5,), jnp.float32)
+    gradient = {"first": {"w": scale * base}, "second": {"w": factor * scale * base}}
+    params = {"w": jnp.zeros(5, jnp.float32)}
+    tx = CAGrad[Params](SGD(LR))
+    updates, _ = tx.update(gradient, tx.init(params, tuple(gradient)), params)
+    chex.assert_tree_all_finite(updates)

@@ -132,3 +132,13 @@ def test_update_rejects_mismatched_losses() -> None:
     state = tx.init(_params(), LOSS_IDS)
     with pytest.raises(ValueError, match="Expected gradients"):
         tx.update({"residual": _params()}, state, _params())
+
+
+def test_weights_follow_the_parameter_dtype() -> None:
+    params = {"w": jnp.zeros(3, jnp.float32)}
+    gradient = {i: {"w": jnp.ones(3, jnp.float32)} for i in ("residual", "boundary")}
+    tx = GradientStatisticsAnnealing[Params](SGD(LR))
+    state = tx.init(params, tuple(gradient))
+    updates, new_state = tx.update(gradient, state, params)
+    assert updates["w"].dtype == jnp.float32
+    assert new_state.statistics.dtype == jnp.float32

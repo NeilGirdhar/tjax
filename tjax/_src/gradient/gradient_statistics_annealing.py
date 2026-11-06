@@ -40,7 +40,7 @@ class GradientStatisticsAnnealing[Parameters: PyTree](GradientCombiner[JaxRealAr
 
     @override
     def init_statistics(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> JaxRealArray:
-        return jnp.ones(len(loss_ids) - 1)
+        return jnp.ones(len(loss_ids) - 1, ravel_pytree(parameters)[0].dtype)
 
     @override
     def combine(
