@@ -4,7 +4,7 @@ requires = [ "uv-build>=0.12.23,<0.13" ]
 
 [project]
 name = "tjax"
-version = "2.1.0"
+version = "2.2.0"
 description = "Tools for JAX."
 readme = "README.md"
 keywords = [

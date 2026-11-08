@@ -3,6 +3,14 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.2.0 - 2026-11-08
+
+- Moved the loss IDs of multi-loss transformations from `init` and their states to the
+  transformations, as the keyword-only field `loss_ids`.
+- Added `AveragedGradients.create_from`, which takes the loss IDs from the wrapped transformation.
+- `GradientCombiner.init_statistics` no longer takes the loss IDs.
+- Fixed `AveragedGradients` losing the order of its loss IDs under JIT.
+
 ## Unreleased
 
 - Moved the loss IDs of multi-loss transformations from `init` and their states to the
