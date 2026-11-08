@@ -11,13 +11,6 @@ Each section covers changes since the previous release.
 - `GradientCombiner.init_statistics` no longer takes the loss IDs.
 - Fixed `AveragedGradients` losing the order of its loss IDs under JIT.
 
-## Unreleased
-
-- Moved the loss IDs of multi-loss transformations from `init` and their states to the
-  transformations, as the keyword-only field `loss_ids`.
-- Added `AveragedGradients.create_from`, which takes the loss IDs from the wrapped transformation.
-- `GradientCombiner.init_statistics` no longer takes the loss IDs.
-
 ## 2.1.0 - 2026-11-06
 
 - Added multi-loss gradient transformations:
