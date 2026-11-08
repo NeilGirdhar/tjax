@@ -39,7 +39,7 @@ The others balance several losses, and receive each loss's gradient separately:
 - `GradVac` steers each pair of gradients toward the similarity they usually have.
 
 All but `MTAdam` decide only how to combine gradients, so they take an optimizer of your choice,
-such as `tg.PCGrad(tg.Adam(1e-3), key)`.
+such as `tg.PCGrad(tg.Adam(1e-3), key, loss_ids=("fit", "penalty"))`.
 
 The
 [multi-loss benchmark](https://github.com/NeilGirdhar/tjax/blob/main/docs/multi-loss-benchmark.md)
@@ -47,8 +47,9 @@ compares these on the Helmholtz problem.
 
 ## Using a multi-loss transformation
 
-A multi-loss transformation differs from a single-gradient one in two ways. `init` also takes the
-loss IDs, and `update` takes a mapping from each loss ID to that loss's gradient:
+A multi-loss transformation differs from a single-gradient one in two ways. It is built with the
+IDs of its losses, as the keyword argument `loss_ids`, and `update` takes a mapping from each loss
+ID to that loss's gradient:
 
 ```python
 import jax
@@ -72,8 +73,8 @@ def step(transform, params, state):
     return optax.apply_updates(params, updates), state
 
 
-transform = tg.PCGrad(tg.Adam(1e-2), jr.key(0))
-state = transform.init(params, tuple(losses))
+transform = tg.PCGrad(tg.Adam(1e-2), jr.key(0), loss_ids=tuple(losses))
+state = transform.init(params)
 for _ in range(100):
     params, state = step(transform, params, state)
 ```
@@ -86,10 +87,12 @@ loss as their reference. Pass gradients with respect to the parameters that the 
 
 A loss that hasn't arrived has a zero gradient, which some methods can't work with, and no method
 can compare losses that never coincide. `AveragedGradients` wraps a multi-loss transformation and
-gives it a decaying average of each loss's gradient, so that later arrivals meet earlier ones:
+gives it a decaying average of each loss's gradient, so that later arrivals meet earlier ones.
+`create_from` takes the loss IDs from the wrapped transformation:
 
 ```python
-transform = tg.AveragedGradients(tg.PCGrad(tg.SGD(1e-3), key), decay=0.95)
+inner = tg.PCGrad(tg.SGD(1e-3), key, loss_ids=("fit", "penalty"))
+transform = tg.AveragedGradients.create_from(inner, decay=0.95)
 ```
 
 The decay should keep an arrival present for longer than the slowest loss's gap between arrivals.

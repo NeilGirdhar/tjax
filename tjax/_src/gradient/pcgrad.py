@@ -33,12 +33,13 @@ class PCGrad[Parameters: PyTree](GradientCombiner[KeyArray, Parameters]):
     Args:
         inner: The transformation applied to the combined gradient.
         key: The key for choosing the order of the projections.
+        loss_ids: The distinct IDs of the losses.
     """
 
     key: KeyArray
 
     @override
-    def init_statistics(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> KeyArray:
+    def init_statistics(self, parameters: Parameters) -> KeyArray:
         return self.key
 
     @override

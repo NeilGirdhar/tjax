@@ -21,8 +21,8 @@ class GradientStatisticsAnnealing[Parameters: PyTree](GradientCombiner[JaxRealAr
 
     When one loss's gradient dwarfs the others, as with a physics-informed network's residual and
     its boundary conditions, the others barely train.  This method keeps a running weight for each
-    loss, and sums the weighted gradients.  The first loss ID names the reference loss, whose weight
-    stays one.  The statistics are the other losses' weights.
+    loss, and sums the weighted gradients.  The first of ``loss_ids`` names the reference loss,
+    whose weight stays one.  The statistics are the other losses' weights.
 
     References:
         Wang et al., 2020,
@@ -34,13 +34,14 @@ class GradientStatisticsAnnealing[Parameters: PyTree](GradientCombiner[JaxRealAr
         alpha: The weight of each new estimate in the running weights.  The default matches the
             authors' code.  Equation 41 of the paper instead gives the new estimate a weight of 0.9,
             which was less reliable on the paper's Helmholtz benchmark.
+        loss_ids: The distinct IDs of the losses, with the reference loss first.
     """
 
     alpha: RealNumeric = 0.1
 
     @override
-    def init_statistics(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> JaxRealArray:
-        return jnp.ones(len(loss_ids) - 1, ravel_pytree(parameters)[0].dtype)
+    def init_statistics(self, parameters: Parameters) -> JaxRealArray:
+        return jnp.ones(len(self.loss_ids) - 1, ravel_pytree(parameters)[0].dtype)
 
     @override
     def combine(

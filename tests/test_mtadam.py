@@ -48,16 +48,14 @@ def _gradients(loss_ids: tuple[str, ...] = LOSS_IDS) -> list[dict[str, Params]]:
     return [one_step(step) for step in range(STEPS)]
 
 
-def _run(
-    tx: MTAdam[Params], gradients: list[dict[str, Params]], loss_ids: tuple[str, ...] = LOSS_IDS
-) -> list[Params]:
+def _run(tx: MTAdam[Params], gradients: list[dict[str, Params]]) -> list[Params]:
     @jax.jit
     def step(
         tx: MTAdam[Params], gradient: Mapping[str, Params], state: MTAdamState[Params]
     ) -> tuple[Params, MTAdamState[Params]]:
         return tx.update(gradient, state, _params())
 
-    state = tx.init(_params(), loss_ids)
+    state = tx.init(_params())
     all_updates = []
     for gradient in gradients:
         updates, state = step(tx, gradient, state)
@@ -107,7 +105,9 @@ def _reference(
 def test_matches_reference_implementation() -> None:
     gradients = _gradients()
     chex.assert_trees_all_close(
-        _run(MTAdam[Params](LR), gradients), _reference(gradients, LOSS_IDS), rtol=1e-5
+        _run(MTAdam[Params](LR, loss_ids=LOSS_IDS), gradients),
+        _reference(gradients, LOSS_IDS),
+        rtol=1e-5,
     )
 
 
@@ -115,7 +115,7 @@ def test_zero_gradients_match_reference_implementation() -> None:
     gradients = _gradients()
     for gradient in gradients[:3]:
         gradient["anchor"] = tree.map(jnp.zeros_like, gradient["anchor"])
-    updates = _run(MTAdam[Params](LR), gradients)
+    updates = _run(MTAdam[Params](LR, loss_ids=LOSS_IDS), gradients)
     chex.assert_tree_all_finite(updates)
     chex.assert_trees_all_close(updates, _reference(gradients, LOSS_IDS), rtol=1e-5)
 
@@ -129,37 +129,35 @@ def test_single_loss_is_adam() -> None:
         updates, state = tx.update(gradient["anchor"], state, _params())
         expected.append(updates)
     chex.assert_trees_all_close(
-        _run(MTAdam[Params](LR), gradients, ("anchor",)), expected, rtol=1e-5
+        _run(MTAdam[Params](LR, loss_ids=("anchor",)), gradients), expected, rtol=1e-5
     )
 
 
 def test_rescaling_a_loss_has_no_effect() -> None:
     gradients = _gradients()
     rescaled = [{**g, "large": tree.map(lambda x: 1234.5 * x, g["large"])} for g in gradients]
-    tx = MTAdam[Params](LR)
+    tx = MTAdam[Params](LR, loss_ids=LOSS_IDS)
     chex.assert_trees_all_close(_run(tx, gradients), _run(tx, rescaled), rtol=1e-5)
 
 
 def test_mapping_order_has_no_effect() -> None:
     gradients = _gradients()
     reordered = [dict(reversed(g.items())) for g in gradients]
-    tx = MTAdam[Params](LR)
+    tx = MTAdam[Params](LR, loss_ids=LOSS_IDS)
     chex.assert_trees_all_close(_run(tx, gradients), _run(tx, reordered))
 
 
 def test_anchor_is_the_first_loss_id() -> None:
     gradients = _gradients()
-    tx = MTAdam[Params](LR)
     other_anchor = ("large", "anchor", "small")
-    chex.assert_trees_all_close(
-        _run(tx, gradients, other_anchor), _reference(gradients, other_anchor), rtol=1e-5
-    )
+    tx = MTAdam[Params](LR, loss_ids=other_anchor)
+    chex.assert_trees_all_close(_run(tx, gradients), _reference(gradients, other_anchor), rtol=1e-5)
 
 
 def test_schedule() -> None:
     gradients = _gradients()
-    scheduled = _run(MTAdam[Params](Schedule(lambda _: LR)), gradients)
-    chex.assert_trees_all_close(scheduled, _run(MTAdam[Params](LR), gradients))
+    scheduled = _run(MTAdam[Params](Schedule(lambda _: LR), loss_ids=LOSS_IDS), gradients)
+    chex.assert_trees_all_close(scheduled, _run(MTAdam[Params](LR, loss_ids=LOSS_IDS), gradients))
 
 
 def test_hyperparameters_do_not_recompile() -> None:
@@ -170,11 +168,11 @@ def test_hyperparameters_do_not_recompile() -> None:
     def step(tx: MTAdam[Params]) -> Params:
         nonlocal traces
         traces += 1
-        updates, _ = tx.update(gradient, tx.init(_params(), LOSS_IDS), _params())
+        updates, _ = tx.update(gradient, tx.init(_params()), _params())
         return updates
 
-    step(MTAdam[Params](1e-2, b3=0.9))
-    step(MTAdam[Params](1e-3, b3=0.8))
+    step(MTAdam[Params](1e-2, b3=0.9, loss_ids=LOSS_IDS))
+    step(MTAdam[Params](1e-3, b3=0.8, loss_ids=LOSS_IDS))
     assert traces == 1
 
 
@@ -182,8 +180,8 @@ def test_differentiates_with_respect_to_learning_rate() -> None:
     gradient = _gradients()[0]
 
     def total(learning_rate: JaxArray) -> JaxArray:
-        tx = MTAdam[Params](learning_rate)
-        updates, _ = tx.update(gradient, tx.init(_params(), LOSS_IDS), _params())
+        tx = MTAdam[Params](learning_rate, loss_ids=LOSS_IDS)
+        updates, _ = tx.update(gradient, tx.init(_params()), _params())
         return jnp.asarray(optax.tree.sum(updates))
 
     derivative = jax.grad(total)(jnp.asarray(LR))
@@ -193,24 +191,24 @@ def test_differentiates_with_respect_to_learning_rate() -> None:
 def test_update_is_additive() -> None:
     gradients = _gradients()
     params = _params()
-    tx = MTAdam[Params](LR)
-    updates, _ = tx.update(gradients[0], tx.init(params, LOSS_IDS), params)
+    tx = MTAdam[Params](LR, loss_ids=LOSS_IDS)
+    updates, _ = tx.update(gradients[0], tx.init(params), params)
     chex.assert_trees_all_equal_shapes(optax.apply_updates(params, updates), params)
 
 
 @pytest.mark.parametrize("loss_ids", [(), ("a", "a")], ids=["empty", "duplicate"])
 def test_init_rejects_bad_loss_ids(loss_ids: tuple[str, ...]) -> None:
     with pytest.raises(ValueError, match="nonempty and distinct"):
-        MTAdam[Params](LR).init(_params(), loss_ids)
+        MTAdam[Params](LR, loss_ids=loss_ids).init(_params())
 
 
 def test_update_rejects_mismatched_losses() -> None:
-    tx = MTAdam[Params](LR)
-    state = tx.init(_params(), LOSS_IDS)
+    tx = MTAdam[Params](LR, loss_ids=LOSS_IDS)
+    state = tx.init(_params())
     with pytest.raises(ValueError, match="Expected gradients"):
         tx.update({"anchor": _params()}, state, _params())
 
 
 def test_base_class_is_abstract() -> None:
     with pytest.raises(TypeError, match="abstract"):
-        MultiLossGradientTransformation()  # ty: ignore[call-non-callable]
+        MultiLossGradientTransformation(loss_ids=("a",))  # ty: ignore[call-non-callable]

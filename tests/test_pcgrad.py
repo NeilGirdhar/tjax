@@ -34,9 +34,9 @@ def _gradient(seed: int = 1, loss_ids: tuple[str, ...] = LOSS_IDS) -> dict[str, 
 def _combined(gradient: dict[str, Params], key: KeyArray) -> JaxArray:
     """Return the gradient that PCGrad passes to plain gradient descent, flattened."""
     params = tree.map(jnp.zeros_like, next(iter(gradient.values())))
-    tx = PCGrad[Params](SGD(LR), key)
+    tx = PCGrad[Params](SGD(LR), key, loss_ids=tuple(gradient))
     update = jax.jit(lambda tx, state: tx.update(gradient, state, params)[0])
-    flat, _ = ravel_pytree(update(tx, tx.init(params, tuple(gradient))))
+    flat, _ = ravel_pytree(update(tx, tx.init(params)))
     return -flat / LR
 
 
@@ -75,8 +75,8 @@ def test_two_conflicting_gradients() -> None:
         "second": {"w": second, "b": jnp.zeros(0)},
     }
     params = {"w": jnp.zeros(2), "b": jnp.zeros(0)}
-    tx = PCGrad[Params](SGD(LR), jr.key(0))
-    updates, _ = tx.update(gradient, tx.init(params, ("first", "second")), params)
+    tx = PCGrad[Params](SGD(LR), jr.key(0), loss_ids=("first", "second"))
+    updates, _ = tx.update(gradient, tx.init(params), params)
     # first - (first . second) / |second|^2 second = (0.5, 0.5), and second loses its first
     # component to become (0, 1).
     chex.assert_trees_all_close(-updates["w"], jnp.array([0.5, 1.5]))
@@ -103,8 +103,8 @@ def test_a_gradient_is_not_projected_onto_itself(seed: int) -> None:
 
 def test_key_advances() -> None:
     params = _params()
-    tx = PCGrad[Params](SGD(LR), jr.key(0))
-    state = tx.init(params, LOSS_IDS)
+    tx = PCGrad[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    state = tx.init(params)
     _, new_state = tx.update(_gradient(), state, params)
     assert not jnp.array_equal(jr.key_data(state.statistics), jr.key_data(new_state.statistics))
 
@@ -125,8 +125,8 @@ def test_single_loss_is_the_inner_transformation() -> None:
     params = _params()
     inner = Adam[Params](1e-2)
     expected, _ = inner.update(gradient, inner.init(params), params)
-    tx = PCGrad[Params](inner, jr.key(0))
-    updates, _ = tx.update({"first": gradient}, tx.init(params, ("first",)), params)
+    tx = PCGrad[Params](inner, jr.key(0), loss_ids=("first",))
+    updates, _ = tx.update({"first": gradient}, tx.init(params), params)
     chex.assert_trees_all_close(updates, expected)
 
 

@@ -37,7 +37,7 @@ def _gradient(seed: int = 1, loss_ids: tuple[str, ...] = LOSS_IDS) -> dict[str, 
 def _run(tx: GradVac[Params], gradients: list[dict[str, Params]]) -> list[Params]:
     params = tree.map(jnp.zeros_like, next(iter(gradients[0].values())))
     update = jax.jit(lambda tx, gradient, state: tx.update(gradient, state, params))
-    state = tx.init(params, tuple(gradients[0]))
+    state = tx.init(params)
     all_updates = []
     for gradient in gradients:
         updates, state = update(tx, gradient, state)
@@ -92,7 +92,7 @@ def test_matches_algorithm_over_several_steps(seed: int) -> None:
     gradients = [_gradient(seed * 100 + step) for step in range(STEPS)]
     key = jr.key(seed)
     chex.assert_trees_all_close(
-        _run(GradVac[Params](SGD(LR), key, beta=BETA), gradients),
+        _run(GradVac[Params](SGD(LR), key, beta=BETA, loss_ids=LOSS_IDS), gradients),
         _reference(gradients, key, BETA),
         rtol=1e-5,
         atol=1e-8,
@@ -103,10 +103,10 @@ def test_first_step_is_pcgrad_for_two_losses() -> None:
     # The targets start at zero, which is PCGrad's special case.  Two losses leave no order to vary.
     gradient = {"first": {"w": jnp.array([1.0, 0.0])}, "second": {"w": jnp.array([-1.0, 1.0])}}
     params = {"w": jnp.zeros(2)}
-    pcgrad = PCGrad[dict[str, JaxArray]](SGD(LR), jr.key(0))
-    expected, _ = pcgrad.update(gradient, pcgrad.init(params, tuple(gradient)), params)
-    tx = GradVac[Params](SGD(LR), jr.key(0))
-    updates, _ = tx.update(gradient, tx.init(params, tuple(gradient)), params)
+    pcgrad = PCGrad[dict[str, JaxArray]](SGD(LR), jr.key(0), loss_ids=tuple(gradient))
+    expected, _ = pcgrad.update(gradient, pcgrad.init(params), params)
+    tx = GradVac[Params](SGD(LR), jr.key(0), loss_ids=tuple(gradient))
+    updates, _ = tx.update(gradient, tx.init(params), params)
     chex.assert_trees_all_close(updates, expected)
 
 
@@ -116,8 +116,8 @@ def test_adjustment_reaches_the_target_similarity(target: float) -> None:
     second = jnp.array([-1.0, 1.0, 0.25])
     gradient = {"first": {"w": first}, "second": {"w": second}}
     params = {"w": jnp.zeros(3)}
-    tx = GradVac[Params](SGD(LR), jr.key(0))
-    state = tx.init(params, tuple(gradient))
+    tx = GradVac[Params](SGD(LR), jr.key(0), loss_ids=tuple(gradient))
+    state = tx.init(params)
     # Only the first gradient has a target that it falls short of.
     similarities = {"w": jnp.array([[0.0, target], [-1.0, 0.0]])}
     statistics = copy.replace(state.statistics, similarities=similarities)
@@ -133,7 +133,7 @@ def test_adjustment_reaches_the_target_similarity(target: float) -> None:
 def test_similar_gradients_are_left_alone() -> None:
     base = tree.map(jnp.ones_like, _params())
     gradient = {"first": base, "second": tree.map(lambda x: 2.0 * x, base)}
-    (updates,) = _run(GradVac[Params](SGD(LR), jr.key(0)), [gradient])
+    (updates,) = _run(GradVac[Params](SGD(LR), jr.key(0), loss_ids=tuple(gradient)), [gradient])
     chex.assert_trees_all_close(updates, tree.map(lambda x: 3.0 * x, base))
 
 
@@ -143,8 +143,8 @@ def test_similarities_track_each_block_and_pair_separately() -> None:
         "second": {"a": jnp.array([1.0, 0.0]), "b": jnp.array([0.0, 1.0])},
     }
     params = {"a": jnp.zeros(2), "b": jnp.zeros(2)}
-    tx = GradVac[Params](SGD(LR), jr.key(0), beta=0.5)
-    _, state = tx.update(gradient, tx.init(params, tuple(gradient)), params)
+    tx = GradVac[Params](SGD(LR), jr.key(0), beta=0.5, loss_ids=tuple(gradient))
+    _, state = tx.update(gradient, tx.init(params), params)
     chex.assert_trees_all_close(
         state.statistics.similarities["a"], jnp.array([[0.0, 0.5], [0.5, 0.0]])
     )
@@ -153,8 +153,8 @@ def test_similarities_track_each_block_and_pair_separately() -> None:
 
 def test_key_advances() -> None:
     params = _params()
-    tx = GradVac[Params](SGD(LR), jr.key(0))
-    state = tx.init(params, LOSS_IDS)
+    tx = GradVac[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    state = tx.init(params)
     _, new_state = tx.update(_gradient(), state, params)
     assert not jnp.array_equal(
         jr.key_data(state.statistics.key), jr.key_data(new_state.statistics.key)
@@ -166,8 +166,8 @@ def test_single_loss_is_the_inner_transformation() -> None:
     params = _params()
     inner = Adam[Params](1e-2)
     expected, _ = inner.update(gradient, inner.init(params), params)
-    tx = GradVac[Params](inner, jr.key(0))
-    updates, _ = tx.update({"first": gradient}, tx.init(params, ("first",)), params)
+    tx = GradVac[Params](inner, jr.key(0), loss_ids=("first",))
+    updates, _ = tx.update({"first": gradient}, tx.init(params), params)
     chex.assert_trees_all_close(updates, expected)
 
 
@@ -175,14 +175,16 @@ def test_zero_gradient_stays_finite() -> None:
     gradients = [_gradient(step) for step in range(3)]
     for gradient in gradients:
         gradient["third"] = tree.map(jnp.zeros_like, gradient["third"])
-    chex.assert_tree_all_finite(_run(GradVac[Params](SGD(LR), jr.key(0)), gradients))
+    chex.assert_tree_all_finite(
+        _run(GradVac[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS), gradients)
+    )
 
 
 def test_extreme_targets_stay_finite() -> None:
     gradient = _gradient()
     params = _params()
-    tx = GradVac[Params](SGD(LR), jr.key(0))
-    state = tx.init(params, LOSS_IDS)
+    tx = GradVac[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    state = tx.init(params)
     similarities = tree.map(jnp.ones_like, state.statistics.similarities)
     statistics = copy.replace(state.statistics, similarities=similarities)
     updates, _ = tx.update(gradient, copy.replace(state, statistics=statistics), params)
@@ -198,18 +200,18 @@ def test_beta_does_not_recompile() -> None:
     def step(tx: GradVac[Params]) -> Params:
         nonlocal traces
         traces += 1
-        return tx.update(gradient, tx.init(params, LOSS_IDS), params)[0]
+        return tx.update(gradient, tx.init(params), params)[0]
 
-    step(GradVac[Params](SGD(LR), jr.key(0), beta=0.1))
-    step(GradVac[Params](SGD(LR), jr.key(1), beta=0.2))
+    step(GradVac[Params](SGD(LR), jr.key(0), beta=0.1, loss_ids=LOSS_IDS))
+    step(GradVac[Params](SGD(LR), jr.key(1), beta=0.2, loss_ids=LOSS_IDS))
     assert traces == 1
 
 
 def test_statistics_follow_the_parameter_dtype() -> None:
     params = {"w": jnp.zeros(3, jnp.float32)}
     gradient = {i: {"w": jnp.ones(3, jnp.float32)} for i in ("first", "second")}
-    tx = GradVac[Params](SGD(LR), jr.key(0))
-    state = tx.init(params, tuple(gradient))
+    tx = GradVac[Params](SGD(LR), jr.key(0), loss_ids=tuple(gradient))
+    state = tx.init(params)
     updates, new_state = tx.update(gradient, state, params)
     assert updates["w"].dtype == jnp.float32
     assert new_state.statistics.similarities["w"].dtype == jnp.float32

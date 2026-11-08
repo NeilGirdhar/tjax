@@ -50,16 +50,15 @@ class GradVac[Parameters: PyTree](GradientCombiner[GradVacStatistics, Parameters
         inner: The transformation applied to the combined gradient.
         key: The key for choosing the order of the adjustments.
         beta: The weight of each new similarity in the running similarities.
+        loss_ids: The distinct IDs of the losses.
     """
 
     key: KeyArray
     beta: RealNumeric = 1e-2
 
     @override
-    def init_statistics(
-        self, parameters: Parameters, loss_ids: tuple[str, ...]
-    ) -> GradVacStatistics:
-        n_losses = len(loss_ids)
+    def init_statistics(self, parameters: Parameters) -> GradVacStatistics:
+        n_losses = len(self.loss_ids)
         similarities = tree.map(lambda x: jnp.zeros((n_losses, n_losses), x.dtype), parameters)
         return GradVacStatistics(self.key, similarities)
 

@@ -52,8 +52,10 @@ def _reference(gradients: list[dict[str, Params]], decay: float) -> list[dict[st
 @pytest.mark.parametrize("decay", [0.0, 0.5, 0.9])
 def test_inner_transformation_receives_the_averages(decay: float) -> None:
     gradients = _alternating(6)
-    tx = AveragedGradients[Params](PCGrad(SGD(LR), jr.key(0)), decay=decay)
-    state = tx.init(PARAMS, LOSS_IDS)
+    tx = AveragedGradients[Params].create_from(
+        PCGrad(SGD(LR), jr.key(0), loss_ids=LOSS_IDS), decay=decay
+    )
+    state = tx.init(PARAMS)
     for gradient, expected in zip(gradients, _reference(gradients, decay), strict=True):
         _, state = tx.update(gradient, state, PARAMS)
         for loss_id in LOSS_IDS:
@@ -62,23 +64,23 @@ def test_inner_transformation_receives_the_averages(decay: float) -> None:
 
 def test_zero_decay_is_the_inner_transformation() -> None:
     gradient = {"a": {"w": A}, "b": {"w": B}}
-    inner = PCGrad[Params](SGD(LR), jr.key(0))
-    expected, _ = inner.update(gradient, inner.init(PARAMS, LOSS_IDS), PARAMS)
-    tx = AveragedGradients[Params](inner, decay=0.0)
-    updates, _ = tx.update(gradient, tx.init(PARAMS, LOSS_IDS), PARAMS)
+    inner = PCGrad[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    expected, _ = inner.update(gradient, inner.init(PARAMS), PARAMS)
+    tx = AveragedGradients[Params].create_from(inner, decay=0.0)
+    updates, _ = tx.update(gradient, tx.init(PARAMS), PARAMS)
     chex.assert_trees_all_close(updates, expected)
 
 
 def test_average_is_zero_until_a_loss_arrives() -> None:
-    tx = AveragedGradients[Params](PCGrad(SGD(LR), jr.key(0)))
-    _, state = tx.update(_alternating(1)[0], tx.init(PARAMS, LOSS_IDS), PARAMS)
+    tx = AveragedGradients[Params].create_from(PCGrad(SGD(LR), jr.key(0), loss_ids=LOSS_IDS))
+    _, state = tx.update(_alternating(1)[0], tx.init(PARAMS), PARAMS)
     chex.assert_trees_all_close(state.averages["b"]["w"], ZERO)
     assert jnp.any(state.averages["a"]["w"] != 0.0)
 
 
 def test_imtlg_updates_once_every_loss_has_arrived() -> None:
-    tx = AveragedGradients[Params](IMTLG(SGD(LR)))
-    state = tx.init(PARAMS, LOSS_IDS)
+    tx = AveragedGradients[Params].create_from(IMTLG(SGD(LR), loss_ids=LOSS_IDS))
+    state = tx.init(PARAMS)
     first, *rest = _alternating(4)
     updates, state = tx.update(first, state, PARAMS)
     chex.assert_trees_all_close(updates["w"], ZERO, atol=1e-9)
@@ -89,8 +91,10 @@ def test_imtlg_updates_once_every_loss_has_arrived() -> None:
 
 def test_gradvac_learns_similarity_from_losses_that_never_coincide() -> None:
     cosine = jnp.vecdot(A, B) / (jnp.linalg.vector_norm(A) * jnp.linalg.vector_norm(B))
-    tx = AveragedGradients[Params](GradVac(SGD(LR), jr.key(0), beta=0.1), decay=0.9)
-    state = tx.init(PARAMS, LOSS_IDS)
+    tx = AveragedGradients[Params].create_from(
+        GradVac(SGD(LR), jr.key(0), beta=0.1, loss_ids=LOSS_IDS), decay=0.9
+    )
+    state = tx.init(PARAMS)
     update = jax.jit(lambda tx, gradient, state: tx.update(gradient, state, PARAMS))
     for gradient in _alternating(400):
         _, state = update(tx, gradient, state)
@@ -99,8 +103,8 @@ def test_gradvac_learns_similarity_from_losses_that_never_coincide() -> None:
 
 
 def test_works_with_mtadam() -> None:
-    tx = AveragedGradients[Params](MTAdam(1e-2))
-    state = tx.init(PARAMS, LOSS_IDS)
+    tx = AveragedGradients[Params].create_from(MTAdam(1e-2, loss_ids=LOSS_IDS))
+    state = tx.init(PARAMS)
     for gradient in _alternating(4):
         updates, state = tx.update(gradient, state, PARAMS)
     chex.assert_tree_all_finite(updates)
@@ -114,16 +118,24 @@ def test_decay_does_not_recompile() -> None:
     def step(tx: AveragedGradients[Params]) -> Params:
         nonlocal traces
         traces += 1
-        return tx.update(gradient, tx.init(PARAMS, LOSS_IDS), PARAMS)[0]
+        return tx.update(gradient, tx.init(PARAMS), PARAMS)[0]
 
-    step(AveragedGradients[Params](PCGrad(Adam(1e-2), jr.key(0)), decay=0.9))
-    step(AveragedGradients[Params](PCGrad(Adam(1e-2), jr.key(0)), decay=0.5))
+    step(
+        AveragedGradients[Params].create_from(
+            PCGrad(Adam(1e-2), jr.key(0), loss_ids=LOSS_IDS), decay=0.9
+        )
+    )
+    step(
+        AveragedGradients[Params].create_from(
+            PCGrad(Adam(1e-2), jr.key(0), loss_ids=LOSS_IDS), decay=0.5
+        )
+    )
     assert traces == 1
 
 
 def test_update_rejects_mismatched_losses() -> None:
-    tx = AveragedGradients[Params](PCGrad(SGD(LR), jr.key(0)))
-    state = tx.init(PARAMS, LOSS_IDS)
+    tx = AveragedGradients[Params].create_from(PCGrad(SGD(LR), jr.key(0), loss_ids=LOSS_IDS))
+    state = tx.init(PARAMS)
     with pytest.raises(ValueError, match="Expected gradients"):
         tx.update({"a": {"w": A}}, state, PARAMS)
 
@@ -131,6 +143,20 @@ def test_update_rejects_mismatched_losses() -> None:
 def test_tree_structure_is_preserved() -> None:
     params = {"w": jnp.zeros((2, 2)), "b": jnp.zeros(2)}
     gradient = tree.map(jnp.ones_like, params)
-    tx = AveragedGradients[dict[str, JaxArray]](PCGrad(SGD(LR), jr.key(0)))
-    updates, _ = tx.update({"a": gradient, "b": gradient}, tx.init(params, LOSS_IDS), params)
+    tx = AveragedGradients[dict[str, JaxArray]].create_from(
+        PCGrad(SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    )
+    updates, _ = tx.update({"a": gradient, "b": gradient}, tx.init(params), params)
     assert tree.structure(updates) == tree.structure(params)
+
+
+def test_create_from_takes_the_inner_loss_ids() -> None:
+    tx = AveragedGradients[Params].create_from(PCGrad(SGD(LR), jr.key(0), loss_ids=LOSS_IDS))
+    assert tx.loss_ids == LOSS_IDS
+
+
+def test_init_rejects_loss_ids_that_differ_from_the_inner_ones() -> None:
+    inner = PCGrad[Params](SGD(LR), jr.key(0), loss_ids=LOSS_IDS)
+    tx = AveragedGradients[Params](inner, loss_ids=tuple(reversed(LOSS_IDS)))
+    with pytest.raises(ValueError, match="differ from the inner"):
+        tx.init(PARAMS)

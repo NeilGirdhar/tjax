@@ -31,6 +31,7 @@ class IMTLG[Parameters: PyTree](GradientCombiner[None, Parameters]):
 
     Args:
         inner: The transformation applied to the combined gradient.
+        loss_ids: The distinct IDs of the losses.
     """
 
     @override

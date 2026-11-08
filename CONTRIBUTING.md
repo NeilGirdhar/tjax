@@ -100,6 +100,10 @@ Subclass `GradientCombiner` if the method only decides how to combine gradients.
 `MultiLossGradientTransformation` directly if the method needs each loss's statistics up to the
 update, as `MTAdam` does.
 
+The base class holds the loss IDs. Validate them with `check_loss_ids` in `init`, not in
+`__post_init__`, since JAX reconstructs the transformation each time it unflattens it. Keep them out
+of the state.
+
 A method that uses randomness takes a required key, rather than defaulting to a fixed one.
 
 Test a new method against an independent oracle, such as a NumPy port of its paper's algorithm, and

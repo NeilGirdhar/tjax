@@ -41,11 +41,10 @@ def _gradients() -> list[dict[str, Params]]:
 def _run(
     tx: GradientStatisticsAnnealing[Params],
     gradients: list[dict[str, Params]],
-    loss_ids: tuple[str, ...] = LOSS_IDS,
 ) -> list[Params]:
     params = _params()
     update = jax.jit(lambda tx, g, s: tx.update(g, s, params))
-    state = tx.init(params, loss_ids)
+    state = tx.init(params)
     all_updates = []
     for gradient in gradients:
         updates, state = update(tx, gradient, state)
@@ -85,7 +84,7 @@ def _reference(gradients: list[dict[str, Params]], alpha: float) -> list[dict[st
 @pytest.mark.parametrize("alpha", [0.1, 0.9])
 def test_matches_the_algorithm(alpha: float) -> None:
     gradients = _gradients()
-    tx = GradientStatisticsAnnealing[Params](SGD(LR), alpha=alpha)
+    tx = GradientStatisticsAnnealing[Params](SGD(LR), alpha=alpha, loss_ids=LOSS_IDS)
     chex.assert_trees_all_close(_run(tx, gradients), _reference(gradients, alpha), rtol=1e-5)
 
 
@@ -97,16 +96,16 @@ def test_single_loss_is_the_inner_transformation() -> None:
     for gradient in gradients:
         updates, state = inner.update(gradient["residual"], state, _params())
         expected.append(updates)
-    tx = GradientStatisticsAnnealing[Params](inner)
-    chex.assert_trees_all_close(_run(tx, gradients, ("residual",)), expected)
+    tx = GradientStatisticsAnnealing[Params](inner, loss_ids=("residual",))
+    chex.assert_trees_all_close(_run(tx, gradients), expected)
 
 
 def test_zero_gradient_keeps_its_weight() -> None:
     gradient = _gradients()[0]
     gradient["boundary"] = tree.map(jnp.zeros_like, gradient["boundary"])
-    tx = GradientStatisticsAnnealing[Params](SGD(LR))
+    tx = GradientStatisticsAnnealing[Params](SGD(LR), loss_ids=LOSS_IDS)
     params = _params()
-    updates, state = tx.update(gradient, tx.init(params, LOSS_IDS), params)
+    updates, state = tx.update(gradient, tx.init(params), params)
     chex.assert_tree_all_finite(updates)
     assert float(state.statistics[0]) == 1.0
 
@@ -120,16 +119,16 @@ def test_hyperparameters_do_not_recompile() -> None:
     def step(tx: GradientStatisticsAnnealing[Params]) -> Params:
         nonlocal traces
         traces += 1
-        return tx.update(gradient, tx.init(params, LOSS_IDS), params)[0]
+        return tx.update(gradient, tx.init(params), params)[0]
 
-    step(GradientStatisticsAnnealing[Params](SGD(1e-2), alpha=0.9))
-    step(GradientStatisticsAnnealing[Params](SGD(1e-3), alpha=0.5))
+    step(GradientStatisticsAnnealing[Params](SGD(1e-2), alpha=0.9, loss_ids=LOSS_IDS))
+    step(GradientStatisticsAnnealing[Params](SGD(1e-3), alpha=0.5, loss_ids=LOSS_IDS))
     assert traces == 1
 
 
 def test_update_rejects_mismatched_losses() -> None:
-    tx = GradientStatisticsAnnealing[Params](SGD(LR))
-    state = tx.init(_params(), LOSS_IDS)
+    tx = GradientStatisticsAnnealing[Params](SGD(LR), loss_ids=LOSS_IDS)
+    state = tx.init(_params())
     with pytest.raises(ValueError, match="Expected gradients"):
         tx.update({"residual": _params()}, state, _params())
 
@@ -137,8 +136,8 @@ def test_update_rejects_mismatched_losses() -> None:
 def test_weights_follow_the_parameter_dtype() -> None:
     params = {"w": jnp.zeros(3, jnp.float32)}
     gradient = {i: {"w": jnp.ones(3, jnp.float32)} for i in ("residual", "boundary")}
-    tx = GradientStatisticsAnnealing[Params](SGD(LR))
-    state = tx.init(params, tuple(gradient))
+    tx = GradientStatisticsAnnealing[Params](SGD(LR), loss_ids=tuple(gradient))
+    state = tx.init(params)
     updates, new_state = tx.update(gradient, state, params)
     assert updates["w"].dtype == jnp.float32
     assert new_state.statistics.dtype == jnp.float32

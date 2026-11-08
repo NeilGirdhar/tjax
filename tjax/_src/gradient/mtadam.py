@@ -12,7 +12,7 @@ from jax import tree
 
 from tjax._src.annotations import JaxArray, JaxIntegralArray, PyTree, RealNumeric
 from tjax._src.math_tools import abs_square
-from tjax.dataclasses import dataclass, field
+from tjax.dataclasses import dataclass
 
 from .multi_loss import MultiLossGradientTransformation, check_gradients, check_loss_ids
 from .schedule import ScalarOrSchedule, Schedule
@@ -24,7 +24,6 @@ class MTAdamState[Parameters: PyTree](GradientState):
     """Gradient state for :class:`MTAdam`.
 
     Args:
-        loss_ids: The loss IDs, with the anchor loss first.
         count: The number of updates so far.
         first_moments: The running mean of each loss's normalized gradient.
         second_moments: The running mean of each loss's squared normalized gradient.
@@ -32,7 +31,6 @@ class MTAdamState[Parameters: PyTree](GradientState):
             the parameters.
     """
 
-    loss_ids: tuple[str, ...] = field(static=True)
     count: JaxIntegralArray
     first_moments: Mapping[str, Parameters]
     second_moments: Mapping[str, Parameters]
@@ -66,6 +64,7 @@ class MTAdam[Parameters: PyTree](
         eps: Regularization term for numerical stability.
         min_norm: The running norm below which a loss's gradient is left unscaled, and can't be
             the anchor.
+        loss_ids: The distinct IDs of the losses, with the anchor loss first.
     """
 
     learning_rate: ScalarOrSchedule
@@ -76,16 +75,15 @@ class MTAdam[Parameters: PyTree](
     min_norm: RealNumeric = 1e-10
 
     @override
-    def init(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> MTAdamState[Parameters]:
-        """Initialize state for the parameter pytree and its loss group.
+    def init(self, parameters: Parameters) -> MTAdamState[Parameters]:
+        """Initialize state for the parameter pytree.
 
         Args:
             parameters: The weights.
-            loss_ids: The distinct IDs of the losses, with the anchor loss first.
         """
+        loss_ids = self.loss_ids
         check_loss_ids(loss_ids)
         return MTAdamState[Parameters](
-            loss_ids,
             jnp.zeros((), jnp.int32),
             {loss_id: tree.map(jnp.zeros_like, parameters) for loss_id in loss_ids},
             {loss_id: tree.map(jnp.zeros_like, parameters) for loss_id in loss_ids},
@@ -114,11 +112,11 @@ class MTAdam[Parameters: PyTree](
         based on the largest second moment, so that the step is small when any loss is uncertain.
 
         Args:
-            gradients_by_loss: The gradient of each loss, keyed by the IDs given to ``init``.
+            gradients_by_loss: The gradient of each loss, keyed by ``loss_ids``.
             state: The gradient state.
             parameters: The weights.
         """
-        loss_ids = state.loss_ids
+        loss_ids = self.loss_ids
         check_gradients(gradients_by_loss, loss_ids)
 
         def running_norm(norm: JaxArray, gradient: JaxArray) -> JaxArray:
@@ -179,5 +177,5 @@ class MTAdam[Parameters: PyTree](
             tree.map(lambda *m: reduce(jnp.add, m), *first_moments.values()),
             tree.map(lambda *v: reduce(jnp.maximum, v), *second_moments.values()),
         )
-        new_state = MTAdamState[Parameters](loss_ids, count, first_moments, second_moments, norms)
+        new_state = MTAdamState[Parameters](count, first_moments, second_moments, norms)
         return updates, new_state

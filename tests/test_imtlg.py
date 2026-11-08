@@ -36,9 +36,9 @@ def _gradient(seed: int = 1) -> dict[str, Params]:
 def _combined(gradient: dict[str, Params], loss_ids: tuple[str, ...] = LOSS_IDS) -> JaxArray:
     """Return the gradient that IMTL-G passes to plain gradient descent, flattened."""
     params = _params()
-    tx = IMTLG[Params](SGD(LR))
+    tx = IMTLG[Params](SGD(LR), loss_ids=loss_ids)
     update = jax.jit(lambda tx, state: tx.update(gradient, state, params)[0])
-    flat, _ = ravel_pytree(update(tx, tx.init(params, loss_ids)))
+    flat, _ = ravel_pytree(update(tx, tx.init(params)))
     return -flat / LR
 
 
@@ -77,8 +77,8 @@ def test_single_loss_is_the_inner_transformation() -> None:
     params = _params()
     inner = Adam[Params](1e-2)
     expected, _ = inner.update(gradient["first"], inner.init(params), params)
-    tx = IMTLG[Params](inner)
-    updates, _ = tx.update({"first": gradient["first"]}, tx.init(params, ("first",)), params)
+    tx = IMTLG[Params](inner, loss_ids=("first",))
+    updates, _ = tx.update({"first": gradient["first"]}, tx.init(params), params)
     chex.assert_trees_all_close(updates, expected)
 
 

@@ -109,7 +109,7 @@ def train(seed: JaxArray, method: Method, steps: int) -> JaxArray:
         return (optax.apply_updates(parameters, updates), state), None
 
     keys = jr.split(jr.fold_in(jr.key(seed), 1), steps)
-    initial = (parameters, transform.init(parameters, LOSS_IDS))
+    initial = (parameters, transform.init(parameters))
     (parameters, _), _ = jax.lax.scan(step, initial, keys)
     return relative_error(parameters)
 
@@ -128,12 +128,14 @@ def main() -> None:
     schedule = tg.Schedule(optax.exponential_decay(1e-3, 1000, 0.9))
     adam = tg.Adam[Parameters](schedule)
     methods: dict[str, Method] = {
-        "GradientStatisticsAnnealing": lambda _: tg.GradientStatisticsAnnealing(adam),
-        "MTAdam": lambda _: tg.MTAdam(schedule),
-        "IMTLG": lambda _: tg.IMTLG(adam),
-        "PCGrad": lambda seed: tg.PCGrad(adam, jr.key(seed)),
-        "GradVac": lambda seed: tg.GradVac(adam, jr.key(seed)),
-        "CAGrad": lambda _: tg.CAGrad(adam),
+        "GradientStatisticsAnnealing": lambda _: tg.GradientStatisticsAnnealing(
+            adam, loss_ids=LOSS_IDS
+        ),
+        "MTAdam": lambda _: tg.MTAdam(schedule, loss_ids=LOSS_IDS),
+        "IMTLG": lambda _: tg.IMTLG(adam, loss_ids=LOSS_IDS),
+        "PCGrad": lambda seed: tg.PCGrad(adam, jr.key(seed), loss_ids=LOSS_IDS),
+        "GradVac": lambda seed: tg.GradVac(adam, jr.key(seed), loss_ids=LOSS_IDS),
+        "CAGrad": lambda _: tg.CAGrad(adam, loss_ids=LOSS_IDS),
     }
 
     start = time.time()

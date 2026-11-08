@@ -40,7 +40,7 @@ def _combined(gradient: dict[str, Params], tx: CAGrad[Params]) -> JaxArray:
     """Return the direction that CAGrad passes to plain gradient descent, flattened."""
     params = tree.map(jnp.zeros_like, next(iter(gradient.values())))
     update = jax.jit(lambda tx, state: tx.update(gradient, state, params)[0])
-    flat, _ = ravel_pytree(update(tx, tx.init(params, tuple(gradient))))
+    flat, _ = ravel_pytree(update(tx, tx.init(params)))
     return -flat / LR
 
 
@@ -79,7 +79,7 @@ def _reference(g: np.ndarray, c: float) -> np.ndarray:
 def test_matches_authors_code(seed: int, c: float) -> None:
     gradient = _gradient(seed)
     expected = _reference(_flat(gradient), c)
-    actual = _combined(gradient, CAGrad[Params](SGD(LR), c=c))
+    actual = _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, c=c))
     chex.assert_trees_all_close(actual, expected, rtol=1e-3, atol=1e-4)
 
 
@@ -111,7 +111,9 @@ def test_direction_stays_in_the_ball_around_the_average() -> None:
     g = _flat(gradient)
     c = 0.5
     average = g.mean(axis=0)
-    direction = np.asarray(_combined(gradient, CAGrad[Params](SGD(LR), c=c, rescale="none")))
+    direction = np.asarray(
+        _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, c=c, rescale="none"))
+    )
     chex.assert_trees_all_close(
         np.linalg.norm(direction - average), c * np.linalg.norm(average), rtol=1e-4
     )
@@ -121,13 +123,15 @@ def test_direction_stays_in_the_ball_around_the_average() -> None:
 def test_improves_the_worst_loss(seed: int) -> None:
     gradient = _gradient(seed)
     g = _flat(gradient)
-    direction = np.asarray(_combined(gradient, CAGrad[Params](SGD(LR), rescale="none")))
+    direction = np.asarray(
+        _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, rescale="none"))
+    )
     assert (g @ direction).min() >= (g @ g.mean(axis=0)).min()
 
 
 def test_zero_radius_is_the_average_gradient() -> None:
     gradient = _gradient()
-    direction = _combined(gradient, CAGrad[Params](SGD(LR), c=0.0))
+    direction = _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, c=0.0))
     chex.assert_trees_all_close(direction, _flat(gradient).mean(axis=0), rtol=1e-4, atol=1e-5)
 
 
@@ -136,20 +140,20 @@ def test_zero_radius_is_the_average_gradient() -> None:
 )
 def test_rescale(rescale: str, divisor: float) -> None:
     gradient = _gradient()
-    unscaled = _combined(gradient, CAGrad[Params](SGD(LR), rescale="none"))
-    scaled = _combined(gradient, CAGrad[Params](SGD(LR), rescale=rescale))  # ty: ignore[invalid-argument-type]
+    unscaled = _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, rescale="none"))
+    scaled = _combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, rescale=rescale))  # ty: ignore[invalid-argument-type]
     chex.assert_trees_all_close(scaled, unscaled / divisor)
 
 
 def test_zero_gradients_stay_finite() -> None:
     gradient = tree.map(jnp.zeros_like, _gradient())
-    chex.assert_tree_all_finite(_combined(gradient, CAGrad[Params](SGD(LR))))
+    chex.assert_tree_all_finite(_combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS)))
 
 
 def test_one_zero_gradient_stays_finite() -> None:
     gradient = _gradient()
     gradient["third"] = tree.map(jnp.zeros_like, gradient["third"])
-    chex.assert_tree_all_finite(_combined(gradient, CAGrad[Params](SGD(LR))))
+    chex.assert_tree_all_finite(_combined(gradient, CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS)))
 
 
 def test_c_does_not_recompile() -> None:
@@ -161,10 +165,10 @@ def test_c_does_not_recompile() -> None:
     def step(tx: CAGrad[Params]) -> Params:
         nonlocal traces
         traces += 1
-        return tx.update(gradient, tx.init(params, LOSS_IDS), params)[0]
+        return tx.update(gradient, tx.init(params), params)[0]
 
-    step(CAGrad[Params](SGD(LR), c=0.2))
-    step(CAGrad[Params](SGD(LR), c=0.8))
+    step(CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, c=0.2))
+    step(CAGrad[Params](SGD(LR), loss_ids=LOSS_IDS, c=0.8))
     assert traces == 1
 
 
@@ -174,6 +178,6 @@ def test_parallel_gradients_stay_finite_in_single_precision(scale: float, factor
     base = jr.normal(jr.key(0), (5,), jnp.float32)
     gradient = {"first": {"w": scale * base}, "second": {"w": factor * scale * base}}
     params = {"w": jnp.zeros(5, jnp.float32)}
-    tx = CAGrad[Params](SGD(LR))
-    updates, _ = tx.update(gradient, tx.init(params, tuple(gradient)), params)
+    tx = CAGrad[Params](SGD(LR), loss_ids=tuple(gradient))
+    updates, _ = tx.update(gradient, tx.init(params), params)
     chex.assert_tree_all_finite(updates)

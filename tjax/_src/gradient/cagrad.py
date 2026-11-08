@@ -94,6 +94,7 @@ class CAGrad[Parameters: PyTree](GradientCombiner[None, Parameters]):
         rescale: How to shrink the direction: ``"quadratic"`` divides it by ``1 + c ** 2``, as the
             authors' code does by default, ``"linear"`` divides it by ``1 + c``, and ``"none"``
             leaves it unchanged, as in the paper's algorithm.
+        loss_ids: The distinct IDs of the losses.
     """
 
     c: RealNumeric = 0.5

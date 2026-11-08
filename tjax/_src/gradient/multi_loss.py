@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
-from typing import Any, override
+from typing import Any, Self, override
 
 import jax.numpy as jnp
 from jax import tree
@@ -33,13 +33,22 @@ def check_gradients(gradients_by_loss: Mapping[str, Any], loss_ids: tuple[str, .
 class MultiLossGradientTransformation[State: GradientState, Parameters: PyTree](ABC):
     """Combine gradients from several losses into one additive parameter update.
 
-    One instance handles a group of losses on the same parameters. Its state can hold
+    One instance handles a fixed group of losses on the same parameters.  Its state can hold
     statistics for individual losses and for the group.
+
+    Args:
+        loss_ids: The distinct IDs of the losses, in the order that the transformation uses them.
     """
 
+    loss_ids: tuple[str, ...] = field(static=True, kw_only=True)
+
     @abstractmethod
-    def init(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> State:
-        """Initialize state for the parameter pytree and its loss group."""
+    def init(self, parameters: Parameters) -> State:
+        """Initialize state for the parameter pytree.
+
+        Implementations validate ``loss_ids`` with ``check_loss_ids`` here rather than at
+        construction, since JAX reconstructs the transformation each time it unflattens it.
+        """
         raise NotImplementedError
 
     @abstractmethod
@@ -51,8 +60,8 @@ class MultiLossGradientTransformation[State: GradientState, Parameters: PyTree](
     ) -> tuple[Parameters, State]:
         """Return the additive parameter update and the next transform state.
 
-        Each gradient has the same pytree structure as the parameters. The mapping
-        uses the loss IDs supplied at initialization.
+        The mapping has one gradient for each of ``loss_ids``, with the same pytree structure as
+        the parameters.
         """
         raise NotImplementedError
 
@@ -62,12 +71,10 @@ class CombinedGradientState[Statistics: PyTree](GradientState):
     """Gradient state for :class:`GradientCombiner`.
 
     Args:
-        loss_ids: The loss IDs, in the order that ``combine`` receives their gradients.
         inner_state: The state of the inner transformation.
         statistics: The statistics that the combiner keeps between steps.
     """
 
-    loss_ids: tuple[str, ...] = field(static=True)
     inner_state: PyTree
     statistics: Statistics
 
@@ -84,11 +91,13 @@ class GradientCombiner[Statistics: PyTree, Parameters: PyTree](
 
     Args:
         inner: The transformation applied to the combined gradient, such as ``Adam(1e-3)``.
+        loss_ids: The distinct IDs of the losses, in the order that :meth:`combine` receives their
+            gradients.
     """
 
     inner: GradientTransformation[Any, Parameters]
 
-    def init_statistics(self, parameters: Parameters, loss_ids: tuple[str, ...]) -> Statistics:
+    def init_statistics(self, parameters: Parameters) -> Statistics:
         """Return the statistics that :meth:`combine` keeps between steps.
 
         Subclasses without statistics can keep this default, which returns ``None``.
@@ -108,12 +117,10 @@ class GradientCombiner[Statistics: PyTree, Parameters: PyTree](
         raise NotImplementedError
 
     @override
-    def init(
-        self, parameters: Parameters, loss_ids: tuple[str, ...]
-    ) -> CombinedGradientState[Statistics]:
-        check_loss_ids(loss_ids)
+    def init(self, parameters: Parameters) -> CombinedGradientState[Statistics]:
+        check_loss_ids(self.loss_ids)
         return CombinedGradientState[Statistics](
-            loss_ids, self.inner.init(parameters), self.init_statistics(parameters, loss_ids)
+            self.inner.init(parameters), self.init_statistics(parameters)
         )
 
     @override
@@ -123,11 +130,11 @@ class GradientCombiner[Statistics: PyTree, Parameters: PyTree](
         state: CombinedGradientState[Statistics],
         parameters: Parameters,
     ) -> tuple[Parameters, CombinedGradientState[Statistics]]:
-        check_gradients(gradients_by_loss, state.loss_ids)
-        gradients = [gradients_by_loss[loss_id] for loss_id in state.loss_ids]
+        check_gradients(gradients_by_loss, self.loss_ids)
+        gradients = [gradients_by_loss[loss_id] for loss_id in self.loss_ids]
         gradient, statistics = self.combine(gradients, state.statistics)
         updates, inner_state = self.inner.update(gradient, state.inner_state, parameters)
-        return updates, CombinedGradientState[Statistics](state.loss_ids, inner_state, statistics)
+        return updates, CombinedGradientState[Statistics](inner_state, statistics)
 
 
 @dataclass
@@ -158,21 +165,32 @@ class AveragedGradients[Parameters: PyTree](
     longer than the gap between arrivals of the slowest loss.  ``MTAdam`` doesn't need this, since
     its first moments are already such averages.
 
+    Build it with :meth:`create_from`, which takes the loss IDs from the inner transformation.
+
     Args:
         inner: The transformation applied to the averages.
         decay: The fraction of each average that carries over to the next step.
+        loss_ids: The inner transformation's loss IDs.
     """
 
     inner: MultiLossGradientTransformation[Any, Parameters]
     decay: RealNumeric = 0.9
 
+    @classmethod
+    def create_from(
+        cls, inner: MultiLossGradientTransformation[Any, Parameters], *, decay: RealNumeric = 0.9
+    ) -> Self:
+        """Average the gradients passed to ``inner``, using its loss IDs."""
+        return cls(inner, decay, loss_ids=inner.loss_ids)
+
     @override
-    def init(
-        self, parameters: Parameters, loss_ids: tuple[str, ...]
-    ) -> AveragedGradientsState[Parameters]:
-        check_loss_ids(loss_ids)
-        averages = {loss_id: tree.map(jnp.zeros_like, parameters) for loss_id in loss_ids}
-        return AveragedGradientsState[Parameters](averages, self.inner.init(parameters, loss_ids))
+    def init(self, parameters: Parameters) -> AveragedGradientsState[Parameters]:
+        check_loss_ids(self.loss_ids)
+        if self.loss_ids != self.inner.loss_ids:
+            msg = f"loss_ids {self.loss_ids} differ from the inner {self.inner.loss_ids}"
+            raise ValueError(msg)
+        averages = {loss_id: tree.map(jnp.zeros_like, parameters) for loss_id in self.loss_ids}
+        return AveragedGradientsState[Parameters](averages, self.inner.init(parameters))
 
     @override
     def update(
@@ -181,14 +199,14 @@ class AveragedGradients[Parameters: PyTree](
         state: AveragedGradientsState[Parameters],
         parameters: Parameters,
     ) -> tuple[Parameters, AveragedGradientsState[Parameters]]:
-        check_gradients(gradients_by_loss, tuple(state.averages))
+        check_gradients(gradients_by_loss, self.loss_ids)
         averages = {
             loss_id: tree.map(
                 lambda average, g: self.decay * average + (1.0 - self.decay) * g,
                 state.averages[loss_id],
-                gradient,
+                gradients_by_loss[loss_id],
             )
-            for loss_id, gradient in gradients_by_loss.items()
+            for loss_id in self.loss_ids
         }
         updates, inner_state = self.inner.update(averages, state.inner_state, parameters)
         return updates, AveragedGradientsState[Parameters](averages, inner_state)
