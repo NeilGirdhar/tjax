@@ -138,7 +138,11 @@ def test_signature_matches_optax(cls: Wrapper, path: str) -> None:
             assert f.default is dataclasses.MISSING, name
             assert f.default_factory is dataclasses.MISSING, name
         else:
-            default = f.default_factory() if f.default is dataclasses.MISSING else f.default  # ty: ignore[call-non-callable]
+            if f.default is dataclasses.MISSING:
+                assert f.default_factory is not dataclasses.MISSING
+                default = f.default_factory()
+            else:
+                default = f.default
             if isinstance(default, OptaxWrapper):
                 default = default._optax()  # ruff: ignore[private-member-access]
             assert _same_default(default, p.default), (name, default, p.default)
