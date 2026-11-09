@@ -96,9 +96,8 @@ comment on such a field to the optax issue, so that it can become dynamic once o
 ### Adding a multi-loss method
 
 Subclass `GradientCombiner` if the method only decides how to combine gradients. Implement
-`combine`, and `init_statistics` if the method keeps state between steps. Subclass
-`MultiLossGradientTransformation` directly if the method needs each loss's statistics up to the
-update, as `MTAdam` does.
+`combine` and `init_statistics`. Subclass `MultiLossGradientTransformation` directly if the method
+needs each loss's statistics up to the update, as `MTAdam` does.
 
 The base class holds the loss IDs. Validate them with `check_loss_ids` in `init`, not in
 `__post_init__`, since JAX reconstructs the transformation each time it unflattens it. Keep them out

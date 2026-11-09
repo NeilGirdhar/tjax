@@ -101,6 +101,10 @@ class CAGrad[Parameters: PyTree](GradientCombiner[None, Parameters]):
     rescale: Literal["none", "linear", "quadratic"] = field(default="quadratic", static=True)
 
     @override
+    def init_statistics(self, parameters: Parameters) -> None:
+        return None
+
+    @override
     def combine(self, gradients: Sequence[Parameters], statistics: None) -> tuple[Parameters, None]:
         """Return the conflict-averse direction."""
         flattened = [ravel_pytree(gradient) for gradient in gradients]

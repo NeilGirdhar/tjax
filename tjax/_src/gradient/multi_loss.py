@@ -97,12 +97,13 @@ class GradientCombiner[Statistics: PyTree, Parameters: PyTree](
 
     inner: GradientTransformation[Any, Parameters]
 
+    @abstractmethod
     def init_statistics(self, parameters: Parameters) -> Statistics:
         """Return the statistics that :meth:`combine` keeps between steps.
 
-        Subclasses without statistics can keep this default, which returns ``None``.
+        A combiner without statistics returns ``None``.
         """
-        return None  # ty: ignore[invalid-return-type]
+        raise NotImplementedError
 
     @abstractmethod
     def combine(

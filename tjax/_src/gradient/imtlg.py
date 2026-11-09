@@ -35,6 +35,10 @@ class IMTLG[Parameters: PyTree](GradientCombiner[None, Parameters]):
     """
 
     @override
+    def init_statistics(self, parameters: Parameters) -> None:
+        return None
+
+    @override
     def combine(self, gradients: Sequence[Parameters], statistics: None) -> tuple[Parameters, None]:
         """Return the combined gradient.
 
