@@ -211,4 +211,4 @@ def test_update_rejects_mismatched_losses() -> None:
 
 def test_base_class_is_abstract() -> None:
     with pytest.raises(TypeError, match="abstract"):
-        MultiLossGradientTransformation(loss_ids=("a",))  # ty: ignore[call-non-callable]
+        MultiLossGradientTransformation(loss_ids=("a",))  # type: ignore
