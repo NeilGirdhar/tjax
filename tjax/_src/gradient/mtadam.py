@@ -47,9 +47,11 @@ class MTAdam[Parameters: PyTree](
     weight can't suit every layer or stay right as training progresses.  MTAdam balances the losses
     itself, so that they contribute equally at each leaf of the parameters and at each step.
 
-    The first loss in ``loss_ids`` is the anchor, whose gradient magnitude sets the scale of the
-    others.  Tying the scale to a real loss, rather than to a constant, keeps the learning rate
-    meaningful.
+    The first loss in ``loss_ids`` is the anchor.  Every loss's gradient is rescaled to the anchor's
+    running norm, so the balanced gradients follow the anchor's magnitude over time.  A constant
+    factor on any loss has no effect, because the Adam step is invariant to a constant gradient
+    scale.  The anchor matters through how its magnitude changes: as its gradient shrinks relative
+    to its history, the steps shrink, as they would under Adam on the anchor loss alone.
 
     References:
         Malkiel and Wolf, 2020,
