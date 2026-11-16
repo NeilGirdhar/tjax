@@ -16,6 +16,11 @@ def dynamic_tree_all(x: object, /) -> JaxBooleanArray:
     return tree.reduce_associative(jnp.logical_and, x, identity=jax_true)
 
 
+def all_finite(x: object, /) -> JaxBooleanArray:
+    """Return whether every element of every leaf array in the pytree ``x`` is finite."""
+    return dynamic_tree_all(tree.map(lambda leaf: jnp.all(jnp.isfinite(leaf)), x))
+
+
 def tree_sum(x: object, /) -> JaxArray:
     """Return the scalar sum of all elements across every leaf array in the pytree ``x``."""
     retval = tree.reduce_associative(operator.add, tree.map(jnp.sum, x), identity=jnp.zeros(()))

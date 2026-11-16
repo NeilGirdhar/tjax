@@ -2,7 +2,14 @@ import jax.numpy as jnp
 import pytest
 from jax import jit
 
-from tjax import assert_tree_allclose, dynamic_tree_all, element_count, scale_tree, tree_sum
+from tjax import (
+    all_finite,
+    assert_tree_allclose,
+    dynamic_tree_all,
+    element_count,
+    scale_tree,
+    tree_sum,
+)
 
 
 @pytest.mark.parametrize(
@@ -73,3 +80,18 @@ def test_scale_tree_scalar_and_tree() -> None:
     tree_scale = (jnp.asarray([1, -1, 2]), jnp.asarray([3, 4]))
     expected = (jnp.asarray([0, -3, 12]), jnp.asarray([27, 48]))
     assert_tree_allclose(scale_tree(x, scalar_scale=3, tree_scale=tree_scale), expected)
+
+
+@pytest.mark.parametrize(
+    ("x", "expected"),
+    [
+        (jnp.arange(3.0), True),
+        (jnp.asarray([1.0, jnp.nan]), False),
+        ({"x": jnp.ones((2, 3)), "y": (jnp.asarray(-1.0), jnp.arange(4))}, True),
+        ({"x": jnp.ones((2, 3)), "y": (jnp.asarray(-jnp.inf), jnp.arange(4))}, False),
+        ((), True),
+    ],
+)
+def test_all_finite(x: object, *, expected: bool) -> None:
+    assert bool(all_finite(x)) == expected
+    assert bool(jit(all_finite)(x)) == expected

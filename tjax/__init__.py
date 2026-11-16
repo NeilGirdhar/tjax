@@ -81,7 +81,14 @@ from ._src.testing import (
     tree_allclose,
 )
 from ._src.timer import Timer, display_time
-from ._src.tree_tools import dynamic_tree_all, element_count, scale_tree, tree_sum, zero_from_primal
+from ._src.tree_tools import (
+    all_finite,
+    dynamic_tree_all,
+    element_count,
+    scale_tree,
+    tree_sum,
+    zero_from_primal,
+)
 
 __all__ = [
     "Array",
@@ -124,6 +131,7 @@ __all__ = [
     "abs_square",
     "abstract_custom_jvp",
     "abstract_jit",
+    "all_finite",
     "assert_tree_allclose",
     "bessel_iv_ratio",
     "bilinear_outer",
