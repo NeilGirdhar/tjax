@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "tjax: Tools for JAX"
+abstract: >-
+  tjax provides tools for the differential programming library JAX: dataclasses that are JAX
+  pytrees; the optax gradient transformations as pytrees, so that JAX can trace, differentiate,
+  and map over their hyperparameters; and pretty printing of nested values, including traced values
+  inside jitted functions.
+authors:
+  - family-names: Girdhar
+    given-names: Neil
+    email: mistersheik@gmail.com
+version: 2.2.0
+date-released: 2026-11-08
+license: Apache-2.0
+repository-code: "https://github.com/NeilGirdhar/tjax"
+url: "https://github.com/NeilGirdhar/tjax"
+keywords:
+  - custom-vjp
+  - dataclasses
+  - gradient-transformations
+  - jax
+  - optax
+  - pretty-printing
+  - pytrees
+  - typing
