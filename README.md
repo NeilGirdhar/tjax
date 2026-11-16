@@ -175,9 +175,9 @@ Tjax also includes:
 - A hashable immutable mapping `frozendict` that is registered as a JAX pytree, so it can be
   passed through transforms like `jit` and `vmap`. (See
   [frozendict](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/frozendict.py).)
-- Leaky integration `leaky_integrate` and Ornstein-Uhlenbeck process iteration
-  `diffused_leaky_integrate`. (See
-  [leaky_integral](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/leaky_integral.py).)
+- Filters that summarize a signal's history in a fixed-size state, such as leaky integrals and
+  Erlang chains, in `tjax.filtering`. (See the
+  [filtering documentation](https://github.com/NeilGirdhar/tjax/blob/main/docs/filtering.md).)
 - A testing function `assert_tree_allclose` that automatically produces testing code. And, a related
   function `tree_allclose`, which compares pytrees with matching structure. (See
   [testing](https://github.com/NeilGirdhar/tjax/blob/main/tjax/_src/testing.py).)

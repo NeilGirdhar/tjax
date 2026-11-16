@@ -75,10 +75,8 @@ class custom_vjp_method[U, **P, R_co]:  # ruff:ignore[invalid-class-name]
 
     @overload
     def __get__(self, instance: None, owner: object = None) -> Self: ...
-
     @overload
     def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]: ...
-
     def __get__(self, instance: Any, owner: object = None) -> Callable[..., R_co]:
         if instance is None:
             return self
@@ -141,10 +139,8 @@ class custom_jvp_method[U, **P, R_co]:  # ruff:ignore[invalid-class-name]
 
     @overload
     def __get__(self, instance: None, owner: object = None) -> Self: ...
-
     @overload
     def __get__(self, instance: U, owner: object = None) -> Callable[P, R_co]: ...
-
     def __get__(self, instance: Any, owner: Any = None) -> Callable[..., R_co]:
         if instance is None:
             return self

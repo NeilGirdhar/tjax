@@ -5,7 +5,8 @@ import pytest
 from jax import Array
 from numpy.testing import assert_allclose
 
-from tjax import JaxRealArray, diffused_leaky_integrate, leaky_integrate
+from tjax import JaxRealArray
+from tjax._src.filtering.leaky import leaky_integrate  # ruff: ignore[import-private-name]
 
 
 def test_time_step_invariance() -> None:
@@ -72,15 +73,3 @@ def test_complex_decay(decay: complex) -> None:
     )
     weight = 1.0 if decay == 0.0 else -np.expm1(-decay) / decay
     assert_allclose(result, np.exp(-decay) * complex(value) + complex(drift) * weight, rtol=1e-6)
-
-
-def test_diffused_zero_decay_is_finite() -> None:
-    result = diffused_leaky_integrate(
-        jnp.zeros(3),
-        jnp.asarray(1.0),
-        jax.random.key(0),
-        jnp.asarray(2.0),
-        jnp.asarray(1.0),
-        jnp.asarray(0.0),
-    )
-    assert jnp.all(jnp.isfinite(result))

@@ -1,6 +1,6 @@
 """Tools for the differential programming library [JAX](https://github.com/google/jax)."""
 
-from . import dataclasses, gradient
+from . import dataclasses, filtering, gradient
 from ._src.abstract_method_decorators import JaxAbstractClass, abstract_custom_jvp, abstract_jit
 from ._src.annotations import (
     Array,
@@ -49,7 +49,6 @@ from ._src.frozendict import frozendict
 from ._src.graph.display import graph_arrow, graph_edge_name
 from ._src.graph.register_jax import register_graph_as_jax_pytree
 from ._src.graph.types_ import GraphEdgeKey, GraphNodeKey, UndirectedGraphEdgeKey
-from ._src.leaky_integral import diffused_leaky_integrate, leaky_data_weight, leaky_integrate
 from ._src.math_tools import (
     abs_square,
     bessel_iv_ratio,
@@ -148,13 +147,13 @@ __all__ = [
     "custom_vjp",
     "custom_vjp_method",
     "dataclasses",
-    "diffused_leaky_integrate",
     "display_generic",
     "display_time",
     "divide_or_zero",
     "divide_where",
     "dynamic_tree_all",
     "element_count",
+    "filtering",
     "fork_streams",
     "frozendict",
     "get_relative_test_string",
@@ -166,8 +165,6 @@ __all__ = [
     "internal_print_generic",
     "inverse_softplus",
     "jit",
-    "leaky_data_weight",
-    "leaky_integrate",
     "log_bessel_ive",
     "log_softplus",
     "matrix_dot_product",
