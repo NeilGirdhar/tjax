@@ -3,6 +3,16 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.2.1 - 2026-11-15
+
+- Added `all_finite`, which returns whether every element of every leaf of a pytree is finite, and
+  works under JIT.
+- Added `cotangent_surrogate_loss`, a scalar whose gradient is a supplied cotangent, so that
+  gradient signals such as a critic's action gradient can be combined with ordinary losses.
+- Made `GradientCombiner.init_statistics` abstract, so combiners without statistics must return
+  `None` explicitly.
+- Added a citation file and corrected the `MTAdam` docstring on the anchor loss.
+
 ## 2.2.0 - 2026-11-08
 
 - Moved the loss IDs of multi-loss transformations from `init` and their states to the
