@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from functools import partial
 
+import jax.numpy as jnp
 from jax import tree
+from jax.lax import stop_gradient
 
-from .annotations import RealNumeric
+from .annotations import JaxRealArray, RealNumeric
 from .display.print_generic import print_generic
 from .shims import custom_jvp, custom_vjp
-from .tree_tools import scale_tree
+from .tree_tools import scale_tree, tree_sum
 
 
 # scale_cotangent ----------------------------------------------------------------------------------
@@ -113,3 +115,28 @@ def _copy_cotangent_bwd[X](residuals: None, x_bar: X) -> tuple[X, X]:
 
 
 copy_cotangent.defvjp(_copy_cotangent_fwd, _copy_cotangent_bwd)
+
+
+# cotangent_surrogate_loss -------------------------------------------------------------------------
+def cotangent_surrogate_loss[X](x: X, cotangent: X) -> JaxRealArray:
+    """Return a scalar whose gradient with respect to x is the supplied cotangent.
+
+    Training code built on scalar objectives can then use a gradient signal that arrives as a
+    cotangent, such as a critic's gradient with respect to an action or a synthetic gradient,
+    rather than as a loss to differentiate. Adding the surrogate to other losses before
+    differentiating sends the cotangent back through x to whatever x depends on, as a VJP would.
+
+    Only the surrogate's gradient has meaning; its value does not.
+
+    The cotangent is held fixed, so no gradient flows into it. Each leaf contributes the real part
+    of the unconjugated product of its cotangent and x, which makes the gradient equal the
+    cotangent for complex leaves under JAX's convention.
+
+    Args:
+        x: A pytree of numeric arrays.
+        cotangent: A pytree with the structure of x whose leaves are the derivatives of a loss
+            with respect to the corresponding leaves of x.
+    """
+    assert tree.structure(x) == tree.structure(cotangent)
+    products = tree.map(lambda x_i, c_i: jnp.real(stop_gradient(c_i) * x_i), x, cotangent)
+    return tree_sum(products)

@@ -4,13 +4,14 @@ from functools import partial
 
 import jax.numpy as jnp
 import pytest
-from jax import vjp
+from jax import grad, vjp
 from numpy.testing import assert_equal
 
 from tjax import (
     JaxRealArray,
     assert_tree_allclose,
     copy_cotangent,
+    cotangent_surrogate_loss,
     negate_cotangent,
     print_cotangent,
     replace_cotangent,
@@ -112,3 +113,38 @@ def test_print_cotangent(capsys: pytest.CaptureFixture[str], name: str | None) -
         assert "cotangent" not in captured.out
     else:
         assert name in captured.out
+
+
+def test_cotangent_surrogate_loss_gradient() -> None:
+    x = X(jnp.asarray([2.0, 3.0]), jnp.asarray([5.0, -1.0]))
+    cotangent = X(jnp.asarray([7.0, -11.0]), jnp.asarray([13.0, 0.5]))
+    assert_tree_allclose(grad(cotangent_surrogate_loss)(x, cotangent), cotangent)
+
+
+def test_cotangent_surrogate_loss_matches_loss() -> None:
+    """Give the same parameter gradient as the loss whose derivative is the cotangent."""
+
+    def f(theta: JaxRealArray) -> X:
+        return X(jnp.sin(theta), jnp.square(theta))
+
+    def loss(x: X) -> JaxRealArray:
+        return jnp.sum(x.x**3) + jnp.sum(jnp.exp(x.y))
+
+    theta = jnp.asarray([0.5, -1.0])
+    cotangent = grad(loss)(f(theta))
+
+    surrogate_gradient = grad(lambda t: cotangent_surrogate_loss(f(t), cotangent))(theta)
+    assert_tree_allclose(surrogate_gradient, grad(lambda t: loss(f(t)))(theta))
+
+
+def test_cotangent_surrogate_loss_holds_cotangent_fixed() -> None:
+    x = X(jnp.asarray([2.0, 3.0]), jnp.asarray([5.0, -1.0]))
+    cotangent = X(jnp.asarray([7.0, -11.0]), jnp.asarray([13.0, 0.5]))
+    cotangent_bar = grad(cotangent_surrogate_loss, argnums=1)(x, cotangent)
+    assert_tree_allclose(cotangent_bar, X(jnp.zeros(2), jnp.zeros(2)))
+
+
+def test_cotangent_surrogate_loss_complex() -> None:
+    x = jnp.asarray([0.5 - 1.0j, 2.0 + 0.5j])
+    cotangent = jnp.asarray([1.0 + 2.0j, -3.0 + 0.25j])
+    assert_tree_allclose(grad(cotangent_surrogate_loss)(x, cotangent), cotangent)

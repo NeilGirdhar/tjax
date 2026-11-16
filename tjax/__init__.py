@@ -34,6 +34,7 @@ from ._src.annotations import (
 )
 from ._src.cotangent_tools import (
     copy_cotangent,
+    cotangent_surrogate_loss,
     negate_cotangent,
     print_cotangent,
     replace_cotangent,
@@ -132,6 +133,7 @@ __all__ = [
     "complex_logdet",
     "complex_multigammaln",
     "copy_cotangent",
+    "cotangent_surrogate_loss",
     "create_streams",
     "custom_jvp",
     "custom_jvp_method",
