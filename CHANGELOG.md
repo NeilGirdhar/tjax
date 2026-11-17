@@ -3,6 +3,10 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.3.1 - 2026-11-17
+
+- Changed `DelayLine` to take an array of lag weights instead of a length.
+
 ## 2.3.0 - 2026-11-17
 
 - Added `tjax.filtering`, a module of filters that keep a signal's history in a state of fixed size:
