@@ -94,7 +94,8 @@ def advance_stages(
         input_weight: The stages' response to a unit signal over the step, with shape (order,).
         pattern: The entries of the transition matrix that can be nonzero.  See `mix_stages`.
     """
-    return mix_stages(transition, stages, pattern) + expand_stages(input_weight, drift.ndim) * drift
+    weighted_drift = expand_stages(input_weight, drift.ndim) * drift[jnp.newaxis]
+    return mix_stages(transition, stages, pattern) + weighted_drift
 
 
 @dataclass

@@ -1,5 +1,5 @@
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 
 import jax
 import jax.numpy as jnp
@@ -22,6 +22,16 @@ from tjax.filtering import (
     LinearFilter,
     StagedFilter,
 )
+
+
+@pytest.fixture
+def strict_rank_promotion() -> Iterator[None]:
+    """Fail on implicit rank promotion, which callers may forbid."""
+    with jax.numpy_rank_promotion("raise"):
+        yield
+
+
+pytestmark = pytest.mark.usefixtures("strict_rank_promotion")
 
 
 def _erlang_system(decay: RealNumeric, order: int) -> LinearFilter:

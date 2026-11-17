@@ -140,7 +140,8 @@ class ErlangChain(StagedFilter):
         binomials = np.asarray(
             [[math.comb(m, i) for i in range(self.order)] for m in range(self.order)]
         )
-        return jnp.sqrt(2 * self.decay) * binomials * _powers(-2 * self.decay, self.order)
+        powers = _powers(-2 * self.decay, self.order)[jnp.newaxis, :]
+        return jnp.sqrt(2 * self.decay) * binomials * powers
 
     def laguerre(self, state: PyTree) -> PyTree:
         """Return the Laguerre components of the state, with the same structure as the state."""
