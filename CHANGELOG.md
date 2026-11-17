@@ -3,6 +3,12 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.3.2 - 2026-11-17
+
+- Fixed the staged filters in `tjax.filtering` so they update when `jax_numpy_rank_promotion` is set
+  to `"raise"`. Previously, the input weights and the Laguerre matrix depended on implicit rank
+  promotion.
+
 ## 2.3.1 - 2026-11-17
 
 - Changed `DelayLine` to take an array of lag weights instead of a length.
