@@ -1,44 +1,57 @@
-"""A buffer of the most recent values of a signal."""
+"""A finite window over the most recent values of a signal."""
 
 from __future__ import annotations
 
 from typing import override
 
 import jax.numpy as jnp
-from jax import tree
+import numpy as np
 
-from tjax._src.annotations import JaxComplexArray, PyTree, RealNumeric
-from tjax.dataclasses import dataclass, field
+from tjax._src.annotations import JaxComplexArray, RealNumeric
+from tjax.dataclasses import dataclass
 
-from .filter import Filter
+from .filter import StagedFilter
 
 
 @dataclass
-class DelayLine(Filter[PyTree]):
-    """The signal at each of the most recent lags.
+class DelayLine(StagedFilter):
+    """The most recent values of a signal, read out through a weight for each lag.
 
-    Each leaf's state and value have shape (length, *s), where entry L is the signal from L updates
-    ago.  Unlike the other filters, its memory grows with the longest lag it holds, and it has no
-    kernel to choose, so it shows a signal's history as it was.  Each update fills one slot, so the
-    updates should be equally spaced; the time step is ignored.
+    Each leaf's state has shape (order, *s), where order is the length of the weights and stage L
+    is the signal from L updates ago.  The weights are the lag weights themselves, so the kernel can
+    be any finite window, including a hard cutoff or a pure delay, which the continuous-time filters
+    cannot form.  Its memory grows with the longest lag.
+
+    Each update fills one slot, so the updates should be equally spaced; the time step is ignored.
 
     Args:
-        length: The number of lags held.
+        weights: The weight of each lag, with shape (order,), starting with the signal from the
+            latest update.
     """
 
-    length: int = field(static=True)
+    weights: JaxComplexArray
+
+    @property
+    @override
+    def order(self) -> int:
+        return self.weights.shape[0]
+
+    @property
+    @override
+    def readout(self) -> JaxComplexArray:
+        return self.weights
+
+    @property
+    @override
+    def transition_pattern(self) -> np.ndarray:
+        """The subdiagonal, since each stage takes the value of the one before it.
+
+        This override is only for speed: each step skips every other entry.
+        """
+        return np.eye(self.order, k=-1, dtype=bool)
 
     @override
-    def init(self, template: PyTree) -> PyTree:
-        return tree.map(lambda leaf: jnp.zeros((self.length, *leaf.shape), leaf.dtype), template)
-
-    @override
-    def update(self, state: PyTree, drift: PyTree, time_step: RealNumeric = 1.0) -> PyTree:
-        def push(buffer: JaxComplexArray, leaf: JaxComplexArray) -> JaxComplexArray:
-            return jnp.concatenate([leaf[None].astype(buffer.dtype), buffer[:-1]])
-
-        return tree.map(push, state, drift)
-
-    @override
-    def value(self, state: PyTree) -> PyTree:
-        return state
+    def discretize(self, time_step: RealNumeric) -> tuple[JaxComplexArray, JaxComplexArray]:
+        """Return the shift that moves each value one lag older, ignoring the time step."""
+        dtype = self.weights.dtype
+        return jnp.eye(self.order, k=-1, dtype=dtype), jnp.eye(self.order, dtype=dtype)[0]

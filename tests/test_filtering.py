@@ -193,12 +193,29 @@ def test_leaky_moments() -> None:
     assert_allclose(second, np.outer(signal, signal), rtol=1e-6)
 
 
-def test_delay_line_holds_recent_lags() -> None:
-    line = DelayLine(4)
+def test_delay_line_weights_recent_lags() -> None:
+    line = DelayLine(jnp.asarray([1.0, 10.0, 100.0, 1000.0]))
     state = line.init(jnp.zeros(()))
     for drift in [1.0, 2.0, 3.0]:
         state = line.update(state, jnp.asarray(drift))
-    assert_allclose(line.value(state), [3.0, 2.0, 1.0, 0.0])
+    assert_allclose(state, [3.0, 2.0, 1.0, 0.0])
+    assert_allclose(line.value(state), 3.0 + 20.0 + 100.0)
+
+
+def test_delay_line_lag_weights_are_its_weights() -> None:
+    weights = jnp.asarray([0.5, 0.0, 2.0])
+    assert_allclose(DelayLine(weights).lag_weights(5), [0.5, 0.0, 2.0, 0.0, 0.0])
+
+
+def test_unit_delay_read_before_update() -> None:
+    # Reading the value before each update gives the signal from the previous update.
+    line = DelayLine(jnp.ones(1))
+    state = line.init(jnp.zeros(2))
+    previous = []
+    for drift in [jnp.asarray([1.0, 2.0]), jnp.asarray([3.0, 4.0])]:
+        previous.append(line.value(state))
+        state = line.update(state, drift)
+    assert_allclose(previous, [[0.0, 0.0], [1.0, 2.0]])
 
 
 def test_laguerre_applies_the_laguerre_matrix() -> None:

@@ -68,7 +68,7 @@ their kernels are nonnegative.
 | `LinearFilter(system, input_gain, output_gain)` | any linear system | order | the general case |
 | `LeakyAverage(decay)` | $e^{-k u}$, normalized | 1 | an unbiased running mean |
 | `LeakyMoments(decay)` | $e^{-k u}$, normalized | $d + d^2$ per vector of length $d$ | means and second moments |
-| `DelayLine(length)` | each lag separately | length | the raw history |
+| `DelayLine(weights)` | any finite window | order | delays and hard cutoffs |
 
 ### Leaky integral
 
@@ -120,7 +120,13 @@ mean for the covariance. To track the cross moments of two signals, concatenate 
 
 ### Delay line
 
-`DelayLine` holds the last `length` values of the signal, newest first. Its memory grows with the
-longest lag, so it suits small signals, such as one value per channel, when you want a signal's
-history without assuming a kernel. Each update fills one slot, so the updates should be equally
-spaced.
+`DelayLine` holds the most recent values of the signal, newest first, and its weights are the lag
+weights themselves. So its kernel can be any finite window, such as a pure delay or a hard cutoff,
+which the continuous-time filters can't form, at the cost of memory that grows with the longest lag.
+Its stages are the raw history, so it also suits regressing on each lag without assuming a kernel.
+Each update fills one slot, so the updates should be equally spaced; the time step is ignored.
+
+The order of reading and updating sets which lag comes first. Reading the value after an update
+weights the current signal by `weights[0]`; reading it before the update weights the previous
+signal by `weights[0]`. So `DelayLine(jnp.ones(1))`, read before each update, is a one-step delay
+that holds a single value.
