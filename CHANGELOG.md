@@ -3,6 +3,17 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.3.0 - 2026-11-17
+
+- Added `tjax.filtering`, a module of filters that keep a signal's history in a state of fixed size:
+  `LeakyIntegral`, `ErlangChain`, `ExponentialBank`, `LinearFilter`, `LeakyAverage`, `LeakyMoments`,
+  and `DelayLine`. All of them share an `init`/`update`/`value` interface and step exactly when the
+  signal is a rate held constant over each step. The release also adds `docs/filtering.md`.
+- Removed `leaky_integrate`, `diffused_leaky_integrate`, and `leaky_data_weight` from `tjax`; use
+  `tjax.filtering.LeakyIntegral` and `LeakyAverage` instead.
+- Fixed leaky integration at zero decay, where values were undefined and gradients were NaN; values
+  and gradients are now finite and accurate for all nonnegative decays.
+
 ## 2.2.1 - 2026-11-15
 
 - Added `all_finite`, which returns whether every element of every leaf of a pytree is finite, and
