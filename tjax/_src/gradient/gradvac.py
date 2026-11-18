@@ -90,8 +90,8 @@ class GradVac[Parameters: PyTree](GradientCombiner[GradVacStatistics, Parameters
                 other_norm = jnp.linalg.vector_norm(other)
                 similarity = divide_or_zero(jnp.vecdot(gradient, other), gradient_norm * other_norm)
                 target = targets[other_index]
-                target_sine = jnp.sqrt(jnp.maximum(1.0 - jnp.square(target), 0.0))
-                sine = jnp.sqrt(jnp.maximum(1.0 - jnp.square(similarity), 0.0))
+                target_sine = jnp.sqrt(jnp.maximum(jax.lax.one_minus_square(target), 0.0))
+                sine = jnp.sqrt(jnp.maximum(jax.lax.one_minus_square(similarity), 0.0))
                 coefficient = divide_or_zero(
                     gradient_norm * (target * sine - similarity * target_sine),
                     other_norm * target_sine,
