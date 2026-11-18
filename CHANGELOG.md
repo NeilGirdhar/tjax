@@ -3,6 +3,24 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.4.0 - 2026-11-18
+
+- Fixed `ErlangChain` returning NaN input weights in float32 and complex64 at order 8 for inputs
+  with magnitude between about 6.6 and 12. The series now uses Horner's rule through
+  `jax.lax.polynomial`, so no power of the input overflows single precision. tjax now requires JAX
+  0.12.
+- Made `GradVac` compute its sines with `jax.lax.one_minus_square`. This keeps them accurate for
+  nearly aligned gradients, whose cosine similarity is close to 1 and where 1 − c² loses precision
+  to cancellation.
+- Changed `complex_betaln` to evaluate its large-argument Stirling series with `jax.lax.polynomial`,
+  which uses fused multiply-adds where available.
+- Updated the optax wrappers for optax 0.2.9, which is now required:
+    - `AdaBelief` gained `weight_decay` and `weight_decay_mask`, `DAdaptAdamW` and `Prodigy` gained
+      `weight_decay_mask`, and `SM3` gained `eps`.
+    - `DPSGD` replaced `seed` with a required `key`, so separate runs no longer share the same
+      noise.
+    - `ScaleByYogi`'s first moment now starts at zero rather than at `initial_accumulator_value`.
+
 ## 2.3.2 - 2026-11-17
 
 - Fixed the staged filters in `tjax.filtering` so they update when `jax_numpy_rank_promotion` is set
