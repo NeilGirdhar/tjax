@@ -388,6 +388,10 @@ class DAdaptAdamW[Weights: PyTree](OptaxWrapper[Weights]):
         estim_lr0: Initial (under-)estimate of the learning rate.
         weight_decay: AdamW style weight-decay. To use Regular Adam decay, chain with
             add_decayed_weights.
+        weight_decay_mask: A tree with same structure as (or a prefix of) the params PyTree, or a
+            Callable that returns such a pytree given the params/updates. The leaves should be
+            booleans, `True` for leaves/subtrees you want to apply the weight decay to, and `False`
+            for those you want to skip.
     """
 
     learning_rate: ScalarOrSchedule = 1.0
@@ -395,6 +399,9 @@ class DAdaptAdamW[Weights: PyTree](OptaxWrapper[Weights]):
     eps: RealNumeric = 1e-08
     estim_lr0: RealNumeric = 1e-06
     weight_decay: RealNumeric = 0.0
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
+        default=None, static=True
+    )
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
@@ -516,7 +523,7 @@ class DPSGD[Weights: PyTree](OptaxWrapper[Weights]):
         learning_rate: Global step-size schedule or scalar.
         l2_norm_clip: Per-example gradient clipping threshold.
         noise_multiplier: Ratio of noise standard deviation to ``l2_norm_clip``.
-        seed: Seed for the noise RNG.
+        key: Random generator key for the noise.
         momentum: Optional momentum decay rate.
         nesterov: Whether to use Nesterov momentum.
     """
@@ -524,7 +531,7 @@ class DPSGD[Weights: PyTree](OptaxWrapper[Weights]):
     learning_rate: ScalarOrSchedule
     l2_norm_clip: RealNumeric
     noise_multiplier: RealNumeric
-    seed: IntegralNumeric
+    key: KeyArray | int
     momentum: float | None = None
     nesterov: bool = field(default=False, static=True)
 
@@ -993,6 +1000,10 @@ class Prodigy[Weights: PyTree](OptaxWrapper[Weights]):
             add_decayed_weights.
         safeguard_warmup: Remove lr from the denominator of D estimate to avoid issues during
             warm-up stage. Off by default.
+        weight_decay_mask: A tree with same structure as (or a prefix of) the params PyTree, or a
+            Callable that returns such a pytree given the params/updates. The leaves should be
+            booleans, `True` for leaves/subtrees you want to apply the weight decay to, and `False`
+            for those you want to skip.
     """
 
     learning_rate: ScalarOrSchedule = 1.0
@@ -1003,6 +1014,9 @@ class Prodigy[Weights: PyTree](OptaxWrapper[Weights]):
     estim_lr_coef: RealNumeric = 1.0
     weight_decay: RealNumeric = 0.0
     safeguard_warmup: bool = field(default=False, static=True)
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
+        default=None, static=True
+    )
 
     @override
     def _optax(self) -> OptaxGradientTransformation:

@@ -34,6 +34,7 @@ DEPRECATED = {
     ("add_noise", "seed"),
     ("noisy_sgd", "seed"),
     ("differentially_private_aggregate", "seed"),
+    ("dpsgd", "seed"),
 }
 # Parameters that the wrappers require although optax gives them a default.  Omitting them would
 # silently use key 0, so that every run gets the same randomness.
@@ -41,6 +42,7 @@ MADE_REQUIRED = {
     ("add_noise", "key"),
     ("noisy_sgd", "key"),
     ("differentially_private_aggregate", "key"),
+    ("dpsgd", "key"),
     ("hutchinson_estimator_diag_hessian", "random_seed"),
     ("sophia", "hessian_diagonal_fn"),
 }
@@ -159,7 +161,6 @@ REQUIRED: dict[str, object] = {
     "max_linesearch_steps": 5,
     "l2_norm_clip": 1.0,
     "noise_multiplier": 0.1,
-    "seed": 0,
     "eta": 0.01,
     "gamma": 0.55,
     "decay": 0.9,

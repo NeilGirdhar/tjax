@@ -671,8 +671,8 @@ class ScaleByYogi[Weights: PyTree](OptaxWrapper[Weights]):
         eps: term added to the denominator to improve numerical stability.
         eps_root: term added to the denominator inside the square-root to improve
             numerical stability when backpropagating gradients through the rescaling.
-        initial_accumulator_value: The starting value for accumulators.
-            Only positive values are allowed.
+        initial_accumulator_value: The starting value for the second-moment accumulator.
+            Only positive values are allowed.  The first moment always starts at zero.
     """
 
     b1: RealNumeric = 0.9

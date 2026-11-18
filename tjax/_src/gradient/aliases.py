@@ -39,6 +39,12 @@ class AdaBelief[Weights: PyTree](OptaxWrapper[Weights]):
         eps: Regularisation term for numerical stability.
         eps_root: Term added to the second moment of the prediction error for numerical
             stability.  It must be nonzero when backpropagating through the optimiser.
+        weight_decay: Optional strength of the weight decay, which is multiplied by the learning
+            rate, as in PyTorch.
+        weight_decay_mask: A tree with same structure as (or a prefix of) the params PyTree, or a
+            Callable that returns such a pytree given the params/updates. The leaves should be
+            booleans, `True` for leaves/subtrees you want to apply the weight decay to, and `False`
+            for those you want to skip.
         nesterov: Whether to use Nesterov momentum.
     """
 
@@ -47,6 +53,10 @@ class AdaBelief[Weights: PyTree](OptaxWrapper[Weights]):
     b2: RealNumeric = 0.999
     eps: RealNumeric = 1e-16
     eps_root: RealNumeric = 1e-16
+    weight_decay: ScalarOrSchedule | None = None
+    weight_decay_mask: bool | Weights | Callable[[Weights], Any] | None = field(
+        default=None, static=True
+    )
     _: KW_ONLY
     nesterov: bool = field(default=False, static=True)
 
@@ -1008,10 +1018,12 @@ class SM3[Weights: PyTree](OptaxWrapper[Weights]):
     Args:
         learning_rate: Global step-size scalar.
         momentum: Momentum decay rate.
+        eps: Term added to the denominator for numerical stability.
     """
 
     learning_rate: RealNumeric
     momentum: RealNumeric = 0.9
+    eps: RealNumeric = 1e-8
 
     @override
     def _optax(self) -> OptaxGradientTransformation:
