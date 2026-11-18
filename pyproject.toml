@@ -39,7 +39,7 @@ classifiers = [
 ]
 dependencies = [
   "array-api-compat>=1.10",
-  "jax>=0.11.1",
+  "jax>=0.12",
   "numpy>=2.2",
   "optax>=0.2.8",
   "optype[numpy]>=0.12.2",

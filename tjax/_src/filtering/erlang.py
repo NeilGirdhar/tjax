@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from typing import Self, override
 
+import jax
 import jax.numpy as jnp
 import numpy as np
 from jax import tree
@@ -35,19 +36,23 @@ def _erlang_input_weights(x: JaxComplexArray, order: int) -> JaxComplexArray:
 
     Below |x| = order + 4, the closed form cancels badly, so the series
     exp(-x) sum_(m >= 0) x^m / (j + m)! replaces it.  Its terms are positive for real x, and 48
-    terms reach double precision for orders up to 8.  Above that threshold, the subtracted sum is
-    small, so the closed form is accurate.  Each branch's input is replaced where it is unused, so
-    that the gradient stays finite.
+    terms reach double precision for orders up to 8.  Horner's rule evaluates it, so no power of x
+    overflows in single precision.  Above that threshold, the subtracted sum is small, so the closed
+    form is accurate.  Each branch's input is replaced where it is unused, so that the gradient
+    stays finite.
     """
     threshold = order + 4
     small = jnp.abs(x) < threshold
     j = np.arange(1, order + 1)
 
     series_x = jnp.where(small, x, jnp.zeros_like(x))
-    inverse_factorials = np.asarray(
-        [[1 / math.factorial(a + m) for m in range(_SERIES_TERMS)] for a in j]
+    coefficients = [
+        jnp.asarray([1 / math.factorial(a + m) for a in j], dtype=series_x.dtype)
+        for m in range(_SERIES_TERMS)
+    ]
+    series = jnp.exp(-series_x) * jax.lax.polynomial(
+        jnp.broadcast_to(series_x, j.shape), coefficients
     )
-    series = jnp.exp(-series_x) * (inverse_factorials @ _powers(series_x, _SERIES_TERMS))
 
     closed_x = jnp.where(small, jnp.full_like(x, threshold), x)
     powers = _powers(closed_x, order + 1)

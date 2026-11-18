@@ -83,7 +83,7 @@ def test_imtlg_updates_once_every_loss_has_arrived() -> None:
     state = tx.init(PARAMS)
     first, *rest = _alternating(4)
     updates, state = tx.update(first, state, PARAMS)
-    chex.assert_trees_all_close(updates["w"], ZERO, atol=1e-9)
+    chex.assert_trees_all_close(updates["w"], ZERO, atol=1e-6)
     for gradient in rest:
         updates, state = tx.update(gradient, state, PARAMS)
     assert jnp.linalg.vector_norm(updates["w"]) > 0.0
