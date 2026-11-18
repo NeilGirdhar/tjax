@@ -199,7 +199,7 @@ def _complex_algdiv(a: jax.Array, b: jax.Array, /) -> jax.Array:  # ruff:ignore[
     s9 = 1.0 + (x + x2 * s7)
     s11 = 1.0 + (x + x2 * s9)
     t = (1.0 / b) ** 2
-    w = ((((c5 * s11 * t + c4 * s9) * t + c3 * s7) * t + c2 * s5) * t + c1 * s3) * t + c0
+    w = jax.lax.polynomial(t, [c0, c1 * s3, c2 * s5, c3 * s7, c4 * s9, c5 * s11])
     w *= c / b
     u = d * jnp.log1p(a / b)
     v = a * (jnp.log(b) - 1.0)
