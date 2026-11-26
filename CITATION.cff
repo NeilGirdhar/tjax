@@ -11,8 +11,8 @@ authors:
   - family-names: Girdhar
     given-names: Neil
     email: mistersheik@gmail.com
-version: 2.4.0
-date-released: 2026-11-18
+version: 2.4.1
+date-released: 2026-11-26
 license: Apache-2.0
 repository-code: "https://github.com/NeilGirdhar/tjax"
 url: "https://github.com/NeilGirdhar/tjax"

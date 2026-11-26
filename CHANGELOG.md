@@ -3,6 +3,14 @@
 This changelog summarizes TJAX releases inferred from version changes in `pyproject.toml`.
 Each section covers changes since the previous release.
 
+## 2.4.1 - 2026-11-26
+
+- Made `init`, `update` and `value` on the staged filters (`ErlangChain`, `ExponentialBank`,
+  `LinearFilter` and `DelayLine`), on `LeakyIntegral` and on `LeakyAverage` return the type of the
+  pytree they are given instead of `PyTree`. Type checkers can now see a typed record's fields
+  through these filters.
+- Made `LeakyAverageState` generic in the type of its `total`.
+
 ## 2.4.0 - 2026-11-18
 
 - Fixed `ErlangChain` returning NaN input weights in float32 and complex64 at order 8 for inputs
