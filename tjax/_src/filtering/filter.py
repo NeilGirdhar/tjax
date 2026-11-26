@@ -106,6 +106,9 @@ class StagedFilter(Filter[PyTree], ABC):
     ds/dt = A s + b c for some system matrix A and input vector b, and the value is a weighted sum
     of the stages.  Subclasses give the exact step of that system for a signal held constant over
     the step.
+
+    The state and the value keep the template's pytree structure, so `init`, `update`, and `value`
+    return the type of the pytree they are given.
     """
 
     @property
@@ -130,14 +133,14 @@ class StagedFilter(Filter[PyTree], ABC):
         return np.ones((self.order, self.order), dtype=bool)
 
     @override
-    def init(self, template: PyTree) -> PyTree:
+    def init[T: PyTree](self, template: T) -> T:
         return tree.map(
             lambda leaf: jnp.zeros((self.order, *leaf.shape), dtype=state_dtype(leaf, self)),
             template,
         )
 
     @override
-    def update(self, state: PyTree, drift: PyTree, time_step: RealNumeric = 1.0) -> PyTree:
+    def update[T: PyTree](self, state: T, drift: T, time_step: RealNumeric = 1.0) -> T:
         transition, input_weight = self.discretize(time_step)
         return tree.map(
             lambda stages, leaf: advance_stages(
@@ -148,7 +151,7 @@ class StagedFilter(Filter[PyTree], ABC):
         )
 
     @override
-    def value(self, state: PyTree) -> PyTree:
+    def value[T: PyTree](self, state: T) -> T:
         return tree.map(lambda stages: jnp.tensordot(self.readout, stages, axes=1), state)
 
     @abstractmethod

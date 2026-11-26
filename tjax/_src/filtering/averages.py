@@ -16,15 +16,15 @@ from .leaky import leaky_integrate
 
 
 @dataclass
-class LeakyAverageState:
+class LeakyAverageState[T: PyTree]:
     """The state of a `LeakyAverage`.
 
     Args:
-        total: The leaky average of the signal, which starts at zero.
+        total: The leaky average of the signal, which starts at zero and has the signal's structure.
         data_weight: The leaky average of one, which is the fraction of the total that holds data.
     """
 
-    total: PyTree
+    total: T
     data_weight: JaxRealArray
 
 
@@ -34,7 +34,8 @@ class LeakyAverage(Filter[LeakyAverageState]):
 
     A leaky average that starts at zero underestimates the signal until it has seen enough data.
     This filter divides by the weight of the data seen so far, as Adam does, so its value is an
-    average of the signal from the first step.  The kernel is proportional to exp(-decay u).
+    average of the signal from the first step.  The kernel is proportional to exp(-decay u).  The
+    state's total and the value keep the template's pytree structure and type.
 
     Args:
         decay: The decay rate.  It must be positive, since an average with no decay admits no data.
@@ -43,15 +44,15 @@ class LeakyAverage(Filter[LeakyAverageState]):
     decay: JaxRealArray
 
     @override
-    def init(self, template: PyTree) -> LeakyAverageState:
+    def init[T: PyTree](self, template: T) -> LeakyAverageState[T]:
         total = tree.map(lambda leaf: jnp.zeros_like(leaf, dtype=state_dtype(leaf, self)), template)
         return LeakyAverageState(total, jnp.zeros_like(self.decay))
 
     @override
-    def update(
-        self, state: LeakyAverageState, drift: PyTree, time_step: RealNumeric = 1.0
-    ) -> LeakyAverageState:
-        total = tree.map(
+    def update[T: PyTree](
+        self, state: LeakyAverageState[T], drift: T, time_step: RealNumeric = 1.0
+    ) -> LeakyAverageState[T]:
+        total: T = tree.map(
             lambda value, leaf: leaky_integrate(
                 value, time_step, leaf, self.decay, leaky_average=True
             ),
@@ -70,7 +71,7 @@ class LeakyAverage(Filter[LeakyAverageState]):
         return LeakyAverageState(total, data_weight)
 
     @override
-    def value(self, state: LeakyAverageState) -> PyTree:
+    def value[T: PyTree](self, state: LeakyAverageState[T]) -> T:
         return tree.map(lambda total: divide_or_zero(total, state.data_weight), state.total)
 
 

@@ -19,7 +19,8 @@ class LeakyIntegral(Filter[PyTree]):
     """The leaky integral of a signal, whose state has the signal's shape.
 
     The kernel is exp(-decay u).  This equals an `ErlangChain` with one stage and a weight of one,
-    except that the state has no stage axis.
+    except that the state has no stage axis.  The state and the value keep the template's pytree
+    structure, so `init`, `update`, and `value` return the type of the pytree they are given.
 
     Args:
         decay: The decay rate.  Its real component must be nonnegative.
@@ -28,17 +29,17 @@ class LeakyIntegral(Filter[PyTree]):
     decay: JaxComplexArray
 
     @override
-    def init(self, template: PyTree) -> PyTree:
+    def init[T: PyTree](self, template: T) -> T:
         return tree.map(lambda leaf: jnp.zeros_like(leaf, dtype=state_dtype(leaf, self)), template)
 
     @override
-    def update(self, state: PyTree, drift: PyTree, time_step: RealNumeric = 1.0) -> PyTree:
+    def update[T: PyTree](self, state: T, drift: T, time_step: RealNumeric = 1.0) -> T:
         return tree.map(
             lambda value, leaf: leaky_integrate(value, time_step, leaf, self.decay), state, drift
         )
 
     @override
-    def value(self, state: PyTree) -> PyTree:
+    def value[T: PyTree](self, state: T) -> T:
         return state
 
     def lag_weights(self, num_lags: int, time_step: RealNumeric = 1.0) -> JaxComplexArray:
